@@ -4,7 +4,7 @@
     "repository": "michaelrolphone-cmyk/T5S3-Reader",
     "branch": "release-index",
     "path": "release-index.json",
-    "source_master_sha": "099055c6cf25dad70984e68656a03099e5960f78"
+    "source_master_sha": "c550a750d090a6f14baaebd5202a6d84694b8efc"
   },
   "drivers": [
     {
@@ -123,6 +123,13 @@
       "driver_abi": 1,
       "source_path": "Drivers/gps_nmea",
       "migrated": false
+    },
+    {
+      "id": "gt911-touch",
+      "version": "0.1.0",
+      "driver_abi": 2,
+      "source_path": "Drivers/gt911_touch",
+      "migrated": true
     },
     {
       "id": "usb-cdc-acm",
