@@ -47,6 +47,7 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 
 ### Migrated and independently buildable
 
+- [gt911-touch](docs/drivers/gt911-touch.md) — GT911 raw-touch provider over `i2c.bus@1`, version 0.1.0 (source-only upstream at migration time).
 - [platform-clock-v1](docs/drivers/platform-clock-v1.md) — generic `platform.clock@1` monotonic-time and sleep provider, version 0.1.0.
 - [t5s3-usb-power-profile](docs/drivers/t5s3-usb-power-profile.md) — immutable T5S3 BQ25896/USB power-policy profile provider, version 0.1.0.
 
