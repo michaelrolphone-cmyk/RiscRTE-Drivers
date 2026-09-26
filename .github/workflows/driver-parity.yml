@@ -1,0 +1,38 @@
+name: Driver parity and build
+
+on:
+  push:
+    branches: [main, "migration/**"]
+  pull_request:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Check released-driver parity against read-only source
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/check_parity.py
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: python -m pip install platformio==6.1.19
+      - run: pio pkg install -e toolchain
+      - run: python scripts/build_platform_clock_v1.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: platform-clock-v1
+          path: dist/platform-clock-v1
