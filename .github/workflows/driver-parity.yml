@@ -2,7 +2,7 @@ name: Driver parity and build
 
 on:
   push:
-    branches: [main, "migration/**"]
+    branches: [main]
   pull_request:
   schedule:
     - cron: "17 * * * *"
@@ -18,10 +18,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.11"}
-      - name: Check released-driver parity against read-only source
+      - name: Check released and source driver parity against read-only source
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python scripts/check_parity.py
+      - name: Check migrated-driver documentation parity
+        run: python scripts/check_driver_docs.py
 
   build:
     runs-on: ubuntu-latest
