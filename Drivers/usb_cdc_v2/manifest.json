@@ -1,0 +1,11 @@
+{
+  "type": "driver",
+  "id": "usb-cdc-acm-v2",
+  "version": "0.1.0",
+  "driver_abi": 2,
+  "architecture": "xtensa-esp32s3",
+  "file_name": "driver.elf",
+  "requires": [{"capability": "usb.host", "api": 1}],
+  "provides": [{"capability": "serial.port", "api": 1}],
+  "status": "experimental-unpublished"
+}
