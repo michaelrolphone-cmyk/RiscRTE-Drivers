@@ -4,7 +4,7 @@
     "repository": "michaelrolphone-cmyk/T5S3-Reader",
     "branch": "release-index",
     "path": "release-index.json",
-    "source_master_sha": "2723822d6cc1aa66b38295e474d924ddb9ad80ff"
+    "source_master_sha": "ed256cef1c9d33f59b90497f472cef23afc6908d"
   },
   "drivers": [
     {
@@ -35,7 +35,7 @@
       "id": "t5s3-usb-power-profile",
       "version": "0.1.0",
       "source_path": "Drivers/t5s3_usb_power_profile",
-      "migrated": false
+      "migrated": true
     },
     {
       "id": "usb-cdc-acm-v2",

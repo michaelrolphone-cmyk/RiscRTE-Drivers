@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import json, os, subprocess, sys
+import base64, json, subprocess, sys
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -10,15 +10,9 @@ def upstream_index():
     repo=SOURCE["repository"]
     ref=SOURCE["branch"]
     path=SOURCE["path"]
-    if "GITHUB_TOKEN" in os.environ:
-        cmd=["gh","api",f"repos/{repo}/contents/{path}","-f",f"ref={ref}","--jq",".content"]
-        raw=subprocess.check_output(cmd,text=True)
-        import base64
-        return json.loads(base64.b64decode("".join(raw.split())).decode())
-    import urllib.request
-    url=f"https://raw.githubusercontent.com/{repo}/{ref}/{path}"
-    with urllib.request.urlopen(url,timeout=20) as r:
-        return json.loads(r.read().decode())
+    cmd=["gh","api","--method","GET",f"repos/{repo}/contents/{path}","-f",f"ref={ref}","--jq",".content"]
+    raw=subprocess.check_output(cmd,text=True)
+    return json.loads(base64.b64decode("".join(raw.split())).decode())
 
 def main():
     upstream=upstream_index()
