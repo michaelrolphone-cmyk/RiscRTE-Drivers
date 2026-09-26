@@ -1,10 +1,11 @@
 {
   "schema": 1,
   "source_repository": "michaelrolphone-cmyk/T5S3-Reader",
-  "source_master_sha": "099055c6cf25dad70984e68656a03099e5960f78",
+  "source_master_sha": "c550a750d090a6f14baaebd5202a6d84694b8efc",
   "drivers": {
     "board-power-t5s3-v2": "bca04f3a1bd9ce6fe75943345168ae982b422470",
     "gps-nmea": "ec07d533aa91f1e2444a5c8060eb5b651b16fa0a",
+    "gt911-touch": "947241aa02732b40ab5eebb48a8eac5d400aa107",
     "i2c-esp32s3-v2": "c0df364e5dc6d8a200f7de977c954e75112b0323",
     "platform-clock-v1": "594a3affe76fb840c81edc7fa9f09eca645a894f",
     "program-msp": "fe046f4c538efbd003ddd176b4d4b44b5d3de281",
