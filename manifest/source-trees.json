@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "source_repository": "michaelrolphone-cmyk/T5S3-Reader",
+  "source_master_sha": "099055c6cf25dad70984e68656a03099e5960f78",
+  "drivers": {
+    "board-power-t5s3-v2": "bca04f3a1bd9ce6fe75943345168ae982b422470",
+    "gps-nmea": "ec07d533aa91f1e2444a5c8060eb5b651b16fa0a",
+    "i2c-esp32s3-v2": "c0df364e5dc6d8a200f7de977c954e75112b0323",
+    "platform-clock-v1": "594a3affe76fb840c81edc7fa9f09eca645a894f",
+    "program-msp": "fe046f4c538efbd003ddd176b4d4b44b5d3de281",
+    "t5s3-usb-power-profile": "a708509646cdf7edee81b6e89c5753aeaf2a2cfb",
+    "usb-cdc-acm": "61609db3a1cbf7a29c1e447fea8d4cfb6417224a",
+    "usb-cdc-acm-v2": "d283ed6c4993244c5e49a4c58037784b3c12f08a",
+    "usb-ch34x-v2": "6b2dc3c8e1f685d6fdaba58d04a763378f524b1b",
+    "usb-controller-esp32s3": "ee1b753d2ab2817724e13afc3f2c0db86ae45f95",
+    "usb-cp210x-v2": "876bba87ab601fafbcd873ae3fd0e14f96151d3b",
+    "usb-ftdi": "e181559f4024d4db1da8f128562f7805a5c21e2c",
+    "usb-hid": "56fc7707ffa7896ea5a0ea0ebc2e755c20edb520",
+    "usb-hid-gamepad": "9baecb41299b4c9ba35a71df2c7fb47f93d43e03",
+    "usb-hid-keyboard": "64fe4961c973555eafb1a8ddd035455b934c7f1e",
+    "usb-host-v2": "8465756ed140fc537fe991089a3f305833dc30bd",
+    "usb-msp": "3f1f8cfe260d8faa072d21e52a0ddc0f7b29b1dc",
+    "usb-stlink": "dc392f6d1125f8a55de6660ae19e281e4f27098c",
+    "usb-ui-navigation": "adb23dee6951a202b19a57e27327dc37357f5060",
+    "usb-xinput-gamepad": "b84a41ad08114f0a6e0aa744582056d1a13879c4"
+  }
+}
