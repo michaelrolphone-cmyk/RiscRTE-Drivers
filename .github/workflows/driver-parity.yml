@@ -36,9 +36,15 @@ jobs:
       - run: python scripts/build_platform_clock_v1.py
       - run: python scripts/build_gt911_touch.py
       - run: python scripts/build_gps_nmea.py
+      - name: Test usb-cdc-acm descriptor and protocol provider
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
+            test/drivers/usb_cdc_test.c -o /tmp/usb-cdc-test
+          /tmp/usb-cdc-test
+      - run: python scripts/build_usb_cdc_acm.py
       - name: Test usb-hid-text-input translation and lifecycle
         run: |
-          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \\
+          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
             test/drivers/usb_hid_text_input_test.c -o /tmp/usb-hid-text-input-test
           /tmp/usb-hid-text-input-test
       - run: python scripts/build_usb_hid_text_input.py
@@ -55,6 +61,10 @@ jobs:
         with:
           name: gps-nmea
           path: dist/gps-nmea
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-cdc-acm
+          path: dist/usb-cdc-acm
       - uses: actions/upload-artifact@v4
         with:
           name: usb-hid-text-input

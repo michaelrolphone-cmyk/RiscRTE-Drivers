@@ -31,6 +31,6 @@
   ],
   "source_only_drivers": [
     {"id":"gps-nmea","version":"1.0.0","driver_abi":1,"source_path":"Drivers/gps_nmea","migrated":true},
-    {"id":"usb-cdc-acm","version":"0.1.0","driver_abi":1,"source_path":"Drivers/usb_cdc","migrated":false}
+    {"id":"usb-cdc-acm","version":"0.1.0","driver_abi":1,"source_path":"Drivers/usb_cdc","migrated":true}
   ]
 }

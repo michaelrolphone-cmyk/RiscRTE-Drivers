@@ -5,6 +5,7 @@ Source inventory on `T5S3-Reader:master` at `99abac00a0ec49e16da0110833f1f51e8d2
 ## Migrated and independently buildable
 
 - `gps-nmea` v1.0.0 — exact source/ABI headers migrated with standalone Xtensa build and ELF/export validation; upstream is source-only, so there is no canonical released ELF for byte-parity comparison.
+- `usb-cdc-acm` v0.1.0 — exact descriptor/protocol provider source and ABI header migrated; the host validation test passes under `-Wall -Wextra -Werror`; standalone Xtensa ELF/export validation is wired into CI. Upstream is source-only, so there is no canonical released ELF for byte-parity comparison.
 - `usb-hid-text-input` v0.1.0 — exact source/ABI headers migrated; the exact upstream host translation/lifecycle test passes locally under `-Wall -Wextra -Werror`; standalone Xtensa build/export validation is wired into CI. Upstream publishes a canonical 8,692-byte ELF with SHA-256 `796cd1b754de33f3c12cd5e29a54036766d081b71a5f05ff2d66a37beeb3ef3d`; independent byte-for-byte build parity remains to be confirmed by integrated CI.
 - `gt911-touch` v0.1.0 — source/header mirrored and independently buildable; CI run 36277642683 produced 8,736 bytes with SHA-256 `9b934b1056fc8a99f4973dccc311d991f4c4ff1e46b826d27fc2919e6555ec6d`, exactly matching the current published upstream ELF.
 - `platform-clock-v1` v0.1.0 — source/header mirrored, standalone build, ELF validation, and byte-for-byte published ELF parity.
@@ -32,6 +33,6 @@ Source inventory on `T5S3-Reader:master` at `99abac00a0ec49e16da0110833f1f51e8d2
 
 ## Source-only drivers still requiring compatibility migration
 
-- usb-cdc-acm v0.1.0 (driver ABI 1)
+None.
 
 The parity workflow reads the source repository only. It never writes to T5S3-Reader.

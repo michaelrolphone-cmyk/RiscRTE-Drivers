@@ -1,0 +1,10 @@
+{
+  "type": "driver",
+  "id": "usb-cdc-acm",
+  "version": "0.1.0",
+  "driver_abi": 1,
+  "architecture": "xtensa-esp32s3",
+  "file_name": "driver.elf",
+  "requires": [{"capability": "kernel.usb.host", "api": 1}],
+  "provides": [{"capability": "usb.class.cdc_acm", "api": 1}]
+}
