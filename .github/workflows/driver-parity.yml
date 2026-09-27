@@ -89,6 +89,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
             test/drivers/usb_host_v2_test.c -ldl -o /tmp/usb-host-v2-test
           /tmp/usb-host-v2-test /tmp/usb-host-v2.so
+      - run: python scripts/build_usb_host_v2.py
       - name: Test usb-hid-gamepad descriptor parsing, state and lifecycle
         run: |
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
@@ -156,6 +157,10 @@ jobs:
         with:
           name: usb-ftdi
           path: dist/usb-ftdi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-host-v2
+          path: dist/usb-host-v2
       - uses: actions/upload-artifact@v4
         with:
           name: usb-hid-gamepad

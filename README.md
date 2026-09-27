@@ -57,17 +57,12 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 - [usb-hid-gamepad](docs/drivers/usb-hid-gamepad.md) — descriptor-driven `usb.hid.gamepad@1` class provider over `usb.hid@1`, version 0.1.3; parses bounded HID layouts, normalizes buttons/axes/hat state, coalesces compatibility notifications, and exposes discovery diagnostics.
 - [usb-hid-keyboard](docs/drivers/usb-hid-keyboard.md) — boot-protocol keyboard class provider above `usb.hid@1`, version 0.1.1; tracks four keyboards, copied ordered subscriber events, snapshots, overflow gaps, and quiescent HID-session release.
 - [usb-hid-text-input](docs/drivers/usb-hid-text-input.md) — USB HID keyboard to transport-neutral `input.text@1` translator, version 0.1.0; upstream now publishes a canonical release and independent byte parity is pending CI confirmation.
+- [usb-host-v2](docs/drivers/usb-host-v2.md) — generation-safe `usb.host@1` provider above `usb.controller@1`, version 0.1.3; validates descriptor-derived bulk/interrupt endpoint access, quarantines failed releases, forwards optional diagnostics, and requires canonical published-byte parity from its standalone Xtensa build.
 - [usb-ui-navigation](docs/drivers/usb-ui-navigation.md) — composite `input.navigation@1` provider over semantic text, HID gamepad, and XInput gamepad sources, version 0.1.1; preserves foreground handoff and neutral rearm semantics.
 - [gt911-touch](docs/drivers/gt911-touch.md) — GT911 raw-touch provider over `i2c.bus@1`, version 0.1.0; independent CI output matches the published upstream ELF.
 - [platform-clock-v1](docs/drivers/platform-clock-v1.md) — generic `platform.clock@1` monotonic-time and sleep provider, version 0.1.0.
 - [program-msp](docs/drivers/program-msp.md) — MSP430FR/XV2 FRAM programming provider above `debug.vendor.msp@1`, version 0.1.0; standalone build requires canonical release-byte parity.
 - [t5s3-usb-power-profile](docs/drivers/t5s3-usb-power-profile.md) — immutable T5S3 BQ25896/USB power-policy profile provider, version 0.1.0.
-
-### Present but not yet migration-complete
-
-The repository also contains partial scaffolding or parity metadata for additional upstream drivers. They are intentionally not listed as completed documentation entries until their source/build/package migration and dedicated documentation are complete. See `manifest/released-drivers.json` and `manifest/source-trees.json` for the full current inventory.
-
-- [usb-host-v2](docs/drivers/usb-host-v2.md) — exact upstream source, ABI extensions, host fixture, and implementation documentation are present; canonical Xtensa release build automation/parity remains pending before this driver is marked migrated.
 
 ## Documentation standard
 
