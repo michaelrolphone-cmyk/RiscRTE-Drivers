@@ -82,6 +82,12 @@ jobs:
             test/drivers/usb_ftdi_test.c -ldl -o /tmp/usb-ftdi-test
           /tmp/usb-ftdi-test /tmp/usb-ftdi.so
       - run: python scripts/build_usb_ftdi.py
+      - name: Test usb-hid-keyboard reports, subscriptions and quiescence
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
+            test/drivers/usb_hid_keyboard_test.c -o /tmp/usb-hid-keyboard-test
+          /tmp/usb-hid-keyboard-test
+      - run: python scripts/build_usb_hid_keyboard.py
       - name: Test usb-hid-text-input translation and lifecycle
         run: |
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
@@ -137,6 +143,10 @@ jobs:
         with:
           name: usb-ftdi
           path: dist/usb-ftdi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-hid-keyboard
+          path: dist/usb-hid-keyboard
       - uses: actions/upload-artifact@v4
         with:
           name: usb-hid-text-input

@@ -89,7 +89,7 @@
       "id": "usb-hid-keyboard",
       "version": "0.1.1",
       "source_path": "Drivers/usb_hid_keyboard",
-      "migrated": false
+      "migrated": true
     },
     {
       "id": "usb-hid-text-input",
