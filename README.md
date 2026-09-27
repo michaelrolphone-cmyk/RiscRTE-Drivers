@@ -51,6 +51,7 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 - [i2c-esp32s3-v2](docs/drivers/i2c-esp32s3-v2.md) — firmware-backed `i2c.bus@1` provider with exclusive address claims and one FreeRTOS mutex serializing provider state plus complete synchronous transactions, version 0.1.5; canonical release-byte parity remains to be reproduced independently.
 - [usb-cdc-acm](docs/drivers/usb-cdc-acm.md) — allocation-free USB CDC ACM descriptor/protocol provider for binding discovery and class-request encoding, version 0.1.0 (source-only upstream).
 - [usb-cdc-acm-v2](docs/drivers/usb-cdc-acm-v2.md) — USB CDC ACM `serial.port@1` provider above `usb.host@1`, version 0.1.0; parses and claims one unambiguous ACM function and routes class/bulk transfers through host-owned claims.
+- [usb-cp210x-v2](docs/drivers/usb-cp210x-v2.md) — Silicon Labs CP210x `serial.port@1` provider above `usb.host@1`, version 0.1.0; owns vendor matching/control, line configuration, generation-safe sessions, and bounded bulk I/O.
 - [usb-hid-text-input](docs/drivers/usb-hid-text-input.md) — USB HID keyboard to transport-neutral `input.text@1` translator, version 0.1.0; upstream now publishes a canonical release and independent byte parity is pending CI confirmation.
 - [gt911-touch](docs/drivers/gt911-touch.md) — GT911 raw-touch provider over `i2c.bus@1`, version 0.1.0; independent CI output matches the published upstream ELF.
 - [platform-clock-v1](docs/drivers/platform-clock-v1.md) — generic `platform.clock@1` monotonic-time and sleep provider, version 0.1.0.

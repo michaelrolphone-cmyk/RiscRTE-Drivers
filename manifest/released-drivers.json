@@ -4,7 +4,7 @@
     "repository": "michaelrolphone-cmyk/T5S3-Reader",
     "branch": "release-index",
     "path": "release-index.json",
-    "source_master_sha": "ff08d329489c62af107c906036d0a926f1a0241f"
+    "source_master_sha": "403a9f418fe5e6d231711c4e2242ed0acda43329"
   },
   "drivers": [
     {
@@ -65,7 +65,7 @@
       "id": "usb-cp210x-v2",
       "version": "0.1.0",
       "source_path": "Drivers/usb_cp210x_v2",
-      "migrated": false
+      "migrated": true
     },
     {
       "id": "usb-ftdi",
