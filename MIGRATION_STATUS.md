@@ -1,6 +1,8 @@
 # Migration status
 
-Source inventory on `T5S3-Reader:master` at `1ed24d19d226658d375163eab6062faa74a1519e`: 22 driver directories with manifests. Of those, 20 are canonical released drivers in `T5S3-Reader:release-index`; two are source-only ABI-v1 drivers (`gps-nmea` and `usb-cdc-acm`).
+Source inventory on `T5S3-Reader:master` at `935ac7f81191994e78a00bb94f443389764c1a35`: 23 driver directories with manifests. Of those, 20 are canonical released drivers in `T5S3-Reader:release-index`; three are source-only drivers (`gps-nmea`, `usb-cdc-acm`, and `usb-hid-text-input`).
+
+Two released drivers currently have newer source versions on master than their published release-index versions: `usb-controller-esp32s3` is released at v0.1.17 with source at v0.1.18, and `usb-ui-navigation` is released at v0.1.0 with source at v0.1.1. The parity manifest records both versions independently so unpublished source progress is not mistaken for a published release.
 
 ## Migrated and independently buildable
 
@@ -16,7 +18,7 @@ Source inventory on `T5S3-Reader:master` at `1ed24d19d226658d375163eab6062faa74a
 - program-msp v0.1.0
 - usb-cdc-acm-v2 v0.1.0
 - usb-ch34x-v2 v0.1.0
-- usb-controller-esp32s3 v0.1.17
+- usb-controller-esp32s3 released v0.1.17 / source v0.1.18
 - usb-cp210x-v2 v0.1.0
 - usb-ftdi v0.1.0
 - usb-hid v0.1.2
@@ -26,11 +28,12 @@ Source inventory on `T5S3-Reader:master` at `1ed24d19d226658d375163eab6062faa74a
 - usb-mass-storage v0.1.1
 - usb-msp v0.1.1
 - usb-stlink v0.1.0
-- usb-ui-navigation v0.1.0
+- usb-ui-navigation released v0.1.0 / source v0.1.1
 - usb-xinput-gamepad v0.1.3
 
 ## Source-only drivers still requiring compatibility migration
 
 - usb-cdc-acm v0.1.0 (driver ABI 1)
+- usb-hid-text-input v0.1.0 (driver ABI 2)
 
 The parity workflow reads the source repository only. It never writes to T5S3-Reader.

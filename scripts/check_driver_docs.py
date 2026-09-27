@@ -22,7 +22,9 @@ for entry in migrated:
     if identity not in body:
         errors.append(f"{identity}: documentation does not identify the driver")
     if entry.get("version") and entry["version"] not in body:
-        errors.append(f"{identity}: documentation does not mention version {entry['version']}")
+        errors.append(f"{identity}: documentation does not mention released/source version {entry['version']}")
+    if entry.get("source_version") and entry["source_version"] not in body:
+        errors.append(f"{identity}: documentation does not mention current source version {entry['source_version']}")
     if not re.search(rf"\[[^\]]*{re.escape(identity)}[^\]]*\]\({re.escape(rel)}\)", readme):
         errors.append(f"{identity}: README does not link {rel}")
 
