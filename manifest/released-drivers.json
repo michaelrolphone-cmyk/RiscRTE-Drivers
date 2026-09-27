@@ -4,7 +4,7 @@
     "repository": "michaelrolphone-cmyk/T5S3-Reader",
     "branch": "release-index",
     "path": "release-index.json",
-    "source_master_sha": "86104275f73ab7eb05173d99b4e8fdf98b4fd969"
+    "source_master_sha": "ff08d329489c62af107c906036d0a926f1a0241f"
   },
   "drivers": [
     {
@@ -21,7 +21,7 @@
     },
     {
       "id": "i2c-esp32s3-v2",
-      "version": "0.1.4",
+      "version": "0.1.5",
       "source_path": "Drivers/i2c_esp32s3_v2",
       "migrated": true
     },

@@ -34,9 +34,10 @@ jobs:
       - run: python -m pip install platformio==6.1.19
       - run: pio pkg install -e toolchain
       - run: python scripts/build_platform_clock_v1.py
-      - name: Test i2c-esp32s3-v2 claims, contention, bounds and quiescence
+      - name: Test i2c-esp32s3-v2 mutex queueing, drain, claims and restart
         run: |
-          cc -std=c11 -Wall -Wextra -Werror -pedantic -I sdk/driver \
+          cc -std=c11 -Wall -Wextra -Werror -pedantic -pthread \
+            -I test/drivers/stub_idf_i2c -I sdk/driver \
             Drivers/i2c_esp32s3_v2/driver.c test/drivers/i2c_esp32s3_v2_test.c \
             -o /tmp/i2c-esp32s3-v2-test
           /tmp/i2c-esp32s3-v2-test
