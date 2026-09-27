@@ -289,6 +289,15 @@ This fixture validates deterministic FAT16 behavior. FAT32 support is establishe
 
 The build records generated size and SHA-256 and fails unless they exactly equal the observed canonical release: 23,792 bytes and SHA-256 `af0cd0a820f8b163c8cf2efff9890c5ccfa538a2339a2411d6a43135172ac3a6`.
 
+## Integrated migration validation
+
+CI run `36352310880` compiled the exact upstream deterministic host fixture against the migrated source and completed with:
+
+`USB MSC BOT + FAT16 browse/read/write/delete/hotplug: PASS`
+
+The same run executed the standalone Xtensa build and produced `driver.elf` at exactly 23,792 bytes with SHA-256 `af0cd0a820f8b163c8cf2efff9890c5ccfa538a2339a2411d6a43135172ac3a6`, reporting `byte_parity=True`. Artifact `usb-mass-storage` was uploaded with Actions artifact ID `10943105748`. This establishes byte-for-byte parity with the observed upstream v0.1.1 release artifact for the inspected source tree.
+
+
 ## Published package metadata
 
 Observed v0.1.1 package files:

@@ -1,6 +1,6 @@
 # Migration status
 
-Source inventory on `T5S3-Reader:master` at `403a9f418fe5e6d231711c4e2242ed0acda43329`: 23 driver directories with manifests. Of those, 21 are canonical released drivers in `T5S3-Reader:release-index`; two are source-only drivers (`gps-nmea` and `usb-cdc-acm`).
+Source inventory on `T5S3-Reader:master` at `9bebb0031b63ab9db9a0b2d29bfeed2ef891ebff`: 23 driver directories with manifests. Of those, 21 are canonical released drivers in `T5S3-Reader:release-index`; two are source-only drivers (`gps-nmea` and `usb-cdc-acm`).
 
 ## Migrated and independently buildable
 
@@ -16,6 +16,7 @@ Source inventory on `T5S3-Reader:master` at `403a9f418fe5e6d231711c4e2242ed0acda
 - `usb-hid-keyboard` v0.1.1 — exact current boot-keyboard class source migrated above `usb.hid@1`, with standalone Xtensa/export/import validation and a repository-local host fixture covering boot-protocol binding, key/modifier transition order, filtered/copied subscriptions, snapshots, overflow-gap recovery, disconnect cleanup, and subscriber-gated quiescence. CI run `36312749073` passed parity/documentation and the host fixture, and produced the canonical 8,444-byte ELF with SHA-256 `4c9f55b63b89c7464d386401acd955df6ea3d96fb58933c13c7f1fdabe02691e`; byte-for-byte published parity is confirmed.
 - `usb-hid-text-input` v0.1.0 — exact source/ABI headers migrated; the exact upstream host translation/lifecycle test passes locally under `-Wall -Wextra -Werror`; standalone Xtensa build/export validation is wired into CI. Upstream publishes a canonical 8,692-byte ELF with SHA-256 `796cd1b754de33f3c12cd5e29a54036766d081b71a5f05ff2d66a37beeb3ef3d`; independent byte-for-byte build parity remains to be confirmed by integrated CI.
 - `usb-host-v2` v0.1.3 — exact upstream source, interrupt/discovery-diagnostics ABI extensions, exact upstream host fixture, dedicated documentation, and standalone Xtensa build/export/import/canonical-byte validation are integrated. CI run `36329594203` passed parity/documentation, the deterministic host fixture, and produced the canonical 8,580-byte ELF with SHA-256 `c94dea393a6ddae1e9fcf4ae309654b8f9a0d26df6da7d222a1f8c85f93ea183`; byte-for-byte published parity is confirmed.
+- `usb-mass-storage` v0.1.1 — exact upstream BOT/SCSI/FAT16/FAT32 source/manifest, `storage.volume@1` ABI header, exact upstream host fixture, standalone Xtensa canonical-byte validator, CI wiring, README link, and detailed implementation documentation are integrated. CI run `36352310880` passed `USB MSC BOT + FAT16 browse/read/write/delete/hotplug: PASS`, produced the canonical 23,792-byte ELF with SHA-256 `af0cd0a820f8b163c8cf2efff9890c5ccfa538a2339a2411d6a43135172ac3a6`, reported `byte_parity=True`, and uploaded artifact `usb-mass-storage` (artifact ID `10943105748`).
 - `usb-stlink` v0.1.0 — exact upstream source/manifest, ABI header, exact upstream host fixture, standalone Xtensa builder, CI wiring, README link, and detailed implementation documentation are integrated. CI run `36344579403` passed parity/documentation and `ST-LINK V2/V2.1/V3 discovery, SWD, SWIM, framing and quiescence: PASS`, produced the canonical 9,304-byte ELF with SHA-256 `21500939b991239598ae57a97667c5004e8bccf988a1052d350eca427b5af3be`, reported `byte_parity=True`, and uploaded artifact `usb-stlink` (artifact ID `10939709729`).
 - `usb-ui-navigation` v0.1.1 — exact source, exact host fixture, and `RiscInputNavigationV1.h` ABI header migrated. The host fixture validates semantic keyboard/gamepad mapping, foreground suppression, neutral rearm, disconnect synchronization, polling-failure isolation, unsubscribe failure, and quiescence. CI run `36309926391` produced the canonical 7,208-byte ELF with SHA-256 `b7b38cf7d0769081e0e88c75091f59d9a1c3fda45e498a915ce0655d8c2e8631`; byte-for-byte published parity is confirmed.
 - `usb-xinput-gamepad` v0.1.3 — exact upstream source/manifest, exact upstream host fixture, standalone Xtensa builder, shared interrupt/gamepad-diagnostics/clock/mailbox dependencies, README link, and detailed implementation documentation are integrated. CI run `36345187504` passed `XInput discovery, current state, bounded startup retries, hotplug and shutdown: PASS`, produced the canonical 11,088-byte ELF with SHA-256 `e2cee3355937d7815fb5685598cd2411c7d508bb36424f00636ec7495f654c26`, reported `byte_parity=True`, and uploaded artifact `usb-xinput-gamepad` (artifact ID `10939434367`).
@@ -28,7 +29,6 @@ Source inventory on `T5S3-Reader:master` at `403a9f418fe5e6d231711c4e2242ed0acda
 
 - board-power-t5s3-v2 v0.1.5
 - usb-controller-esp32s3 v0.1.18
-- usb-mass-storage v0.1.1
 - usb-msp v0.1.1
 
 ## Released drivers with source staged but parity completion pending
