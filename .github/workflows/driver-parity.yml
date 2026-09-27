@@ -82,6 +82,12 @@ jobs:
             test/drivers/usb_ftdi_test.c -ldl -o /tmp/usb-ftdi-test
           /tmp/usb-ftdi-test /tmp/usb-ftdi.so
       - run: python scripts/build_usb_ftdi.py
+      - name: Test usb-hid-gamepad descriptor parsing, state and lifecycle
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
+            test/drivers/usb_hid_gamepad_test.c -o /tmp/usb-hid-gamepad-test
+          /tmp/usb-hid-gamepad-test
+      - run: python scripts/build_usb_hid_gamepad.py
       - name: Test usb-hid-keyboard reports, subscriptions and quiescence
         run: |
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
@@ -143,6 +149,10 @@ jobs:
         with:
           name: usb-ftdi
           path: dist/usb-ftdi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-hid-gamepad
+          path: dist/usb-hid-gamepad
       - uses: actions/upload-artifact@v4
         with:
           name: usb-hid-keyboard
