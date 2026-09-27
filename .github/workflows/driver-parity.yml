@@ -50,6 +50,14 @@ jobs:
             test/drivers/usb_cdc_test.c -o /tmp/usb-cdc-test
           /tmp/usb-cdc-test
       - run: python scripts/build_usb_cdc_acm.py
+      - name: Test usb-cdc-acm-v2 host capability, cleanup and stale tokens
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
+            -I sdk/driver Drivers/usb_cdc_v2/driver.c -o /tmp/usb-cdc-acm-v2.so
+          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
+            test/drivers/usb_cdc_v2_test.c -ldl -o /tmp/usb-cdc-acm-v2-test
+          /tmp/usb-cdc-acm-v2-test /tmp/usb-cdc-acm-v2.so
+      - run: python scripts/build_usb_cdc_acm_v2.py
       - name: Test usb-hid-text-input translation and lifecycle
         run: |
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
@@ -83,6 +91,10 @@ jobs:
         with:
           name: usb-cdc-acm
           path: dist/usb-cdc-acm
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-cdc-acm-v2
+          path: dist/usb-cdc-acm-v2
       - uses: actions/upload-artifact@v4
         with:
           name: usb-hid-text-input

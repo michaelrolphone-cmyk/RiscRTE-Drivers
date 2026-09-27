@@ -47,7 +47,7 @@
       "id": "usb-cdc-acm-v2",
       "version": "0.1.0",
       "source_path": "Drivers/usb_cdc_v2",
-      "migrated": false
+      "migrated": true
     },
     {
       "id": "usb-ch34x-v2",
