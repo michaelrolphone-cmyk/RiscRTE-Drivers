@@ -14,7 +14,7 @@
 - Provides: `input.text@1`
 - Requires: `usb.hid.keyboard@1`
 - Source status: `experimental-unpublished`
-- Upstream publication status: source-only in the inspected release index; there is no canonical released ELF size or SHA-256 to compare against
+- Upstream release status: published as `driver-usb-hid-text-input-v0.1.0`; canonical ELF size 8,692 bytes, SHA-256 `796cd1b754de33f3c12cd5e29a54036766d081b71a5f05ff2d66a37beeb3ef3d`
 - Upstream source tree SHA: `4eccdb8fb91295ff905f92142301e999819d4805`
 
 ## Source, ABI, build and test files
@@ -29,7 +29,7 @@
 - `scripts/build_usb_hid_text_input.py`
 - `test/drivers/usb_hid_text_input_test.c`
 
-The standalone Xtensa build validates the exact manifest identity, compiles as a PIC shared ELF, normalizes Xtensa relocations, verifies that `t5_driver_get` is the sole global defined function export, and verifies ELF32/little-endian/shared-object/Xtensa machine metadata. The source-only upstream status means an independent build can record size and SHA-256 but cannot claim published-byte parity.
+The standalone Xtensa build validates the exact manifest identity, compiles as a PIC shared ELF, normalizes Xtensa relocations, verifies that `t5_driver_get` is the sole global defined function export, and verifies ELF32/little-endian/shared-object/Xtensa machine metadata. Its produced size and SHA-256 can now be compared directly with the canonical published upstream ELF; byte-for-byte parity is claimed only after an exact match is observed.
 
 The migrated host test is the upstream behavioral test. It compiles the driver directly into a C test executable with strict warnings and exercises translation and lifecycle behavior without USB hardware.
 
@@ -160,6 +160,6 @@ The implementation is allocation-free and uses file-static state. The provider A
 
 ## Validation status
 
-The driver source, manifest, `RiscTextInputV1.h`, `RiscUsbHidV1.h`, `RiscUsbControllerV1.h`, and upstream host test were verified unchanged at T5S3-Reader master commit `caa737b66d14a126353a6eab82b21803c4c44e21`; their recorded Git blob SHAs match the initially prepared copies. Existing `RiscUsbProviderV1.h` already matches upstream byte-for-byte by Git blob SHA `7e6a7512c332fd2014ecf4b44fa0c56de18a1e07`.
+The driver source, manifest, `RiscTextInputV1.h`, `RiscUsbHidV1.h`, `RiscUsbControllerV1.h`, and upstream host test were verified unchanged at T5S3-Reader master commit `99abac00a0ec49e16da0110833f1f51e8d23c6d0`; their recorded Git blob SHAs still match the migrated copies. Existing `RiscUsbProviderV1.h` already matches upstream byte-for-byte by Git blob SHA `7e6a7512c332fd2014ecf4b44fa0c56de18a1e07`.
 
-The upstream source-only driver tree is recorded as `4eccdb8fb91295ff905f92142301e999819d4805`. The host behavioral test is preserved unchanged from upstream. Cross-compilation remains the integrated CI validation point because there is no local Xtensa toolchain in the automation execution environment.
+The upstream driver tree remains `4eccdb8fb91295ff905f92142301e999819d4805`. The release index now publishes version 0.1.0 as `driver-usb-hid-text-input-v0.1.0`; its canonical `driver.elf` is 8,692 bytes with SHA-256 `796cd1b754de33f3c12cd5e29a54036766d081b71a5f05ff2d66a37beeb3ef3d`. The upstream source manifest still carries the literal status `experimental-unpublished`; that source metadata is recorded separately from the observed release-index publication state. The host behavioral test is preserved unchanged from upstream. Cross-compilation and byte-for-byte comparison with the canonical ELF remain integrated-CI validation points because there is no local Xtensa toolchain in the automation execution environment.
