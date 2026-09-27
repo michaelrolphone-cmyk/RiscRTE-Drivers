@@ -42,7 +42,7 @@ After reset or foreground changes, sources are gated to prevent held input from 
 The exact upstream host fixture exercises HID/XInput button and direction mapping, Enter/Space semantics, semantic-text foreground suppression while gamepads continue, raw-keyboard suppression, HID-gamepad gating, disconnect synchronization, isolation of a failed gamepad poll, and unsubscribe/quiesce failure/retry behavior. This validates provider logic, not physical USB transport.
 
 ## Build/release validation
-The standalone Xtensa builder validates the exact manifest, ELF32 little-endian Xtensa ET_DYN format, sole exported function `t5_driver_get`, and exactly one unresolved runtime import, `memset`, then records canonical size/hash parity.
+The standalone Xtensa builder validates the exact manifest, ELF32 little-endian Xtensa ET_DYN format, sole exported function `t5_driver_get`, and exactly one unresolved runtime import, `memset`. CI run `36309926391` produced 7,208 bytes with SHA-256 `b7b38cf7d0769081e0e88c75091f59d9a1c3fda45e498a915ce0655d8c2e8631`, exactly matching the published canonical ELF.
 
 Published package metadata:
 - `.package.json`: 721 bytes, SHA-256 `8ae27aec16e769aab7e6b17ef425d985d2ca8b8985524b2994484a1de343b675`

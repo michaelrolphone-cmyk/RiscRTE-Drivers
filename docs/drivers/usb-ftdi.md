@@ -139,7 +139,7 @@ This is provider-level simulation, not physical FTDI hardware validation.
 
 ## Standalone Xtensa validation
 
-The build script validates the exact manifest, emits a 32-bit little-endian Xtensa ET_DYN shared ELF, normalizes relocations, requires `t5_driver_get` as the only defined global function export, and requires exactly `memcpy` and `memset` as unresolved runtime imports. It records independent size/SHA-256 and whether they match the canonical release bytes.
+The build script validates the exact manifest, emits a 32-bit little-endian Xtensa ET_DYN shared ELF, normalizes relocations, requires `t5_driver_get` as the only defined global function export, and requires exactly `memcpy` and `memset` as unresolved runtime imports. CI run `36309926391` produced 8,048 bytes with SHA-256 `cf5c2f2777df96df1bf44ec719291ded008b4a3b833c8668a203e14e1a56516e`, exactly matching the published canonical ELF.
 
 ## Published package metadata
 

@@ -118,7 +118,7 @@ This is deterministic provider-level simulation, not physical CH34x/controller v
 
 ## Standalone Xtensa build and release metadata
 
-The standalone builder validates the exact package manifest, builds ELF32 little-endian Xtensa ET_DYN output, normalizes supported relocations, requires `t5_driver_get` as the only global function export, rejects unresolved imports outside `memcpy`/`memset`, and records canonical byte parity.
+The standalone builder validates the exact package manifest, builds ELF32 little-endian Xtensa ET_DYN output, normalizes supported relocations, requires `t5_driver_get` as the only global function export, and rejects unresolved imports outside `memcpy`/`memset`. CI run `36310220488` passed the exact host protocol/lifecycle fixture and produced 6,340 bytes with SHA-256 `8d88d227ac61116116b0ffb7c0e4052b7b547a0a19edc13a13af08792b95d621`, exactly matching the published canonical ELF.
 
 Observed upstream package metadata:
 
