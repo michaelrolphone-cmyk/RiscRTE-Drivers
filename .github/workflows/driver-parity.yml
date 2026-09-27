@@ -35,6 +35,7 @@ jobs:
       - run: pio pkg install -e toolchain
       - run: python scripts/build_platform_clock_v1.py
       - run: python scripts/build_gt911_touch.py
+      - run: python scripts/build_gps_nmea.py
       - run: python scripts/build_t5s3_usb_power_profile.py
       - uses: actions/upload-artifact@v4
         with:
@@ -44,6 +45,10 @@ jobs:
         with:
           name: gt911-touch
           path: dist/gt911-touch
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gps-nmea
+          path: dist/gps-nmea
       - uses: actions/upload-artifact@v4
         with:
           name: t5s3-usb-power-profile
