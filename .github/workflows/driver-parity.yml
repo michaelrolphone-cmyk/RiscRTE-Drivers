@@ -102,6 +102,14 @@ jobs:
             test/drivers/usb_host_v2_test.c -ldl -o /tmp/usb-host-v2-test
           /tmp/usb-host-v2-test /tmp/usb-host-v2.so
       - run: python scripts/build_usb_host_v2.py
+      - name: Test usb-mass-storage BOT, FAT16 browse/write/delete and hotplug
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
+            -I sdk/driver Drivers/usb_mass_storage/driver.c -o /tmp/usb-mass-storage.so
+          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
+            test/drivers/usb_mass_storage_test.c -ldl -o /tmp/usb-mass-storage-test
+          /tmp/usb-mass-storage-test /tmp/usb-mass-storage.so
+      - run: python scripts/build_usb_mass_storage.py
       - name: Test usb-hid-gamepad descriptor parsing, state and lifecycle
         run: |
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
@@ -185,6 +193,10 @@ jobs:
         with:
           name: usb-host-v2
           path: dist/usb-host-v2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-mass-storage
+          path: dist/usb-mass-storage
       - uses: actions/upload-artifact@v4
         with:
           name: usb-hid-gamepad
