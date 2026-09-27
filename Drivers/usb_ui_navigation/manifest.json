@@ -1,0 +1,15 @@
+{
+  "type": "driver",
+  "id": "usb-ui-navigation",
+  "version": "0.1.1",
+  "driver_abi": 2,
+  "architecture": "xtensa-esp32s3",
+  "file_name": "driver.elf",
+  "requires": [
+    {"capability": "input.text", "api": 1},
+    {"capability": "usb.hid.gamepad", "api": 1},
+    {"capability": "usb.xinput.gamepad", "api": 1}
+  ],
+  "provides": [{"capability": "input.navigation", "api": 1}],
+  "status": "experimental-unpublished"
+}
