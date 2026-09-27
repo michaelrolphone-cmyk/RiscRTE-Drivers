@@ -77,7 +77,7 @@
       "id": "usb-hid",
       "version": "0.1.2",
       "source_path": "Drivers/usb_hid",
-      "migrated": false
+      "migrated": true
     },
     {
       "id": "usb-hid-gamepad",

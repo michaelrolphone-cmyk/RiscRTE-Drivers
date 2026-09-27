@@ -82,6 +82,18 @@ jobs:
             test/drivers/usb_ftdi_test.c -ldl -o /tmp/usb-ftdi-test
           /tmp/usb-ftdi-test /tmp/usb-ftdi.so
       - run: python scripts/build_usb_ftdi.py
+      - name: Test usb-hid generic class composition and lifecycle
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
+            -I sdk/driver Drivers/usb_hid/driver.c -o /tmp/usb-hid.so
+          cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
+            -I sdk/driver Drivers/usb_hid_keyboard/driver.c -o /tmp/usb-hid-keyboard.so
+          cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
+            -I sdk/driver Drivers/usb_hid_gamepad/driver.c -o /tmp/usb-hid-gamepad.so
+          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
+            test/drivers/usb_hid_test.c -ldl -o /tmp/usb-hid-test
+          /tmp/usb-hid-test /tmp/usb-hid.so /tmp/usb-hid-keyboard.so /tmp/usb-hid-gamepad.so
+      - run: python scripts/build_usb_hid.py
       - name: Test usb-host-v2 discovery, generation, transfer gates and quiescence
         run: |
           cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
@@ -157,6 +169,10 @@ jobs:
         with:
           name: usb-ftdi
           path: dist/usb-ftdi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-hid
+          path: dist/usb-hid
       - uses: actions/upload-artifact@v4
         with:
           name: usb-host-v2
