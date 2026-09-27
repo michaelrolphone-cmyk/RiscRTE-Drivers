@@ -107,7 +107,7 @@
       "id": "usb-mass-storage",
       "version": "0.1.1",
       "source_path": "Drivers/usb_mass_storage",
-      "migrated": false
+      "migrated": true
     },
     {
       "id": "usb-msp",
