@@ -29,9 +29,9 @@ Source inventory on `T5S3-Reader:master` at `9f687c35ecad9abefdd413082f1961c1a23
 
 - board-power-t5s3-v2 v0.1.5
 - usb-controller-esp32s3 v0.1.18
-- usb-msp v0.1.1
-
 ## Released drivers with source staged but parity completion pending
+
+- usb-msp v0.1.1 — source, host test, standalone builder, and documentation are staged on main; CI artifact parity remains pending.
 
 
 ## Source-only drivers still requiring compatibility migration
