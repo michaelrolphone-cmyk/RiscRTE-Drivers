@@ -70,6 +70,7 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 
 ### Staged migrations awaiting parity completion
 
+- [usb-msp](docs/drivers/usb-msp.md) — TI MSP-FET/eZ-FET `debug.vendor.msp@1` transport above `usb.host@1` and `platform.clock@1`, version 0.1.1; exact source/test/build/docs staged and canonical 14,116-byte ELF parity pending integrated CI.
 
 ## Documentation standard
 
