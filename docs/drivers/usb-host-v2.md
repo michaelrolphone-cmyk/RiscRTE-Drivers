@@ -101,6 +101,8 @@ The fixture was executed against the exact staged upstream source under `-Wall -
 
 Repository CI compiles the exact source independently with the Xtensa ESP32-S3 toolchain, normalizes relocations, validates the ELF architecture/export/import surface, and checks the produced bytes against the canonical published artifact before uploading `dist/usb-host-v2`.
 
+CI run `36329594203` completed successfully and reproduced the canonical `driver.elf` byte-for-byte: 8,580 bytes, SHA-256 `c94dea393a6ddae1e9fcf4ae309654b8f9a0d26df6da7d222a1f8c85f93ea183`. Published-byte parity is therefore confirmed for the migrated source/toolchain path.
+
 ## Published package metadata
 
 Upstream release-index metadata for v0.1.3:

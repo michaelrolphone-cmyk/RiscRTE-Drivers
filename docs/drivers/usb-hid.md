@@ -128,7 +128,7 @@ Published v0.1.2 files:
 - `provider-abi.v1`: 36 bytes, SHA-256 `1c7cb1cf375e55ae85b5c9cb3981969fb89fe5f36678609df90640c48a3fe53b`
 - `privileged-imports.v1`: 14 bytes, SHA-256 `a46fff766cb063bc348b3e7a6670e4a48c5c9201f0da92e73a67670229be7cca`
 
-Independent byte-for-byte parity is not recorded until integrated CI reproduces the canonical ELF.
+CI run `36330402297` confirmed canonical published-byte parity for the migrated v0.1.2 artifact.
 
 ## Established limitations
 
