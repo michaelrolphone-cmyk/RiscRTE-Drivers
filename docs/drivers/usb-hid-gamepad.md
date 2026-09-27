@@ -82,7 +82,7 @@ Published v0.1.3 files:
 - `provider-abi.v1`: 44 bytes, SHA-256 `6b5f0f4c7e97304a917e44e9dad87ee2b61419ccaef74217efd1fbbd918b85bf`
 - `privileged-imports.v1`: 14 bytes, SHA-256 `a46fff766cb063bc348b3e7a6670e4a48c5c9201f0da92e73a67670229be7cca`
 
-Byte-for-byte parity is recorded only after integrated CI reproduces the canonical ELF.
+CI run `36313265059` passed the parity/documentation checks and gamepad host fixture, and produced a 13,980-byte ELF with SHA-256 `16142ccae4a8cea40cc94f2ef38145d3fb27021a5f7314417b0098a520c1da0e`, exactly matching the published canonical artifact.
 
 ## Established limitations
 
