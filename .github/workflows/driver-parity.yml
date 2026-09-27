@@ -60,10 +60,11 @@ jobs:
       - run: python scripts/build_usb_cdc_acm_v2.py
       - name: Test usb-ch34x-v2 matching, serial control and lifecycle
         run: |
+          cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
+            -I sdk/driver Drivers/usb_ch34x_v2/driver.c -o /tmp/usb-ch34x-v2.so
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
-            Drivers/usb_ch34x_v2/driver.c test/drivers/usb_ch34x_v2_test.c \
-            -o /tmp/usb-ch34x-v2-test
-          /tmp/usb-ch34x-v2-test
+            test/drivers/usb_ch34x_v2_test.c -ldl -o /tmp/usb-ch34x-v2-test
+          /tmp/usb-ch34x-v2-test /tmp/usb-ch34x-v2.so
       - run: python scripts/build_usb_ch34x_v2.py
       - name: Test usb-cp210x-v2 vendor control, bulk, stale tokens and quiescence
         run: |
