@@ -28,8 +28,11 @@ Source inventory on `T5S3-Reader:master` at `403a9f418fe5e6d231711c4e2242ed0acda
 - usb-controller-esp32s3 v0.1.18
 - usb-mass-storage v0.1.1
 - usb-msp v0.1.1
-- usb-stlink v0.1.0
-- usb-xinput-gamepad v0.1.3
+
+## Released drivers with source staged but parity completion pending
+
+- `usb-stlink` v0.1.0 — exact upstream source and manifest are present on `main`; the ABI header, exact upstream host fixture, standalone build validator, CI wiring, README documentation link, and final parity state remain pending integration.
+- `usb-xinput-gamepad` v0.1.3 — exact upstream source/manifest, exact upstream host fixture, standalone canonical-byte build validator, and detailed driver documentation are present on `main`. Existing shared interrupt/gamepad-diagnostics/clock/mailbox dependencies are byte-identical to upstream. CI workflow wiring plus an integrated canonical 11,088-byte ELF build remain before `migrated: true`.
 
 ## Source-only drivers still requiring compatibility migration
 
