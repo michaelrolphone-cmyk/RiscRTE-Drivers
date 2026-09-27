@@ -10,6 +10,7 @@ Source inventory on `T5S3-Reader:master` at `403a9f418fe5e6d231711c4e2242ed0acda
 - `usb-cdc-acm-v2` v0.1.0 — exact current ABI-v2 source and current upstream host fixture migrated above `usb.host@1`, with standalone Xtensa/export/import validation. The fixture covers dependency binding, configuration and data-claim failures, ACM line coding, DTR/RTS, bulk routing, explicit cleanup, stale tokens, direct-stop cleanup, restart, and quiescence. Canonical published ELF target: 6,584 bytes, SHA-256 `34b3eeea0cca3927517e849298a1f088cbd1a14651bf81ff2b74f655a78af56f`; independent byte parity pending CI.
 - `usb-cp210x-v2` v0.1.0 — exact current ABI-v2 CP210x source and exact upstream host fixture migrated above `usb.host@1`. The fixture covers Silicon Labs VID gating, interface enable/disable control requests, baud/framing requests, DTR/RTS, bulk routing, failed-close retention, stale-token rejection, and quiescence. Canonical published ELF target: 5,788 bytes, SHA-256 `96f22bbb6cc8cf00f138656a910d3078d491d6c117ffc4e23a2842c458481c61`; independent byte parity is to be established by integrated CI.
 - `usb-hid-text-input` v0.1.0 — exact source/ABI headers migrated; the exact upstream host translation/lifecycle test passes locally under `-Wall -Wextra -Werror`; standalone Xtensa build/export validation is wired into CI. Upstream publishes a canonical 8,692-byte ELF with SHA-256 `796cd1b754de33f3c12cd5e29a54036766d081b71a5f05ff2d66a37beeb3ef3d`; independent byte-for-byte build parity remains to be confirmed by integrated CI.
+- `usb-ui-navigation` v0.1.1 — exact source, exact host fixture, and `RiscInputNavigationV1.h` ABI header migrated. The host fixture validates semantic keyboard/gamepad mapping, foreground suppression, neutral rearm, disconnect synchronization, polling-failure isolation, unsubscribe failure, and quiescence. Canonical published ELF target: 7,208 bytes, SHA-256 `b7b38cf7d0769081e0e88c75091f59d9a1c3fda45e498a915ce0655d8c2e8631`; independent byte parity is to be established by integrated CI.
 - `gt911-touch` v0.1.0 — source/header mirrored and independently buildable; CI run 36277642683 produced 8,736 bytes with SHA-256 `9b934b1056fc8a99f4973dccc311d991f4c4ff1e46b826d27fc2919e6555ec6d`, exactly matching the current published upstream ELF.
 - `platform-clock-v1` v0.1.0 — source/header mirrored, standalone build, ELF validation, and byte-for-byte published ELF parity.
 - `program-msp` v0.1.0 — exact source and `program.msp@1`/`debug.vendor.msp@1` ABI headers migrated with the upstream host behavior fixture; standalone Xtensa build requires exact parity with the published 9,128-byte ELF SHA-256 `19b0999f41e45522e877097addf3cfd55651b2fd00ae925fa6084b769b66527f`.
@@ -28,7 +29,6 @@ Source inventory on `T5S3-Reader:master` at `403a9f418fe5e6d231711c4e2242ed0acda
 - usb-mass-storage v0.1.1
 - usb-msp v0.1.1
 - usb-stlink v0.1.0
-- usb-ui-navigation v0.1.1
 - usb-xinput-gamepad v0.1.3
 
 ## Source-only drivers still requiring compatibility migration

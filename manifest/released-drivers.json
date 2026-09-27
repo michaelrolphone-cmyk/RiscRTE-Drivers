@@ -125,7 +125,7 @@
       "id": "usb-ui-navigation",
       "version": "0.1.1",
       "source_path": "Drivers/usb_ui_navigation",
-      "migrated": false
+      "migrated": true
     },
     {
       "id": "usb-xinput-gamepad",
