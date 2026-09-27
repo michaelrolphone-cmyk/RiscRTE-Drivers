@@ -113,7 +113,7 @@ Published package metadata:
 - `provider-abi.v1`: 45 bytes, SHA-256 `d9354efb9bae9d9d834a85ae18899184a348f02290dbe1286575db7cf1122080`
 - `privileged-imports.v1`: 14 bytes, SHA-256 `a46fff766cb063bc348b3e7a6670e4a48c5c9201f0da92e73a67670229be7cca`
 
-Canonical byte parity is not claimed until integrated CI produces the exact 8,444-byte ELF and SHA-256 above.
+CI run `36312749073` passed the repository parity/documentation checks and the keyboard host fixture, and produced an 8,444-byte ELF with SHA-256 `4c9f55b63b89c7464d386401acd955df6ea3d96fb58933c13c7f1fdabe02691e`, exactly matching the published canonical artifact.
 
 ## Established limitations
 
