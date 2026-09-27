@@ -67,6 +67,7 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 
 ### Staged migrations awaiting parity completion
 
+- [usb-stlink](docs/drivers/usb-stlink.md) — v0.1.0 exact upstream source/manifest, ABI header, exact upstream host fixture, standalone canonical-byte build validator, CI wiring, and detailed implementation documentation are present; the integrated canonical 9,304-byte build must pass before parity-ready status.
 - [usb-xinput-gamepad](docs/drivers/usb-xinput-gamepad.md) — v0.1.3 exact upstream source/manifest, standalone canonical-byte build validator, exact upstream host fixture, and detailed implementation documentation are present on `main`; CI integration and canonical build confirmation remain before parity-ready status.
 
 ## Documentation standard

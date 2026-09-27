@@ -126,6 +126,14 @@ jobs:
             test/drivers/usb_ui_navigation_test.c -o /tmp/usb-ui-navigation-test
           /tmp/usb-ui-navigation-test
       - run: python scripts/build_usb_ui_navigation.py
+      - name: Test usb-stlink V2/V2.1/V3 discovery, SWD, SWIM and quiescence
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
+            -I sdk/driver Drivers/usb_stlink/driver.c -o /tmp/usb-stlink.so
+          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
+            test/drivers/usb_stlink_test.c -ldl -o /tmp/usb-stlink-test
+          /tmp/usb-stlink-test /tmp/usb-stlink.so
+      - run: python scripts/build_usb_stlink.py
       - name: Test program-msp target gating, FRAM RMW, verify and cleanup
         run: |
           cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared -I sdk/driver Drivers/program_msp/driver.c -o /tmp/program-msp.so
@@ -193,6 +201,10 @@ jobs:
         with:
           name: usb-ui-navigation
           path: dist/usb-ui-navigation
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-stlink
+          path: dist/usb-stlink
       - uses: actions/upload-artifact@v4
         with:
           name: program-msp
