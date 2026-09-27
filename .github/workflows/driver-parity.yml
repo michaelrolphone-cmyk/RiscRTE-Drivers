@@ -35,7 +35,12 @@ jobs:
       - run: pio pkg install -e toolchain
       - run: python scripts/build_platform_clock_v1.py
       - run: python scripts/build_gt911_touch.py
-      - run: python scripts/build_gps_nmea.py
+      - run: python scripts/build_gps_nmea.py\n      - name: Test usb-hid-text-input translation and lifecycle
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \\
+            test/drivers/usb_hid_text_input_test.c -o /tmp/usb-hid-text-input-test
+          /tmp/usb-hid-text-input-test
+      - run: python scripts/build_usb_hid_text_input.py
       - run: python scripts/build_t5s3_usb_power_profile.py
       - uses: actions/upload-artifact@v4
         with:
@@ -49,6 +54,10 @@ jobs:
         with:
           name: gps-nmea
           path: dist/gps-nmea
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-hid-text-input
+          path: dist/usb-hid-text-input
       - uses: actions/upload-artifact@v4
         with:
           name: t5s3-usb-power-profile

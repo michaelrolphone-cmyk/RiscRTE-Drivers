@@ -4,7 +4,7 @@
     "repository": "michaelrolphone-cmyk/T5S3-Reader",
     "branch": "release-index",
     "path": "release-index.json",
-    "source_master_sha": "935ac7f81191994e78a00bb94f443389764c1a35"
+    "source_master_sha": "caa737b66d14a126353a6eab82b21803c4c44e21"
   },
   "drivers": [
     {"id":"board-power-t5s3-v2","version":"0.1.5","source_path":"Drivers/bq25896","migrated":false},
@@ -31,6 +31,6 @@
   "source_only_drivers": [
     {"id":"gps-nmea","version":"1.0.0","driver_abi":1,"source_path":"Drivers/gps_nmea","migrated":true},
     {"id":"usb-cdc-acm","version":"0.1.0","driver_abi":1,"source_path":"Drivers/usb_cdc","migrated":false},
-    {"id":"usb-hid-text-input","version":"0.1.0","driver_abi":2,"source_path":"Drivers/usb_hid_text_input","migrated":false}
+    {"id":"usb-hid-text-input","version":"0.1.0","driver_abi":2,"source_path":"Drivers/usb_hid_text_input","migrated":true}
   ]
 }
