@@ -24,7 +24,7 @@ symbols=subprocess.check_output([readelf,"--dyn-syms","--wide",str(elf)],text=Tr
 exports={f[7] for line in symbols.splitlines() if len((f:=line.split()))>=8 and f[4]=="GLOBAL" and f[6]!="UND" and f[3]=="FUNC"}
 if exports!={"t5_driver_get"}: raise SystemExit(f"unexpected exports: {sorted(exports)}")
 imports={f[7] for line in symbols.splitlines() if len((f:=line.split()))>=8 and f[6]=="UND"}
-if imports: raise SystemExit(f"unexpected imports: {sorted(imports)}")
+if imports!={"memset"}: raise SystemExit(f"unexpected imports: {sorted(imports)}")
 data=elf.read_bytes()
 if not 52<=len(data)<=256*1024 or data[:7]!=b"\x7fELF\x01\x01\x01" or int.from_bytes(data[16:18],"little")!=3 or int.from_bytes(data[18:20],"little")!=94: raise SystemExit("invalid Xtensa shared driver")
 digest=hashlib.sha256(data).hexdigest()
