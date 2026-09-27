@@ -4,33 +4,150 @@
     "repository": "michaelrolphone-cmyk/T5S3-Reader",
     "branch": "release-index",
     "path": "release-index.json",
-    "source_master_sha": "99abac00a0ec49e16da0110833f1f51e8d23c6d0"
+    "source_master_sha": "bfe8644176ed77942af24e91059d72ade9a36413"
   },
   "drivers": [
-    {"id":"board-power-t5s3-v2","version":"0.1.5","source_path":"Drivers/bq25896","migrated":false},
-    {"id":"gt911-touch","version":"0.1.0","source_path":"Drivers/gt911_touch","migrated":true},
-    {"id":"i2c-esp32s3-v2","version":"0.1.2","source_path":"Drivers/i2c_esp32s3_v2","migrated":false},
-    {"id":"platform-clock-v1","version":"0.1.0","source_path":"Drivers/platform_clock_v1","migrated":true},
-    {"id":"program-msp","version":"0.1.0","source_path":"Drivers/program_msp","migrated":false},
-    {"id":"t5s3-usb-power-profile","version":"0.1.0","source_path":"Drivers/t5s3_usb_power_profile","migrated":true},
-    {"id":"usb-cdc-acm-v2","version":"0.1.0","source_path":"Drivers/usb_cdc_v2","migrated":false},
-    {"id":"usb-ch34x-v2","version":"0.1.0","source_path":"Drivers/usb_ch34x_v2","migrated":false},
-    {"id":"usb-controller-esp32s3","version":"0.1.18","source_path":"Drivers/usb_controller_esp32s3","migrated":false},
-    {"id":"usb-cp210x-v2","version":"0.1.0","source_path":"Drivers/usb_cp210x_v2","migrated":false},
-    {"id":"usb-ftdi","version":"0.1.0","source_path":"Drivers/usb_ftdi","migrated":false},
-    {"id":"usb-hid","version":"0.1.2","source_path":"Drivers/usb_hid","migrated":false},
-    {"id":"usb-hid-gamepad","version":"0.1.3","source_path":"Drivers/usb_hid_gamepad","migrated":false},
-    {"id":"usb-hid-keyboard","version":"0.1.1","source_path":"Drivers/usb_hid_keyboard","migrated":false},
-    {"id":"usb-hid-text-input","version":"0.1.0","source_path":"Drivers/usb_hid_text_input","migrated":true},
-    {"id":"usb-host-v2","version":"0.1.3","source_path":"Drivers/usb_host_v2","migrated":false},
-    {"id":"usb-mass-storage","version":"0.1.1","source_path":"Drivers/usb_mass_storage","migrated":false},
-    {"id":"usb-msp","version":"0.1.1","source_path":"Drivers/usb_msp","migrated":false},
-    {"id":"usb-stlink","version":"0.1.0","source_path":"Drivers/usb_stlink","migrated":false},
-    {"id":"usb-ui-navigation","version":"0.1.1","source_path":"Drivers/usb_ui_navigation","migrated":false},
-    {"id":"usb-xinput-gamepad","version":"0.1.3","source_path":"Drivers/usb_xinput_gamepad","migrated":false}
+    {
+      "id": "board-power-t5s3-v2",
+      "version": "0.1.5",
+      "source_path": "Drivers/bq25896",
+      "migrated": false
+    },
+    {
+      "id": "gt911-touch",
+      "version": "0.1.0",
+      "source_path": "Drivers/gt911_touch",
+      "migrated": true
+    },
+    {
+      "id": "i2c-esp32s3-v2",
+      "version": "0.1.3",
+      "source_path": "Drivers/i2c_esp32s3_v2",
+      "migrated": true
+    },
+    {
+      "id": "platform-clock-v1",
+      "version": "0.1.0",
+      "source_path": "Drivers/platform_clock_v1",
+      "migrated": true
+    },
+    {
+      "id": "program-msp",
+      "version": "0.1.0",
+      "source_path": "Drivers/program_msp",
+      "migrated": false
+    },
+    {
+      "id": "t5s3-usb-power-profile",
+      "version": "0.1.0",
+      "source_path": "Drivers/t5s3_usb_power_profile",
+      "migrated": true
+    },
+    {
+      "id": "usb-cdc-acm-v2",
+      "version": "0.1.0",
+      "source_path": "Drivers/usb_cdc_v2",
+      "migrated": false
+    },
+    {
+      "id": "usb-ch34x-v2",
+      "version": "0.1.0",
+      "source_path": "Drivers/usb_ch34x_v2",
+      "migrated": false
+    },
+    {
+      "id": "usb-controller-esp32s3",
+      "version": "0.1.18",
+      "source_path": "Drivers/usb_controller_esp32s3",
+      "migrated": false
+    },
+    {
+      "id": "usb-cp210x-v2",
+      "version": "0.1.0",
+      "source_path": "Drivers/usb_cp210x_v2",
+      "migrated": false
+    },
+    {
+      "id": "usb-ftdi",
+      "version": "0.1.0",
+      "source_path": "Drivers/usb_ftdi",
+      "migrated": false
+    },
+    {
+      "id": "usb-hid",
+      "version": "0.1.2",
+      "source_path": "Drivers/usb_hid",
+      "migrated": false
+    },
+    {
+      "id": "usb-hid-gamepad",
+      "version": "0.1.3",
+      "source_path": "Drivers/usb_hid_gamepad",
+      "migrated": false
+    },
+    {
+      "id": "usb-hid-keyboard",
+      "version": "0.1.1",
+      "source_path": "Drivers/usb_hid_keyboard",
+      "migrated": false
+    },
+    {
+      "id": "usb-hid-text-input",
+      "version": "0.1.0",
+      "source_path": "Drivers/usb_hid_text_input",
+      "migrated": true
+    },
+    {
+      "id": "usb-host-v2",
+      "version": "0.1.3",
+      "source_path": "Drivers/usb_host_v2",
+      "migrated": false
+    },
+    {
+      "id": "usb-mass-storage",
+      "version": "0.1.1",
+      "source_path": "Drivers/usb_mass_storage",
+      "migrated": false
+    },
+    {
+      "id": "usb-msp",
+      "version": "0.1.1",
+      "source_path": "Drivers/usb_msp",
+      "migrated": false
+    },
+    {
+      "id": "usb-stlink",
+      "version": "0.1.0",
+      "source_path": "Drivers/usb_stlink",
+      "migrated": false
+    },
+    {
+      "id": "usb-ui-navigation",
+      "version": "0.1.1",
+      "source_path": "Drivers/usb_ui_navigation",
+      "migrated": false
+    },
+    {
+      "id": "usb-xinput-gamepad",
+      "version": "0.1.3",
+      "source_path": "Drivers/usb_xinput_gamepad",
+      "migrated": false
+    }
   ],
   "source_only_drivers": [
-    {"id":"gps-nmea","version":"1.0.0","driver_abi":1,"source_path":"Drivers/gps_nmea","migrated":true},
-    {"id":"usb-cdc-acm","version":"0.1.0","driver_abi":1,"source_path":"Drivers/usb_cdc","migrated":true}
+    {
+      "id": "gps-nmea",
+      "version": "1.0.0",
+      "driver_abi": 1,
+      "source_path": "Drivers/gps_nmea",
+      "migrated": true
+    },
+    {
+      "id": "usb-cdc-acm",
+      "version": "0.1.0",
+      "driver_abi": 1,
+      "source_path": "Drivers/usb_cdc",
+      "migrated": true
+    }
   ]
 }
