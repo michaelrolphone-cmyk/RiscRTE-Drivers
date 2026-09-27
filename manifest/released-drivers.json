@@ -35,7 +35,7 @@
       "id": "program-msp",
       "version": "0.1.0",
       "source_path": "Drivers/program_msp",
-      "migrated": false
+      "migrated": true
     },
     {
       "id": "t5s3-usb-power-profile",

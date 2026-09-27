@@ -10,12 +10,12 @@ Source inventory on `T5S3-Reader:master` at `6675a270cc9a2cb7720e021a2dac7c766ae
 - `usb-hid-text-input` v0.1.0 — exact source/ABI headers migrated; the exact upstream host translation/lifecycle test passes locally under `-Wall -Wextra -Werror`; standalone Xtensa build/export validation is wired into CI. Upstream publishes a canonical 8,692-byte ELF with SHA-256 `796cd1b754de33f3c12cd5e29a54036766d081b71a5f05ff2d66a37beeb3ef3d`; independent byte-for-byte build parity remains to be confirmed by integrated CI.
 - `gt911-touch` v0.1.0 — source/header mirrored and independently buildable; CI run 36277642683 produced 8,736 bytes with SHA-256 `9b934b1056fc8a99f4973dccc311d991f4c4ff1e46b826d27fc2919e6555ec6d`, exactly matching the current published upstream ELF.
 - `platform-clock-v1` v0.1.0 — source/header mirrored, standalone build, ELF validation, and byte-for-byte published ELF parity.
+- `program-msp` v0.1.0 — exact source and `program.msp@1`/`debug.vendor.msp@1` ABI headers migrated with the upstream host behavior fixture; standalone Xtensa build requires exact parity with the published 9,128-byte ELF SHA-256 `19b0999f41e45522e877097addf3cfd55651b2fd00ae925fa6084b769b66527f`.
 - `t5s3-usb-power-profile` v0.1.0 — source/manifest/profile ABI migrated, standalone build, ELF validation, and byte-for-byte published ELF parity.
 
 ## Released drivers still requiring source migration
 
 - board-power-t5s3-v2 v0.1.5
-- program-msp v0.1.0
 - usb-cdc-acm-v2 v0.1.0
 - usb-ch34x-v2 v0.1.0
 - usb-controller-esp32s3 v0.1.18

@@ -55,6 +55,12 @@ jobs:
             test/drivers/usb_hid_text_input_test.c -o /tmp/usb-hid-text-input-test
           /tmp/usb-hid-text-input-test
       - run: python scripts/build_usb_hid_text_input.py
+      - name: Test program-msp target gating, FRAM RMW, verify and cleanup
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared -I sdk/driver Drivers/program_msp/driver.c -o /tmp/program-msp.so
+          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver test/drivers/program_msp_test.c -ldl -o /tmp/program-msp-test
+          /tmp/program-msp-test /tmp/program-msp.so
+      - run: python scripts/build_program_msp.py
       - run: python scripts/build_t5s3_usb_power_profile.py
       - uses: actions/upload-artifact@v4
         with:
@@ -80,6 +86,10 @@ jobs:
         with:
           name: usb-hid-text-input
           path: dist/usb-hid-text-input
+      - uses: actions/upload-artifact@v4
+        with:
+          name: program-msp
+          path: dist/program-msp
       - uses: actions/upload-artifact@v4
         with:
           name: t5s3-usb-power-profile
