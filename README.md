@@ -61,6 +61,7 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 - [usb-host-v2](docs/drivers/usb-host-v2.md) — generation-safe `usb.host@1` provider above `usb.controller@1`, version 0.1.3; validates descriptor-derived bulk/interrupt endpoint access, quarantines failed releases, forwards optional diagnostics, and requires canonical published-byte parity from its standalone Xtensa build.
 - [usb-stlink](docs/drivers/usb-stlink.md) — ST-LINK V2/V2.1/V3 `debug.vendor.stlink@1` provider above `usb.host@1` and `platform.clock@1`, version 0.1.0; CI run `36344579403` passed the exact host fixture and reproduced the canonical 9,304-byte ELF byte-for-byte.
 - [usb-ui-navigation](docs/drivers/usb-ui-navigation.md) — composite `input.navigation@1` provider over semantic text, HID gamepad, and XInput gamepad sources, version 0.1.1; preserves foreground handoff and neutral rearm semantics.
+- [usb-xinput-gamepad](docs/drivers/usb-xinput-gamepad.md) — Xbox 360 wired/wireless-format `usb.xinput.gamepad@1` provider above `usb.host@1` and `platform.clock@1`, version 0.1.3; CI run `36345187504` passed the exact upstream host fixture and reproduced the canonical 11,088-byte ELF byte-for-byte.
 - [gt911-touch](docs/drivers/gt911-touch.md) — GT911 raw-touch provider over `i2c.bus@1`, version 0.1.0; independent CI output matches the published upstream ELF.
 - [platform-clock-v1](docs/drivers/platform-clock-v1.md) — generic `platform.clock@1` monotonic-time and sleep provider, version 0.1.0.
 - [program-msp](docs/drivers/program-msp.md) — MSP430FR/XV2 FRAM programming provider above `debug.vendor.msp@1`, version 0.1.0; standalone build requires canonical release-byte parity.
@@ -68,7 +69,6 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 
 ### Staged migrations awaiting parity completion
 
-- [usb-xinput-gamepad](docs/drivers/usb-xinput-gamepad.md) — v0.1.3 exact upstream source/manifest, standalone canonical-byte build validator, exact upstream host fixture, and detailed implementation documentation are present on `main`; CI integration and canonical build confirmation remain before parity-ready status.
 
 ## Documentation standard
 

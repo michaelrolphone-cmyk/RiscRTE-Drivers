@@ -131,7 +131,7 @@
       "id": "usb-xinput-gamepad",
       "version": "0.1.3",
       "source_path": "Drivers/usb_xinput_gamepad",
-      "migrated": false
+      "migrated": true
     }
   ],
   "source_only_drivers": [

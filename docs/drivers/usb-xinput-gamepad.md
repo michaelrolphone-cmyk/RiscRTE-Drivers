@@ -291,6 +291,14 @@ This is deterministic provider simulation. It does not establish physical radio 
 
 The build records its produced size/SHA-256 plus exact canonical byte parity.
 
+## Integrated migration validation
+
+CI run `36345187504` executed the exact upstream host fixture and the standalone Xtensa builder from this repository. The fixture completed with:
+
+`XInput discovery, current state, bounded startup retries, hotplug and shutdown: PASS`
+
+The independent Xtensa build produced `driver.elf` at exactly 11,088 bytes with SHA-256 `e2cee3355937d7815fb5685598cd2411c7d508bb36424f00636ec7495f654c26` and reported `byte_parity=True`. The run uploaded the resulting package as artifact `usb-xinput-gamepad` (artifact ID `10939434367`). This establishes byte-for-byte parity with the observed upstream v0.1.3 release artifact for the inspected source baseline.
+
 ## Published package metadata
 
 Observed v0.1.3 release files:
