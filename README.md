@@ -65,6 +65,10 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 - [program-msp](docs/drivers/program-msp.md) — MSP430FR/XV2 FRAM programming provider above `debug.vendor.msp@1`, version 0.1.0; standalone build requires canonical release-byte parity.
 - [t5s3-usb-power-profile](docs/drivers/t5s3-usb-power-profile.md) — immutable T5S3 BQ25896/USB power-policy profile provider, version 0.1.0.
 
+### Staged migrations awaiting parity completion
+
+- [usb-xinput-gamepad](docs/drivers/usb-xinput-gamepad.md) — v0.1.3 exact upstream source/manifest, standalone canonical-byte build validator, exact upstream host fixture, and detailed implementation documentation are present on `main`; CI integration and canonical build confirmation remain before parity-ready status.
+
 ## Documentation standard
 
 Each migrated driver's `docs/drivers/<driver-id>.md` page is derived from its current implementation source, manifest, ABI/interface headers, build tooling, tests, and observed release metadata. Documentation describes established behavior rather than proposed design. When a driver or interface changes upstream during the transition period, its documentation must be updated with the same parity work.
