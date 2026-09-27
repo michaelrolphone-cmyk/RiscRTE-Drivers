@@ -66,6 +66,14 @@ jobs:
             test/drivers/usb_cp210x_v2_test.c -ldl -o /tmp/usb-cp210x-v2-test
           /tmp/usb-cp210x-v2-test /tmp/usb-cp210x-v2.so
       - run: python scripts/build_usb_cp210x_v2.py
+      - name: Test usb-ftdi IDs, divisors, status stripping and quiescence
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
+            -I sdk/driver Drivers/usb_ftdi/driver.c -o /tmp/usb-ftdi.so
+          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
+            test/drivers/usb_ftdi_test.c -ldl -o /tmp/usb-ftdi-test
+          /tmp/usb-ftdi-test /tmp/usb-ftdi.so
+      - run: python scripts/build_usb_ftdi.py
       - name: Test usb-hid-text-input translation and lifecycle
         run: |
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \

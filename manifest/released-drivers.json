@@ -71,7 +71,7 @@
       "id": "usb-ftdi",
       "version": "0.1.0",
       "source_path": "Drivers/usb_ftdi",
-      "migrated": false
+      "migrated": true
     },
     {
       "id": "usb-hid",
