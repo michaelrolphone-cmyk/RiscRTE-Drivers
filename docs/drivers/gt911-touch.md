@@ -12,8 +12,8 @@
 - Architecture: `xtensa-esp32s3`
 - Provides: `input.touch.raw@1`
 - Requires: `i2c.bus@1`, `platform.clock@1`
-- Manifest status: `experimental-unpublished`
-- Upstream release status at migration time: source-only; no entry in the T5S3-Reader release index
+- Manifest status string: `experimental-unpublished` (still present in the upstream source manifest)
+- Upstream release status: published as `driver-gt911-touch-v0.1.0`; canonical ELF size 8,736 bytes, SHA-256 `9b934b1056fc8a99f4973dccc311d991f4c4ff1e46b826d27fc2919e6555ec6d`
 
 ## Source and build files
 
@@ -111,4 +111,4 @@ The source contains no IRQ/interrupt path; this implementation is explicitly ser
 
 ## Publication state
 
-At migration time, T5S3-Reader contains the source/build integration for version 0.1.0 but no released-driver entry for `gt911-touch`. Therefore RiscRTE-Drivers can validate independent compilation and source parity, but there is no published upstream ELF hash/size to claim byte-for-byte release parity against yet.
+T5S3-Reader now publishes `gt911-touch` version 0.1.0 in the release index as `driver-gt911-touch-v0.1.0`. The canonical `driver.elf` is 8,736 bytes with SHA-256 `9b934b1056fc8a99f4973dccc311d991f4c4ff1e46b826d27fc2919e6555ec6d`. RiscRTE-Drivers CI run 36277642683 independently built the migrated source to the same size and SHA-256, establishing byte-for-byte published ELF parity for this version. The upstream source manifest still carries the literal status field `experimental-unpublished`; this documentation records that source fact separately from the observed release-index publication state.
