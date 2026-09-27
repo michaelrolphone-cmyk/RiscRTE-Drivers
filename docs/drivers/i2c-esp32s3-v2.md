@@ -138,7 +138,7 @@ The fixture does not establish electrical timing, hardware pin ownership, real-d
 - produced size and SHA-256;
 - comparison with the canonical 0.1.4 release bytes.
 
-The canonical release is 13,864 bytes with SHA-256 `c8548cc7e72c32af3bb20e05fd17eda33d2b01b0072933b82edb8a78dca8b993`. The repository's minimal standalone compile configuration is not assumed to reproduce the firmware-compilation-database-derived canonical bytes; the validator records `byte_parity` explicitly.
+The canonical release is 13,864 bytes with SHA-256 `c8548cc7e72c32af3bb20e05fd17eda33d2b01b0072933b82edb8a78dca8b993`. CI run 36288732077 passes this validator and produces an independent 4,636-byte ELF with SHA-256 `4fe8a1c3d7f6dc5c34802d8842f49b05c89372ab75ec847cf0f5994ae7e75a7f`, with `byte_parity=False`. The `.data` placement check passes. The repository's minimal standalone compile configuration therefore validates the 0.1.4 ABI/source/state-layout invariants but still does not reproduce the firmware-compilation-database-derived canonical bytes.
 
 ## Published package metadata
 
@@ -151,4 +151,4 @@ The inspected 0.1.4 release-index package declares:
 
 ## Established limitations
 
-This remains a transitional firmware-backed I2C provider rather than an independent owner of I2C0. Source/test parity and release metadata establish the provider contract and the 0.1.4 alignment correction, but host validation does not prove physical bus behavior. Independent reproduction of the canonical release bytes remains a separate build-reproducibility question because the upstream canonical path derives its C compilation command from the T5S3-Pro PlatformIO firmware compilation database.
+This remains a transitional firmware-backed I2C provider rather than an independent owner of I2C0. Source/test parity and release metadata establish the provider contract and the 0.1.4 alignment correction, but host validation does not prove physical bus behavior. CI run 36288732077 confirms parity metadata, documentation, host behavior, Xtensa linkage, privileged-import restrictions, and the 0.1.4 aligned mutable-state invariant. Independent reproduction of the canonical release bytes remains a separate build-reproducibility question because the upstream canonical path derives its C compilation command from the T5S3-Pro PlatformIO firmware compilation database.
