@@ -119,7 +119,7 @@
       "id": "usb-stlink",
       "version": "0.1.0",
       "source_path": "Drivers/usb_stlink",
-      "migrated": false
+      "migrated": true
     },
     {
       "id": "usb-ui-navigation",
