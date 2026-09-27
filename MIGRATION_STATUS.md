@@ -2,7 +2,7 @@
 
 Source inventory on `T5S3-Reader:master` at `935ac7f81191994e78a00bb94f443389764c1a35`: 23 driver directories with manifests. Of those, 20 are canonical released drivers in `T5S3-Reader:release-index`; three are source-only drivers (`gps-nmea`, `usb-cdc-acm`, and `usb-hid-text-input`).
 
-Two released drivers currently have newer source versions on master than their published release-index versions: `usb-controller-esp32s3` is released at v0.1.17 with source at v0.1.18, and `usb-ui-navigation` is released at v0.1.0 with source at v0.1.1. The parity manifest records both versions independently so unpublished source progress is not mistaken for a published release.
+One released driver currently has a newer source version on master than its published release-index version: `usb-controller-esp32s3` is released at v0.1.17 with source at v0.1.18. The parity manifest records both versions independently so unpublished source progress is not mistaken for a published release.
 
 ## Migrated and independently buildable
 
@@ -28,7 +28,7 @@ Two released drivers currently have newer source versions on master than their p
 - usb-mass-storage v0.1.1
 - usb-msp v0.1.1
 - usb-stlink v0.1.0
-- usb-ui-navigation released v0.1.0 / source v0.1.1
+- usb-ui-navigation v0.1.1
 - usb-xinput-gamepad v0.1.3
 
 ## Source-only drivers still requiring compatibility migration

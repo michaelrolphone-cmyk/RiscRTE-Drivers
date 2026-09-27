@@ -25,7 +25,7 @@
     {"id":"usb-mass-storage","version":"0.1.1","source_path":"Drivers/usb_mass_storage","migrated":false},
     {"id":"usb-msp","version":"0.1.1","source_path":"Drivers/usb_msp","migrated":false},
     {"id":"usb-stlink","version":"0.1.0","source_path":"Drivers/usb_stlink","migrated":false},
-    {"id":"usb-ui-navigation","version":"0.1.0","source_version":"0.1.1","source_path":"Drivers/usb_ui_navigation","migrated":false},
+    {"id":"usb-ui-navigation","version":"0.1.1","source_path":"Drivers/usb_ui_navigation","migrated":false},
     {"id":"usb-xinput-gamepad","version":"0.1.3","source_path":"Drivers/usb_xinput_gamepad","migrated":false}
   ],
   "source_only_drivers": [
