@@ -35,7 +35,8 @@ jobs:
       - run: pio pkg install -e toolchain
       - run: python scripts/build_platform_clock_v1.py
       - run: python scripts/build_gt911_touch.py
-      - run: python scripts/build_gps_nmea.py\n      - name: Test usb-hid-text-input translation and lifecycle
+      - run: python scripts/build_gps_nmea.py
+      - name: Test usb-hid-text-input translation and lifecycle
         run: |
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \\
             test/drivers/usb_hid_text_input_test.c -o /tmp/usb-hid-text-input-test

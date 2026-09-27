@@ -6,7 +6,8 @@ One released driver currently has a newer source version on master than its publ
 
 ## Migrated and independently buildable
 
-- `gps-nmea` v1.0.0 — exact source/ABI headers migrated with standalone Xtensa build and ELF/export validation; upstream is source-only, so there is no canonical released ELF for byte-parity comparison.\n- `usb-hid-text-input` v0.1.0 — exact source/ABI headers migrated with the upstream host translation/lifecycle test and standalone Xtensa build/export validation; upstream is source-only, so there is no canonical released ELF for byte-parity comparison.
+- `gps-nmea` v1.0.0 — exact source/ABI headers migrated with standalone Xtensa build and ELF/export validation; upstream is source-only, so there is no canonical released ELF for byte-parity comparison.
+- `usb-hid-text-input` v0.1.0 — exact source/ABI headers migrated with the upstream host translation/lifecycle test and standalone Xtensa build/export validation; upstream is source-only, so there is no canonical released ELF for byte-parity comparison.
 - `gt911-touch` v0.1.0 — source/header mirrored and independently buildable; CI run 36277642683 produced 8,736 bytes with SHA-256 `9b934b1056fc8a99f4973dccc311d991f4c4ff1e46b826d27fc2919e6555ec6d`, exactly matching the current published upstream ELF.
 - `platform-clock-v1` v0.1.0 — source/header mirrored, standalone build, ELF validation, and byte-for-byte published ELF parity.
 - `t5s3-usb-power-profile` v0.1.0 — source/manifest/profile ABI migrated, standalone build, ELF validation, and byte-for-byte published ELF parity.
