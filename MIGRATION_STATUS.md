@@ -17,6 +17,7 @@ Source inventory on `T5S3-Reader:master` at `403a9f418fe5e6d231711c4e2242ed0acda
 - `usb-hid-text-input` v0.1.0 — exact source/ABI headers migrated; the exact upstream host translation/lifecycle test passes locally under `-Wall -Wextra -Werror`; standalone Xtensa build/export validation is wired into CI. Upstream publishes a canonical 8,692-byte ELF with SHA-256 `796cd1b754de33f3c12cd5e29a54036766d081b71a5f05ff2d66a37beeb3ef3d`; independent byte-for-byte build parity remains to be confirmed by integrated CI.
 - `usb-host-v2` v0.1.3 — exact upstream source, interrupt/discovery-diagnostics ABI extensions, exact upstream host fixture, dedicated documentation, and standalone Xtensa build/export/import/canonical-byte validation are integrated. CI run `36329594203` passed parity/documentation, the deterministic host fixture, and produced the canonical 8,580-byte ELF with SHA-256 `c94dea393a6ddae1e9fcf4ae309654b8f9a0d26df6da7d222a1f8c85f93ea183`; byte-for-byte published parity is confirmed.
 - `usb-ui-navigation` v0.1.1 — exact source, exact host fixture, and `RiscInputNavigationV1.h` ABI header migrated. The host fixture validates semantic keyboard/gamepad mapping, foreground suppression, neutral rearm, disconnect synchronization, polling-failure isolation, unsubscribe failure, and quiescence. CI run `36309926391` produced the canonical 7,208-byte ELF with SHA-256 `b7b38cf7d0769081e0e88c75091f59d9a1c3fda45e498a915ce0655d8c2e8631`; byte-for-byte published parity is confirmed.
+- `usb-xinput-gamepad` v0.1.3 — exact current Xbox-360-format source migrated above interrupt-capable `usb.host@1` and `platform.clock@1`, with shared current gamepad diagnostics/mailbox ABIs, standalone Xtensa parity validation, and a repository host fixture covering descriptor binding, wired semantic mapping, wireless presence/disconnect framing, hotplug release, snapshots, subscriptions, and quiescence. The exact upstream fixture additionally establishes bounded startup recovery/backoff and clone/non-default-interface handling. Canonical published ELF target: 11,088 bytes, SHA-256 `e2cee3355937d7815fb5685598cd2411c7d508bb36424f00636ec7495f654c26`; independent byte parity pending CI.
 - `gt911-touch` v0.1.0 — source/header mirrored and independently buildable; CI run 36277642683 produced 8,736 bytes with SHA-256 `9b934b1056fc8a99f4973dccc311d991f4c4ff1e46b826d27fc2919e6555ec6d`, exactly matching the current published upstream ELF.
 - `platform-clock-v1` v0.1.0 — source/header mirrored, standalone build, ELF validation, and byte-for-byte published ELF parity.
 - `program-msp` v0.1.0 — exact source and `program.msp@1`/`debug.vendor.msp@1` ABI headers migrated with the upstream host behavior fixture; standalone Xtensa build requires exact parity with the published 9,128-byte ELF SHA-256 `19b0999f41e45522e877097addf3cfd55651b2fd00ae925fa6084b769b66527f`.
@@ -29,7 +30,6 @@ Source inventory on `T5S3-Reader:master` at `403a9f418fe5e6d231711c4e2242ed0acda
 - usb-mass-storage v0.1.1
 - usb-msp v0.1.1
 - usb-stlink v0.1.0
-- usb-xinput-gamepad v0.1.3
 
 ## Source-only drivers still requiring compatibility migration
 
