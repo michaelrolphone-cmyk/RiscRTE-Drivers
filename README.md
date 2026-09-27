@@ -67,6 +67,8 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 
 The repository also contains partial scaffolding or parity metadata for additional upstream drivers. They are intentionally not listed as completed documentation entries until their source/build/package migration and dedicated documentation are complete. See `manifest/released-drivers.json` and `manifest/source-trees.json` for the full current inventory.
 
+- [usb-host-v2](docs/drivers/usb-host-v2.md) — exact upstream source, ABI extensions, host fixture, and implementation documentation are present; canonical Xtensa release build automation/parity remains pending before this driver is marked migrated.
+
 ## Documentation standard
 
 Each migrated driver's `docs/drivers/<driver-id>.md` page is derived from its current implementation source, manifest, ABI/interface headers, build tooling, tests, and observed release metadata. Documentation describes established behavior rather than proposed design. When a driver or interface changes upstream during the transition period, its documentation must be updated with the same parity work.

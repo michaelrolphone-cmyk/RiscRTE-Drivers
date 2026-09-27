@@ -25,7 +25,7 @@ Source inventory on `T5S3-Reader:master` at `403a9f418fe5e6d231711c4e2242ed0acda
 - board-power-t5s3-v2 v0.1.5
 - usb-controller-esp32s3 v0.1.18
 - usb-hid v0.1.2
-- usb-host-v2 v0.1.3
+- usb-host-v2 v0.1.3 — exact upstream source, interrupt/diagnostics ABI extensions, exact host fixture, host-side CI validation, and dedicated documentation are now present in this repository; canonical Xtensa release build automation and byte-parity validation remain before marking the driver migrated.
 - usb-mass-storage v0.1.1
 - usb-msp v0.1.1
 - usb-stlink v0.1.0

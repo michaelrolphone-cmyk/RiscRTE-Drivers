@@ -82,6 +82,13 @@ jobs:
             test/drivers/usb_ftdi_test.c -ldl -o /tmp/usb-ftdi-test
           /tmp/usb-ftdi-test /tmp/usb-ftdi.so
       - run: python scripts/build_usb_ftdi.py
+      - name: Test usb-host-v2 discovery, generation, transfer gates and quiescence
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
+            -I sdk/driver Drivers/usb_host_v2/driver.c -o /tmp/usb-host-v2.so
+          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
+            test/drivers/usb_host_v2_test.c -ldl -o /tmp/usb-host-v2-test
+          /tmp/usb-host-v2-test /tmp/usb-host-v2.so
       - name: Test usb-hid-gamepad descriptor parsing, state and lifecycle
         run: |
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
