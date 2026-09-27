@@ -53,7 +53,7 @@
       "id": "usb-ch34x-v2",
       "version": "0.1.0",
       "source_path": "Drivers/usb_ch34x_v2",
-      "migrated": false
+      "migrated": true
     },
     {
       "id": "usb-controller-esp32s3",
