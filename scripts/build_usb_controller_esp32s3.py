@@ -20,6 +20,7 @@ PHY_GPIO_SOURCE = ROOT / "Drivers/usb_controller_esp32s3/phy_gpio.c"
 EXPORT_MAP = ROOT / "Drivers/usb_controller_esp32s3/exports.map"
 MANIFEST = ROOT / "Drivers/usb_controller_esp32s3/manifest.json"
 BOARD = ROOT / "boards/t5s3-pro.json"
+HISTORICAL_WORK = ROOT / "dist/experimental/usb-controller-esp32s3"
 OUT = ROOT / "dist/usb-controller-esp32s3"
 PROBE = OUT / "toolchain-probe"
 CACHE = ROOT / "dist/idf-usb-source/v4.4.7"
@@ -173,6 +174,7 @@ def main():
     manifest=json.loads(MANIFEST.read_text())
     if manifest!=EXPECTED: raise SystemExit("usb-controller-esp32s3 manifest mismatch")
     OUT.mkdir(parents=True,exist_ok=True)
+    HISTORICAL_WORK.mkdir(parents=True,exist_ok=True)
     entry=probe_entry(); argv=list(entry["arguments"]) if "arguments" in entry else shlex.split(entry["command"])
     controller=OUT/"controller.o"; compile_target(argv,entry,SOURCE,controller,extra=("-Wall","-Wextra","-Werror"))
     compiler=Path(argv[0]); nm=tool(compiler,"nm")
@@ -185,7 +187,7 @@ def main():
     for i,p in enumerate(paths):
         source=p
         if p.name=="hub.c":
-            source=OUT/"hub-enumeration-diagnostics.c"; source.write_text(instrument_hub(p.read_text()))
+            source=HISTORICAL_WORK/"hub-enumeration-diagnostics.c"; source.write_text(instrument_hub(p.read_text()))
         obj=OUT/f"idf-usb-{i}-{p.name}.o"; compile_target(argv,entry,source,obj,c=True,extra=inc); objs.append(obj)
     phy=OUT/"phy-gpio.o"; compile_target(argv,entry,PHY_GPIO_SOURCE,phy,c=True,extra=(*inc,"-Wall","-Wextra","-Werror")); objs.append(phy)
     elf=OUT/"driver.elf"
