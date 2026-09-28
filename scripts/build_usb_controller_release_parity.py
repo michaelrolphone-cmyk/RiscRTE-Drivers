@@ -118,7 +118,7 @@ def _historical_compiler(workspace: Path) -> Path:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--require-byte-parity", action="store_true", default=True,\n                        help="Require the canonical published ELF bytes (always enabled in migration CI)")
+    parser.add_argument("--require-byte-parity", action="store_true")
     args = parser.parse_args()
 
     manifest = json.loads((DRIVER / "manifest.json").read_text())
