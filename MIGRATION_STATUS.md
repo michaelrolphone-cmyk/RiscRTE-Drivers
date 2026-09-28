@@ -34,7 +34,7 @@ None.
 
 ## Released drivers with source staged but parity completion pending
 
-- usb-controller-esp32s3 v0.1.18 — exact upstream source tree and source-grounded documentation are integrated. The repository-independent PIC ESP-IDF v4.4.7 build/audit harness is preserved in migration staging; harness integration and canonical 783,576-byte ELF parity remain pending.
+- usb-controller-esp32s3 v0.1.18 — exact upstream source tree, source-grounded documentation, board definition, and repository-independent PIC ESP-IDF v4.4.7 build/audit harness are integrated; CI execution and canonical 783,576-byte ELF parity remain pending.
 
 
 ## Source-only drivers still requiring compatibility migration
