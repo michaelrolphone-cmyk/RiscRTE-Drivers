@@ -62,4 +62,4 @@ The exact upstream `test/drivers/usb_msp_test.c` fixture validates ABI identity,
 
 Its success string is `MSP-FET/eZ-FET discovery, HAL framing, JTAG, SBW, detach and quiescence: PASS`.
 
-Canonical ELF parity remains a CI gate until the integrated standalone Xtensa build reproduces the 14,116-byte published artifact.
+CI run `36378453595` executed this exact fixture successfully and the standalone Xtensa builder produced **14,116 bytes** with SHA-256 `d0f48fdd2a4da3afd41d74960017bd10a0e49cb7396cf7ce4a9ca3a5bb397ede`, reporting `byte_parity=True`. This confirms byte-for-byte parity with the published v0.1.1 ELF.

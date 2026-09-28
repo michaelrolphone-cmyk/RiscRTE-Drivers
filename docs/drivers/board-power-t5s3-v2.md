@@ -123,4 +123,4 @@ The fixture success string is:
 
 `BQ25896 reuse/profile validation plus T5S3 VBUS: v1.2.16 1.2A boost, qualified transient recovery, repeat/live faults, ADC, conflicts, rollback, timeout, retry: PASS`
 
-Canonical ELF parity is not claimed until the standalone Xtensa builder reproduces the 10,860-byte published artifact.
+CI run `36378453595` executed this exact fixture successfully and the standalone Xtensa builder produced **10,860 bytes** with SHA-256 `1f6e43bf15610b6ce2e30131c830d9d1b2643ec114471d216f90322fbdde3834`, reporting `byte_parity=True`. This confirms byte-for-byte parity with the published v0.1.5 ELF.

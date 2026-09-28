@@ -35,7 +35,9 @@ docs/drivers/             one implementation document per migrated driver
 
 A driver is not considered fully migrated solely because its manifest or source file exists here. A completed migration requires the implementation source and required ABI headers, an independent build path, relevant validation/tests, matching published version and artifact bytes where upstream publication provides a canonical artifact, a dedicated implementation document, and a README link to that document.
 
-`scripts/check_parity.py` compares the local released/source inventory against the read-only upstream source/release data. The recorded `source_master_sha` values identify the commit at which the stored parity snapshot was last refreshed; CI determines actual source drift from the current upstream driver manifests and exact per-driver tree SHAs, so unrelated upstream application/firmware commits do not make driver parity fail. The released-driver and source-tree snapshot SHAs must remain synchronized with each other. `scripts/check_driver_docs.py` requires every entry marked `migrated: true` to have a documentation page and corresponding README link.\n\nThe scheduled maintenance run still refreshes the recorded upstream snapshot SHA after inspection. A later upstream head is informational when all released versions and driver tree SHAs are unchanged, but any driver source/version/path/tree change continues to fail parity until migrated here.
+`scripts/check_parity.py` compares the local released/source inventory against the read-only upstream source/release data. The recorded `source_master_sha` values identify the commit at which the stored parity snapshot was last refreshed; CI determines actual source drift from the current upstream driver manifests and exact per-driver tree SHAs, so unrelated upstream application/firmware commits do not make driver parity fail. The released-driver and source-tree snapshot SHAs must remain synchronized with each other. `scripts/check_driver_docs.py` requires every entry marked `migrated: true` to have a documentation page and corresponding README link.
+
+The scheduled maintenance run still refreshes the recorded upstream snapshot SHA after inspection. A later upstream head is informational when all released versions and driver tree SHAs are unchanged, but any driver source/version/path/tree change continues to fail parity until migrated here.
 
 ## Build and test model
 
@@ -63,6 +65,8 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 - [usb-stlink](docs/drivers/usb-stlink.md) — ST-LINK V2/V2.1/V3 `debug.vendor.stlink@1` provider above `usb.host@1` and `platform.clock@1`, version 0.1.0; CI run `36344579403` passed the exact host fixture and reproduced the canonical 9,304-byte ELF byte-for-byte.
 - [usb-ui-navigation](docs/drivers/usb-ui-navigation.md) — composite `input.navigation@1` provider over semantic text, HID gamepad, and XInput gamepad sources, version 0.1.1; preserves foreground handoff and neutral rearm semantics.
 - [usb-xinput-gamepad](docs/drivers/usb-xinput-gamepad.md) — Xbox 360 wired/wireless-format `usb.xinput.gamepad@1` provider above `usb.host@1` and `platform.clock@1`, version 0.1.3; CI run `36345187504` passed the exact upstream host fixture and reproduced the canonical 11,088-byte ELF byte-for-byte.
+- [board-power-t5s3-v2](docs/drivers/board-power-t5s3-v2.md) — reusable BQ25896 `board.power.vbus@1` provider, version 0.1.5; CI run `36378453595` passed its host fixture and reproduced the canonical 10,860-byte ELF byte-for-byte.
+- [usb-msp](docs/drivers/usb-msp.md) — TI MSP-FET/eZ-FET `debug.vendor.msp@1` transport, version 0.1.1; CI run `36378453595` passed the exact upstream fixture and reproduced the canonical 14,116-byte ELF byte-for-byte.
 - [gt911-touch](docs/drivers/gt911-touch.md) — GT911 raw-touch provider over `i2c.bus@1`, version 0.1.0; independent CI output matches the published upstream ELF.
 - [platform-clock-v1](docs/drivers/platform-clock-v1.md) — generic `platform.clock@1` monotonic-time and sleep provider, version 0.1.0.
 - [program-msp](docs/drivers/program-msp.md) — MSP430FR/XV2 FRAM programming provider above `debug.vendor.msp@1`, version 0.1.0; standalone build requires canonical release-byte parity.
@@ -70,8 +74,6 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 
 ### Staged migrations awaiting parity completion
 
-- [board-power-t5s3-v2](docs/drivers/board-power-t5s3-v2.md) — reusable BQ25896 `board.power.vbus@1` provider over `i2c.bus@1`, `platform.clock@1`, and an installed electrical-profile provider, version 0.1.5; exact source/test/ABI/build/docs staged and canonical 10,860-byte ELF parity pending CI.
-- [usb-msp](docs/drivers/usb-msp.md) — TI MSP-FET/eZ-FET `debug.vendor.msp@1` transport above `usb.host@1` and `platform.clock@1`, version 0.1.1; exact source/test/build/docs staged and canonical 14,116-byte ELF parity pending integrated CI.
 - [usb-controller-esp32s3](docs/drivers/usb-controller-esp32s3.md) — ESP32-S3 physical `usb.controller@1` provider, version 0.1.18; exact upstream source and implementation documentation staged, with repository-independent PIC ESP-IDF build/audit and canonical 783,576-byte ELF parity still pending.
 
 ## Documentation standard

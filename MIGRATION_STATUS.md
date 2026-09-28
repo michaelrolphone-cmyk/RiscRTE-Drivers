@@ -25,14 +25,15 @@ Source inventory on `T5S3-Reader:master` at `6d9cc3166fbec07a1214cd65a0fe215704b
 - `program-msp` v0.1.0 — exact source and `program.msp@1`/`debug.vendor.msp@1` ABI headers migrated with the upstream host behavior fixture; standalone Xtensa build requires exact parity with the published 9,128-byte ELF SHA-256 `19b0999f41e45522e877097addf3cfd55651b2fd00ae925fa6084b769b66527f`.
 - `t5s3-usb-power-profile` v0.1.0 — source/manifest/profile ABI migrated, standalone build, ELF validation, and byte-for-byte published ELF parity.
 
+- `board-power-t5s3-v2` v0.1.5 — exact source/test/build/docs are integrated. CI run `36378453595` passed parity/documentation plus the BQ25896 host fixture and produced the canonical 10,860-byte ELF, SHA-256 `1f6e43bf15610b6ce2e30131c830d9d1b2643ec114471d216f90322fbdde3834`, with `byte_parity=True`.
+- `usb-msp` v0.1.1 — exact source/test/build/docs are integrated. CI run `36378453595` passed parity/documentation plus the MSP-FET/eZ-FET host fixture and produced the canonical 14,116-byte ELF, SHA-256 `d0f48fdd2a4da3afd41d74960017bd10a0e49cb7396cf7ce4a9ca3a5bb397ede`, with `byte_parity=True`.
+
 ## Released drivers still requiring source migration
 
 None.
 
 ## Released drivers with source staged but parity completion pending
 
-- board-power-t5s3-v2 v0.1.5 — exact upstream source/manifest/host fixture and VBUS ABI header, standalone canonical-byte builder, README link, and dedicated implementation documentation are staged on main; canonical CI parity remains pending.
-- usb-msp v0.1.1 — source, host test, standalone builder, and documentation are staged on main; CI artifact parity remains pending.
 - usb-controller-esp32s3 v0.1.18 — exact upstream source tree and source-grounded documentation are staged; repository-independent PIC ESP-IDF v4.4.7 build/audit automation and canonical 783,576-byte ELF parity remain pending.
 
 

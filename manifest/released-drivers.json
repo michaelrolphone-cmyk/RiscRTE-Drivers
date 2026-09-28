@@ -11,7 +11,7 @@
       "id": "board-power-t5s3-v2",
       "version": "0.1.5",
       "source_path": "Drivers/bq25896",
-      "migrated": false
+      "migrated": true
     },
     {
       "id": "gt911-touch",
@@ -113,7 +113,7 @@
       "id": "usb-msp",
       "version": "0.1.1",
       "source_path": "Drivers/usb_msp",
-      "migrated": false
+      "migrated": true
     },
     {
       "id": "usb-stlink",
