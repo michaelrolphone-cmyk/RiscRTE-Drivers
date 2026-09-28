@@ -121,7 +121,7 @@ def compile_target(argv,entry,source,output,c=False,extra=()):
     if c:
         compiler=Path(cmd[0]); cmd[0]=str(tool(compiler,"gcc"))
         cmd=[a for a in cmd if not a.startswith("-std=") and a!="-fno-rtti"]+["-std=gnu11"]
-    cmd += ["-fPIC","-fvisibility=hidden",f"-fdebug-prefix-map={ROOT}={CANONICAL_BUILD_ROOT}",
+    cmd += ["-fPIC","-fvisibility=hidden",f"-ffile-prefix-map={ROOT}={CANONICAL_BUILD_ROOT}",
             "-I"+str(ROOT/"sdk/driver"),*extra]
     subprocess.run(cmd,cwd=ROOT,check=True)
     if not output.is_file() or not output.stat().st_size: raise RuntimeError("compiler produced no object")
