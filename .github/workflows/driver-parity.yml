@@ -41,7 +41,7 @@ jobs:
             Drivers/i2c_esp32s3_v2/driver.c test/drivers/i2c_esp32s3_v2_test.c \
             -o /tmp/i2c-esp32s3-v2-test
           /tmp/i2c-esp32s3-v2-test
-      - run: python scripts/build_i2c_esp32s3_v2.py
+      - run: python scripts/build_i2c_esp32s3_v2.py --require-byte-parity
       - run: python scripts/build_gt911_touch.py
       - run: python scripts/build_gps_nmea.py
       - name: Test usb-cdc-acm descriptor and protocol provider
