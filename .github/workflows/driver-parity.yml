@@ -166,9 +166,7 @@ jobs:
       - name: Test usb-xinput-gamepad discovery, state, retry, hotplug and shutdown
         run: |
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
-            Drivers/usb_xinput_gamepad/driver.c \
-            test/drivers/usb_xinput_gamepad_test.c \
-            -o /tmp/usb-xinput-gamepad-test
+            test/drivers/usb_xinput_gamepad_test.c -o /tmp/usb-xinput-gamepad-test
           /tmp/usb-xinput-gamepad-test
       - run: python scripts/build_usb_xinput_gamepad.py
       - name: Test program-msp target gating, FRAM RMW, verify and cleanup
