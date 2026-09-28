@@ -1,6 +1,6 @@
 # Migration status
 
-Source inventory on `T5S3-Reader:master` at `9f687c35ecad9abefdd413082f1961c1a230f921`: 23 driver directories with manifests. Of those, 21 are canonical released drivers in `T5S3-Reader:release-index`; two are source-only drivers (`gps-nmea` and `usb-cdc-acm`).
+Source inventory on `T5S3-Reader:master` at `61510679789474c8d609904cc6bcda7fa2999870`: 23 driver directories with manifests. Of those, 21 are canonical released drivers in `T5S3-Reader:release-index`; two are source-only drivers (`gps-nmea` and `usb-cdc-acm`).
 
 ## Migrated and independently buildable
 
@@ -27,12 +27,13 @@ Source inventory on `T5S3-Reader:master` at `9f687c35ecad9abefdd413082f1961c1a23
 
 ## Released drivers still requiring source migration
 
-- usb-controller-esp32s3 v0.1.18
+None.
 
 ## Released drivers with source staged but parity completion pending
 
 - board-power-t5s3-v2 v0.1.5 — exact upstream source/manifest/host fixture and VBUS ABI header, standalone canonical-byte builder, README link, and dedicated implementation documentation are staged on main; canonical CI parity remains pending.
 - usb-msp v0.1.1 — source, host test, standalone builder, and documentation are staged on main; CI artifact parity remains pending.
+- usb-controller-esp32s3 v0.1.18 — exact upstream source tree and source-grounded documentation are staged; repository-independent PIC ESP-IDF v4.4.7 build/audit automation and canonical 783,576-byte ELF parity remain pending.
 
 
 ## Source-only drivers still requiring compatibility migration

@@ -72,6 +72,7 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 
 - [board-power-t5s3-v2](docs/drivers/board-power-t5s3-v2.md) — reusable BQ25896 `board.power.vbus@1` provider over `i2c.bus@1`, `platform.clock@1`, and an installed electrical-profile provider, version 0.1.5; exact source/test/ABI/build/docs staged and canonical 10,860-byte ELF parity pending CI.
 - [usb-msp](docs/drivers/usb-msp.md) — TI MSP-FET/eZ-FET `debug.vendor.msp@1` transport above `usb.host@1` and `platform.clock@1`, version 0.1.1; exact source/test/build/docs staged and canonical 14,116-byte ELF parity pending integrated CI.
+- [usb-controller-esp32s3](docs/drivers/usb-controller-esp32s3.md) — ESP32-S3 physical `usb.controller@1` provider, version 0.1.18; exact upstream source and implementation documentation staged, with repository-independent PIC ESP-IDF build/audit and canonical 783,576-byte ELF parity still pending.
 
 ## Documentation standard
 
