@@ -169,7 +169,7 @@ jobs:
             test/drivers/usb_xinput_gamepad_test.c -o /tmp/usb-xinput-gamepad-test
           /tmp/usb-xinput-gamepad-test
       - run: python scripts/build_usb_xinput_gamepad.py
-      - run: python scripts/build_usb_controller_esp32s3.py
+      - run: python scripts/build_usb_controller_release_parity.py
       - run: python scripts/verify_usb_controller_loader_map.py dist/usb-controller-esp32s3/driver.elf
       - name: Test program-msp target gating, FRAM RMW, verify and cleanup
         run: |
