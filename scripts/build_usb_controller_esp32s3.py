@@ -26,6 +26,7 @@ CACHE = ROOT / "dist/idf-usb-source/v4.4.7"
 IDF_TAG = "v4.4.7"
 CANONICAL_SIZE = 783576
 CANONICAL_SHA256 = "f67064a9678a7b048e40cbf411d46653b69006aec07b9f2c95428597cc706e0e"
+CANONICAL_BUILD_ROOT = "/home/runner/work/T5S3-Reader/T5S3-Reader"
 USB = ("hcd_dwc.c","hub.c","usb_helpers.c","usb_host.c","usb_private.c","usbh.c","usb_phy.c")
 HAL = ("usb_hal.c","usb_phy_hal.c","usb_dwc_hal.c")
 SOC = ("usb_phy_periph.c","usb_periph.c","gpio_periph.c")
@@ -120,8 +121,9 @@ def compile_target(argv,entry,source,output,c=False,extra=()):
     if c:
         compiler=Path(cmd[0]); cmd[0]=str(tool(compiler,"gcc"))
         cmd=[a for a in cmd if not a.startswith("-std=") and a!="-fno-rtti"]+["-std=gnu11"]
-    cmd += ["-fPIC","-fvisibility=hidden","-I"+str(ROOT/"sdk/driver"),*extra]
-    subprocess.run(cmd,cwd=entry.get("directory",str(PROBE)),check=True)
+    cmd += ["-fPIC","-fvisibility=hidden",f"-fdebug-prefix-map={ROOT}={CANONICAL_BUILD_ROOT}",
+            "-I"+str(ROOT/"sdk/driver"),*extra]
+    subprocess.run(cmd,cwd=ROOT,check=True)
     if not output.is_file() or not output.stat().st_size: raise RuntimeError("compiler produced no object")
 
 def idf_sources():
