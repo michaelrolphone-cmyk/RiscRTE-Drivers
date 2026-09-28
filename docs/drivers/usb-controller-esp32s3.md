@@ -4,7 +4,7 @@
 
 `usb-controller-esp32s3` is the ESP32-S3 physical USB controller provider. Current upstream package metadata is version **0.1.18**, driver ABI **2**, architecture **xtensa-esp32s3**, executable `driver.elf`, requiring `board.power.vbus@1` and providing `usb.controller@1`. The exact current upstream driver directory is Git tree `16647df4a2f25a5d07f267a51b4497f1185d12fc`. Its manifest status is `experimental-hardware-port-not-yet-linkable`.
 
-This page documents verified source behavior. Migration is not complete until the exact source tree is copied here, the upstream PIC ESP-IDF build/audit path is made repository-independent, and the canonical published ELF is reproduced.
+This page documents verified source behavior. The exact upstream source tree is already integrated here. Migration is not complete until the staged repository-independent PIC ESP-IDF build/audit path is integrated and reproduces the canonical published ELF.
 
 ## Upstream source tree
 
@@ -70,7 +70,7 @@ Upstream `scripts/probe_usb_controller_esp32s3.py` derives the target C/C++ flag
 
 Upstream `scripts/audit_usb_controller_elf.py` checks ELF32 little-endian Xtensa ET_DYN identity, relocations, mapped relocation targets, text relocations, exported symbols, firmware/USB import leakage, and the scoped privileged-import contract. The script explicitly treats signed privileged-loader admission, firmware strong-symbol integration and physical-board validation as separate gates.
 
-Those upstream build/audit scripts are not yet ported as a repository-independent RiscRTE-Drivers build, so this documentation does not claim canonical build parity.
+A repository-independent RiscRTE-Drivers build harness has been derived from those upstream scripts and is preserved in the migration staging area, but it is not yet integrated into this repository. Until that harness is committed and executed in CI, this documentation does not claim canonical build parity.
 
 ## Published package metadata
 
@@ -87,4 +87,4 @@ Only release metadata for the privileged-import sidecar was inspected here; its 
 
 The current upstream directory was enumerated through GitHub and independently verified to hash to tree `16647df4a2f25a5d07f267a51b4497f1185d12fc`. Upstream changes from the prior destination baseline through current master do not touch driver or driver-ABI paths. The source/API behavior above is grounded in the current driver files and ABI headers.
 
-Still pending: exact source copy into this repository, repository-independent PIC IDF build/audit automation, canonical 783,576-byte ELF reproduction, and migration-complete metadata. Until those gates pass, `migrated` must remain false.
+Still pending: integration and CI execution of the staged repository-independent PIC IDF build/audit automation, canonical 783,576-byte ELF reproduction, and migration-complete metadata. The exact source tree is already present. Until those remaining gates pass, `migrated` must remain false.

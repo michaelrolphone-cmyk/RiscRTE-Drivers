@@ -74,7 +74,7 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 
 ### Staged migrations awaiting parity completion
 
-- [usb-controller-esp32s3](docs/drivers/usb-controller-esp32s3.md) — ESP32-S3 physical `usb.controller@1` provider, version 0.1.18; exact upstream source and implementation documentation staged, with repository-independent PIC ESP-IDF build/audit and canonical 783,576-byte ELF parity still pending.
+- [usb-controller-esp32s3](docs/drivers/usb-controller-esp32s3.md) — ESP32-S3 physical `usb.controller@1` provider, version 0.1.18; exact upstream source and implementation documentation are integrated. The repository-independent PIC ESP-IDF v4.4.7 build/audit harness is preserved in migration staging; harness integration and canonical 783,576-byte ELF parity are still pending.
 
 ## Documentation standard
 
