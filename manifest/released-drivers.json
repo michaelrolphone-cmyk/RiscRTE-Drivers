@@ -23,7 +23,7 @@
       "id": "i2c-esp32s3-v2",
       "version": "0.1.5",
       "source_path": "Drivers/i2c_esp32s3_v2",
-      "migrated": false
+      "migrated": true
     },
     {
       "id": "platform-clock-v1",

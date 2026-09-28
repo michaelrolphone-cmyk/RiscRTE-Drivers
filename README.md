@@ -50,6 +50,7 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 ### Migrated and independently buildable
 
 - [gps-nmea](docs/drivers/gps-nmea.md) — allocation-free NMEA 0183 GGA/RMC GNSS provider over runtime serial/power/clock host services, version 1.0.0 (source-only upstream).
+- [i2c-esp32s3-v2](docs/drivers/i2c-esp32s3-v2.md) — firmware-backed `i2c.bus@1` provider, version 0.1.5; strict CI run `36492450111` reproduced the canonical 24,496-byte ELF SHA-256 `7b8f51f62da71e99949b093b6cdc531435a0cec01f87740921f9436544f8bd9c` under `--require-byte-parity`.
 - [usb-cdc-acm](docs/drivers/usb-cdc-acm.md) — allocation-free USB CDC ACM descriptor/protocol provider for binding discovery and class-request encoding, version 0.1.0 (source-only upstream).
 - [usb-cdc-acm-v2](docs/drivers/usb-cdc-acm-v2.md) — USB CDC ACM `serial.port@1` provider above `usb.host@1`, version 0.1.0; CI run `36447591163` reproduced the canonical 6,584-byte ELF byte-for-byte.
 - [usb-ch34x-v2](docs/drivers/usb-ch34x-v2.md) — WCH-compatible CH34x `serial.port@1` provider above `usb.host@1`, version 0.1.0; validates one unambiguous vendor interface, performs CH34x vendor initialization/framing requests, and routes bounded bulk I/O through the host claim.
@@ -71,10 +72,6 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 - [program-msp](docs/drivers/program-msp.md) — MSP430FR/XV2 FRAM programming provider above `debug.vendor.msp@1`, version 0.1.0; CI run `36447591163` reproduced the canonical 9,128-byte ELF byte-for-byte.
 - [t5s3-usb-power-profile](docs/drivers/t5s3-usb-power-profile.md) — immutable T5S3 BQ25896/USB power-policy profile provider, version 0.1.0.
 - [usb-controller-esp32s3](docs/drivers/usb-controller-esp32s3.md) — ESP32-S3 physical `usb.controller@1` provider, version 0.1.18; strict CI run `36487107833` reproduced the canonical 783,576-byte ELF under fail-closed byte-parity enforcement and passed the loader-map audit.
-
-### Staged migrations awaiting parity completion
-
-- [i2c-esp32s3-v2](docs/drivers/i2c-esp32s3-v2.md) — firmware-backed `i2c.bus@1` provider, version 0.1.5; source/build/docs are migrated, but canonical 24,496-byte release parity is still pending the staged historical-release replay.
 
 ## Documentation standard
 
