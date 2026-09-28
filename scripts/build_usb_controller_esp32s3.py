@@ -155,6 +155,9 @@ def audit(elf,compiler):
     syms=subprocess.check_output([str(readelf),"--dyn-syms","--wide",str(elf)],text=True)
     exports={f[7] for line in syms.splitlines() if len((f:=line.split()))>=8 and f[3]=="FUNC" and f[4]=="GLOBAL" and f[6]!="UND"}
     if exports!={"t5_driver_get"}: raise RuntimeError("unexpected exports: "+repr(sorted(exports)))
+    defined=subprocess.check_output([str(nm),"-D","--defined-only",str(elf)],text=True)
+    extras={line.split()[-1] for line in defined.splitlines() if line.split()}-{"t5_driver_get","__bss_start","_edata","_end"}
+    if extras: raise RuntimeError("unexpected exported ELF data: "+repr(sorted(extras)))
     if "TEXTREL" in subprocess.check_output([str(readelf),"-d",str(elf)],text=True):
         raise RuntimeError("TEXTREL present")
     data=elf.read_bytes()
