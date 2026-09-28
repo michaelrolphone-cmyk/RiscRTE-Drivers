@@ -4,7 +4,7 @@
     "repository": "michaelrolphone-cmyk/T5S3-Reader",
     "branch": "release-index",
     "path": "release-index.json",
-    "source_master_sha": "ae299feec3d69c6d0f62d5d7a412af14ae00dbe8"
+    "source_master_sha": "0d988e5ccd81b77e9550c2be1efed38872ed7648"
   },
   "drivers": [
     {
@@ -23,7 +23,7 @@
       "id": "i2c-esp32s3-v2",
       "version": "0.1.5",
       "source_path": "Drivers/i2c_esp32s3_v2",
-      "migrated": true
+      "migrated": false
     },
     {
       "id": "platform-clock-v1",
@@ -59,7 +59,7 @@
       "id": "usb-controller-esp32s3",
       "version": "0.1.18",
       "source_path": "Drivers/usb_controller_esp32s3",
-      "migrated": false
+      "migrated": true
     },
     {
       "id": "usb-cp210x-v2",

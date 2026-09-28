@@ -94,7 +94,7 @@ Published package metadata:
 - `provider-abi.v1`: 40 bytes, SHA-256 `892780d027085bbba39fce0d795850388a019cb47ec5a4497a5249a01e1a2f60`
 - `privileged-imports.v1`: 14 bytes, SHA-256 `a46fff766cb063bc348b3e7a6670e4a48c5c9201f0da92e73a67670229be7cca`
 
-The builder records whether independently produced bytes exactly equal the canonical release.
+CI run `36447591163` independently produced the canonical 6,584-byte ELF SHA-256 `34b3eeea0cca3927517e849298a1f088cbd1a14651bf81ff2b74f655a78af56f` and reported `byte_parity=True`.
 
 ## Established limitations
 

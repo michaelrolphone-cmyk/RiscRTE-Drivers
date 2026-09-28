@@ -50,16 +50,15 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 ### Migrated and independently buildable
 
 - [gps-nmea](docs/drivers/gps-nmea.md) — allocation-free NMEA 0183 GGA/RMC GNSS provider over runtime serial/power/clock host services, version 1.0.0 (source-only upstream).
-- [i2c-esp32s3-v2](docs/drivers/i2c-esp32s3-v2.md) — firmware-backed `i2c.bus@1` provider with exclusive address claims and one FreeRTOS mutex serializing provider state plus complete synchronous transactions, version 0.1.5; canonical release-byte parity remains to be reproduced independently.
 - [usb-cdc-acm](docs/drivers/usb-cdc-acm.md) — allocation-free USB CDC ACM descriptor/protocol provider for binding discovery and class-request encoding, version 0.1.0 (source-only upstream).
-- [usb-cdc-acm-v2](docs/drivers/usb-cdc-acm-v2.md) — USB CDC ACM `serial.port@1` provider above `usb.host@1`, version 0.1.0; parses and claims one unambiguous ACM function and routes class/bulk transfers through host-owned claims.
+- [usb-cdc-acm-v2](docs/drivers/usb-cdc-acm-v2.md) — USB CDC ACM `serial.port@1` provider above `usb.host@1`, version 0.1.0; CI run `36447591163` reproduced the canonical 6,584-byte ELF byte-for-byte.
 - [usb-ch34x-v2](docs/drivers/usb-ch34x-v2.md) — WCH-compatible CH34x `serial.port@1` provider above `usb.host@1`, version 0.1.0; validates one unambiguous vendor interface, performs CH34x vendor initialization/framing requests, and routes bounded bulk I/O through the host claim.
-- [usb-cp210x-v2](docs/drivers/usb-cp210x-v2.md) — Silicon Labs CP210x `serial.port@1` provider above `usb.host@1`, version 0.1.0; owns vendor matching/control, line configuration, generation-safe sessions, and bounded bulk I/O.
+- [usb-cp210x-v2](docs/drivers/usb-cp210x-v2.md) — Silicon Labs CP210x `serial.port@1` provider above `usb.host@1`, version 0.1.0; CI run `36447591163` reproduced the canonical 5,788-byte ELF byte-for-byte.
 - [usb-ftdi](docs/drivers/usb-ftdi.md) — single-port FTDI `serial.port@1` provider above `usb.host@1`, version 0.1.0; validates supported VID/PID/device generations, programs FTDI baud/line state, strips per-packet status bytes, and preserves buffered payload.
 - [usb-hid](docs/drivers/usb-hid.md) — generic USB HID interface provider above the interrupt-capable `usb.host@1` extension, version 0.1.2; parses bounded composite HID descriptors, owns interface claims, fetches report descriptors, selects boot/report protocol, and forwards interrupt-IN reports.
 - [usb-hid-gamepad](docs/drivers/usb-hid-gamepad.md) — descriptor-driven `usb.hid.gamepad@1` class provider over `usb.hid@1`, version 0.1.3; parses bounded HID layouts, normalizes buttons/axes/hat state, coalesces compatibility notifications, and exposes discovery diagnostics.
 - [usb-hid-keyboard](docs/drivers/usb-hid-keyboard.md) — boot-protocol keyboard class provider above `usb.hid@1`, version 0.1.1; tracks four keyboards, copied ordered subscriber events, snapshots, overflow gaps, and quiescent HID-session release.
-- [usb-hid-text-input](docs/drivers/usb-hid-text-input.md) — USB HID keyboard to transport-neutral `input.text@1` translator, version 0.1.0; upstream now publishes a canonical release and independent byte parity is pending CI confirmation.
+- [usb-hid-text-input](docs/drivers/usb-hid-text-input.md) — USB HID keyboard to transport-neutral `input.text@1` translator, version 0.1.0; CI run `36447591163` reproduced the canonical 8,692-byte ELF byte-for-byte.
 - [usb-host-v2](docs/drivers/usb-host-v2.md) — generation-safe `usb.host@1` provider above `usb.controller@1`, version 0.1.3; validates descriptor-derived bulk/interrupt endpoint access, quarantines failed releases, forwards optional diagnostics, and requires canonical published-byte parity from its standalone Xtensa build.
 - [usb-mass-storage](docs/drivers/usb-mass-storage.md) — USB MSC BOT/SCSI `storage.volume@1` provider with FAT16/FAT32 filesystem handling, version 0.1.1; CI run `36352310880` passed the exact upstream FAT16 host fixture and reproduced the canonical 23,792-byte ELF byte-for-byte.
 - [usb-stlink](docs/drivers/usb-stlink.md) — ST-LINK V2/V2.1/V3 `debug.vendor.stlink@1` provider above `usb.host@1` and `platform.clock@1`, version 0.1.0; CI run `36344579403` passed the exact host fixture and reproduced the canonical 9,304-byte ELF byte-for-byte.
@@ -69,12 +68,13 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 - [usb-msp](docs/drivers/usb-msp.md) — TI MSP-FET/eZ-FET `debug.vendor.msp@1` transport, version 0.1.1; CI run `36378453595` passed the exact upstream fixture and reproduced the canonical 14,116-byte ELF byte-for-byte.
 - [gt911-touch](docs/drivers/gt911-touch.md) — GT911 raw-touch provider over `i2c.bus@1`, version 0.1.0; independent CI output matches the published upstream ELF.
 - [platform-clock-v1](docs/drivers/platform-clock-v1.md) — generic `platform.clock@1` monotonic-time and sleep provider, version 0.1.0.
-- [program-msp](docs/drivers/program-msp.md) — MSP430FR/XV2 FRAM programming provider above `debug.vendor.msp@1`, version 0.1.0; standalone build requires canonical release-byte parity.
+- [program-msp](docs/drivers/program-msp.md) — MSP430FR/XV2 FRAM programming provider above `debug.vendor.msp@1`, version 0.1.0; CI run `36447591163` reproduced the canonical 9,128-byte ELF byte-for-byte.
 - [t5s3-usb-power-profile](docs/drivers/t5s3-usb-power-profile.md) — immutable T5S3 BQ25896/USB power-policy profile provider, version 0.1.0.
+- [usb-controller-esp32s3](docs/drivers/usb-controller-esp32s3.md) — ESP32-S3 physical `usb.controller@1` provider, version 0.1.18; strict CI run `36487107833` reproduced the canonical 783,576-byte ELF under fail-closed byte-parity enforcement and passed the loader-map audit.
 
 ### Staged migrations awaiting parity completion
 
-- [usb-controller-esp32s3](docs/drivers/usb-controller-esp32s3.md) — ESP32-S3 physical `usb.controller@1` provider, version 0.1.18; exact upstream source, implementation documentation, board definition, and repository-independent PIC ESP-IDF v4.4.7 build/audit harness are integrated; CI execution and canonical 783,576-byte ELF parity are still pending.
+- [i2c-esp32s3-v2](docs/drivers/i2c-esp32s3-v2.md) — firmware-backed `i2c.bus@1` provider, version 0.1.5; source/build/docs are migrated, but canonical 24,496-byte release parity is still pending the staged historical-release replay.
 
 ## Documentation standard
 

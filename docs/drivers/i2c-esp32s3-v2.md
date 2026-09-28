@@ -96,7 +96,9 @@ This does not prove physical bus timing, actual FreeRTOS scheduling, board mutex
 
 ## Standalone Xtensa validation
 
-The staged builder validates the exact 0.1.5 manifest, a 32-bit little-endian Xtensa shared ELF, sole function export `t5_driver_get`, the exact five-symbol runtime import set, absence of atomic helpers/direct hardware imports, and produced size/SHA-256 against the canonical release target.
+`scripts/build_i2c_esp32s3_v2.py` validates the exact 0.1.5 manifest and requires the migrated driver source files to be byte-identical to the historical v0.1.5 release source at commit `74d2417a0e9c88e6e0a8b71c8fc337d4d6d1da4e`. It replays the original `scripts/probe_i2c_esp32s3_v2.py` build through that commit's full `t5s3-pro` PlatformIO compilation database at the historical GitHub Actions workspace path, copies the resulting shared ELF into the local distribution directory, and removes the temporary historical checkout before later build steps.
+
+The replay validates a 32-bit little-endian Xtensa ET_DYN image, sole function export `t5_driver_get`, the exact five-symbol runtime import set, and records produced size/SHA-256 plus build provenance against the canonical 24,496-byte release target. The `--require-byte-parity` option fails closed when canonical bytes are required. Until this replay runs successfully in repository CI, published-byte parity remains pending.
 
 ## Published package metadata
 

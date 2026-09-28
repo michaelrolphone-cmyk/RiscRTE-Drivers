@@ -4,7 +4,7 @@
 
 `usb-controller-esp32s3` is the ESP32-S3 physical USB controller provider. Current upstream package metadata is version **0.1.18**, driver ABI **2**, architecture **xtensa-esp32s3**, executable `driver.elf`, requiring `board.power.vbus@1` and providing `usb.controller@1`. The exact current upstream driver directory is Git tree `16647df4a2f25a5d07f267a51b4497f1185d12fc`. Its manifest status is `experimental-hardware-port-not-yet-linkable`.
 
-This page documents verified source behavior. The exact upstream source tree is already integrated here. Migration is not complete until the repository-independent PIC ESP-IDF build/audit harness is executed in CI and reproduces the canonical published ELF.
+This page documents verified source behavior. The exact upstream source tree is integrated here. Strict CI run `36487107833` reproduced the canonical v0.1.18 ELF at 783,576 bytes with SHA-256 `f67064a9678a7b048e40cbf411d46653b69006aec07b9f2c95428597cc706e0e` under `--require-byte-parity`; the loader-map audit also passed. The driver is therefore migration-complete at the recorded upstream baseline.
 
 ## Upstream source tree
 

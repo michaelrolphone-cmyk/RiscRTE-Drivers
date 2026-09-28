@@ -73,7 +73,7 @@ This validates provider logic against a deterministic host stub; it does not est
 
 ## Standalone Xtensa validation and release metadata
 
-The staged build script validates the exact manifest, ELF32 little-endian Xtensa ET_DYN output, sole global function export `t5_driver_get`, and no unresolved imports outside `memcpy`/`memset`. It records canonical byte parity.
+The standalone build script validates the exact manifest, ELF32 little-endian Xtensa ET_DYN output, sole global function export `t5_driver_get`, and no unresolved imports outside `memcpy`/`memset`. CI run `36447591163` produced the canonical 5,788-byte ELF SHA-256 `96f22bbb6cc8cf00f138656a910d3078d491d6c117ffc4e23a2842c458481c61` and reported `byte_parity=True`.
 
 Published package metadata:
 - `.package.json`: 623 bytes, SHA-256 `a2e08a17e3362a481c636af885be2d2a5b9311cf43129925d7378492d56f18e3`
