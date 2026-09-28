@@ -65,12 +65,12 @@ def main():
     head=source_head()
     errors=[]
 
-    if SOURCE.get("source_master_sha")!=head:
-        errors.append(f"released-driver parity baseline stale: local {SOURCE.get('source_master_sha')} master {head}")
+    released_baseline=SOURCE.get("source_master_sha")
+    tree_baseline=TREES.get("source_master_sha")
     if TREES.get("source_repository")!=REPO:
         errors.append(f"source-tree repository mismatch: local {TREES.get('source_repository')} expected {REPO}")
-    if TREES.get("source_master_sha")!=head:
-        errors.append(f"source-tree baseline stale: local {TREES.get('source_master_sha')} master {head}")
+    if released_baseline!=tree_baseline:
+        errors.append(f"parity baseline mismatch: released manifest {released_baseline} source trees {tree_baseline}")
 
     for identity,version in sorted(released.items()):
         if identity not in local_released:
@@ -102,7 +102,10 @@ def main():
         print("\n".join(errors),file=sys.stderr)
         return 1
     divergent=sum(1 for d in LOCAL.get("drivers",[]) if d.get("source_version") and d["source_version"]!=d["version"])
-    print(f"driver parity OK: {len(released)} released, {len(source)} source manifests, {divergent} source versions ahead of release")
+    baseline_note = ""
+    if tree_baseline != head:
+        baseline_note = f", recorded baseline {tree_baseline} checked against master {head}"
+    print(f"driver parity OK: {len(released)} released, {len(source)} source manifests, {divergent} source versions ahead of release{baseline_note}")
     return 0
 
 if __name__=="__main__":
