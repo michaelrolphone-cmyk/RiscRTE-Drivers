@@ -20,6 +20,7 @@ PHY_GPIO_SOURCE = ROOT / "Drivers/usb_controller_esp32s3/phy_gpio.c"
 EXPORT_MAP = ROOT / "Drivers/usb_controller_esp32s3/exports.map"
 MANIFEST = ROOT / "Drivers/usb_controller_esp32s3/manifest.json"
 BOARD = ROOT / "boards/t5s3-pro.json"
+BUILD = ROOT / "dist/experimental/usb-controller-esp32s3"
 OUT = ROOT / "dist/usb-controller-esp32s3"
 PROBE = OUT / "toolchain-probe"
 CACHE = ROOT / "dist/idf-usb-source/v4.4.7"
@@ -134,7 +135,7 @@ def idf_sources():
                         "https://github.com/espressif/esp-idf.git",str(CACHE)],cwd=ROOT,check=True)
     subprocess.run(["git","-C",str(CACHE),"sparse-checkout","set","components/usb","components/hal","components/soc/esp32s3"],check=True)
     commit=subprocess.check_output(["git","-C",str(CACHE),"rev-parse","HEAD"],text=True).strip()
-    (OUT/"idf-usb-source.txt").write_text(f"{IDF_TAG} {commit}\n")
+    (BUILD/"idf-usb-source.txt").write_text(f"{IDF_TAG} {commit}\n")
     usb=CACHE/"components/usb"; hal=CACHE/"components/hal"; soc=CACHE/"components/soc/esp32s3"
     paths=[*(usb/n for n in USB),*(hal/n for n in HAL),*(soc/n for n in SOC)]
     if any(not p.is_file() for p in paths): raise RuntimeError("pinned IDF source set incomplete")
@@ -173,8 +174,9 @@ def main():
     manifest=json.loads(MANIFEST.read_text())
     if manifest!=EXPECTED: raise SystemExit("usb-controller-esp32s3 manifest mismatch")
     OUT.mkdir(parents=True,exist_ok=True)
+    BUILD.mkdir(parents=True,exist_ok=True)
     entry=probe_entry(); argv=list(entry["arguments"]) if "arguments" in entry else shlex.split(entry["command"])
-    controller=OUT/"controller.o"; compile_target(argv,entry,SOURCE,controller,extra=("-Wall","-Wextra","-Werror"))
+    controller=BUILD/"controller.o"; compile_target(argv,entry,SOURCE,controller,extra=("-Wall","-Wextra","-Werror"))
     compiler=Path(argv[0]); nm=tool(compiler,"nm")
     undef=subprocess.check_output([str(nm),"-u",str(controller)],text=True)
     if "usb_host_install" not in undef or "usb_host_transfer_submit" not in undef: raise RuntimeError("not real IDF USB controller")
@@ -185,14 +187,15 @@ def main():
     for i,p in enumerate(paths):
         source=p
         if p.name=="hub.c":
-            source=OUT/"hub-enumeration-diagnostics.c"; source.write_text(instrument_hub(p.read_text()))
-        obj=OUT/f"idf-usb-{i}-{p.name}.o"; compile_target(argv,entry,source,obj,c=True,extra=inc); objs.append(obj)
-    phy=OUT/"phy-gpio.o"; compile_target(argv,entry,PHY_GPIO_SOURCE,phy,c=True,extra=(*inc,"-Wall","-Wextra","-Werror")); objs.append(phy)
-    elf=OUT/"driver.elf"
+            source=BUILD/"hub-enumeration-diagnostics.c"; source.write_text(instrument_hub(p.read_text()))
+        obj=BUILD/f"idf-usb-{i}-{p.name}.o"; compile_target(argv,entry,source,obj,c=True,extra=inc); objs.append(obj)
+    phy=BUILD/"phy-gpio.o"; compile_target(argv,entry,PHY_GPIO_SOURCE,phy,c=True,extra=(*inc,"-Wall","-Wextra","-Werror")); objs.append(phy)
+    elf=BUILD/"controller-link-experiment.elf"
     subprocess.run([str(compiler),"-shared","-nostdlib","-nostartfiles","-Wl,--hash-style=sysv","-Wl,--exclude-libs,ALL",
                     "-Wl,-Bsymbolic","-Wl,--version-script,"+str(EXPORT_MAP),*mmio_args(soc),*map(str,objs),"-lgcc","-o",str(elf)],
                    cwd=ROOT,check=True)
     imports,size,digest,parity=audit(elf,compiler)
+    (OUT/"driver.elf").write_bytes(elf.read_bytes())
     meta=dict(manifest); meta.update(size_bytes=size,sha256=digest,canonical_size_bytes=CANONICAL_SIZE,
                                      canonical_sha256=CANONICAL_SHA256,byte_parity=parity,unresolved_imports=imports)
     (OUT/"manifest.json").write_text(json.dumps(meta,indent=2)+"\n")
