@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "source_repository": "michaelrolphone-cmyk/T5S3-Reader",
-  "source_master_sha": "36a0d92adff41992e99b5306045907d8ad0e2656",
+  "source_master_sha": "ae299feec3d69c6d0f62d5d7a412af14ae00dbe8",
   "drivers": {
     "board-power-t5s3-v2": "bca04f3a1bd9ce6fe75943345168ae982b422470",
     "gps-nmea": "ec07d533aa91f1e2444a5c8060eb5b651b16fa0a",
