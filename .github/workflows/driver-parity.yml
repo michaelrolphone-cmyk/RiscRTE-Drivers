@@ -142,6 +142,35 @@ jobs:
             test/drivers/usb_stlink_test.c -ldl -o /tmp/usb-stlink-test
           /tmp/usb-stlink-test /tmp/usb-stlink.so
       - run: python scripts/build_usb_stlink.py
+      - name: Test board-power-t5s3-v2 BQ25896 profile, VBUS and rollback lifecycle
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
+            -Dt5_driver_get=t5_profile_get \
+            -c Drivers/t5s3_usb_power_profile/driver.c -o /tmp/t5s3-usb-power-profile.o
+          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
+            -c Drivers/bq25896/driver.c -o /tmp/board-power-t5s3-v2.o
+          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
+            test/drivers/board_power_t5s3_v2_test.c \
+            /tmp/board-power-t5s3-v2.o /tmp/t5s3-usb-power-profile.o \
+            -o /tmp/board-power-t5s3-v2-test
+          /tmp/board-power-t5s3-v2-test
+      - run: python scripts/build_board_power_t5s3_v2.py
+      - name: Test usb-msp MSP-FET/eZ-FET discovery, HAL framing and lifecycle
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
+            -I sdk/driver Drivers/usb_msp/driver.c -o /tmp/usb-msp.so
+          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
+            test/drivers/usb_msp_test.c -ldl -o /tmp/usb-msp-test
+          /tmp/usb-msp-test /tmp/usb-msp.so
+      - run: python scripts/build_usb_msp.py
+      - name: Test usb-xinput-gamepad discovery, state, retry, hotplug and shutdown
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
+            Drivers/usb_xinput_gamepad/driver.c \
+            test/drivers/usb_xinput_gamepad_test.c \
+            -o /tmp/usb-xinput-gamepad-test
+          /tmp/usb-xinput-gamepad-test
+      - run: python scripts/build_usb_xinput_gamepad.py
       - name: Test program-msp target gating, FRAM RMW, verify and cleanup
         run: |
           cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared -I sdk/driver Drivers/program_msp/driver.c -o /tmp/program-msp.so
@@ -217,6 +246,18 @@ jobs:
         with:
           name: usb-stlink
           path: dist/usb-stlink
+      - uses: actions/upload-artifact@v4
+        with:
+          name: board-power-t5s3-v2
+          path: dist/board-power-t5s3-v2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-msp
+          path: dist/usb-msp
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-xinput-gamepad
+          path: dist/usb-xinput-gamepad
       - uses: actions/upload-artifact@v4
         with:
           name: program-msp
