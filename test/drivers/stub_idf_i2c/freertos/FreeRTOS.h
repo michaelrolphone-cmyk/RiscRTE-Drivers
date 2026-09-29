@@ -1,7 +1,4 @@
 #pragma once
-#ifndef _POSIX_C_SOURCE
-#define _POSIX_C_SOURCE 200809L
-#endif
 /* Host test fixture ONLY. */
 #include <stdint.h>
 typedef uint32_t TickType_t;
