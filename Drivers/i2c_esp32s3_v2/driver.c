@@ -8,6 +8,7 @@
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
+#include <freertos/task.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -85,6 +86,7 @@ static bool transact(void *context, uint64_t token,
         !timeout_ms || timeout_ms > RISC_FW_I2C_COMPAT_V1_MAX_TIMEOUT_MS)
         return false;
 
+    const TickType_t begun = xTaskGetTickCount();
     TickType_t wait_ticks = pdMS_TO_TICKS(timeout_ms);
     if (!wait_ticks) wait_ticks = 1;
     SemaphoreHandle_t lock = take_state(wait_ticks);
@@ -101,9 +103,11 @@ static bool transact(void *context, uint64_t token,
     }
 
     bool ok = false;
-    if (address) {
+    const uint32_t waited_ms =
+        (uint32_t)((TickType_t)(xTaskGetTickCount() - begun)) * portTICK_PERIOD_MS;
+    if (address && waited_ms < timeout_ms) {
         ok = risc_fw_i2c_transact_v1(address, write_bytes, write_length,
-                                     read_bytes, read_length, timeout_ms);
+                                     read_bytes, read_length, timeout_ms - waited_ms);
     }
     give_state(lock);
 

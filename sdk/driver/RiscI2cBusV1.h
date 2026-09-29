@@ -21,6 +21,9 @@ typedef struct {
     /* Both phases are one serialized bus transaction. If read_length > 0,
      * the bus MUST issue a repeated START without a STOP after write_bytes.
      * A false result means caller MUST NOT assume a register write succeeded.
+     * timeout_ms is a total admission/transfer budget, not a fresh timeout
+     * for each nested lock. Forward only the remaining budget to the physical
+     * transport. Tick rounding/scheduler latency can add one scheduler tick.
      * Buffers are borrowed only until the synchronous call returns. */
     bool (*transact)(void *context, uint64_t claim,
                      const uint8_t *write_bytes, size_t write_length,

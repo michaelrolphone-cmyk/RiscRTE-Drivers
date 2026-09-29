@@ -184,7 +184,7 @@ int main(void) {
 
     assert(bus->transact(NULL, claim, &reg, 1, &answer, 1, 100));
     assert(answer == 0x42u && last_address == 0x6bu &&
-           last_timeout == 100 && last_write_length == 1 &&
+           last_timeout > 0 && last_timeout <= 100 && last_write_length == 1 &&
            last_read_length == 1);
     assert(bus->transact(NULL, claim, command, 2, NULL, 0, 100));
     assert(last_write_length == 2 && last_read_length == 0);
@@ -216,11 +216,17 @@ int main(void) {
     assert(max_backend_active == 1);
     pthread_mutex_unlock(&backend_lock);
 
+    // A short-deadline caller must time out without entering the backend.
+    const unsigned before_timeout = backend_entries;
+    assert(!bus->transact(NULL, claim, &reg, 1, &answer, 1, 5));
+    assert(backend_entries == before_timeout);
     release_backend_block();
     assert(pthread_join(first_thread, NULL) == 0);
     assert(pthread_join(second_thread, NULL) == 0);
     assert(first.result && second.result);
     assert(first.answer == 0x42u && second.answer == 0x42u);
+    // The queued caller gets the remaining budget, never a fresh 1000 ms.
+    assert(last_timeout > 0 && last_timeout < 1000);
     pthread_mutex_lock(&backend_lock);
     assert(backend_entries == before_queue + 2);
     assert(max_backend_active == 1);
