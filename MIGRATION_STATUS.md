@@ -1,6 +1,6 @@
 # Migration status
 
-Source inventory on `T5S3-Reader:master` at `0d988e5ccd81b77e9550c2be1efed38872ed7648`: 23 driver directories with manifests. Of those, 21 are canonical released drivers in `T5S3-Reader:release-index`; two are source-only drivers (`gps-nmea` and `usb-cdc-acm`).
+Source inventory on `T5S3-Reader:master` at `8de2ca61708f10daf9714f4a7b7bded39ec41513`: 23 driver directories with manifests. Of those, 21 are canonical released drivers in `T5S3-Reader:release-index`; two are source-only drivers (`gps-nmea` and `usb-cdc-acm`).
 
 ## Source/build migrated and independently buildable
 
