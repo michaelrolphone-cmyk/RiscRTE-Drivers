@@ -184,9 +184,11 @@ The release-index metadata establishes the privileged-imports file's bytes/hash,
 
 ## Migration validation status
 
-The v0.1.1 source, manifest, touch/I2C ABI headers, and host fixture are synchronized into RiscRTE-Drivers. The prepared canonical replay targets the observed 42,976-byte SHA-256 above and is intended to fail closed under `--require-byte-parity`.
+The v0.1.1 source, manifest, touch/I2C ABI headers, host fixture, standalone builder, and canonical replay tool are synchronized into RiscRTE-Drivers.
 
-Until that strict replay has passed on the destination CI, v0.1.1 must not be represented as parity-complete.
+Destination CI run `36619053242` on commit `6e77fc5473e7260b3e8c966aa8fc2b1b4d8d1d7b` passed repository parity/documentation checks and the complete existing build job. The repaired standalone GT911 build completed successfully and produced a 9,304-byte ELF with SHA-256 `4f2b517cf51727b51b0c4e7656d403e3ef0671ca9982e65a06b4e7a4b23cd310`. That standalone output is **not** the canonical published artifact: the upstream release ELF is built in the historical full firmware compilation environment and remains the 42,976-byte SHA-256 `44d753b736a2a433549ab500a3cae52f1e2844f79332fd119fc8df8d57cd11f4` target for `scripts/build_gt911_release_parity.py --require-byte-parity`.
+
+The destination host concurrency/retry/GAP fixture and strict historical release replay have not yet been executed by destination CI. Until both pass, v0.1.1 must not be represented as parity-complete.
 
 ## Established limitations
 

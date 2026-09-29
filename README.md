@@ -49,7 +49,7 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 
 ### Synchronized upstream updates awaiting strict release parity CI
 
-- [gt911-touch](docs/drivers/gt911-touch.md) — serialized GT911 `input.touch.raw@1` provider, version 0.1.1; source/ABI/host fixtures are synchronized and strict replay targets the published 42,976-byte ELF SHA-256 `44d753b736a2a433549ab500a3cae52f1e2844f79332fd119fc8df8d57cd11f4`.
+- [gt911-touch](docs/drivers/gt911-touch.md) — serialized GT911 `input.touch.raw@1` provider, version 0.1.1; destination CI run `36619053242` passed parity/docs and the repaired standalone build, while the host concurrency/retry/GAP fixture plus strict historical replay remain pending against the published 42,976-byte ELF SHA-256 `44d753b736a2a433549ab500a3cae52f1e2844f79332fd119fc8df8d57cd11f4`.
 
 ### Migrated and independently buildable
 

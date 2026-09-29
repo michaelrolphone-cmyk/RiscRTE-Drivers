@@ -34,7 +34,7 @@ None.
 
 ## Released drivers with source staged but parity completion pending
 
-- `gt911-touch` v0.1.1 — current source/manifest/ABI and upstream host fixture are synchronized; destination build tooling is staged to run the host concurrency/retry/GAP suite and fail closed against the published 42,976-byte ELF SHA-256 `44d753b736a2a433549ab500a3cae52f1e2844f79332fd119fc8df8d57cd11f4`. The current CI build stops before this strict replay because `scripts/build_gt911_touch.py` on `4cb37724100aa427a04909b27c5f22a11b73c3ba` contains a malformed literal `\n` suffix; the companion fix repairs that blocker and wires the strict replay.
+- `gt911-touch` v0.1.1 — current source/manifest/ABI, upstream host fixture, repaired standalone builder, and canonical replay tool are synchronized. Destination run `36619053242` on `6e77fc5473e7260b3e8c966aa8fc2b1b4d8d1d7b` passed parity/documentation and the complete existing build job; the standalone GT911 build produced 9,304 bytes with SHA-256 `4f2b517cf51727b51b0c4e7656d403e3ef0671ca9982e65a06b4e7a4b23cd310`. That standalone ELF is not the historical release artifact. The destination host concurrency/retry/GAP fixture and `build_gt911_release_parity.py --require-byte-parity` still must run and reproduce the published 42,976-byte ELF SHA-256 `44d753b736a2a433549ab500a3cae52f1e2844f79332fd119fc8df8d57cd11f4` before this driver can be marked migrated.
 
 
 ## Source-only drivers still requiring compatibility migration
