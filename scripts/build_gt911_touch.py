@@ -35,4 +35,4 @@ if not 52<=len(data)<=256*1024 or data[:7]!=b"\x7fELF\x01\x01\x01" or int.from_b
     raise SystemExit("invalid Xtensa shared driver")
 manifest.update(size_bytes=len(data),sha256=hashlib.sha256(data).hexdigest())
 (OUT/"manifest.json").write_text(json.dumps(manifest,indent=2)+"\n")
-print(f"built gt911-touch {len(data)} bytes {manifest['sha256']}")\nif os.environ.get("GITHUB_ACTIONS") == "true" and (len(data) != 42976 or manifest["sha256"] != "44d753b736a2a433549ab500a3cae52f1e2844f79332fd119fc8df8d57cd11f4"):\n    raise SystemExit("gt911-touch canonical release byte parity failed")
+print(f"built gt911-touch {len(data)} bytes {manifest['sha256']}")

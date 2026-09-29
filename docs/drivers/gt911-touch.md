@@ -1,21 +1,29 @@
 # gt911-touch
 
-## Purpose
+## Purpose and scope
 
-`gt911-touch` is the provider-v2 driver for a Goodix GT911 touch controller. It owns GT911 register-level behavior while delegating physical I2C transactions to the `i2c.bus@1` provider and timestamps to `platform.clock@1`. It provides the transport-neutral `input.touch.raw@1` capability.
+`gt911-touch` is the provider-v2 driver for the Goodix GT911 touch controller. It owns GT911 register/report interpretation while delegating physical bus transfers to `i2c.bus@1` and timestamps to `platform.clock@1`. It provides the transport-neutral `input.touch.raw@1` capability.
+
+This page documents the upstream 0.1.1 source currently mirrored into RiscRTE-Drivers. Behavior below is derived from `Drivers/gt911_touch/driver.c`, its manifest, `RiscTouchV1.h`, the current upstream host fixture, the upstream build script, and published package metadata.
 
 ## Package identity
 
-- Driver ID: `gt911-touch`
-- Version: `0.1.0`
-- Driver ABI: `2`
+- Driver/package ID: `gt911-touch`
+- Version: `0.1.1`
+- Driver ABI: 2
 - Architecture: `xtensa-esp32s3`
+- Source path: `Drivers/gt911_touch`
+- Upstream source tree SHA: `917adb535504b77d831f6dfc09445fc1070164df`
 - Provides: `input.touch.raw@1`
 - Requires: `i2c.bus@1`, `platform.clock@1`
-- Manifest status string: `experimental-unpublished` (still present in the upstream source manifest)
-- Upstream release status: published as `driver-gt911-touch-v0.1.0`; canonical ELF size 8,736 bytes, SHA-256 `9b934b1056fc8a99f4973dccc311d991f4c4ff1e46b826d27fc2919e6555ec6d`
+- Source-manifest status: `experimental-unpublished`
+- Published release tag: `driver-gt911-touch-v0.1.1`
+- Published `driver.elf`: 42,976 bytes
+- Published `driver.elf` SHA-256: `44d753b736a2a433549ab500a3cae52f1e2844f79332fd119fc8df8d57cd11f4`
 
-## Source and build files
+The source manifest still contains `experimental-unpublished`; the release-index independently establishes that 0.1.1 is published. Those are separate observed facts.
+
+## Source, ABI, build, and test files
 
 - `Drivers/gt911_touch/driver.c`
 - `Drivers/gt911_touch/manifest.json`
@@ -23,92 +31,163 @@
 - `sdk/driver/RiscI2cBusV1.h`
 - `sdk/driver/RiscPlatformClockV1.h`
 - `sdk/driver/RiscProviderV2.h`
+- `test/drivers/gt911_touch_test.c`
+- `test/drivers/stub_idf_i2c/freertos/FreeRTOS.h`
+- `test/drivers/stub_idf_i2c/freertos/semphr.h`
+- `test/run_gt911_touch_test.sh`
 - `scripts/build_gt911_touch.py`
+- `scripts/build_gt911_release_parity.py`
 
-The standalone build uses the Xtensa ESP32-S3 GCC toolchain, PIC/shared-object flags, SysV ELF hashing, relocation normalization, exported-symbol validation, and ELF32/Xtensa validation.
+The current upstream release build uses the ESP32-S3 PlatformIO compilation database so the provider is compiled with the firmware's actual FreeRTOS configuration. The RiscRTE-Drivers migration tooling replays that release environment for canonical byte comparison rather than replacing the upstream build inputs with an inferred configuration.
 
-## Provider ABI
+## Exported root and provider descriptor
 
-The only public driver symbol is `t5_driver_get(uint32_t abi)`. It returns a static `risc_driver_v2` only for ABI 2.
+The only intended public function export is `t5_driver_get(uint32_t abi)`. ABI values other than provider ABI 2 return no descriptor. The ABI-2 descriptor identifies `gt911-touch`, advertises `input.touch.raw` API 1, and supplies `start`, `stop`, and `quiesce`.
 
-The descriptor identifies `gt911-touch`, advertises `input.touch.raw` API 1, and supplies `start`, `stop`, and `quiesce`.
+## `input.touch.raw@1` interface
 
-## Touch capability
+`risc_touch_api_v1` exposes:
 
-`risc_touch_api_v1` provides:
+- `subscribe(context)`
+- `unsubscribe(context, subscription)`
+- `poll(context, max_reports)`
+- `next(context, subscription, out)`
+- `snapshot(context, out)`
 
-- `subscribe`
-- `unsubscribe`
-- `poll`
-- `next`
-- `snapshot`
+Implementation and ABI constants establish:
 
-The interface supports at most 5 simultaneous contacts, 4 subscribers, and 32 queued events per subscriber.
+- maximum contacts: 5
+- maximum subscribers: 4
+- copied event queue length per subscriber: 32
+- event kinds: DOWN, MOVE, UP, BUTTON_DOWN, BUTTON_UP
+- primary button mask: bit 0
 
-Event kinds are DOWN, MOVE, UP, BUTTON_DOWN, and BUTTON_UP. Each event carries a monotonically increasing sequence number and timestamp, contact/button identifier, and coordinates where applicable.
+Each event contains a sequence number, monotonic timestamp, contact or button ID, and coordinates. A snapshot contains the authoritative current sequence/timestamp, surface dimensions, active contacts, and button bitmask.
 
-A snapshot contains the current sequence/timestamp, reported surface dimensions, active contact count, button bitmask, and up to five current contacts.
+A new subscriber receives no historical queue entries. The ABI requires the consumer to call `snapshot()` after subscribing when it needs authoritative current state.
 
-## GT911 hardware behavior
+## Concurrency and state ownership in 0.1.1
 
-The driver tries two 7-bit I2C addresses in order:
+Version 0.1.1 adds a provider-local FreeRTOS mutex around the entire public touch API state machine. The source explicitly allows public calls to originate from a capture task and an app while lifecycle start/stop remains serialized by the grant-owning loader.
+
+`lock_state()` waits for the provider mutex using the same 20 ms bound used by GT911 register I/O. If the millisecond-to-tick conversion would be zero, it uses one tick.
+
+The lock protects complete report processing and state mutation rather than relying on the `i2c.bus` provider's per-transfer serialization. This prevents a second caller from interleaving status read, point read, acknowledgement, subscriber queues, or snapshot state with an active report.
+
+When the state mutex cannot be acquired:
+
+- boolean operations fail;
+- `subscribe` returns zero;
+- `next` returns `-2`, which the ABI documents as provider fault/busy rather than queue GAP.
+
+## Hardware identification and register interaction
+
+The provider probes these 7-bit I2C addresses in order:
 
 1. `0x5d`
 2. `0x14`
 
-It reads 11 bytes beginning at GT911 product-information register `0x8140`, extracts surface width/height from bytes 6-9, and rejects zero dimensions or dimensions above 4096.
+It reads 11 bytes beginning at product-information register `0x8140`. Width and height are taken from bytes 6-9. Startup rejects zero dimensions and dimensions above the source's 4096 bound.
 
-The status register is `0x814e`; first-point data begins at `0x814f`. The ready bit is `0x80`, touch-count mask is `0x0f`, and key/button indication is `0x10`.
+Report registers and masks established in source:
 
-All register transactions use a 20 ms timeout.
+- status register: `0x814e`
+- first point: `0x814f`
+- READY: `0x80`
+- touch-count mask: `0x0f`
+- key/button indication: `0x10`
+- per-contact record: 8 bytes
+- transaction timeout: 20 ms
 
-## Polling and report parsing
+The driver never directly configures ESP32-S3 I2C hardware. Register reads and writes go through the retained `i2c.bus@1` device claim.
 
-`poll` requires `max_reports` from 1 through 16. It services reports until the requested limit is reached or the controller reports no ready data.
+## Report processing and acknowledgement semantics
 
-For each ready report:
+`poll` validates `max_reports` in the range 1 through 16. In 0.1.1, one invocation intentionally services at most one complete hardware report even when a larger value is supplied. The source comment identifies the reason: one report can require up to three 20 ms bus operations, so a single caller must not monopolize the provider/bus while READY is continuously asserted.
 
-- touch count above 5 is rejected;
-- each contact consumes 8 raw bytes;
+For a READY report:
+
+- contact counts above 5 are rejected;
+- contact data is read only when count is nonzero;
 - duplicate contact IDs are rejected;
-- coordinates outside the probed surface dimensions are rejected;
-- the driver acknowledges the report by writing zero to the GT911 status register before publishing events.
+- coordinates outside the probed surface are rejected;
+- GT911 key state maps to `RISC_TOUCH_BUTTON_PRIMARY`.
 
-If acknowledgement fails, the report is not published, preventing the same unacknowledged hardware report from being emitted twice.
+A failed point-data read does **not** acknowledge the GT911 status register. READY is deliberately left latched so the unread report can be retried on a later bounded poll.
 
-## Event state and subscriber queues
+Malformed reports are discarded and every active subscriber is marked GAP. Their pending event queues are cleared so a later state transition cannot silently fabricate a continuous gesture after invalid hardware data.
 
-The driver compares each new contact set with the prior snapshot:
+For a valid report, 0.1.1 applies the validated contact/button state and enqueues derived events **before** attempting the status acknowledgement. This handles the ambiguous failure case in which the ACK write may have reached the controller even though the bus call returned failure:
 
-- missing previous contacts emit UP;
-- new IDs emit DOWN;
-- coordinate changes on retained IDs emit MOVE;
-- GT911 key state maps to the primary touch button and emits BUTTON_DOWN/BUTTON_UP on transitions.
+- if ACK actually cleared READY, the validated edge has already been retained;
+- if ACK did not clear READY, the next poll sees the same state and `apply_state` emits no duplicate edge;
+- the provider does not blindly retry the ACK because that could clear a newer controller report.
 
-Every active subscriber receives its own copied event queue.
+Consequently `poll` can return false after making partial observable progress. The ABI comment explicitly tells consumers to drain `next()` even after a failed `poll`.
 
-If a subscriber queue reaches 32 events, the queue is cleared and marked with a gap. The next `next` call returns `-1`; the interface contract requires consumers to discard derived state and call `snapshot` to re-establish authoritative state.
+## Event derivation and queue semantics
 
-`next` returns 1 for an event, 0 when empty, and -1 for a stale subscription or queue gap in the current implementation.
+Compared with the previous snapshot:
 
-## Lifecycle and ownership
+- a missing old contact emits UP;
+- a new contact ID emits DOWN;
+- a retained ID whose coordinates changed emits MOVE;
+- primary key transitions emit BUTTON_DOWN/BUTTON_UP.
 
-`start` requires exactly two valid dependencies: an `i2c.bus@1` API with claim/transact/release operations and a `platform.clock@1` API with monotonic time.
+Every active subscriber gets a copied queue.
 
-The driver claims one GT911 I2C address and retains that claim while active. It fails startup if no clock is available or neither GT911 address probes successfully.
+When a subscriber queue overflows, that subscriber is marked GAP and its buffered entries are discarded. `next` then returns `-1`; the ABI requires the consumer to discard derived state and use `snapshot()` to recover authoritative current state. `-1` also represents a stale subscription handle. `-2` is reserved for provider fault/state-lock failure.
 
-`quiesce` refuses to unload while any subscriber token remains active. When no subscribers remain, it releases the I2C device claim and clears provider state. `stop` calls `quiesce`.
+## Lifecycle and stale-handle behavior
 
-This establishes the driver as the GT911 register/session owner while leaving bus-controller serialization and physical I2C implementation to the `i2c.bus` provider.
+`start` requires exactly two valid provider dependencies: `i2c.bus@1` with claim/transact/release and `platform.clock@1` with monotonic time. It creates the state mutex before probing the controller and deletes the mutex if startup fails.
 
-## Failure behavior and limits
+The selected GT911 I2C claim is retained while the provider is active.
 
-Confirmed failure conditions include invalid/missing dependencies, failure to claim either I2C address, bad surface dimensions, I2C transaction failure, invalid touch count, duplicate IDs, out-of-range coordinates, acknowledgement failure, invalid poll count, and inability to release the I2C claim during quiescence.
+Version 0.1.1 keeps the subscription serial monotonically increasing across clean stop/start cycles rather than resetting it. This prevents an old subscription token from becoming valid again after restart.
 
-If the platform clock fails during report service, event timestamping falls back to the most recent snapshot timestamp rather than inventing a new time value.
+`quiesce` participates in the same state lock and refuses to complete while any subscriber remains. Once subscribers are gone, it releases the I2C claim and clears active provider state. `stop` attempts quiescence and deletes the state mutex only after successful quiescence.
 
-The source contains no IRQ/interrupt path; this implementation is explicitly serviced through `poll`.
+## Failure behavior verified by the host fixture
 
-## Publication state
+The current upstream fixture exercises:
 
-T5S3-Reader now publishes `gt911-touch` version 0.1.0 in the release index as `driver-gt911-touch-v0.1.0`. The canonical `driver.elf` is 8,736 bytes with SHA-256 `9b934b1056fc8a99f4973dccc311d991f4c4ff1e46b826d27fc2919e6555ec6d`. RiscRTE-Drivers CI run 36277642683 independently built the migrated source to the same size and SHA-256, establishing byte-for-byte published ELF parity for this version. The upstream source manifest still carries the literal status field `experimental-unpublished`; this documentation records that source fact separately from the observed release-index publication state.
+- ABI rejection/acceptance;
+- dependency/start validation;
+- primary and fallback address probing;
+- DOWN/MOVE/UP delivery to multiple subscribers;
+- snapshots;
+- unread point-data retry with READY left asserted;
+- failed ACK where the controller did and did not actually clear READY;
+- no duplicated edge after ambiguous ACK;
+- malformed/out-of-range reports becoming subscriber GAP;
+- provider-wide serialization when another thread is inside status I/O;
+- `next == -2` during state-lock contention;
+- primary button transitions;
+- subscriber queue overflow/GAP recovery;
+- quiesce refusal with live subscribers;
+- release on successful quiesce;
+- restart with monotonic subscription generations.
+
+These host tests use mocked I2C and clock providers. They do not establish real GT911 electrical behavior, interrupt timing, or actual FreeRTOS scheduling on hardware.
+
+## Published package metadata
+
+Observed in the current upstream release index for v0.1.1:
+
+- `.package.json`: 666 bytes, SHA-256 `a286fbd5f56b54d88a3291b6bdca5594bdfdc985837ca790948a443beb95fc08`
+- `driver.elf`: 42,976 bytes, SHA-256 `44d753b736a2a433549ab500a3cae52f1e2844f79332fd119fc8df8d57cd11f4`
+- `provider-abi.v1`: 44 bytes, SHA-256 `b2e84b614f7f76e8dd0a971a4be0a7eea4374d22f8b79ce3062d041bfa1630ed`
+- `privileged-imports.v1`: 118 bytes, SHA-256 `7afc3a0dd435251841149aa30a2041f60292b15abd20cecb1e80fbdd25ba3cba`
+
+The release-index metadata establishes the privileged-imports file's bytes/hash, but not its text contents. This document therefore does not invent the exact published import list. Source inspection establishes use of the FreeRTOS semaphore/mutex API; the upstream release builder validates imports against the firmware's permitted export set.
+
+## Migration validation status
+
+The v0.1.1 source, manifest, touch/I2C ABI headers, and host fixture are synchronized into RiscRTE-Drivers. The prepared canonical replay targets the observed 42,976-byte SHA-256 above and is intended to fail closed under `--require-byte-parity`.
+
+Until that strict replay has passed on the destination CI, v0.1.1 must not be represented as parity-complete.
+
+## Established limitations
+
+The implementation is polled; no GT911 IRQ handling is present in the driver source. It depends on the external `i2c.bus@1` and `platform.clock@1` providers and does not own physical I2C hardware. Host validation cannot establish board electrical behavior or device timing.

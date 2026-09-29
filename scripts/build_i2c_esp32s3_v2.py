@@ -212,7 +212,7 @@ def main() -> None:
     provenance = {
         "historical_repository": "michaelrolphone-cmyk/T5S3-Reader",
         "historical_commit": HISTORICAL_COMMIT,
-        "historical_release_tag": "driver-i2c-esp32s3-v2-v0.1.5",
+        "historical_release_tag": "driver-i2c-esp32s3-v2-v0.1.6",
         "historical_workspace": str(workspace),
         "canonical_workspace_path": canonical_path,
         "migrated_source_files": migrated_files,

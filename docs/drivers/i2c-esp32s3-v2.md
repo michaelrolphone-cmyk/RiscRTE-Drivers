@@ -2,25 +2,27 @@
 
 ## Purpose and scope
 
-`i2c-esp32s3-v2` is the ABI-v2 `i2c.bus@1` provider for the T5S3 Pro. Version 0.1.5 remains transitional: the ELF does not configure or own ESP32-S3 I2C0 directly. Physical transfers are delegated to the firmware-private compatibility entry point `risc_fw_i2c_transact_v1`, while the ELF owns logical device claims, provider lifecycle state, and provider-local serialization.
+`i2c-esp32s3-v2` is the ABI-v2 `i2c.bus@1` provider for the T5S3 Pro. Version 0.1.6 remains a firmware-backed transitional provider: the ELF owns logical claims, provider-local serialization, timeout admission, and lifecycle state, while physical I2C0 transfer execution is delegated to the firmware-private `risc_fw_i2c_transact_v1` bridge.
+
+This page documents the current 0.1.6 source, ABI header, host fixture, upstream probe, and published package metadata. It does not infer direct hardware ownership that is absent from source.
 
 ## Package identity
 
-- Driver ID: `i2c-esp32s3-v2`
-- Version: `0.1.5`
+- Driver/package ID: `i2c-esp32s3-v2`
+- Version: `0.1.6`
 - Driver ABI: 2
 - Architecture: `xtensa-esp32s3`
 - Board: `t5s3-pro`
 - Source path: `Drivers/i2c_esp32s3_v2`
-- Upstream source tree SHA: `7d22b9d723d055008fbc99da214a5da3e8fb5a0f`
-- Manifest status string: `experimental-unpublished`
+- Upstream source tree SHA: `788ca9625e27f0fd8d07bed86cc90d2bf3c32bc7`
 - Requires: none
 - Provides: `i2c.bus@1`
-- Release tag: `driver-i2c-esp32s3-v2-v0.1.5`
-- Canonical ELF: 24,496 bytes
-- Canonical ELF SHA-256: `7b8f51f62da71e99949b093b6cdc531435a0cec01f87740921f9436544f8bd9c`
+- Source-manifest status: `experimental-unpublished`
+- Published tag: `driver-i2c-esp32s3-v2-v0.1.6`
+- Published `driver.elf`: 24,960 bytes
+- Published `driver.elf` SHA-256: `0230f71ca21340165c59cba89e18e30ba169671c714dd1098ed5b4994f90fc34`
 
-The source manifest still says `experimental-unpublished`, while the inspected release index publishes version 0.1.5. These are recorded as separate source facts.
+The source manifest's status string and the release-index publication state are recorded separately.
 
 ## Source, ABI, build, and test files
 
@@ -34,79 +36,136 @@ The source manifest still says `experimental-unpublished`, while the inspected r
 - `test/drivers/i2c_esp32s3_v2_test.c`
 - `test/drivers/stub_idf_i2c/freertos/FreeRTOS.h`
 - `test/drivers/stub_idf_i2c/freertos/semphr.h`
-- `scripts/xtensa_stubs/freertos/FreeRTOS.h`
-- `scripts/xtensa_stubs/freertos/semphr.h`
+- `test/drivers/stub_idf_i2c/freertos/task.h`
 - `scripts/build_i2c_esp32s3_v2.py`
 
-The implementation, manifest, host behavior fixture, and host semaphore fixture are copied from the current upstream 0.1.5 source. The `scripts/xtensa_stubs` files are build-only declarations: they model the ESP-IDF semaphore macro-to-queue symbol ABI so a standalone Xtensa build can leave the same runtime imports unresolved without embedding another FreeRTOS implementation.
+The current upstream release build is produced through `scripts/probe_i2c_esp32s3_v2.py` using the full `t5s3-pro` PlatformIO compilation database. The destination canonical-replay builder is designed to use the exact release commit and original Actions workspace path rather than approximate the release compiler environment.
 
-## Provider ABI and capability
+## Exported root and capability
 
-The only intended public ELF function is `t5_driver_get(uint32_t abi)`. It returns the static `risc_driver_v2` descriptor only for ABI 2. The provider advertises `i2c.bus@1` and exposes `claim_device`, `transact`, and `release_device`. No provider dependency is declared.
+The only intended public function export is `t5_driver_get(uint32_t abi)`. It returns the static provider descriptor only for provider ABI 2.
 
-## Version 0.1.5 synchronization model
+The descriptor advertises `i2c.bus@1` and provides:
 
-Versions 0.1.3 and 0.1.4 used relocatable atomic coordination state. Version 0.1.5 removes that design. One ordinary FreeRTOS mutex (`state_lock`) protects all provider-local state and is held across complete synchronous calls to `risc_fw_i2c_transact_v1`.
+- `claim_device`
+- `transact`
+- `release_device`
 
-Concurrent callers therefore queue at the provider instead of receiving a synthetic busy failure. Claim, release, and quiesce operations cannot mutate the claim table while a transaction owns the mutex. `release_device` waits for that mutex, which is the implementation's drain guarantee for an in-flight transaction.
+The driver declares no provider dependency because its physical transport is a privileged firmware bridge rather than another public provider capability.
 
-Firmware still owns the board-level recursive I2C/Wire lock and remains the physical I2C0 owner.
+## Fixed resources and claim model
 
-## Fixed resources and claims
+The source contains 12 static claim slots. Each active slot records a 64-bit token and one 7-bit I2C address.
 
-The provider has 12 static claim slots, each containing a 64-bit token and an address. Claimable addresses are 0x08 through 0x77. Duplicate address claims fail. A claim fails if the table is full, the output pointer is null, the provider is not started, or token generation has reached `UINT64_MAX`.
+Claim rules established in source:
 
-`next_token` is not reset on a clean stop/start, so tokens remain monotonically increasing and stale handles do not become valid again after restart.
+- valid addresses are `0x08` through `0x77`;
+- the output-token pointer must be non-null;
+- the provider must be started;
+- a device address cannot be claimed twice;
+- a claim fails when all 12 slots are occupied;
+- token generation fails rather than wrapping at `UINT64_MAX`.
+
+Token generation is kept monotonic across clean stop/start cycles so stale claims cannot become valid after restart.
+
+## Provider serialization
+
+One FreeRTOS mutex protects provider-local state and complete synchronous transfers. Claim, release, quiesce, and transaction admission therefore cannot race the claim table or each other.
+
+Physical bus serialization remains the firmware's responsibility after the provider enters `risc_fw_i2c_transact_v1`.
+
+## Transaction limits
+
+The source rejects a transaction when:
+
+- the claim token is zero or stale;
+- both write and read phases are empty;
+- either phase exceeds 128 bytes;
+- a nonzero phase has a null buffer;
+- `timeout_ms` is zero;
+- `timeout_ms` exceeds 3,000 ms.
+
+Combined write/read is one synchronous operation through the firmware bridge.
+
+## Version 0.1.6 deadline semantics
+
+Version 0.1.6 changes timeout handling so `timeout_ms` is a **total admission plus transfer budget**, not a fresh timeout for each nested synchronization layer.
+
+`RiscI2cBusV1.h` now states that only the remaining budget should be forwarded to the physical transport and notes that tick rounding/scheduler latency can add one scheduler tick.
+
+Implementation behavior:
+
+1. capture the starting FreeRTOS tick using `xTaskGetTickCount`;
+2. convert the caller's millisecond budget to mutex-wait ticks (raising zero conversion to one tick);
+3. wait for the provider mutex within that budget;
+4. after the mutex is obtained, measure elapsed ticks;
+5. fail without entering the firmware backend when the caller's total budget has already been consumed;
+6. otherwise pass only the remaining millisecond budget to `risc_fw_i2c_transact_v1`.
+
+A queued caller therefore does not receive a fresh full transfer timeout after waiting for another transaction.
 
 ## Lifecycle
 
-`start` requires zero dependencies, no active start state, no existing mutex, and no residual claim. It creates the FreeRTOS mutex and sets `started`.
+`start` accepts no dependencies. It requires no active start state, no existing state mutex, and no residual claims. It creates the FreeRTOS mutex and then marks the provider started.
 
-`quiesce` waits indefinitely for the mutex, checks all 12 claim slots, and only clears `started` when none remain. If any claim exists, quiesce returns false and leaves the provider active.
+`quiesce` waits for provider serialization, checks all claim slots, and refuses to clear the active state while any claim remains.
 
-`stop` first attempts quiescence. If live claims prevent it, stop returns without deleting the mutex. After successful quiescence, it clears `state_lock` and calls `vSemaphoreDelete`.
+`stop` attempts quiescence. If claims remain, the provider and mutex are retained. After clean quiescence it deletes the mutex.
 
-## Transactions
-
-A transaction is rejected when its token is zero, both phases are empty, either phase exceeds 128 bytes, a required buffer is null, timeout is zero, or timeout exceeds 3,000 ms.
-
-The timeout is converted with `pdMS_TO_TICKS`; a zero-tick conversion is raised to one tick. The same provider mutex is acquired with that bounded wait. While holding it, the implementation verifies the provider is started, resolves the token to an address, and calls `risc_fw_i2c_transact_v1`. The bridge receives the original timeout in milliseconds. Its false return is propagated without fabricated success or read data.
-
-Because the mutex remains held across the bridge call, provider-level transaction concurrency is exactly one operation at a time.
+`release_device` is serialized by the same mutex, so it cannot remove a claim while a transfer holding that mutex is still executing.
 
 ## Privileged/runtime imports
 
-The canonical 0.1.5 package records these unresolved symbols:
+The current upstream 0.1.6 probe requires exactly these unresolved runtime symbols in the linked provider:
 
 - `risc_fw_i2c_transact_v1`
 - `vQueueDelete`
 - `xQueueCreateMutex`
 - `xQueueGenericSend`
 - `xQueueSemaphoreTake`
+- `xTaskGetTickCount`
 
-The standalone validator rejects direct I2C/GPIO/RTC-GPIO/peripheral/T5/USB imports, unexpected imports, and any `__atomic*` or `__sync*` helper.
+The probe rejects direct I2C/GPIO/RTC-GPIO/peripheral/T5/USB implementation imports outside the dedicated firmware bridge. It also rejects `__atomic*` and `__sync*` helpers.
+
+The additional `xTaskGetTickCount` import is required by 0.1.6's total-deadline accounting.
 
 ## Host validation
 
-The current upstream host fixture uses pthreads and a host-only semaphore shim. The mocked firmware bridge intentionally permits overlap so the fixture can prove the provider itself serializes calls.
+The current upstream pthread-backed fixture covers:
 
-It covers ABI identity, start rules, address bounds, duplicate claims, size/buffer/timeout bounds, write/read/combined requests, bridge failures, two transaction threads queueing without backend overlap, `release_device` waiting for a blocked transaction, stale release rejection, clean quiescence, stop/restart, and monotonically increasing tokens.
+- provider ABI identity and start rules;
+- address bounds and duplicate claims;
+- write, read, and combined transfers;
+- buffer, phase-length, and timeout limits;
+- firmware bridge failure propagation;
+- provider serialization with multiple transaction threads;
+- a short-deadline caller timing out while another transaction holds the provider;
+- proof that a timed-out queued caller never enters the mocked backend;
+- proof that a queued long-budget caller receives a reduced remaining timeout instead of its original timeout;
+- `release_device` waiting for an in-flight transfer;
+- stale-token rejection;
+- quiescence and restart;
+- monotonically increasing token generations.
 
-This does not prove physical bus timing, actual FreeRTOS scheduling, board mutex behavior, or real-device operation.
+The migrated destination host semaphore fixture models finite mutex acquisition with C11 `timespec_get(..., TIME_UTC)` plus `pthread_mutex_trylock`/`thrd_yield`, and its `xTaskGetTickCount` shim uses the same C11 time source. This is host-test scaffolding only; the target driver imports the real FreeRTOS `xTaskGetTickCount`.
 
-## Standalone Xtensa validation
-
-`scripts/build_i2c_esp32s3_v2.py` validates the exact 0.1.5 manifest and requires the migrated driver source files to be byte-identical to the historical v0.1.5 release source at commit `74d2417a0e9c88e6e0a8b71c8fc337d4d6d1da4e`. It replays the original `scripts/probe_i2c_esp32s3_v2.py` build through that commit's full `t5s3-pro` PlatformIO compilation database at the historical GitHub Actions workspace path, copies the resulting shared ELF into the local distribution directory, and removes the temporary historical checkout before later build steps.
-
-The replay validates a 32-bit little-endian Xtensa ET_DYN image, sole function export `t5_driver_get`, the exact five-symbol runtime import set, and records produced size/SHA-256 plus build provenance against the canonical 24,496-byte release target. Strict CI run `36492450111` executed this builder with `--require-byte-parity` and reproduced the canonical 24,496-byte ELF SHA-256 `7b8f51f62da71e99949b093b6cdc531435a0cec01f87740921f9436544f8bd9c`; artifact `11002795886` contains the reproduced package output. The workflow now fails closed if those bytes drift.
+These tests establish provider semantics only. They do not establish real FreeRTOS scheduling, actual I2C electrical timing, or board hardware behavior.
 
 ## Published package metadata
 
-- `.package.json`: 588 bytes, SHA-256 `a0c7faf635a1b833fb66a658977efb88ab733cd13aae943c10067dabaaed0ca7`
-- `driver.elf`: 24,496 bytes, SHA-256 `7b8f51f62da71e99949b093b6cdc531435a0cec01f87740921f9436544f8bd9c`
+Observed in the current upstream release index for v0.1.6:
+
+- `.package.json`: 589 bytes, SHA-256 `d15633932ef9c9e2c5997e21a2671b1124b2d1bd22e20a0825db019ac1b0ee13`
+- `driver.elf`: 24,960 bytes, SHA-256 `0230f71ca21340165c59cba89e18e30ba169671c714dd1098ed5b4994f90fc34`
 - `provider-abi.v1`: 36 bytes, SHA-256 `5b40fe49054c4e3e69ffab68aa4ae41be769e5a77928a8cdea5a666a37447f14`
-- `privileged-imports.v1`: 93 bytes, SHA-256 `570d72eb68371d6105885edefdbb4b058f71b24a71adff81dac88820ffbbd564`
+- `privileged-imports.v1`: 111 bytes, SHA-256 `ab1023d92c25c71f838d5c824fcfa2365ce439af298cd28bcae28a559b3ff390`
+
+## Migration validation status
+
+The 0.1.6 source/manifest, `RiscI2cBusV1.h`, total-deadline host fixture, and historical release replay are synchronized into RiscRTE-Drivers. The replay audits the exact six-symbol runtime import set above, including the new `xTaskGetTickCount` dependency.
+
+GitHub Actions run `36545152857` on destination commit `4cb37724100aa427a04909b27c5f22a11b73c3ba` first passed the updated I2C host fixture and then passed `python scripts/build_i2c_esp32s3_v2.py --require-byte-parity`. Because that builder fails closed unless it is running at the canonical GitHub Actions workspace path and reproduces both the published size and SHA-256, this establishes canonical v0.1.6 parity for the 24,960-byte ELF SHA-256 `0230f71ca21340165c59cba89e18e30ba169671c714dd1098ed5b4994f90fc34`. The overall workflow later failed at the malformed GT911 standalone builder, after the I2C validation steps had already succeeded; that later failure does not invalidate the completed I2C gate.
 
 ## Established limitations
 
-This remains a firmware-backed transitional provider, not an independent I2C0 hardware owner. Host validation establishes provider semantics only. Canonical published-byte parity is established by strict CI, but that result does not establish physical bus timing, actual board-level electrical behavior, or independence from the firmware bridge.
+The provider remains dependent on `risc_fw_i2c_transact_v1`; it is not an independent owner of ESP32-S3 I2C0. Host tests validate synchronization and deadline semantics, not physical bus behavior or actual scheduler timing.
