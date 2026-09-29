@@ -4,7 +4,7 @@
     "repository": "michaelrolphone-cmyk/T5S3-Reader",
     "branch": "release-index",
     "path": "release-index.json",
-    "source_master_sha": "dc3a0ad6b1d960c88cc6fa045d865f629dfe1754"
+    "source_master_sha": "15045fe41ca3211e895534730e640d3187530663"
   },
   "drivers": [
     {
@@ -15,15 +15,15 @@
     },
     {
       "id": "gt911-touch",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "Drivers/gt911_touch",
-      "migrated": true
+      "migrated": false
     },
     {
       "id": "i2c-esp32s3-v2",
-      "version": "0.1.5",
+      "version": "0.1.6",
       "source_path": "Drivers/i2c_esp32s3_v2",
-      "migrated": true
+      "migrated": false
     },
     {
       "id": "platform-clock-v1",

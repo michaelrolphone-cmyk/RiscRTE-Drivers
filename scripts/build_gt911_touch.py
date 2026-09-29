@@ -8,7 +8,7 @@ SRC=ROOT/"Drivers/gt911_touch"
 OUT=ROOT/"dist/gt911-touch"
 manifest=json.loads((SRC/"manifest.json").read_text())
 required={
- "type":"driver","id":"gt911-touch","version":"0.1.0","driver_abi":2,
+ "type":"driver","id":"gt911-touch","version":"0.1.1","driver_abi":2,
  "architecture":"xtensa-esp32s3","file_name":"driver.elf",
  "requires":[{"capability":"i2c.bus","api":1},{"capability":"platform.clock","api":1}],
  "provides":[{"capability":"input.touch.raw","api":1}],
@@ -22,7 +22,8 @@ OUT.mkdir(parents=True,exist_ok=True)
 elf=OUT/"driver.elf"
 subprocess.run([cc,"-std=c11","-Os","-fPIC","-mtext-section-literals","-mlongcalls",
  "-fvisibility=hidden","-nostdlib","-nostartfiles","-shared",
- "-I"+str(ROOT/"sdk/driver"),"-Wl,--hash-style=sysv","-Wl,--exclude-libs,ALL",
+ "-I"+str(ROOT/"sdk/driver"),"-I"+str(ROOT/"scripts/xtensa_stubs"),
+ "-Wl,--hash-style=sysv","-Wl,--exclude-libs,ALL",
  str(SRC/"driver.c"),"-lgcc","-o",str(elf)],check=True)
 normalize(elf)
 readelf=str(Path(cc).with_name(Path(cc).name.replace("gcc","readelf")))
@@ -34,4 +35,4 @@ if not 52<=len(data)<=256*1024 or data[:7]!=b"\x7fELF\x01\x01\x01" or int.from_b
     raise SystemExit("invalid Xtensa shared driver")
 manifest.update(size_bytes=len(data),sha256=hashlib.sha256(data).hexdigest())
 (OUT/"manifest.json").write_text(json.dumps(manifest,indent=2)+"\n")
-print(f"built gt911-touch {len(data)} bytes {manifest['sha256']}")
+print(f"built gt911-touch {len(data)} bytes {manifest['sha256']}")\nif os.environ.get("GITHUB_ACTIONS") == "true" and (len(data) != 42976 or manifest["sha256"] != "44d753b736a2a433549ab500a3cae52f1e2844f79332fd119fc8df8d57cd11f4"):\n    raise SystemExit("gt911-touch canonical release byte parity failed")
