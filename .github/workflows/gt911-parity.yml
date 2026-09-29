@@ -1,0 +1,22 @@
+name: GT911 parity gate
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gt911:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: python -m pip install platformio==6.1.19
+      - run: pio pkg install -e toolchain
+      - run: bash test/run_gt911_touch_test.sh
+      - run: python scripts/build_gt911_touch.py
+      - run: python scripts/build_gt911_release_parity.py --require-byte-parity
