@@ -17,7 +17,7 @@
       "id": "gt911-touch",
       "version": "0.1.1",
       "source_path": "Drivers/gt911_touch",
-      "migrated": false
+      "migrated": true
     },
     {
       "id": "i2c-esp32s3-v2",

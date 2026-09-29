@@ -4,6 +4,7 @@ Source inventory on `T5S3-Reader:master` at `747fbc7373dea6792ad4bfe7eb2fcf04e3e
 
 ## Source/build migrated and independently buildable
 
+- `gt911-touch` v0.1.1 — exact current source/manifest/ABI, host fixture, standalone build, canonical historical replay, dedicated parity CI gate, and detailed documentation are integrated. Destination run `36619949165` passed the GT911 fanout/DOWN-MOVE-UP/GAP/lifecycle fixture and `build_gt911_release_parity.py --require-byte-parity`, reproducing the published 42,976-byte ELF SHA-256 `44d753b736a2a433549ab500a3cae52f1e2844f79332fd119fc8df8d57cd11f4` with `byte_parity=True`.
 - `gps-nmea` v1.0.0 — exact source/ABI headers migrated with standalone Xtensa build and ELF/export validation; upstream is source-only, so there is no canonical released ELF for byte-parity comparison.
 - `i2c-esp32s3-v2` v0.1.6 — exact current source/manifest/ABI, total-deadline host fixture, and historical replay tooling are synchronized. Version 0.1.6 accounts mutex admission and transfer against one timeout budget and adds `xTaskGetTickCount` to the exact six-symbol runtime import set. In CI run `36545152857`, the updated host fixture passed and `python scripts/build_i2c_esp32s3_v2.py --require-byte-parity` then passed against release commit `36be2ee496468feb3779616e69f61e3a671c192b`, establishing the published 24,960-byte ELF SHA-256 `0230f71ca21340165c59cba89e18e30ba169671c714dd1098ed5b4994f90fc34` under the fail-closed canonical gate.
 - `usb-cdc-acm` v0.1.0 — exact descriptor/protocol provider source and ABI header migrated; the host validation test passes under `-Wall -Wextra -Werror`; standalone Xtensa ELF/export validation is wired into CI. Upstream is source-only, so there is no canonical released ELF for byte-parity comparison.
@@ -34,7 +35,7 @@ None.
 
 ## Released drivers with source staged but parity completion pending
 
-- `gt911-touch` v0.1.1 — current source/manifest/ABI, upstream host fixture, repaired standalone builder, and canonical replay tool are synchronized. Destination run `36619053242` on `6e77fc5473e7260b3e8c966aa8fc2b1b4d8d1d7b` passed parity/documentation and the complete existing build job; the standalone GT911 build produced 9,304 bytes with SHA-256 `4f2b517cf51727b51b0c4e7656d403e3ef0671ca9982e65a06b4e7a4b23cd310`. That standalone ELF is not the historical release artifact. The destination host concurrency/retry/GAP fixture and `build_gt911_release_parity.py --require-byte-parity` still must run and reproduce the published 42,976-byte ELF SHA-256 `44d753b736a2a433549ab500a3cae52f1e2844f79332fd119fc8df8d57cd11f4` before this driver can be marked migrated.
+None.
 
 
 ## Source-only drivers still requiring compatibility migration

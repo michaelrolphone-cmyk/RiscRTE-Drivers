@@ -184,11 +184,17 @@ The release-index metadata establishes the privileged-imports file's bytes/hash,
 
 ## Migration validation status
 
-The v0.1.1 source, manifest, touch/I2C ABI headers, host fixture, standalone builder, and canonical replay tool are synchronized into RiscRTE-Drivers.
+The v0.1.1 source, manifest, touch/I2C ABI headers, host fixture, standalone builder, canonical replay tool, and dedicated destination parity workflow are synchronized into RiscRTE-Drivers.
 
-Destination CI run `36619053242` on commit `6e77fc5473e7260b3e8c966aa8fc2b1b4d8d1d7b` passed repository parity/documentation checks and the complete existing build job. The repaired standalone GT911 build completed successfully and produced a 9,304-byte ELF with SHA-256 `4f2b517cf51727b51b0c4e7656d403e3ef0671ca9982e65a06b4e7a4b23cd310`. That standalone output is **not** the canonical published artifact: the upstream release ELF is built in the historical full firmware compilation environment and remains the 42,976-byte SHA-256 `44d753b736a2a433549ab500a3cae52f1e2844f79332fd119fc8df8d57cd11f4` target for `scripts/build_gt911_release_parity.py --require-byte-parity`.
+Destination CI run `36619053242` on commit `6e77fc5473e7260b3e8c966aa8fc2b1b4d8d1d7b` first established that the repaired standalone builder and the repository's existing full build matrix succeed. That standalone build produced a 9,304-byte ELF with SHA-256 `4f2b517cf51727b51b0c4e7656d403e3ef0671ca9982e65a06b4e7a4b23cd310`; it is intentionally recorded separately from the historical release artifact.
 
-The destination host concurrency/retry/GAP fixture and strict historical release replay have not yet been executed by destination CI. Until both pass, v0.1.1 must not be represented as parity-complete.
+Dedicated GT911 parity run `36619949165` then passed all three destination gates on commit `fbef202fcb93164dcce00e115ab5ca1b683f2489`:
+
+- `bash test/run_gt911_touch_test.sh` passed with `GT911 input.touch.raw provider: fanout, DOWN/MOVE/UP, GAP snapshot and lifecycle PASS`;
+- the standalone 0.1.1 build passed;
+- `python scripts/build_gt911_release_parity.py --require-byte-parity` reproduced the published 42,976-byte ELF with SHA-256 `44d753b736a2a433549ab500a3cae52f1e2844f79332fd119fc8df8d57cd11f4` and reported `byte_parity=True`.
+
+This establishes destination host-behavior validation and canonical published-byte parity for GT911 v0.1.1. The driver is therefore parity-complete for the currently inspected upstream source/release state.
 
 ## Established limitations
 

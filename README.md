@@ -47,12 +47,9 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 
 ## Driver documentation tree
 
-### Synchronized upstream updates awaiting strict release parity CI
-
-- [gt911-touch](docs/drivers/gt911-touch.md) — serialized GT911 `input.touch.raw@1` provider, version 0.1.1; destination CI run `36619053242` passed parity/docs and the repaired standalone build, while the host concurrency/retry/GAP fixture plus strict historical replay remain pending against the published 42,976-byte ELF SHA-256 `44d753b736a2a433549ab500a3cae52f1e2844f79332fd119fc8df8d57cd11f4`.
-
 ### Migrated and independently buildable
 
+- [gt911-touch](docs/drivers/gt911-touch.md) — serialized GT911 `input.touch.raw@1` provider, version 0.1.1; dedicated CI run `36619949165` passed the host concurrency/retry/GAP/lifecycle fixture and strict historical replay, reproducing the published 42,976-byte ELF SHA-256 `44d753b736a2a433549ab500a3cae52f1e2844f79332fd119fc8df8d57cd11f4` with `byte_parity=True`.
 - [gps-nmea](docs/drivers/gps-nmea.md) — allocation-free NMEA 0183 GGA/RMC GNSS provider over runtime serial/power/clock host services, version 1.0.0 (source-only upstream).
 - [i2c-esp32s3-v2](docs/drivers/i2c-esp32s3-v2.md) — firmware-backed `i2c.bus@1` provider, version 0.1.6; strict CI run `36545152857` passed the fail-closed historical replay against the published 24,960-byte ELF SHA-256 `0230f71ca21340165c59cba89e18e30ba169671c714dd1098ed5b4994f90fc34` and the updated deadline host fixture passed immediately before it.
 - [usb-cdc-acm](docs/drivers/usb-cdc-acm.md) — allocation-free USB CDC ACM descriptor/protocol provider for binding discovery and class-request encoding, version 0.1.0 (source-only upstream).
