@@ -4,7 +4,7 @@
     "repository": "michaelrolphone-cmyk/T5S3-Reader",
     "branch": "release-index",
     "path": "release-index.json",
-    "source_master_sha": "af598b09632125f9c89b9c2f177d12b565ff01f4"
+    "source_master_sha": "4021922e2812733ed5e321760ec25ebb7693b578"
   },
   "drivers": [
     {
@@ -83,7 +83,7 @@
       "id": "usb-hid-gamepad",
       "version": "0.1.4",
       "source_path": "Drivers/usb_hid_gamepad",
-      "migrated": false
+      "migrated": true
     },
     {
       "id": "usb-hid-keyboard",

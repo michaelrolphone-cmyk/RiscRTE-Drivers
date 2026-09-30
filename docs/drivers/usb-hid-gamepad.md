@@ -84,7 +84,7 @@ Published v0.1.4 files:
 - `provider-abi.v1`: 44 bytes, SHA-256 `6b5f0f4c7e97304a917e44e9dad87ee2b61419ccaef74217efd1fbbd918b85bf`
 - `privileged-imports.v1`: 14 bytes, SHA-256 `a46fff766cb063bc348b3e7a6670e4a48c5c9201f0da92e73a67670229be7cca`
 
-Destination validation for v0.1.4 is intentionally pending in the first synchronization commit. The source-derived host fixture and fail-closed standalone builder must both pass in destination CI, and the builder must reproduce the published 14,444-byte ELF SHA-256 `2d543f6a04e5b94192f732c64f2f5a436861e2a569f05fb4c6617ae7267db86c`, before the released-driver manifest is restored to `migrated: true`.
+Destination CI run `36673309318` completed the v0.1.4 migration gate. The synchronized host fixture passed (`Gamepad feature IDs, unrelated inputs, multiple collections, input delivery and detach: PASS`), and `scripts/build_usb_hid_gamepad.py` produced the published 14,444-byte ELF SHA-256 `2d543f6a04e5b94192f732c64f2f5a436861e2a569f05fb4c6617ae7267db86c` with `byte_parity=True`. The repository parity/documentation job in the same run also passed. This establishes destination source/build/test/documentation parity for the currently inspected upstream release.
 
 ## Established limitations
 
