@@ -4,14 +4,14 @@
     "repository": "michaelrolphone-cmyk/T5S3-Reader",
     "branch": "release-index",
     "path": "release-index.json",
-    "source_master_sha": "4021922e2812733ed5e321760ec25ebb7693b578"
+    "source_master_sha": "1ebf01386643c8504cc68061dcd0a6185ca42a9c"
   },
   "drivers": [
     {
       "id": "board-power-t5s3-v2",
-      "version": "0.1.5",
+      "version": "0.1.6",
       "source_path": "Drivers/bq25896",
-      "migrated": true
+      "migrated": false
     },
     {
       "id": "gt911-touch",
@@ -39,9 +39,9 @@
     },
     {
       "id": "t5s3-usb-power-profile",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "Drivers/t5s3_usb_power_profile",
-      "migrated": true
+      "migrated": false
     },
     {
       "id": "usb-cdc-acm-v2",
@@ -57,9 +57,9 @@
     },
     {
       "id": "usb-controller-esp32s3",
-      "version": "0.1.18",
+      "version": "0.1.19",
       "source_path": "Drivers/usb_controller_esp32s3",
-      "migrated": true
+      "migrated": false
     },
     {
       "id": "usb-cp210x-v2",

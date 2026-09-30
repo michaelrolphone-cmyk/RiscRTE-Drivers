@@ -1,14 +1,29 @@
 # usb-controller-esp32s3
 
-## Identity and migration status
+## Identity and scope
 
-`usb-controller-esp32s3` is the ESP32-S3 physical USB controller provider. Current upstream package metadata is version **0.1.18**, driver ABI **2**, architecture **xtensa-esp32s3**, executable `driver.elf`, requiring `board.power.vbus@1` and providing `usb.controller@1`. The exact current upstream driver directory is Git tree `16647df4a2f25a5d07f267a51b4497f1185d12fc`. Its manifest status is `experimental-hardware-port-not-yet-linkable`.
+`usb-controller-esp32s3` is the ESP32-S3 physical USB controller provider. Current upstream source and release metadata are version **0.1.19**, driver ABI **2**, architecture **xtensa-esp32s3**, executable `driver.elf`. It requires `board.power.vbus@1` and provides `usb.controller@1`.
 
-This page documents verified source behavior. The exact upstream source tree is integrated here. Strict CI run `36487107833` reproduced the canonical v0.1.18 ELF at 783,576 bytes with SHA-256 `f67064a9678a7b048e40cbf411d46653b69006aec07b9f2c95428597cc706e0e` under `--require-byte-parity`; the loader-map audit also passed. The driver is therefore migration-complete at the recorded upstream baseline.
+Current upstream source tree: `15c27125c163a50e1d41d7e9b15194ea03680488`.
 
-## Upstream source tree
+The provider owns the ESP32-S3 OTG PHY/host-library lifecycle, device/interface claims, control/bulk/interrupt transfer plumbing, host-role switching, startup/enumeration diagnostics, and the transition between boot USB serial and host operation. Version 0.1.19 adds a size-checked optional path for host data while VBUS is independently supplied.
 
-The complete upstream directory contains eleven files:
+## Release package
+
+Upstream release tag: `driver-usb-controller-esp32s3-v0.1.19`.
+
+| File | Size | SHA-256 |
+| --- | ---: | --- |
+| `.package.json` | 644 | `6e6c687fac6c5903921aa8b026ac55d6bfeba20c1939fafded7a610b93000205` |
+| `driver.elf` | 789,504 | `18c95f4264dfff2b21af13b0f0366327be896c75a0ae2d4fc1c9b0a220424da6` |
+| `provider-abi.v1` | 43 | `45267b2e246bdb6a0ff9639d3fed88e0be35f54841d191273a6d96312bc2796e` |
+| `privileged-imports.v1` | 801 | `c4afa934bdd799046a244e94f82c2d202f72f7010c419c86c6f62095ded168fe` |
+
+The release metadata establishes the privileged-import sidecar size/hash. This page does not infer individual imports not inspected from the sidecar itself.
+
+## Source files and ABI inputs
+
+The current driver directory contains:
 
 - `driver.cpp`
 - `driver_base.cpp`
@@ -22,69 +37,132 @@ The complete upstream directory contains eleven files:
 - `exports.map`
 - `manifest.json`
 
-The required ABI headers already present in RiscRTE-Drivers — `RiscProviderV2.h`, `RiscUsbControllerV1.h`, `RiscUsbInterruptV1.h`, `RiscUsbDiscoveryDiagnosticsV1.h`, and `RiscUsbVbusV1.h` — match current upstream.
+Relevant provider headers include `RiscProviderV2.h`, `RiscUsbControllerV1.h`, `RiscUsbInterruptV1.h`, `RiscUsbDiscoveryDiagnosticsV1.h`, and `RiscUsbVbusV1.h`.
 
-## Capability and root interface
+Version 0.1.19 changes `HostStartup.h`, `RoleSwitch.h`, `driver_base.cpp`, and the manifest. The external-power ABI extension is defined in the synchronized `RiscUsbVbusV1.h`.
 
-The intended sole exported function is `t5_driver_get`, enforced by `exports.map`. It returns an ABI-v2 root only for `RISC_PROVIDER_DRIVER_ABI_V2`. The root is a `risc_driver_diagnostics_v2` identifying driver `usb-controller-esp32s3`, capability `usb.controller`, API 1, with start/stop/quiesce plus a bounded startup-error callback.
+## Exported root and capability
 
-The capability object is a prefix-compatible `risc_usb_controller_diagnostics_v1`. The base controller API exposes ordered attach/detach events, active configuration descriptor snapshots with VID/PID, interface/alternate claims and releases, control transfers, bulk IN/OUT, and quiescence. The append-only interrupt extension adds `interrupt_read`; the diagnostics suffix adds a read-only enumeration diagnostic string.
+`exports.map` restricts the public entry point to `t5_driver_get`. The driver returns an ABI-v2 diagnostics root only when called with `RISC_PROVIDER_DRIVER_ABI_V2`.
 
-## State and limits
+The root identifies `usb-controller-esp32s3`, capability `usb.controller`, API 1, and supplies start/stop/quiesce plus bounded startup-error reporting. The capability object provides device events/configuration, interface claim/release, control transfer, bulk read/write, and quiescence operations. The current controller also supplies the interrupt and discovery-diagnostic extensions used by upper USB providers.
 
-The implementation uses fixed storage: at most `RISC_USB_HOST_MAX_DEVICES` devices (currently 8), `RISC_USB_HOST_MAX_CLAIMS` claims (currently 16), and a 16-entry event queue. Device and claim IDs are monotonically generated 64-bit tokens; overflow faults the provider rather than reusing an ID.
+## Required power provider
 
-The shared control/bulk DMA allocation is `RISC_USB_CONFIG_LIMIT + 8` bytes. Active configuration descriptors must be at least 9 bytes and no larger than `RISC_USB_CONFIG_LIMIT`. Bulk endpoint max-packet size must be nonzero and no larger than 512 bytes. Control and bulk payload lengths are bounded by `RISC_USB_CONFIG_LIMIT`.
+`start` requires exactly one `board.power.vbus@1` dependency. The dependency must be large enough for the input-monitor extension and provide source acquire/release/quiesce plus `input_status`.
 
-Interrupt reads require an IN endpoint on the claimed interface/alternate and a packet size no larger than `RISC_USB_HID_MAX_REPORT`. The controller keeps one asynchronous interrupt DMA object per used claim slot. `interrupt_read` rejects zero timeouts and values over 100 ms; zero means no completed report is ready and does not cancel the armed transfer.
+Version 0.1.19 detects the optional `risc_usb_vbus_external_api_v1` suffix only when:
 
-## Startup and physical ownership
+- the base `struct_size` is large enough;
+- the monitor flags contain `RISC_USB_POWER_EXTERNAL_HOST_SUPPORTED`;
+- `acquire_external_host` and `external_host_valid` are non-null.
 
-The provider requires exactly one `board.power.vbus@1` dependency and requires its input-monitor extension. USB host hardware ownership stays inside the ELF.
+Older providers retain their previous behavior and external input keeps the controller parked.
 
-When host mode is safe, source code performs this order: capture the prior internal PHY route; create the ESP32-S3 internal OTG PHY in host mode; force host disconnect; install the IDF USB host with PHY setup skipped; register the asynchronous host client; allocate the shared transfer; delay for the role/pull-down handoff; request a **500 mA** VBUS lease; then allow the PHY connection. This explicitly prepares the host before powering an attached receiver.
+## Host startup ordering
 
-ESP-IDF client callbacks enqueue NEW_DEV and DEV_GONE events. Attach handling opens the IDF device, reads VID/PID, and assigns a generation-qualified token. A full event queue faults the provider. Interface claims reject duplicate claims of the same physical interface.
+The production startup sequence deliberately obtains host ownership before any power-side effect:
 
-## Transfer behavior
+1. Capture the existing ESP32-S3 USB PHY route.
+2. Create the internal OTG PHY in host mode.
+3. Force the host receive detector disconnected.
+4. Install the IDF USB host with PHY setup skipped.
+5. Register the asynchronous host client.
+6. Allocate shared control/bulk DMA workspace.
+7. Delay for the bounded role/pull-down handoff.
+8. Acquire a power lease.
+9. Allow host connection only after a nonzero lease is returned.
 
-Control transfers build the setup packet in provider-owned DMA. Bulk transfers verify the endpoint against the active descriptor of the claimed interface and alternate setting. Bulk-IN rounds DMA capacity to the endpoint packet size while still rejecting a result longer than the caller request.
+`start_host_controller` now accepts an optional acquisition callback at step 8. The normal path calls `power->acquire_host(..., 500, ...)`. The externally powered path calls the provider's `acquire_external_host` at the same ordered boundary. The numeric 500 argument is the requested milliamp budget, not a timeout.
 
-A software timeout never frees DMA still owned by IDF. Bulk timeout recovery halts and flushes the endpoint and pumps callbacks until ownership returns. Interrupt completion copies data to caller memory and immediately re-arms controller-owned IN DMA. STALL completion clears the endpoint before reuse. Interface release and quiescence drain matching interrupt DMA first.
+A failed acquisition can leave provider-owned electrical state pinned even when the caller receives no usable token. The controller cleanup path therefore continues to inspect power status before exposing the boot PHY route.
 
-## Role switching and cleanup
+## External-VBUS host behavior
 
-`RoleSwitch.h` implements Off, Sense, Host, Cleanup and Failed states. External input blocks host startup. `RISC_USB_POWER_SETTLING` is tolerated for a bounded 10-second observation window. Unknown input eventually fails closed. Empty-host source-off probing uses 2 seconds on boards declaring `RISC_USB_POWER_IDLE_PROBE_REQUIRED`, otherwise 500 ms. Cleanup retries after 250 ms, and three failed host starts become a permanent failed state.
+Version 0.1.19 extends `RoleSwitch` and `RolePort` for a provider that explicitly supports externally powered host data operation.
 
-Quiescence is fail-closed: it drains DMA, requires interface claims gone, closes device handles, frees the shared transfer, deregisters the client, observes IDF no-client/all-free conditions, uninstalls the host, deletes the PHY, releases VBUS, verifies the power state is not unknown/unsafe, and only then restores the previous USB PHY route. Any failed cleanup retains ownership for retry.
+When the power monitor reports EXTERNAL and the extension is available, the controller performs a bounded passive host trial rather than enabling source power. A successful trial uses the same PHY/client/DMA startup order but obtains an external-host lease. The role reports `USB HOST; EXTERNAL VBUS; BOOST OFF`.
 
-The source comments require provider calls and IDF callbacks to be serialized on one executor. No arbitrary concurrent-call guarantee is established.
+The controller records an external trial for the current incoming-power session. The implementation allows at most **three** external starts without an observed input-power removal. Absence resets the external-attempt state.
 
-## PHY implementation
+An empty externally powered host is parked after the normal empty-host interval; for the T5S3 power provider that interval is **2 seconds** because `RISC_USB_POWER_IDLE_PROBE_REQUIRED` is set. After parking, the boot USB serial route remains available rather than repeatedly probing a connected computer.
 
-`phy_gpio.c` implements only the ESP32-S3 D+/D- drive-capability operation needed by the pinned IDF USB PHY. It rejects non-USB pins and invalid drive strengths and writes through the ESP32-S3 GPIO low-level API. The source explicitly avoids importing the firmware's full GPIO ISR/service state.
+Incoming voltage alone is not treated as proof of Qi versus a computer. The source therefore makes no such classification.
 
-## Upstream build and audit model
+## Live power monitoring and mode changes
 
-Upstream `scripts/probe_usb_controller_esp32s3.py` derives the target C/C++ flags from the `t5s3-pro` PlatformIO compilation database, rebuilds USB-owned code from pinned **ESP-IDF v4.4.7** as PIC, supplies ESP32-S3 MMIO symbols from the pinned SoC linker definitions, links with `exports.map`, and rejects unresolved USB-internal symbols and unexpected dynamic exports.
+While in Host state with an external-capable power provider, `RoleSwitch` checks the power condition every **500 ms**.
 
-Upstream `scripts/audit_usb_controller_elf.py` checks ELF32 little-endian Xtensa ET_DYN identity, relocations, mapped relocation targets, text relocations, exported symbols, firmware/USB import leakage, and the scoped privileged-import contract. The script explicitly treats signed privileged-loader admission, firmware strong-symbol integration and physical-board validation as separate gates.
+For an external-host lease it calls `external_host_valid`. For a battery-sourced session it compares the provider's input status with SOURCE. If the current power mode becomes invalid or changes, the controller:
 
-A repository-independent RiscRTE-Drivers build harness derived from those upstream scripts is integrated as `scripts/build_usb_controller_esp32s3.py`. Until that harness is executed in CI and its output is compared with the published artifact, this documentation does not claim canonical build parity.
+1. marks power lost/changed;
+2. forces host receive disconnect through the PHY;
+3. waits while attachment/events/claims keep the controller busy;
+4. parks/quiesces the current host;
+5. returns to Sense before choosing a new power mode.
 
-## Published package metadata
+This sequence prevents a power transition from bypassing outstanding USB ownership. A failed park enters Cleanup and retains ownership for retry.
 
-The upstream release tag is `driver-usb-controller-esp32s3-v0.1.18`.
+## Role-state behavior
 
-- `usb-controller-esp32s3--driver.elf`: **783,576 bytes**, SHA-256 `f67064a9678a7b048e40cbf411d46653b69006aec07b9f2c95428597cc706e0e`.
-- `usb-controller-esp32s3--package.json`: 644 bytes, SHA-256 `f5dbde8f5f9871d182455754edd77e87699f3662623693eeba032bad4e7540f4`.
-- `usb-controller-esp32s3--provider-abi.v1`: 43 bytes, SHA-256 `45267b2e246bdb6a0ff9639d3fed88e0be35f54841d191273a6d96312bc2796e`.
-- `usb-controller-esp32s3--privileged-imports.v1`: 801 bytes, SHA-256 `c4afa934bdd799046a244e94f82c2d202f72f7010c419c86c6f62095ded168fe`.
+`RoleSwitch` uses Off, Sense, Host, Cleanup, and Failed states.
 
-Only release metadata for the privileged-import sidecar was inspected here; its individual symbol list is therefore not restated.
+- SETTLING is tolerated for a bounded overall observation period instead of counting as an immediate read failure.
+- UNKNOWN fails closed after bounded retries.
+- ABSENT must be observed/debounced before a battery-sourced host is started.
+- EXTERNAL on a legacy provider keeps the host parked.
+- EXTERNAL on a supporting provider permits only the bounded passive host trial described above.
+- Three failed ordinary host starts enter Failed.
+- Cleanup retries after its bounded retry interval and does not declare ownership clean before the actual teardown succeeds.
+- Tick arithmetic is written to tolerate unsigned rollover.
 
-## Verified migration evidence and remaining gap
+## Device, claim, and transfer ownership
 
-The current upstream directory was enumerated through GitHub and independently verified to hash to tree `16647df4a2f25a5d07f267a51b4497f1185d12fc`. Upstream changes from the prior destination baseline through current master do not touch driver or driver-ABI paths. The source/API behavior above is grounded in the current driver files and ABI headers.
+IDF client callbacks enqueue new-device and device-gone events. Device tokens and interface claims are generation qualified so stale handles are rejected.
 
-Still pending: CI execution of the integrated repository-independent PIC IDF build/audit harness, canonical 783,576-byte ELF reproduction, and migration-complete metadata. The exact source tree and build harness are present. Until those remaining gates pass, `migrated` must remain false.
+Control transfers use provider-owned DMA for setup/data. Bulk transfers validate the endpoint against the active descriptor/alternate setting. Bulk-IN capacity is rounded to endpoint packet size while a returned result larger than the caller request is rejected.
+
+Interrupt-IN transfers use controller-owned storage and re-arm after completion. STALL handling clears the endpoint before reuse. A software timeout does not free DMA still owned by IDF; cleanup pumps callbacks and drains ownership before release.
+
+The provider's source comments require serialized provider calls and IDF callbacks on the intended executor. It does not claim arbitrary concurrent-call safety.
+
+## Quiescence and resource ownership
+
+Quiescence is fail-closed. It drains in-flight DMA, rejects outstanding claims, closes device handles, frees transfer storage, deregisters the client, waits for IDF no-client/all-free observations, uninstalls the host, deletes the PHY, releases the power lease, verifies the remaining power state is not unsafe/unknown, and only then restores the previous PHY route.
+
+Any failed cleanup step retains ownership for a later retry. A discovery/event fault blocks new work but does not authorize skipping verified cleanup.
+
+`phy_gpio.c` contains only the ESP32-S3 USB D+/D- drive-capability operation needed by the pinned IDF PHY and rejects non-USB pins or invalid drive strengths.
+
+## Build and canonical replay
+
+The repository-independent builder derives ESP32-S3 target flags from the `t5s3-pro` PlatformIO environment, rebuilds the pinned ESP-IDF v4.4.7 USB/PHY/SOC subset as PIC, supplies required ESP32-S3 MMIO symbols, links through `exports.map`, and audits ELF identity, exports, relocations, text relocations, unresolved USB-internal symbols, and scoped hardware ownership.
+
+Canonical release replay uses the exact release commit **491e06131a8e9dc39c7b7dbb9e4b3e7fc128b3a7** and overlays the migrated driver bytes only after proving the driver file set and bytes match that release commit. The target canonical artifact for v0.1.19 is 789,504 bytes with SHA-256 `18c95f4264dfff2b21af13b0f0366327be896c75a0ae2d4fc1c9b0a220424da6`.
+
+## Host tests
+
+The synchronized upstream `controller_host_startup_test.cpp` checks the production startup header against fake IDF/power boundaries. Version 0.1.19 specifically verifies that an external acquisition callback occupies the same ordered acquisition point after PHY/client/DMA preparation and before connection is allowed.
+
+The synchronized `controller_role_switch_test.cpp` covers:
+
+- legacy external-input behavior;
+- source-off observation and serial handback;
+- attachment/claim ownership preventing idle park;
+- failed cleanup retry;
+- externally powered host start;
+- external session validity loss and disconnect/drain behavior;
+- transition from external power to battery source and back;
+- at most three unstable external attempts;
+- empty external trial returning to serial;
+- failed external startup plus retained cleanup;
+- UNKNOWN/SETTLING handling;
+- independent-detector boards;
+- ordinary start failure budget;
+- tick rollover and disabled-role behavior.
+
+## Known limits
+
+The software path is validated by host fixtures and canonical release metadata. These tests do not establish physical receiver enumeration while Qi charging, available Qi current margin, or immunity to charging-pad interference. The upstream documentation explicitly leaves those as device-observation limits. Seamless USB continuity across moving onto/off external power is not claimed.
+
+At this migration stage, exact v0.1.19 source, ABI, tests, documentation, and canonical target metadata are synchronized. The released-driver manifest remains `migrated: false` until destination CI executes the new host fixtures, replays the canonical 789,504-byte ELF, and passes the loader-map audit.

@@ -51,6 +51,16 @@ typedef struct {
     int32_t (*input_status)(void *context);
     uint32_t flags;
 } risc_usb_vbus_monitor_api_v1;
+/* Optional extension: host data operation on independently supplied VBUS.
+ * This never authorizes sourcing into external power. Provider validates the
+ * board route, voltage and source-off state; release_host releases either kind
+ * of lease. Older consumers/providers retain their original source-only ABI. */
+#define RISC_USB_POWER_EXTERNAL_HOST_SUPPORTED 2u
+typedef struct {
+    risc_usb_vbus_monitor_api_v1 monitor;
+    bool (*acquire_external_host)(void *context, uint32_t max_milliamps, uint64_t *lease);
+    bool (*external_host_valid)(void *context, uint64_t lease);
+} risc_usb_vbus_external_api_v1;
 #ifdef __cplusplus
 }
 #endif

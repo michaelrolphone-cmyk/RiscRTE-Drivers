@@ -23,3 +23,11 @@ typedef struct {
     uint32_t transient_window_ms;
     uint32_t transient_stable_ms;
 } risc_bq25896_profile_api_v1;
+
+/* Opt-in board wiring: externally supplied charger VBUS also reaches the USB
+ * connector. No additional switch is needed. Does not identify Qi versus PC. */
+#define RISC_BQ25896_EXTERNAL_HOST 1u
+typedef struct {
+    risc_bq25896_profile_api_v1 base;
+    uint32_t flags;
+} risc_bq25896_external_profile_v1;

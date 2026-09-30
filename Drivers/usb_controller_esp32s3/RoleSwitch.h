@@ -12,6 +12,8 @@ class UsbRoleSwitch {
     absent_ = external_ = false; readFailures_ = startFailures_ = 0;
     settling_ = false; cleanupStops_ = false;
     error_ = nullptr;
+    externalHost_=externalTried_=powerLost_=false;
+    powerCheck_=now; externalTries_=0;
   }
   void stop() { state_ = State::Off; }
   State state() const { return state_; }
@@ -43,6 +45,29 @@ class UsbRoleSwitch {
       return;
     }
     if (state_ == State::Host) {
+      // Monitor externally powered sessions even while a controller is busy.
+      // A battery-source session can also become Qi-powered. Disconnect first
+      // and let normal host/class event handling retire claims before parking.
+      if (port.external_supported() && !powerLost_ &&
+          static_cast<uint32_t>(now-powerCheck_)>=500u) {
+        powerCheck_=now;
+        const bool valid=externalHost_ ? port.external_valid() : port.input()==RISC_USB_POWER_SOURCE;
+        if (!valid) {
+          powerLost_=true;
+          externalTried_=false;
+          port.report("USB POWER CHANGED; DRAINING HOST");
+        }
+      }
+      if (powerLost_) {
+        if (!port.disconnect_power_loss() || port.busy()) return;
+        if (!port.park()) {
+          state_=State::Cleanup; since_=port.now(); cleanupStops_=false;
+          port.report(diagnostic()); return;
+        }
+        state_=State::Sense; since_=port.now(); absent_=external_=settling_=false;
+        powerLost_=externalHost_=false;
+        return;
+      }
       // Include the root port's physical attach bit, queued events and claims,
       // not just the published device count: enumeration may be in progress.
       if (port.busy()) { since_ = now; return; }
@@ -79,9 +104,24 @@ class UsbRoleSwitch {
     }
     if (input == RISC_USB_POWER_EXTERNAL) {
       settling_ = false;
+      if (port.external_supported() && !externalTried_ && externalTries_<3u) {
+        ++externalTries_;
+        externalTried_=true; // One passive host trial per incoming-power session.
+        if (port.start_external()) {
+          state_=State::Host; since_=powerCheck_=port.now();
+          externalHost_=true; powerLost_=false;
+          port.report("USB HOST; EXTERNAL VBUS; BOOST OFF");
+          return;
+        }
+        if (!port.park()) {
+          state_=State::Cleanup; since_=port.now(); cleanupStops_=false;
+          port.report(diagnostic());
+        }
+        return;
+      }
       if (!external_) { external_ = true; port.report(diagnostic()); }
       absent_ = false; readFailures_ = startFailures_ = 0;
-      return; // Never probe the host or touch the PHY on external power.
+      return; // Parked/unsupported external sessions keep the serial route.
     }
     if (input != RISC_USB_POWER_ABSENT) {
       absent_ = false;
@@ -89,9 +129,10 @@ class UsbRoleSwitch {
       return; // Unknown is not evidence that it is safe to source VBUS.
     }
     settling_ = false; readFailures_ = 0; external_ = false;
+    externalTried_=externalHost_=powerLost_=false; externalTries_=0;
     if (!absent_) { absent_ = true; return; }
     if (port.start()) {
-      state_ = State::Host; since_ = port.now(); startFailures_ = 0;
+      state_ = State::Host; since_ = powerCheck_ = port.now(); startFailures_ = 0;
       cleanupStops_ = false;
       port.report("USB HOST; CONTROLLER DISCOVERY");
       return;
@@ -116,6 +157,9 @@ class UsbRoleSwitch {
     error_ = reason;
     port.report(diagnostic());
   }
+  bool externalHost_=false, externalTried_=false, powerLost_=false;
+  uint32_t powerCheck_=0;
+  uint8_t externalTries_=0;
   State state_ = State::Off;
   uint32_t since_ = 0;
   uint8_t readFailures_ = 0, startFailures_ = 0;

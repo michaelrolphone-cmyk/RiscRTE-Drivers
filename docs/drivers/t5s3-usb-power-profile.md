@@ -1,61 +1,35 @@
 # t5s3-usb-power-profile
 
-## Purpose
+## Purpose and identity
 
-`t5s3-usb-power-profile` is a board-specific immutable policy provider for the T5S3 USB/BQ25896 power path. It provides the `board.power.bq25896.profile` capability as configuration data consumed by the BQ25896 power driver.
+`t5s3-usb-power-profile` is the immutable T5S3 electrical-policy provider consumed by the reusable BQ25896 power driver. Current upstream source and release metadata are version **0.1.1**, driver ABI **2**, architecture **xtensa-esp32s3**, executable `driver.elf`, board metadata `t5s3-pro`.
 
-This provider does not own I2C, does not probe the BQ25896, and does not write charger registers.
+It requires no capabilities and provides `board.power.bq25896.profile@1`. It does not own I2C, probe the charger, change registers, allocate transport resources, or arbitrate USB itself.
 
-## Package identity
+Current upstream source tree: `1ba351fb2ae0efae1d1b100087f93805d77e50f4`.
 
-- Package/driver ID: `t5s3-usb-power-profile`
-- Version: `0.1.0`
-- Driver ABI: `2`
-- Architecture: `xtensa-esp32s3`
-- Board: `t5s3-pro`
-- ELF filename: `driver.elf`
-- Provided capability: `board.power.bq25896.profile`
-- Capability API: `1`
-- Required capabilities: none
-- Source manifest status: `experimental-unpublished`
+## Release package
 
-Source files in this repository:
+Upstream release tag: `driver-t5s3-usb-power-profile-v0.1.1`.
 
-- `Drivers/t5s3_usb_power_profile/driver.c`
-- `Drivers/t5s3_usb_power_profile/manifest.json`
-- `sdk/driver/RiscBq25896ProfileV1.h`
-- `sdk/driver/RiscProviderV2.h`
-- `scripts/build_t5s3_usb_power_profile.py`
+| File | Size | SHA-256 |
+| --- | ---: | --- |
+| `.package.json` | 594 | `9e99d08372bcdd6eb03467e5fe00ff7de3bdd9ff2e0ed33b2be186af32f782db` |
+| `driver.elf` | 2,360 | `e1a61504f63be342a13afdeaccee637b2cba657ed192a20260bbf15041ae52ff` |
+| `provider-abi.v1` | 56 | `ce73bd38038a7c183bcd3d4f980f34c92eeb04bd66008391b4c454c7a6674cb5` |
+| `privileged-imports.v1` | 1 | `01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b` |
 
-## Provider ABI and exported symbol
+## Source, build, and root ABI
 
-The ELF exports only:
+Relevant files are `Drivers/t5s3_usb_power_profile/driver.c`, its manifest, `sdk/driver/RiscBq25896ProfileV1.h`, `sdk/driver/RiscProviderV2.h`, and `scripts/build_t5s3_usb_power_profile.py`.
 
-`t5_driver_get(uint32_t abi)`
+The standalone builder compiles a C11 PIC Xtensa ESP32-S3 shared ELF, verifies the sole public function export `t5_driver_get`, verifies ELF32 Xtensa identity, and fails unless output matches the canonical size/hash above.
 
-It returns the static `risc_driver_v2` descriptor only for `RISC_PROVIDER_DRIVER_ABI_V2`.
+`t5_driver_get(uint32_t abi)` returns the static driver only for `RISC_PROVIDER_DRIVER_ABI_V2`. `start` accepts zero dependencies, `quiesce` always returns true, and `stop` has no hardware work. The provider owns no bus claim, DMA, task, interrupt, callback, or mutable hardware session.
 
-The provider descriptor publishes the `board.power.bq25896.profile` capability and points to a static `risc_bq25896_profile_api_v1` structure.
+## Base profile values
 
-## Capability interface
-
-`risc_bq25896_profile_api_v1` contains immutable configuration fields:
-
-- `api_version`
-- `struct_size`
-- `max_host_milliamps`
-- `boost_millivolts`
-- `boost_limit_milliamps`
-- `boost_settle_ms`
-- `input_settle_ms`
-- `transient_window_ms`
-- `transient_stable_ms`
-
-The interface header documents this as installed electrical policy for a BQ25896 wired directly to USB VBUS. The BQ25896 driver is expected to copy and validate this profile before claiming hardware.
-
-## T5S3 profile values
-
-The current driver publishes:
+The `risc_bq25896_profile_api_v1` base contains API/version size fields, consumer current limit, boost voltage/current, source/input settling, and transient-recovery timing. Current values are:
 
 | Field | Value |
 | --- | ---: |
@@ -67,66 +41,28 @@ The current driver publishes:
 | `transient_window_ms` | 250 ms |
 | `transient_stable_ms` | 200 ms |
 
-The header notes that `max_host_milliamps` is consumer admission policy, not an inrush-current limit. It also states that the boost voltage corresponds to an exact BQ25896 voltage step and that the boost-current field is constrained to supported chip current values.
+The consumer budget is not an inrush-current threshold; the profile preserves the 1200 mA boost-current policy used by the current T5S3 implementation.
 
-The transient fields permit at most one cleared latched startup fault within the configured recovery policy. The interface comments state that live or repeated faults still fail.
+## Version 0.1.1 external-host suffix
 
-## Lifecycle
+Version 0.1.1 publishes a `risc_bq25896_external_profile_v1` object whose first member is the complete base profile and whose `flags` field is `RISC_BQ25896_EXTERNAL_HOST`. The base `struct_size` is the full extended-structure size, so consumers discover the suffix by size before reading it. Older consumers can continue reading the base prefix.
 
-### start
+The header defines this flag as an opt-in board-wiring assertion that externally supplied charger VBUS also reaches the USB connector without an additional switch. It explicitly does not identify Qi versus a computer.
 
-`start` accepts activation only when zero dependencies are supplied. It does not probe hardware or allocate resources.
+The flag is immutable policy only. It does not enable host mode, source VBUS, change charging state, or validate voltage. Those operations belong to the BQ25896 power provider and USB controller.
 
-### quiesce
+## Scope and compatibility
 
-`quiesce` always returns `true` because the provider contains immutable policy data and maintains no active hardware session.
+This implementation establishes exactly one T5S3 profile. It does not establish compatibility with another board merely because that board contains an ESP32-S3 or BQ25896. Boards needing additional rail or OTG-pin switching require a composed provider; this profile does not claim such wiring support.
 
-### stop
+The profile has no hardware identifiers or probing. Manifest field `board: "t5s3-pro"` is descriptive package metadata rather than an electrical run-time match.
 
-`stop` performs no work.
+For the current external-power host feature, the synchronized package set is `board-power-t5s3-v2` 0.1.6, this profile 0.1.1, and `usb-controller-esp32s3` 0.1.19. Legacy profiles without the suffix retain the original source-only behavior.
 
-## Hardware and dependency model
+## Tests and limitations
 
-The provider itself:
+The synchronized `test/drivers/board_power_t5s3_v2_test.c` fixture uses this real profile and verifies its external-host opt-in together with the BQ25896 provider, including qualified and invalid external rails and a legacy profile that does not advertise the extension.
 
-- does not access I2C;
-- does not own a BQ25896 instance;
-- does not configure VBUS;
-- does not perform register reads/writes;
-- does not claim that every T5S3-like CPU/board wiring matches this profile.
+The host fixture does not establish physical receiver enumeration, Qi current capacity, or charging-pad interference behavior. Those remain device-observation limits explicitly called out upstream.
 
-The interface header explicitly says that a board requiring additional rail or OTG-pin switching needs a composed power provider; this profile alone does not assert support for such wiring.
-
-The reusable `board-power-t5s3-v2`/BQ25896 provider consumes this profile together with `i2c.bus` and `platform.clock`.
-
-## Build and validation
-
-`scripts/build_t5s3_usb_power_profile.py` builds the source with the Xtensa ESP32-S3 GCC toolchain as a C11 PIC shared ELF using `-Os`, `-mtext-section-literals`, `-mlongcalls`, hidden default visibility, no standard startup files, and SysV hash style.
-
-The build verifies:
-
-- package identity/version;
-- the only exported function is `t5_driver_get`;
-- the output is an ELF32 Xtensa binary;
-- output size and SHA-256 are recorded in the staged manifest.
-
-## Published artifact parity
-
-The T5S3-Reader release index currently records:
-
-- Release tag: `driver-t5s3-usb-power-profile-v0.1.0`
-- Asset: `t5s3-usb-power-profile--driver.elf`
-- Published size: `2,356` bytes
-- Published SHA-256: `f4512fabd137cc1e6ecd8bd5e09f59829a02600368b35d4f4011ade722647e74`
-
-The standalone RiscRTE-Drivers build has reproduced that published size and SHA-256.
-
-The published package metadata also records `.package.json`, `provider-abi.v1`, and `privileged-imports.v1`. The published privileged-imports metadata is effectively empty for this profile, consistent with the implementation containing only immutable data and generic provider lifecycle code.
-
-## Confirmed limits and implementation status
-
-- This is configuration data, not the BQ25896 hardware driver.
-- It publishes exactly one board-specific profile.
-- It has no runtime mutable state.
-- It has no probing, discovery, I/O, interrupts, DMA, tasks, callbacks, or transport ownership.
-- The manifest labels the source package `experimental-unpublished`; separately, T5S3-Reader has published a release artifact for version 0.1.0.
+At this migration stage the exact v0.1.1 source, ABI suffix, release metadata, and strict canonical builder are synchronized. The released-driver manifest remains `migrated: false` until destination CI reproduces the 2,360-byte canonical ELF and passes the synchronized host test.

@@ -16,6 +16,7 @@ typedef struct {
     unsigned adc_ready_ms, fault_on_boost;
     unsigned late_fault_ms, late_fault_injected;
     uint8_t fault_latched;
+    unsigned external_adc;
     int external, no_boost, clock_failed, reject_500ma;
 } simulated_board;
 static bool claim_device(void *ctx, uint8_t address, uint64_t *out) {
@@ -34,14 +35,14 @@ static bool transact(void *ctx, uint64_t id, const uint8_t *wr, size_t nwr,
         if (b->fail_probe) return false;
         uint8_t reg = wr[0];
         if (reg == 0x0b) {
-            if (b->regs[3] & 0x20) *rd = b->no_boost ? 0 : 0xe0;
+            if ((b->regs[3] & 0x20) && b->external!=2) *rd = b->no_boost ? 0 : 0xe0;
             else *rd = b->external ? 0x24 : 0;
         } else if (reg == 0x11) {
-            if (b->regs[3] & 0x20)
+            if ((b->regs[3] & 0x20) && b->external!=2)
                 /* TI BQ25896: VBUS_GD=0 in OTG; ADC data is not immediate. */
                 *rd = (b->no_boost || !(b->regs[2] & 0x40) ||
                        b->now < b->adc_ready_ms) ? 0 : 25;
-            else *rd = b->external ? 0x80 : 0;
+            else *rd = b->external ? (0x80 | b->external_adc) : 0;
         } else if (reg == 0x0c) {
             /* First REG0C read returns history; next read returns live fault. */
             if (b->late_fault_ms && b->now >= b->late_fault_ms &&
@@ -98,7 +99,8 @@ static risc_platform_clock_api_v1 clock_api = {
     RISC_PLATFORM_CLOCK_API_V1, sizeof(risc_platform_clock_api_v1),
     &board, monotonic_ms, sleep_ms
 };
-static risc_bq25896_profile_api_v1 profile;
+static risc_bq25896_external_profile_v1 external_profile;
+#define profile external_profile.base
 static const risc_bq25896_profile_api_v1 *t5_profile;
 static const risc_provider_dependency_v1 deps[] = {
     {"i2c.bus", RISC_I2C_BUS_API_V1, &i2c},
@@ -114,6 +116,7 @@ static void reset_board(void) {
     board.regs[3] = 0x10;
     board.regs[0x0a] = 0x32;
     profile = *t5_profile;
+    external_profile.flags=RISC_BQ25896_EXTERNAL_HOST;
     assert(driver->start(deps, 3));
     assert(board.claim != 0);
 }
@@ -330,11 +333,59 @@ int main(void) {
     assert_restored();
     shutdown_board();
 
+    reset_board();uint64_t source_id=0;
+    assert(power->acquire_host(NULL,500,&source_id));
+    board.external=2;board.external_adc=25; // input replaces output before OTG_CONFIG clears
+    assert(monitor->input_status(NULL)==RISC_USB_POWER_EXTERNAL);
+    assert(power->release_host(NULL,source_id));shutdown_board();
+
+    const risc_usb_vbus_external_api_v1 *external_api=driver->capability;
+    assert(power->struct_size>=sizeof(*external_api));
+    reset_board(); board.external=1; board.external_adc=25;
+    uint64_t external_id=0;
+    const uint8_t before_power=board.regs[3], before_boost=board.regs[0x0a];
+    assert(external_api->acquire_external_host(NULL,500,&external_id) && external_id);
+    assert(board.regs[3]==before_power && board.regs[0x0a]==before_boost);
+    assert(external_api->external_host_valid(NULL,external_id));
+    assert(!power->quiesce(NULL));
+    uint64_t other=123;
+    assert(!power->acquire_host(NULL,500,&other) && !other);
+    assert(!external_api->acquire_external_host(NULL,500,&other) && !other);
+    board.external_adc=40; // overvoltage
+    assert(!external_api->external_host_valid(NULL,external_id));
+    board.external_adc=20; // drooping external rail
+    assert(!external_api->external_host_valid(NULL,external_id));
+    board.external_adc=25; board.regs[0x0c]=0x10; // live charging fault
+    assert(!external_api->external_host_valid(NULL,external_id));
+    board.regs[0x0c]=0;board.external=0;
+    assert(!external_api->external_host_valid(NULL,external_id));
+    assert(power->release_host(NULL,external_id));assert_restored();shutdown_board();
+    // Bad external rails never enable boost; failed ADC writes roll back.
+    for(unsigned scenario=0;scenario<4;++scenario){
+      reset_board();board.external=1;board.external_adc=scenario==0?40:scenario==1?20:25;
+      if(scenario==2)board.fail_adc_write=1;
+      if(scenario==3)board.regs[0x0c]=0x40;
+      external_id=99;
+      assert(!external_api->acquire_external_host(NULL,500,&external_id) && !external_id);
+      assert_restored();shutdown_board();
+    }
+    reset_board();board.external=1;board.external_adc=25;board.fail_adc_write=2;
+    assert(!external_api->acquire_external_host(NULL,500,&external_id) && !external_id);
+    assert(!power->quiesce(NULL));
+    assert(monitor->input_status(NULL)==RISC_USB_POWER_SETTLING);
+    assert_restored();shutdown_board();
+    // A legacy profile neither advertises nor authorizes external host power.
+    profile=*t5_profile;profile.struct_size=sizeof(profile);external_profile.flags=0;
+    assert(driver->start(deps,3));board.external=1;board.external_adc=25;
+    assert(!(monitor->flags & RISC_USB_POWER_EXTERNAL_HOST_SUPPORTED));
+    assert(!external_api->acquire_external_host(NULL,500,&external_id));shutdown_board();
+
     /* Reuse the SAME compiled driver with a different installed profile.
      * Synthetic electrical values are not a claim about another real board. */
     memset(&board, 0, sizeof(board));
     board.regs[3] = 0x10;
     profile = *t5_profile;
+    external_profile.flags=RISC_BQ25896_EXTERNAL_HOST;
     profile.max_host_milliamps = 100;
     profile.boost_millivolts = 4998;
     profile.boost_limit_milliamps = 750;
@@ -362,6 +413,7 @@ int main(void) {
     /* Malformed/incompatible electrical data must fail before claiming I2C. */
     for (unsigned invalid = 0; invalid < 10; ++invalid) {
         profile = *t5_profile;
+    external_profile.flags=RISC_BQ25896_EXTERNAL_HOST;
         switch (invalid) {
         case 0: profile.struct_size = 8; break;
         case 1: profile.api_version = 2; break;
@@ -380,6 +432,7 @@ int main(void) {
         assert(driver->quiesce()); driver->stop();
     }
     profile = *t5_profile;
+    external_profile.flags=RISC_BQ25896_EXTERNAL_HOST;
     board.regs[0x14] = 0x18; /* Different chip at the same address. */
     assert(!driver->start(deps, 3));
     assert(board.claim && !board.writes);

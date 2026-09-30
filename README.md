@@ -47,7 +47,10 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 
 ## Driver documentation tree
 
-### Migrated and independently buildable
+Current upstream power/USB release synchronization has staged versions `board-power-t5s3-v2` 0.1.6, `t5s3-usb-power-profile` 0.1.1, and `usb-controller-esp32s3` 0.1.19. Their pages are indexed below, but their released-driver entries remain `migrated: false` until destination CI proves the synchronized host fixtures and canonical artifact bytes.
+
+
+### Driver pages
 
 - [gt911-touch](docs/drivers/gt911-touch.md) — serialized GT911 `input.touch.raw@1` provider, version 0.1.1; dedicated CI run `36619949165` passed the host concurrency/retry/GAP/lifecycle fixture and strict historical replay, reproducing the published 42,976-byte ELF SHA-256 `44d753b736a2a433549ab500a3cae52f1e2844f79332fd119fc8df8d57cd11f4` with `byte_parity=True`.
 - [gps-nmea](docs/drivers/gps-nmea.md) — allocation-free NMEA 0183 GGA/RMC GNSS provider over runtime serial/power/clock host services, version 1.0.0 (source-only upstream).
@@ -66,12 +69,12 @@ Published-byte parity is recorded only where it has actually been demonstrated. 
 - [usb-stlink](docs/drivers/usb-stlink.md) — ST-LINK V2/V2.1/V3 `debug.vendor.stlink@1` provider above `usb.host@1` and `platform.clock@1`, version 0.1.0; CI run `36344579403` passed the exact host fixture and reproduced the canonical 9,304-byte ELF byte-for-byte.
 - [usb-ui-navigation](docs/drivers/usb-ui-navigation.md) — composite `input.navigation@1` provider over semantic text, HID gamepad, and XInput gamepad sources, version 0.1.1; preserves foreground handoff and neutral rearm semantics.
 - [usb-xinput-gamepad](docs/drivers/usb-xinput-gamepad.md) — Xbox 360 wired/wireless-format `usb.xinput.gamepad@1` provider above `usb.host@1` and `platform.clock@1`, version 0.1.3; CI run `36345187504` passed the exact upstream host fixture and reproduced the canonical 11,088-byte ELF byte-for-byte.
-- [board-power-t5s3-v2](docs/drivers/board-power-t5s3-v2.md) — reusable BQ25896 `board.power.vbus@1` provider, version 0.1.5; CI run `36378453595` passed its host fixture and reproduced the canonical 10,860-byte ELF byte-for-byte.
+- [board-power-t5s3-v2](docs/drivers/board-power-t5s3-v2.md) — BQ25896 `board.power.vbus@1` provider, upstream release 0.1.6; exact source/ABI/test bytes and canonical 12,660-byte target are synchronized, including the opt-in externally powered host lease. Destination CI/canonical replay is pending before this release is marked migrated.
 - [usb-msp](docs/drivers/usb-msp.md) — TI MSP-FET/eZ-FET `debug.vendor.msp@1` transport, version 0.1.1; CI run `36378453595` passed the exact upstream fixture and reproduced the canonical 14,116-byte ELF byte-for-byte.
 - [platform-clock-v1](docs/drivers/platform-clock-v1.md) — generic `platform.clock@1` monotonic-time and sleep provider, version 0.1.0.
 - [program-msp](docs/drivers/program-msp.md) — MSP430FR/XV2 FRAM programming provider above `debug.vendor.msp@1`, version 0.1.0; CI run `36447591163` reproduced the canonical 9,128-byte ELF byte-for-byte.
-- [t5s3-usb-power-profile](docs/drivers/t5s3-usb-power-profile.md) — immutable T5S3 BQ25896/USB power-policy profile provider, version 0.1.0.
-- [usb-controller-esp32s3](docs/drivers/usb-controller-esp32s3.md) — ESP32-S3 physical `usb.controller@1` provider, version 0.1.18; strict CI run `36487107833` reproduced the canonical 783,576-byte ELF under fail-closed byte-parity enforcement and passed the loader-map audit.
+- [t5s3-usb-power-profile](docs/drivers/t5s3-usb-power-profile.md) — immutable T5S3 `board.power.bq25896.profile@1` provider, upstream release 0.1.1; exact source and external-host profile suffix are synchronized with a fail-closed 2,360-byte canonical build target. Destination CI is pending before this release is marked migrated.
+- [usb-controller-esp32s3](docs/drivers/usb-controller-esp32s3.md) — ESP32-S3 `usb.controller@1` provider, upstream release 0.1.19; exact source/tests and externally powered host role switching are synchronized with canonical 789,504-byte replay metadata. Destination host tests/replay/loader audit are pending before this release is marked migrated.
 
 ## Documentation standard
 

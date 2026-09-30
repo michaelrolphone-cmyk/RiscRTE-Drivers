@@ -6,7 +6,7 @@
  * powering a receiver first lets it boot against the previous device role.
  * Holding the host's receive detector disconnected cannot correct what the
  * receiver already saw. No periodic resets or power cycling are needed. */
-bool start_host_controller() {
+bool start_host_controller(bool (*acquire)(void *, uint32_t, uint64_t *) = nullptr) {
     capture_phy_route();
     usb_phy_config_t phyConfig = {};
     phyConfig.controller = USB_PHY_CTRL_OTG;
@@ -45,10 +45,11 @@ bool start_host_controller() {
     rc = usb_host_transfer_alloc(kBuffer, 0, &transfer);
     if (rc != ESP_OK) return start_failure("transfer-alloc", rc);
 
-    // Settle the role/pull-down handoff with the receiver still unpowered.
+    // Settle host role before source acquisition, or before admitting an
+    // already externally powered receiver. External acquisition never boosts.
     const TickType_t ticks = pdMS_TO_TICKS(20);
     vTaskDelay(ticks ? ticks : 1);
-    const bool acquired = power->acquire_host(power->context, 500, &powerLease);
+    const bool acquired = (acquire ? acquire : power->acquire_host)(power->context, 500, &powerLease);
     if (!acquired || !powerLease) {
         startupError.text("vbus-acquire");
         startupError.number(" returned=", acquired);

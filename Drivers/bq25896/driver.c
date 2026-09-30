@@ -36,6 +36,8 @@
 
 static risc_bq25896_profile_api_v1 profile;
 static uint8_t boost_settings;
+static bool external_allowed, external_lease, external_granted;
+static risc_usb_vbus_external_api_v1 capability;
 
 /* Validate before any bus claim/write. No board-name checks or defaults.
  * TI SLUSC76C REG0A: exact voltage steps and seven non-reserved limits. */
@@ -56,6 +58,10 @@ static bool configure(const risc_bq25896_profile_api_v1 *p) {
             candidate.transient_stable_ms != 0u)) return false;
     for (size_t i = 0; i < sizeof(limits) / sizeof(limits[0]); ++i) {
         if (candidate.boost_limit_milliamps != limits[i]) continue;
+        external_allowed = p->struct_size >= sizeof(risc_bq25896_external_profile_v1) &&
+            (((const risc_bq25896_external_profile_v1 *)p)->flags & RISC_BQ25896_EXTERNAL_HOST);
+        capability.monitor.flags = RISC_USB_POWER_IDLE_PROBE_REQUIRED |
+            (external_allowed ? RISC_USB_POWER_EXTERNAL_HOST_SUPPORTED : 0u);
         profile = candidate;
         boost_settings = (uint8_t)(((candidate.boost_millivolts - 4550u) / 64u << 4) | i);
         return true;
@@ -333,6 +339,50 @@ static bool acquire_host(void *unused, uint32_t requested_ma, uint64_t *out) {
            (unsigned)boost, (unsigned)profile.boost_limit_milliamps, (unsigned)requested_ma);
     return true;
 }
+/* USB must never boost into a Qi/PC source. ADC resolution is 100mV;
+ * admit 4.8–5.2V samples conservatively inside the nominal USB 5V range. */
+static bool external_voltage_valid(void) {
+    uint8_t power, status, adc, previous, live;
+    if (!read_reg(REG_POWER, &power) || !read_reg(REG_STATUS, &status) ||
+        !read_reg(REG_VBUS_ADC, &adc) || !read_fault_pair(&previous, &live)) return false;
+    return !(power & OTG_ENABLE) && (status & VBUS_STATUS_MASK) != VBUS_OTG &&
+        (status & POWER_GOOD) && (adc & VBUS_GOOD) &&
+        (adc & 0x7fu) >= 22u && (adc & 0x7fu) <= 26u && !(live & 0x78u);
+}
+static bool external_host_valid(void *unused, uint64_t id) {
+    (void)unused;
+    return started && !faulted && external_lease && id && id==lease && external_voltage_valid();
+}
+static bool acquire_external_host(void *unused, uint32_t requested_ma, uint64_t *out) {
+    (void)unused;
+    if (out) *out=0;
+    if (!out || !started || !external_allowed || !bus_claim || lease || faulted ||
+        !requested_ma || requested_ma>profile.max_host_milliamps || sequence==UINT64_MAX) return false;
+    uint8_t status;
+    if (!read_reg(REG_POWER,&saved_power) || (saved_power & OTG_ENABLE) ||
+        !read_reg(REG_STATUS,&status) || (status & VBUS_STATUS_MASK)==VBUS_OTG ||
+        !(status & POWER_GOOD) || !read_reg(REG_BOOST,&saved_boost) ||
+        !read_reg(REG_ADC_CONTROL,&saved_adc)) return false;
+    const uint64_t begun=clock_api->monotonic_ms(clock_api->context);
+    if (begun==UINT64_MAX) return false;
+    saved=true; external_lease=true; lease=++sequence;
+    bool ok=write_reg(REG_ADC_CONTROL,saved_adc | ADC_CONTINUOUS);
+    // Force a fresh conversion interval; cooperate while the converter runs.
+    for (unsigned i=0; ok && i<20u; ++i) {
+        delay_ms(50u);
+        if (timed_out(begun,STARTUP_TIMEOUT_MS)) ok=false;
+    }
+    ok=ok && external_voltage_valid();
+    if (!ok) {
+        if (disable_and_restore()) {lease=0;saved=false;external_lease=false;}
+        else faulted=true;
+        return false;
+    }
+    external_granted=true;
+    *out=lease;
+    printf("VBUSREF stage=external-host-verified boost=off charging=preserved\n");
+    return true;
+}
 static bool release_host(void *unused, uint64_t id) {
     (void)unused;
     if (!started || !id || id != lease || !saved) return false;
@@ -340,6 +390,7 @@ static bool release_host(void *unused, uint64_t id) {
     if (!disable_and_restore()) { faulted = true; return false; }
     lease = 0;
     saved = false;
+    external_lease = external_granted = false;
     faulted = false;
     return true;
 }
@@ -410,10 +461,22 @@ static void stop(void) {
 }
 static int32_t input_status(void *unused) {
     (void)unused;
+    // A failed external acquisition publishes no token. Retry its retained
+    // rollback during the controller's bounded cleanup polls; never recover a
+    // lease already granted to a live host behind that owner's back.
+    if (started && faulted && external_lease && !external_granted && lease) {
+        if (!disable_and_restore()) return RISC_USB_POWER_UNKNOWN;
+        lease=0; saved=false; faulted=false; external_lease=false;
+    }
     uint8_t status = 0, adc = 0, power = 0;
     if (!started || !bus_claim || faulted ||
         !read_reg(REG_POWER, &power) || !read_reg(REG_STATUS, &status) ||
         !read_reg(REG_VBUS_ADC, &adc)) return RISC_USB_POWER_UNKNOWN;
+    // A qualified input status can replace our boost while OTG_CONFIG still
+    // reads enabled. Tell the controller to drain before changing power modes.
+    const uint8_t kind=status & VBUS_STATUS_MASK;
+    if (lease && source_requested && kind && kind!=VBUS_OTG &&
+        (status & POWER_GOOD) && (adc & VBUS_GOOD)) return RISC_USB_POWER_EXTERNAL;
     /* Never mistake the OTG output for incoming USB power. Treat an
      * unowned source or incomplete source transition as unknown. */
     if ((power & OTG_ENABLE) || (status & VBUS_STATUS_MASK) == VBUS_OTG)
@@ -425,9 +488,11 @@ static int32_t input_status(void *unused) {
         return RISC_USB_POWER_EXTERNAL;
     return RISC_USB_POWER_ABSENT;
 }
-static const risc_usb_vbus_monitor_api_v1 capability = {
-    {RISC_USB_VBUS_API_V1, sizeof(risc_usb_vbus_monitor_api_v1), NULL,
-     acquire_host, release_host, quiesce}, input_status, RISC_USB_POWER_IDLE_PROBE_REQUIRED
+static risc_usb_vbus_external_api_v1 capability = {
+    {{RISC_USB_VBUS_API_V1, sizeof(risc_usb_vbus_external_api_v1), NULL,
+      acquire_host, release_host, quiesce}, input_status,
+      RISC_USB_POWER_IDLE_PROBE_REQUIRED | RISC_USB_POWER_EXTERNAL_HOST_SUPPORTED},
+    acquire_external_host, external_host_valid
 };
 static const risc_driver_v2 driver = {
     RISC_PROVIDER_DRIVER_ABI_V2, sizeof(risc_driver_v2),

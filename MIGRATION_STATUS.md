@@ -1,6 +1,6 @@
 # Migration status
 
-Source inventory on `T5S3-Reader:master` at `4021922e2812733ed5e321760ec25ebb7693b578`: 23 driver directories with manifests. Of those, 21 are canonical released drivers in `T5S3-Reader:release-index`; two are source-only drivers (`gps-nmea` and `usb-cdc-acm`).
+Source inventory on `T5S3-Reader:master` at `1ebf01386643c8504cc68061dcd0a6185ca42a9c`: 23 driver directories with manifests. Of those, 21 are canonical released drivers in `T5S3-Reader:release-index`; two are source-only drivers (`gps-nmea` and `usb-cdc-acm`).
 
 ## Source/build migrated and independently buildable
 
@@ -23,11 +23,8 @@ Source inventory on `T5S3-Reader:master` at `4021922e2812733ed5e321760ec25ebb769
 - `usb-xinput-gamepad` v0.1.3 — exact upstream source/manifest, exact upstream host fixture, standalone Xtensa builder, shared interrupt/gamepad-diagnostics/clock/mailbox dependencies, README link, and detailed implementation documentation are integrated. CI run `36345187504` passed `XInput discovery, current state, bounded startup retries, hotplug and shutdown: PASS`, produced the canonical 11,088-byte ELF with SHA-256 `e2cee3355937d7815fb5685598cd2411c7d508bb36424f00636ec7495f654c26`, reported `byte_parity=True`, and uploaded artifact `usb-xinput-gamepad` (artifact ID `10939434367`).
 - `platform-clock-v1` v0.1.0 — source/header mirrored, standalone build, ELF validation, and byte-for-byte published ELF parity.
 - `program-msp` v0.1.0 — exact source and `program.msp@1`/`debug.vendor.msp@1` ABI headers migrated with the upstream host behavior fixture; CI run `36447591163` produced the canonical 9,128-byte ELF SHA-256 `19b0999f41e45522e877097addf3cfd55651b2fd00ae925fa6084b769b66527f` with `byte_parity=true`.
-- `t5s3-usb-power-profile` v0.1.0 — source/manifest/profile ABI migrated, standalone build, ELF validation, and byte-for-byte published ELF parity.
 
-- `board-power-t5s3-v2` v0.1.5 — exact source/test/build/docs are integrated. CI run `36378453595` passed parity/documentation plus the BQ25896 host fixture and produced the canonical 10,860-byte ELF, SHA-256 `1f6e43bf15610b6ce2e30131c830d9d1b2643ec114471d216f90322fbdde3834`, with `byte_parity=True`.
 - `usb-msp` v0.1.1 — exact source/test/build/docs are integrated. CI run `36378453595` passed parity/documentation plus the MSP-FET/eZ-FET host fixture and produced the canonical 14,116-byte ELF, SHA-256 `d0f48fdd2a4da3afd41d74960017bd10a0e49cb7396cf7ce4a9ca3a5bb397ede`, with `byte_parity=True`.
-- `usb-controller-esp32s3` v0.1.18 — exact source/build/docs are integrated. Strict CI run `36487107833` reproduced the canonical 783,576-byte ELF SHA-256 `f67064a9678a7b048e40cbf411d46653b69006aec07b9f2c95428597cc706e0e` under `--require-byte-parity`; the loader-map audit also passed.
 
 ## Released drivers still requiring source migration
 
@@ -35,7 +32,9 @@ None.
 
 ## Released drivers with source staged but parity completion pending
 
-None.
+- `board-power-t5s3-v2` v0.1.6 — exact current source/ABI/test/docs synchronized; canonical target 12,660 bytes SHA-256 `5f50b5eb048085e3128939b6bed3693a9a44ebe27c9e2cae3b40dd725aa6a4c4`; destination CI pending.
+- `t5s3-usb-power-profile` v0.1.1 — exact current source/profile suffix/docs synchronized; canonical target 2,360 bytes SHA-256 `e1a61504f63be342a13afdeaccee637b2cba657ed192a20260bbf15041ae52ff`; destination CI pending.
+- `usb-controller-esp32s3` v0.1.19 — exact current controller source/host fixtures/docs synchronized; canonical target 789,504 bytes SHA-256 `18c95f4264dfff2b21af13b0f0366327be896c75a0ae2d4fc1c9b0a220424da6`; destination host tests/replay/loader audit pending.
 
 
 ## Source-only drivers still requiring compatibility migration

@@ -593,6 +593,19 @@ bool start(const risc_provider_dependency_v1 *deps, size_t count) {
 struct RolePort {
     uint32_t now() const { return static_cast<uint32_t>(xTaskGetTickCount() * portTICK_PERIOD_MS); }
     int32_t input() const { return powerMonitor->input_status(power->context); }
+    bool external_supported() const {
+        if (power->struct_size < sizeof(risc_usb_vbus_external_api_v1) ||
+            !(powerMonitor->flags & RISC_USB_POWER_EXTERNAL_HOST_SUPPORTED)) return false;
+        const auto *extension=reinterpret_cast<const risc_usb_vbus_external_api_v1 *>(power);
+        return extension->acquire_external_host && extension->external_host_valid;
+    }
+    bool external_valid() const {
+        const auto *extension=reinterpret_cast<const risc_usb_vbus_external_api_v1 *>(power);
+        return external_supported() && extension->external_host_valid(power->context,powerLease);
+    }
+    bool disconnect_power_loss() const {
+        return phy && usb_phy_action(phy,USB_PHY_ACTION_HOST_FORCE_DISCONN)==ESP_OK;
+    }
     bool idle_probe_required() const {
         return (powerMonitor->flags & RISC_USB_POWER_IDLE_PROBE_REQUIRED) != 0;
     }
@@ -605,10 +618,14 @@ struct RolePort {
     bool park() const {
         return (!drainRoleInterrupts || drainRoleInterrupts()) && quiesce_host();
     }
-    bool start() const {
+    bool start_external() const {
+        return external_supported() && start(true);
+    }
+    bool start(bool external = false) const {
         startupError.clear(); enumerationDiagnostic.clear();
         noClientsObserved = false;
-        if (!start_host_controller()) return false;
+        const auto *extension=reinterpret_cast<const risc_usb_vbus_external_api_v1 *>(power);
+        if (!start_host_controller(external ? extension->acquire_external_host : nullptr)) return false;
         running = true;
         return true;
     }

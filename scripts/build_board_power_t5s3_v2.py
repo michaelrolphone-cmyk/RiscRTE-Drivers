@@ -11,14 +11,14 @@ from normalize_xtensa_relocations import normalize
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "Drivers/bq25896"
 OUT = ROOT / "dist/board-power-t5s3-v2"
-CANONICAL_SIZE = 10860
-CANONICAL_SHA256 = "1f6e43bf15610b6ce2e30131c830d9d1b2643ec114471d216f90322fbdde3834"
+CANONICAL_SIZE = 12660
+CANONICAL_SHA256 = "5f50b5eb048085e3128939b6bed3693a9a44ebe27c9e2cae3b40dd725aa6a4c4"
 
 manifest = json.loads((SRC / "manifest.json").read_text())
 required = {
     "type": "driver",
     "id": "board-power-t5s3-v2",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "driver_abi": 2,
     "architecture": "xtensa-esp32s3",
     "file_name": "driver.elf",

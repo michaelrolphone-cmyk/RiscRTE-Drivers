@@ -2,10 +2,12 @@
  * to the reusable BQ25896 ELF. Never import this into generic firmware. */
 #include "RiscBq25896ProfileV1.h"
 
-static const risc_bq25896_profile_api_v1 profile = {
-    RISC_BQ25896_PROFILE_API_V1, sizeof(risc_bq25896_profile_api_v1),
+static const risc_bq25896_external_profile_v1 profile = {{
+    RISC_BQ25896_PROFILE_API_V1, sizeof(risc_bq25896_external_profile_v1),
+    /* Preserve the working v1.2.16 source settings. A 500 mA consumer budget
+     * does not mean a 500 mA PMIC peak threshold; that broke receiver inrush. */
     500u, 5126u, 1200u, 80u, 500u, 250u, 200u
-};
+}, RISC_BQ25896_EXTERNAL_HOST};
 static bool start(const risc_provider_dependency_v1 *deps, size_t count) {
     (void)deps;
     return count == 0u;
