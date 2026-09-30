@@ -1,5 +1,6 @@
 #include "RiscUsbHidV1.h"
 #include "RiscUsbGamepadDiagnosticsV1.h"
+#include "RiscPlatformClockV1.h"
 
 /* Descriptor-driven HID gamepad provider. Driver calls and queues are
  * serialized by the provider executor; no firmware HID handlers exist. */
@@ -22,6 +23,18 @@ typedef struct {
     int32_t minimum, maximum;
 } globals;
 static const risc_usb_hid_api_v1 *hid;
+static const risc_platform_clock_api_v1 *clock_api;
+/* Attachment-scoped negative cache: unsupported auxiliary HID interfaces must
+ * not issue a synchronous control transfer on every UI input poll. */
+#define DISCOVERY_ATTEMPTS 8u
+#define DISCOVERY_DEADLINE_MS 10000u
+typedef struct {
+    uint64_t device, attempted_ms, begun_ms, closing;
+    const char *status;
+    uint8_t iface, alt, attempts;
+    bool done;
+} inspected_interface;
+static inspected_interface inspected[RISC_USB_HID_MAX_INTERFACES];
 static gamepad pads[PADS];
 static subscriber subscribers[RISC_USB_INPUT_MAX_SUBSCRIBERS];
 static uint64_t serial, sequence;
@@ -272,6 +285,22 @@ static bool poll(void *ctx, size_t max_reports) {
         if ((!found || !hid->present(hid->context, p->session)) &&
             !release_pad(p)) return false;
     }
+    /* Drop cache entries only after their attachment/interface disappears.
+     * Failed close retains the handle and blocks unload until cleanup succeeds. */
+    for (size_t j = 0; j < RISC_USB_HID_MAX_INTERFACES; ++j) {
+        inspected_interface *entry = &inspected[j];
+        if (entry->closing) {
+            if (!hid->close(hid->context, entry->closing)) return false;
+            entry->closing = 0;
+        }
+        bool found = false;
+        for (size_t i = 0; i < count; ++i)
+            if (items[i].device == entry->device &&
+                items[i].interface_number == entry->iface &&
+                items[i].alternate == entry->alt) found = true;
+        if (!found) *entry = (inspected_interface){0};
+    }
+    const uint64_t now = clock_api->monotonic_ms(clock_api->context);
     for (size_t i = 0; i < count; ++i) {
         const risc_usb_hid_interface_v1 *item = &items[i];
         bool known = false;
@@ -281,22 +310,58 @@ static bool poll(void *ctx, size_t max_reports) {
                 known = true;
         if (known || (item->subclass == 1 &&
                       (item->protocol == 1 || item->protocol == 2))) continue;
+        inspected_interface *entry = 0, *empty = 0;
+        for (size_t j = 0; j < RISC_USB_HID_MAX_INTERFACES; ++j) {
+            if (inspected[j].device == item->device &&
+                inspected[j].iface == item->interface_number &&
+                inspected[j].alt == item->alternate) entry = &inspected[j];
+            if (!inspected[j].device && !empty) empty = &inspected[j];
+        }
+        if (!entry) {
+            if (!empty) continue;
+            entry = empty;
+            *entry = (inspected_interface){.device = item->device,
+                .iface = item->interface_number, .alt = item->alternate};
+        }
+        if (entry->status) discovery_status = entry->status;
+        if (entry->done || now == UINT64_MAX) continue;
+        if (entry->attempts) {
+            if (now < entry->attempted_ms) continue;
+            if (entry->attempts >= DISCOVERY_ATTEMPTS ||
+                now - entry->begun_ms >= DISCOVERY_DEADLINE_MS) {
+                entry->done = true;
+                continue;
+            }
+            uint32_t delay_ms = 100u << (entry->attempts - 1);
+            if (delay_ms > 2000u) delay_ms = 2000u;
+            if (now - entry->attempted_ms < delay_ms) continue;
+        }
         gamepad *slot = 0;
         for (unsigned j = 0; j < PADS; ++j)
             if (!pads[j].session) { slot = &pads[j]; break; }
-        if (!slot) { discovery_status = "GAMEPAD CAPACITY EXHAUSTED"; return false; }
+        /* Capacity is not a transport failure; still service connected pads. */
+        if (!slot) { discovery_status = "GAMEPAD CAPACITY EXHAUSTED"; break; }
+        if (!entry->attempts) entry->begun_ms = now;
+        entry->attempted_ms = now;
+        ++entry->attempts;
         uint64_t session = hid->open(hid->context, item->device,
                                      item->interface_number, item->alternate);
-        if (!session) { discovery_status = "HID INTERFACE CLAIM FAILED"; continue; }
+        if (!session) {
+            discovery_status = entry->status = "HID INTERFACE CLAIM FAILED";
+            break;
+        }
         uint8_t descriptor[RISC_USB_HID_MAX_DESCRIPTOR];
         size_t length = sizeof(descriptor);
         gamepad candidate = {0};
         const bool received = hid->report_descriptor(hid->context, session, descriptor, &length);
         if (!received || length > sizeof(descriptor) || !layout(&candidate, descriptor, length)) {
-            discovery_status = received ? "HID REPORT DESCRIPTOR UNSUPPORTED" :
-                                          "HID REPORT DESCRIPTOR READ FAILED";
+            discovery_status = entry->status = received ? "HID REPORT DESCRIPTOR UNSUPPORTED" :
+                                                        "HID REPORT DESCRIPTOR READ FAILED";
+            entry->done = received;
+            entry->closing = session;
             if (!hid->close(hid->context, session)) return false;
-            continue;
+            entry->closing = 0;
+            break;
         }
         candidate.session = session; candidate.device = item->device;
         candidate.iface = item->interface_number; candidate.alt = item->alternate;
@@ -305,6 +370,9 @@ static bool poll(void *ctx, size_t max_reports) {
         candidate.state.report_id = candidate.report_id;
         *slot = candidate;
         if (!emit(1, &slot->state)) return false;
+        /* At most one claim/descriptor attempt per invocation. Return to the
+         * caller's scheduler between attempts; never sleep inside discovery. */
+        break;
     }
     /* Drain bursts fairly across active pads, within the caller's work budget.
      * Each read has a cooperative 10 ms deadline; an idle pad is tried once. */
@@ -376,14 +444,25 @@ static bool snapshot(void *ctx, risc_usb_gamepad_state_v1 *out, size_t *capacity
     return true;
 }
 static bool start(const risc_provider_dependency_v1 *deps, size_t count) {
-    if (hid || !deps || count != 1 || !equal(deps[0].capability_id, "usb.hid") ||
-        deps[0].api_version != RISC_USB_HID_API_V1 || !deps[0].api) return false;
-    const risc_usb_hid_api_v1 *api = (const risc_usb_hid_api_v1 *)deps[0].api;
+    if (hid || !deps || count != 2) return false;
+    const risc_usb_hid_api_v1 *api = 0;
+    const risc_platform_clock_api_v1 *clock = 0;
+    for (size_t i = 0; i < count; ++i) {
+        if (equal(deps[i].capability_id, "usb.hid") &&
+            deps[i].api_version == RISC_USB_HID_API_V1 && !api)
+            api = (const risc_usb_hid_api_v1 *)deps[i].api;
+        else if (equal(deps[i].capability_id, "platform.clock") &&
+                 deps[i].api_version == RISC_PLATFORM_CLOCK_API_V1 && !clock)
+            clock = (const risc_platform_clock_api_v1 *)deps[i].api;
+        else return false;
+    }
+    if (!api || !clock || clock->api_version != RISC_PLATFORM_CLOCK_API_V1 ||
+        clock->struct_size < sizeof(*clock) || !clock->monotonic_ms) return false;
     if (api->api_version != RISC_USB_HID_API_V1 ||
         api->struct_size < sizeof(*api) || !api->scan || !api->interfaces ||
         !api->open || !api->report_descriptor || !api->read ||
         !api->present || !api->close) return false;
-    hid = api;
+    hid = api; clock_api = clock;
     discovery_status = "WAITING FOR HID DISCOVERY";
     return true;
 }
@@ -394,9 +473,15 @@ static bool quiesce(void) {
         if (subscribers[i].token) return false;
     for (unsigned i = 0; i < PADS; ++i)
         if (pads[i].session && !release_pad(&pads[i])) return false;
+    for (size_t i = 0; i < RISC_USB_HID_MAX_INTERFACES; ++i) {
+        if (inspected[i].closing && !hid->close(hid->context, inspected[i].closing)) return false;
+        inspected[i] = (inspected_interface){0};
+    }
     return true;
 }
-static void stop(void) { if (quiesce()) hid = 0; }
+static void stop(void) {
+    if (quiesce()) { hid = 0; clock_api = 0; }
+}
 static const risc_usb_gamepad_diagnostics_v1 api = {
     {RISC_USB_GAMEPAD_API_V1, sizeof(risc_usb_gamepad_diagnostics_v1), 0,
      subscribe, unsubscribe, poll, next, snapshot}, diagnostic

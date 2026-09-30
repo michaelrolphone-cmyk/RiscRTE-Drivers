@@ -5,10 +5,10 @@ from normalize_xtensa_relocations import normalize
 ROOT=Path(__file__).resolve().parents[1]
 SRC=ROOT/"Drivers/usb_hid_gamepad"
 OUT=ROOT/"dist/usb-hid-gamepad"
-CANONICAL_SIZE=13980
-CANONICAL_SHA256="16142ccae4a8cea40cc94f2ef38145d3fb27021a5f7314417b0098a520c1da0e"
+CANONICAL_SIZE=14444
+CANONICAL_SHA256="2d543f6a04e5b94192f732c64f2f5a436861e2a569f05fb4c6617ae7267db86c"
 manifest=json.loads((SRC/"manifest.json").read_text())
-required={"type":"driver","id":"usb-hid-gamepad","version":"0.1.3","driver_abi":2,"architecture":"xtensa-esp32s3","file_name":"driver.elf","requires":[{"capability":"usb.hid","api":1}],"provides":[{"capability":"usb.hid.gamepad","api":1}],"status":"experimental-unpublished"}
+required={"type":"driver","id":"usb-hid-gamepad","version":"0.1.4","driver_abi":2,"architecture":"xtensa-esp32s3","file_name":"driver.elf","requires":[{"capability":"usb.hid","api":1},{"capability":"platform.clock","api":1}],"provides":[{"capability":"usb.hid.gamepad","api":1}],"status":"experimental-unpublished"}
 if manifest!=required: raise SystemExit("usb-hid-gamepad manifest mismatch")
 cc=os.environ.get("NATIVE_DRIVER_CC") or shutil.which("xtensa-esp32s3-elf-gcc")
 if not cc: cc=str(Path.home()/".platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc")
@@ -27,4 +27,5 @@ if not 52<=len(data)<=256*1024 or data[:7]!=b"\x7fELF\x01\x01\x01" or int.from_b
 digest=hashlib.sha256(data).hexdigest()
 meta=dict(manifest);meta.update(size_bytes=len(data),sha256=digest,canonical_size_bytes=CANONICAL_SIZE,canonical_sha256=CANONICAL_SHA256,byte_parity=(len(data)==CANONICAL_SIZE and digest==CANONICAL_SHA256))
 (OUT/"manifest.json").write_text(json.dumps(meta,indent=2)+"\n")
+if not meta["byte_parity"]: raise SystemExit(f"usb-hid-gamepad canonical byte parity failed: {len(data)} bytes {digest}")
 print(f"built usb-hid-gamepad v{manifest['version']} {len(data)} bytes {digest} byte_parity={meta['byte_parity']}")

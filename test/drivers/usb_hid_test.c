@@ -1,3 +1,4 @@
+#include "RiscPlatformClockV1.h"
 #include "RiscUsbHidV1.h"
 #include "RiscUsbInterruptV1.h"
 #include <assert.h>
@@ -141,6 +142,10 @@ static const risc_driver_v2 *load(const char *file, void **module) {
     assert(driver && driver->capability && driver->quiesce);
     return driver;
 }
+static uint64_t fake_now(void *ctx) { (void)ctx; return 0; }
+static const risc_platform_clock_api_v1 fake_clock = {
+    RISC_PLATFORM_CLOCK_API_V1, sizeof(risc_platform_clock_api_v1), 0, fake_now, 0
+};
 int main(int argc, char **argv) {
     assert(argc == 4);
     void *hid_module = NULL, *keyboard_module = NULL, *gamepad_module = NULL;
@@ -175,7 +180,8 @@ int main(int argc, char **argv) {
     malformed = 0; releases = 0;
     risc_provider_dependency_v1 hid_dep = {"usb.hid", 1, hid};
     assert(keyboard->start(&hid_dep, 1));
-    assert(gamepad->start(&hid_dep, 1));
+    risc_provider_dependency_v1 pad_deps[] = {hid_dep, {"platform.clock", 1, &fake_clock}};
+    assert(gamepad->start(pad_deps, 2));
     const risc_usb_keyboard_api_v1 *keys = keyboard->capability;
     const risc_usb_gamepad_api_v1 *pads = gamepad->capability;
     uint64_t key_sub = keys->subscribe(keys->context, 42);
