@@ -4,7 +4,7 @@
     "repository": "michaelrolphone-cmyk/T5S3-Reader",
     "branch": "release-index",
     "path": "release-index.json",
-    "source_master_sha": "747fbc7373dea6792ad4bfe7eb2fcf04e3e0d1c6"
+    "source_master_sha": "3aa1c79ce15c60cf0be449ffd53c0b8a21d156b8"
   },
   "drivers": [
     {
