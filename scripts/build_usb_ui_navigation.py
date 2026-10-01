@@ -5,10 +5,10 @@ from normalize_xtensa_relocations import normalize
 ROOT=Path(__file__).resolve().parents[1]
 SRC=ROOT/"Drivers/usb_ui_navigation"
 OUT=ROOT/"dist/usb-ui-navigation"
-CANONICAL_SIZE=7208
-CANONICAL_SHA256="b7b38cf7d0769081e0e88c75091f59d9a1c3fda45e498a915ce0655d8c2e8631"
+CANONICAL_SIZE=7212
+CANONICAL_SHA256="c907a608f746444831cd31638182d119b198c2e70188177a8cca3d9e4a42e2c7"
 manifest=json.loads((SRC/"manifest.json").read_text())
-required={"type":"driver","id":"usb-ui-navigation","version":"0.1.1","driver_abi":2,
+required={"type":"driver","id":"usb-ui-navigation","version":"0.1.2","driver_abi":2,
 "architecture":"xtensa-esp32s3","file_name":"driver.elf",
 "requires":[{"capability":"input.text","api":1},{"capability":"usb.hid.gamepad","api":1},{"capability":"usb.xinput.gamepad","api":1}],
 "provides":[{"capability":"input.navigation","api":1}],"status":"experimental-unpublished"}
@@ -31,3 +31,5 @@ digest=hashlib.sha256(data).hexdigest()
 meta=dict(manifest); meta.update(size_bytes=len(data),sha256=digest,canonical_size_bytes=CANONICAL_SIZE,canonical_sha256=CANONICAL_SHA256,byte_parity=(len(data)==CANONICAL_SIZE and digest==CANONICAL_SHA256))
 (OUT/"manifest.json").write_text(json.dumps(meta,indent=2)+"\n")
 print(f"built usb-ui-navigation v{manifest['version']} {len(data)} bytes {digest} byte_parity={meta['byte_parity']}")
+
+if not meta["byte_parity"]: raise SystemExit("usb-ui-navigation published byte parity failed")

@@ -16,7 +16,7 @@ The target state is:
 - `manifest/source-trees.json` records the inspected upstream driver tree baseline;
 - ongoing upstream changes are synchronized here until official source cutover.
 
-Because this repository is new and has no downstream dependency consumers yet, migration work is committed directly to `main`.
+Parity maintenance uses reviewable branches and PRs. The owner authorizes merging validated in-scope external parity work after exact-head CI passes.
 
 ## Layout
 
@@ -67,7 +67,7 @@ Current upstream power/USB release synchronization has staged versions `board-po
 - [usb-host-v2](docs/drivers/usb-host-v2.md) — generation-safe `usb.host@1` provider above `usb.controller@1`, version 0.1.3; validates descriptor-derived bulk/interrupt endpoint access, quarantines failed releases, forwards optional diagnostics, and requires canonical published-byte parity from its standalone Xtensa build.
 - [usb-mass-storage](docs/drivers/usb-mass-storage.md) — USB MSC BOT/SCSI `storage.volume@1` provider with FAT16/FAT32 filesystem handling, version 0.1.1; CI run `36352310880` passed the exact upstream FAT16 host fixture and reproduced the canonical 23,792-byte ELF byte-for-byte.
 - [usb-stlink](docs/drivers/usb-stlink.md) — ST-LINK V2/V2.1/V3 `debug.vendor.stlink@1` provider above `usb.host@1` and `platform.clock@1`, version 0.1.0; CI run `36344579403` passed the exact host fixture and reproduced the canonical 9,304-byte ELF byte-for-byte.
-- [usb-ui-navigation](docs/drivers/usb-ui-navigation.md) — composite `input.navigation@1` provider over semantic text, HID gamepad, and XInput gamepad sources, version 0.1.1; preserves foreground handoff and neutral rearm semantics.
+- [usb-ui-navigation](docs/drivers/usb-ui-navigation.md) — composite `input.navigation@1` provider over semantic text, HID gamepad, and XInput gamepad sources, version 0.1.2; preserves foreground handoff and neutral rearm semantics.
 - [usb-xinput-gamepad](docs/drivers/usb-xinput-gamepad.md) — Xbox 360 wired/wireless-format `usb.xinput.gamepad@1` provider above `usb.host@1` and `platform.clock@1`, version 0.1.3; CI run `36345187504` passed the exact upstream host fixture and reproduced the canonical 11,088-byte ELF byte-for-byte.
 - [board-power-t5s3-v2](docs/drivers/board-power-t5s3-v2.md) — BQ25896 `board.power.vbus@1` provider, upstream release 0.1.6; exact source/ABI/test bytes and canonical 12,660-byte target are synchronized, including the opt-in externally powered host lease. Destination CI/canonical replay is pending before this release is marked migrated.
 - [usb-msp](docs/drivers/usb-msp.md) — TI MSP-FET/eZ-FET `debug.vendor.msp@1` transport, version 0.1.1; CI run `36378453595` passed the exact upstream fixture and reproduced the canonical 14,116-byte ELF byte-for-byte.
