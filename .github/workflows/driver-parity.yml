@@ -173,6 +173,14 @@ jobs:
             test/drivers/usb_msp_test.c -ldl -o /tmp/usb-msp-test
           /tmp/usb-msp-test /tmp/usb-msp.so
       - run: python scripts/build_usb_msp.py
+      - name: Test display-epd-video surface, frame and teardown contract
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
+            Drivers/display_epd_video/driver.c test/drivers/display_epd_video_test.c \
+            -o /tmp/display-epd-video-test
+          /tmp/display-epd-video-test
+      - name: Build display-epd-video and require released byte parity
+        run: python scripts/build_display_epd_video.py
       - name: Test usb-xinput-gamepad discovery, state, retry, hotplug and shutdown
         run: |
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
@@ -280,3 +288,7 @@ jobs:
         with:
           name: t5s3-usb-power-profile
           path: dist/t5s3-usb-power-profile
+      - uses: actions/upload-artifact@v4
+        with:
+          name: display-epd-video
+          path: dist/display-epd-video
