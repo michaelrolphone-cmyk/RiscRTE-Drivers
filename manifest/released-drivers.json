@@ -4,7 +4,7 @@
     "repository": "michaelrolphone-cmyk/T5S3-Reader",
     "branch": "release-index",
     "path": "release-index.json",
-    "source_master_sha": "1ebf01386643c8504cc68061dcd0a6185ca42a9c"
+    "source_master_sha": "1e0188c1ff0234dd33fe054c9a6fb4fde36596df"
   },
   "drivers": [
     {
@@ -123,7 +123,7 @@
     },
     {
       "id": "usb-ui-navigation",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "source_path": "Drivers/usb_ui_navigation",
       "migrated": true
     },

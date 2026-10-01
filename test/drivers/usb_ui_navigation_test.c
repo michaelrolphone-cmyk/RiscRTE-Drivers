@@ -91,6 +91,24 @@ int main(void) {
     pad_state[1].buttons = 0;
     assert(frame().released == RISC_NAV_CONFIRM);
 
+    /* X alone is Back in both protocols; A/B cannot accidentally back out.
+     * Check held state and release as well as the initial edge. */
+    for (unsigned source = 0; source < 2; ++source) {
+        const uint32_t face[] = {1u, 2u, 4u, 8u};
+        const uint32_t expected[2][4] = {
+            {RISC_NAV_CONFIRM, 0, RISC_NAV_BACK, 0},
+            {0, RISC_NAV_CONFIRM, 0, RISC_NAV_BACK}
+        };
+        for (unsigned button = 0; button < 4; ++button) {
+            pad_state[source].buttons = face[button];
+            assert(frame().pressed == expected[source][button]);
+            risc_input_navigation_frame_v1 held = frame();
+            assert(held.buttons == expected[source][button] && !held.pressed);
+            pad_state[source].buttons = 0;
+            assert(frame().released == expected[source][button]);
+        }
+    }
+
     key_event(RISC_TEXT_EVENT_KEY_DOWN, RISC_TEXT_KEY_ENTER, 0);
     key_event(RISC_TEXT_EVENT_KEY_UP, RISC_TEXT_KEY_ENTER, 0);
     assert(frame().pressed == RISC_NAV_CONFIRM);

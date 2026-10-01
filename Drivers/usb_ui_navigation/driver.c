@@ -183,7 +183,8 @@ static uint32_t pad_buttons(const risc_usb_gamepad_state_v1 *pad, bool xinput) {
     if (!pad->connected) return 0;
     uint32_t out = 0;
     if (pad->buttons & (xinput ? 2u : 1u)) out |= RISC_NAV_CONFIRM;
-    if (pad->buttons & (xinput ? 1u : 2u)) out |= RISC_NAV_BACK;
+    /* X is HID Button 3 on the tested receiver; XInput publishes X at bit 3. */
+    if (pad->buttons & (xinput ? 8u : 4u)) out |= RISC_NAV_BACK;
     if (pad->buttons & 0x10u) out |= RISC_NAV_PAGE_BACK;
     if (pad->buttons & 0x20u) out |= RISC_NAV_PAGE_FORWARD;
     if (pad->x < -16000 || (pad->hat >= 5 && pad->hat <= 7))

@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "source_repository": "michaelrolphone-cmyk/T5S3-Reader",
-  "source_master_sha": "1ebf01386643c8504cc68061dcd0a6185ca42a9c",
+  "source_master_sha": "1e0188c1ff0234dd33fe054c9a6fb4fde36596df",
   "drivers": {
     "board-power-t5s3-v2": "17c99241a5606380a3ce5755e35f2f4a28b1ab1a",
     "gps-nmea": "ec07d533aa91f1e2444a5c8060eb5b651b16fa0a",
@@ -24,7 +24,7 @@
     "usb-mass-storage": "f1e1184823b0257a61c4c3c9d35c9091068674f5",
     "usb-msp": "3f1f8cfe260d8faa072d21e52a0ddc0f7b29b1dc",
     "usb-stlink": "dc392f6d1125f8a55de6660ae19e281e4f27098c",
-    "usb-ui-navigation": "29e1bab462d41429736e3bcc324a1bc7c8aa3d27",
+    "usb-ui-navigation": "3ed2c8aa90ea25a052ef914c09b6a913fa5b4d8c",
     "usb-xinput-gamepad": "b84a41ad08114f0a6e0aa744582056d1a13879c4"
   }
 }
