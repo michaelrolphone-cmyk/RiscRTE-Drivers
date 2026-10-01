@@ -35,9 +35,22 @@ docs/drivers/             one implementation document per migrated driver
 
 A driver is not considered fully migrated solely because its manifest or source file exists here. A completed migration requires the implementation source and required ABI headers, an independent build path, relevant validation/tests, matching published version and artifact bytes where upstream publication provides a canonical artifact, a dedicated implementation document, and a README link to that document.
 
-`scripts/check_parity.py` compares the local released/source inventory against the read-only upstream source/release data. The recorded `source_master_sha` values identify the commit at which the stored parity snapshot was last refreshed; CI determines actual source drift from the current upstream driver manifests and exact per-driver tree SHAs, so unrelated upstream application/firmware commits do not make driver parity fail. The released-driver and source-tree snapshot SHAs must remain synchronized with each other. `scripts/check_driver_docs.py` requires every entry marked `migrated: true` to have a documentation page and corresponding README link.
+`scripts/check_parity.py` resolves source master and release-index once, then
+reads every upstream tree/manifest at those immutable commits. It compares
+actual local driver bytes and executable modes with both the recorded tree
+baseline and that source snapshot. Changed, missing, added or untracked local
+driver files cannot pass merely because the inventory still records old hashes.
+Upstream-only, external-only, conflict and converged changes are reported for
+review; the check never overwrites external improvements. API/manifest failures
+fail closed instead of silently dropping an upstream driver.
 
-The scheduled maintenance run still refreshes the recorded upstream snapshot SHA after inspection. A later upstream head is informational when all released versions and driver tree SHAs are unchanged, but any driver source/version/path/tree change continues to fail parity until migrated here.
+The source and released inventory baselines must agree; unrelated master changes
+remain informational when all driver trees/versions match. Released and source
+versions remain distinct where explicitly recorded. Documentation is checked
+separately by `scripts/check_driver_docs.py`.
+
+See [source-aware validation](docs/SOURCE_PARITY_VALIDATION.md) for offline
+commands, negative tests, provenance artifacts and exact scope limits.
 
 ## Build and test model
 
