@@ -103,12 +103,23 @@ def unique(rows, context):
     return result
 
 
-def snapshot(source, source_ref, release_ref, release_path):
+def snapshot(source, source_ref, release_ref, release_path, non_package_directories=()):
     # Resolve both branches exactly once. Every subsequent read uses these SHAs.
     head, release = source.resolve(source_ref), source.resolve(release_ref)
     released = unique(source.read_json(release_path, release)['drivers'], 'upstream released')
+    directories = source.driver_dirs(head)
+    excluded = list(non_package_directories)
+    if any(not isinstance(path, str) or not re.fullmatch(r'Drivers/[A-Za-z0-9_-]+', path)
+           for path in excluded) or len(excluded) != len(set(excluded)):
+        raise ValueError('invalid or duplicate configured non-package source directory')
+    listed = {entry['path'] for entry in directories}
+    missing = set(excluded) - listed
+    if missing:
+        raise ValueError('configured non-package source directory missing upstream: ' + ', '.join(sorted(missing)))
     rows = []
-    for entry in source.driver_dirs(head):
+    for entry in directories:
+        if entry['path'] in excluded:
+            continue
         manifest = source.read_json(entry['path'] + '/manifest.json', head)
         rows.append(dict(manifest, source_path=entry['path'], tree_sha=entry['sha']))
     return head, release, unique(rows, 'upstream source'), released
@@ -183,7 +194,8 @@ def main():
     origin = inventory['parity_source']
     try:
         head, release, source, released = snapshot(Source(origin['repository'], args.reader),
-            args.source_ref, args.release_ref or origin['branch'], origin['path'])
+            args.source_ref, args.release_ref or origin['branch'], origin['path'],
+            trees.get('non_package_directories', []))
         report = validate(ROOT, inventory, trees, source, released, head, release)
     except (ValueError, KeyError, OSError, subprocess.SubprocessError) as exc:
         print(f'driver parity failed: {exc}', file=sys.stderr)
