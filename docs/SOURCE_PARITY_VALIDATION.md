@@ -13,6 +13,11 @@ and release-index exactly once, then uses those commit SHAs for all reads.
 Each subprocess has a 60-second timeout; a read failure ends the gate. Upstream
 manifest failures and duplicate IDs are errors, not skipped inventory entries.
 
+The source-tree configuration explicitly lists `Drivers/common` as a shared
+non-package directory. Discovery skips only those exact configured paths, and
+fails if a configured directory disappears. Any other upstream directory still
+requires a valid driver manifest; a missing manifest remains a hard failure.
+
 The gate hashes actual local driver directory bytes recursively using Git tree
 ordering and executable modes. It includes untracked files within those source
 directories and detects added/missing files, extra source directories, changed
