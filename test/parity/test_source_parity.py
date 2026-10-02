@@ -133,6 +133,38 @@ class SourceParityTests(unittest.TestCase):
             with self.assertRaises(subprocess.CalledProcessError):
                 parity.snapshot(fake, 'master', 'release-index', 'release-index.json')
 
+    def test_snapshot_skips_only_configured_shared_non_package_directories(self):
+        class Fake:
+            def resolve(self, ref): return HEAD if ref == 'master' else RELEASE
+            def driver_dirs(self, sha):
+                return [{'path': 'Drivers/sample', 'sha': 'c' * 40},
+                        {'path': 'Drivers/common', 'sha': 'd' * 40}]
+            def read_json(self, path, sha):
+                if path == 'Drivers/common/manifest.json':
+                    raise AssertionError('shared directory is not a package')
+                return {'drivers': [{'id': 'sample', 'version': '1.0.0'}]} if path == 'release-index.json' else {'id': 'sample', 'version': '1.0.0'}
+
+        _, _, source, _ = parity.snapshot(Fake(), 'master', 'release-index', 'release-index.json',
+                                          ['Drivers/common'])
+        self.assertEqual(set(source), {'sample'})
+
+    def test_unconfigured_or_stale_non_package_exclusions_fail_closed(self):
+        class Fake:
+            def resolve(self, ref): return HEAD if ref == 'master' else RELEASE
+            def driver_dirs(self, sha):
+                return [{'path': 'Drivers/sample', 'sha': 'c' * 40},
+                        {'path': 'Drivers/common', 'sha': 'd' * 40},
+                        {'path': 'Drivers/extra', 'sha': 'e' * 40}]
+            def read_json(self, path, sha):
+                if path.endswith('/manifest.json') and path != 'Drivers/sample/manifest.json':
+                    raise subprocess.CalledProcessError(1, ['gh', 'api', path])
+                return {'drivers': [{'id': 'sample', 'version': '1.0.0'}]} if path == 'release-index.json' else {'id': 'sample', 'version': '1.0.0'}
+
+        with self.assertRaises(subprocess.CalledProcessError):
+            parity.snapshot(Fake(), 'master', 'release-index', 'release-index.json', ['Drivers/common'])
+        with self.assertRaisesRegex(ValueError, 'configured non-package source directory missing upstream'):
+            parity.snapshot(Fake(), 'master', 'release-index', 'release-index.json', ['Drivers/stale'])
+
     def test_duplicate_upstream_release_ids_fail_instead_of_collapsing(self):
         with self.assertRaisesRegex(ValueError, 'duplicate upstream released'):
             parity.unique([{'id': 'x', 'version': '1.0.0'}] * 2, 'upstream released')
