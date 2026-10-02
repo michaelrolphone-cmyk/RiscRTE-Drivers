@@ -97,3 +97,7 @@ Each migrated driver's `docs/drivers/<driver-id>.md` page is derived from its cu
 ## Source cutover
 
 Until Michael explicitly declares `RiscRTE-Drivers` the source repository for drivers, T5S3-Reader remains the read-only source of truth for synchronization. After cutover, this repository's own source/version/release state becomes authoritative.
+
+## Xteink X4 Pro board package
+
+Board-specific loadable ELFs live in `boards/xteink-x4-pro/` and are outside the T5S3 `Drivers/` parity set. They use the same ABI-v2 `t5_driver_get` entry and capability structs. See [Xteink X4 Pro drivers](docs/boards/xteink-x4-pro.md). Build with `python3 scripts/build_x4pro_drivers.py`. Do not load `i2c-esp32s3-v2` on this board.

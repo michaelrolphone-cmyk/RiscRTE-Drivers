@@ -1,0 +1,20 @@
+{
+  "board": "xteink-x4-pro",
+  "mcu": "esp32-s3",
+  "flash_mb": 16,
+  "psram_mb": 8,
+  "panel": "800x480",
+  "source": "crosspoint-reader / FreeInk X4 Pro hardware notes (app1)",
+  "load_order": [
+    "platform-clock-v1",
+    "x4pro-gpio",
+    "x4pro-i2c",
+    "x4pro-panel",
+    "x4pro-gt911",
+    "x4pro-buttons",
+    "x4pro-frontlight",
+    "x4pro-battery",
+    "x4pro-sd"
+  ],
+  "note": "Do not load i2c-esp32s3-v2 for this board. It delegates to firmware Wire on the T5S3 pin pair."
+}

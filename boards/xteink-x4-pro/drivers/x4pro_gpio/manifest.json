@@ -1,0 +1,12 @@
+{
+  "type": "driver",
+  "id": "x4pro-gpio",
+  "version": "0.1.0",
+  "driver_abi": 2,
+  "architecture": "xtensa-esp32s3",
+  "file_name": "driver.elf",
+  "requires": [],
+  "provides": [{"capability": "gpio.bank", "api": 1}],
+  "board": "xteink-x4-pro",
+  "status": "derived-unverified-on-device"
+}

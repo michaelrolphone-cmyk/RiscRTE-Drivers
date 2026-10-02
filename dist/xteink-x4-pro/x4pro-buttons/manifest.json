@@ -1,0 +1,25 @@
+{
+  "type": "driver",
+  "id": "x4pro-buttons",
+  "version": "0.1.0",
+  "driver_abi": 2,
+  "architecture": "xtensa-esp32s3",
+  "file_name": "driver.elf",
+  "requires": [
+    {
+      "capability": "gpio.bank",
+      "api": 1
+    }
+  ],
+  "provides": [
+    {
+      "capability": "input.navigation",
+      "api": 1
+    }
+  ],
+  "board": "xteink-x4-pro",
+  "status": "derived-unverified-on-device",
+  "size_bytes": 3752,
+  "sha256": "839ecb448aaf36381ff52f4ecb9f0d3537013449288e5316dbba8f7f852085c3",
+  "byte_parity": false
+}
