@@ -6,6 +6,7 @@
 #include "RiscPlatformClockV1.h"
 #include "RiscTouchV1.h"
 #include "x4pro_pins.h"
+#include "x4pro_proto.h"
 #include <stddef.h>
 #include <string.h>
 
@@ -80,14 +81,9 @@ static bool apply(const risc_touch_contact_v1 *next, uint8_t count, uint32_t nex
     return true;
 }
 static bool map_point(const uint8_t raw[8], risc_touch_contact_v1 *out) {
-    uint16_t raw_x = (uint16_t)(raw[0] | ((uint16_t)raw[1] << 8));
-    uint16_t raw_y = (uint16_t)(raw[2] | ((uint16_t)raw[3] << 8));
-    if (raw_x >= 480u || raw_y >= 800u) return false;
-    out->id = raw[7] ? raw[7] : 1;
-    out->x = raw_y;
-    out->y = raw_x;
+    if (!x4pro_gt911_map(raw, &out->x, &out->y, &out->id)) return false;
     out->reserved = 0;
-    return out->x < X4PRO_PANEL_WIDTH && out->y < X4PRO_PANEL_HEIGHT;
+    return true;
 }
 static bool poll(void *context, size_t max_reports) {
     (void)context;
