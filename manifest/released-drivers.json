@@ -168,6 +168,24 @@
       "version": "0.1.0",
       "source_path": "Drivers/ble_hid",
       "source_tree_sha": "5af342c450c1663de327fcce817f35f157da29c3"
+    },
+    {
+      "id": "ble-sensors",
+      "version": "0.1.0",
+      "source_path": "Drivers/ble_sensors",
+      "source_tree_sha": "a190629bc6beada053596d8950716e9a15a08b10"
+    },
+    {
+      "id": "ble-telemetry",
+      "version": "0.1.0",
+      "source_path": "Drivers/ble_telemetry",
+      "source_tree_sha": "4897f2c8e0ea5880c8323ec77199dfeee8473525"
+    },
+    {
+      "id": "telemetry-battery",
+      "version": "0.1.0",
+      "source_path": "Drivers/telemetry_battery",
+      "source_tree_sha": "a451ee283ff55a9dbe83fd93538853d6d54d5812"
     }
   ]
 }

@@ -24,5 +24,6 @@ def build():
   if m['id']!=identity or m['version']!='0.1.0' or m['driver_abi']!=2:raise ValueError('Wrong manifest')
   record={'schema':1,'source_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'source_dirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),'compiler':subprocess.check_output([cc,'--version'],text=True).splitlines()[0],'size_bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'imports':sorted(imports),'exports':sorted(exports),'physical_verification':'not-performed'}
   (out/'manifest.json').write_text(json.dumps(m,indent=2)+'\n');(out/'build-record.json').write_text(json.dumps(record,indent=2)+'\n')
+  for notice in source.glob('LICENSE*'):shutil.copyfile(notice,out/notice.name)
   print(f"{identity}: {len(b)} bytes {record['sha256']}")
 if __name__=='__main__':build()

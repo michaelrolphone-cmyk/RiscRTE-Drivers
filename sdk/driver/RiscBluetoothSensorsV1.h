@@ -14,6 +14,7 @@ typedef struct {
  int16_t temperature; uint16_t humidity; uint32_t seen,reports,measurement_seen;
  uint8_t reading_count; bool measurement_invalid,measurement_partial;
  risc_ble_reading_v1 readings[RISC_BLE_MAX_READINGS];
+ uint32_t seen_age_ms,measurement_age_ms; /* copied at device() call */
 } risc_ble_sensor_device_v1;
 typedef struct {
  uint32_t struct_size,state,count,dropped,malformed;

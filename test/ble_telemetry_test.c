@@ -64,6 +64,8 @@ int main(void){
  assert(telemetry->publish(NULL,ids,3,true,&t));oversize=true;assert(!telemetry->poll(NULL,t,1)&&!claimed);assert(telemetry->close(NULL,t));oversize=false;
  assert(telemetry->publish(NULL,ids,3,true,&t));bad_entropy=true;assert(telemetry->poll(NULL,t,1));assert(!telemetry->poll(NULL,t,1)&&!claimed&&!rf);assert(telemetry->close(NULL,t));bad_entropy=false;
  assert(telemetry->publish(NULL,ids,3,true,&t));now=UINT64_MAX;assert(!telemetry->poll(NULL,t,1)&&!claimed);assert(telemetry->close(NULL,t));
+ now=1000;assert(telemetry->publish(NULL,ids,3,true,&t));now+=2000;assert(!telemetry->poll(NULL,t,1)&&!rf&&!claimed);assert(telemetry->close(NULL,t));
+ now=1000;assert(telemetry->publish(NULL,ids,3,true,&t));for(unsigned i=0;i<5;i++)assert(telemetry->poll(NULL,t,1));assert(!rf);now+=2000;assert(!telemetry->poll(NULL,t,1)&&!rf&&!claimed);assert(telemetry->close(NULL,t));
  assert(d->quiesce());d->stop();assert(telemetry->enumerate(NULL,0,&f)==-1);
  puts("Telemetry provider: explicit IDs/public consent, capability-only source, exact advertising bytes, random address, refresh and failure custody passed");
 }

@@ -89,7 +89,7 @@ static bool send_step(uint64_t now){
   case 1:opcode=0x2018;break; /* controller entropy, never libc randomness */
   case 2:opcode=0x2005;n=6;memcpy(p+3,address,6);break;
   case 3:opcode=0x2006;n=15;p[3]=0x40;p[4]=6;p[5]=0x40;p[6]=6;p[7]=3;p[8]=1;p[16]=7;break;
-  case 4:case 7:opcode=0x2008;n=32;p[3]=packet_length;memcpy(p+4,packet,31);break;
+  case 4:case 7:if(!sample()){fault("Selected telemetry unavailable");return false;}opcode=0x2008;n=32;p[3]=packet_length;memcpy(p+4,packet,31);break;
   case 5:case 8:opcode=0x200a;n=1;p[3]=1;break;
   case 6:opcode=0x200a;n=1;p[3]=0;break;
   default:return false;
@@ -126,6 +126,7 @@ static bool poll(void*c,uint64_t t,uint32_t limit){
  if(state==RISC_BLE_TELEMETRY_FAULT){(void)release_lease();leave();return false;}
  uint64_t now=clock_api->monotonic_ms(clock_api->context);
  if(now==UINT64_MAX||now<command_at||now<updated_at){fault("Clock unavailable");leave();return false;}
+ if(step<9&&now-command_at>=COMMAND_MS){fault("Controller transaction timeout");leave();return false;}
  if(step==9&&now-updated_at>=REFRESH_MS){
   if(!sample()){fault("Selected telemetry unavailable");leave();return false;}
   step=6;command_at=now;

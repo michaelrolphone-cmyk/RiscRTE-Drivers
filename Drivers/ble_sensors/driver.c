@@ -50,11 +50,12 @@ static bool status_scan(void*c,risc_ble_sensor_status_v1*out){
  leave();return ok;
 }
 static bool device_scan(void*c,uint32_t index,risc_ble_sensor_device_v1*out){
- (void)c;if(!out||!enter())return false;bool ok=started&&index<scan.count;if(ok)*out=scan.devices[index];leave();return ok;
+ (void)c;if(!out||!enter())return false;bool ok=started&&index<scan.count;if(ok){uint64_t now=clock_api->monotonic_ms(clock_api->context);if(now==UINT64_MAX)ok=false;else{*out=scan.devices[index];out->seen_age_ms=(uint32_t)now-out->seen;out->measurement_age_ms=(uint32_t)now-out->measurement_seen;}}leave();return ok;
 }
 static bool close_scan(void*c,uint64_t t){(void)c;if(!enter())return false;bool ok=close_impl(t);leave();return ok;}
 static bool start(const risc_provider_dependency_v1*d,size_t n){
- if(!enter())return false;if(started||!d||n!=2){leave();return false;}
+ if(!enter())return false;
+ if(started||!d||n!=2){leave();return false;}
  const portable_bluetooth_host_v1*h=NULL;const risc_platform_clock_api_v1*k=NULL;
  for(size_t i=0;i<n;i++){
   if(!d[i].capability_id||d[i].api_version!=1||!d[i].api){leave();return false;}

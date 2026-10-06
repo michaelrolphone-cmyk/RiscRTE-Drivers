@@ -110,3 +110,11 @@ It supports authenticated Secure Connections numeric comparison, one scoped
 persistent bond, keyboard/mouse reports and checked teardown. It is a logical
 Global0 provider with no Watch hardware identity. Software protocol tests are
 separate from pending physical/host-OS qualification.
+
+## Generic BLE sensor and telemetry follow-up
+
+- [ble-sensors](docs/drivers/ble-sensors.md) 0.1.0 extracts the existing leased passive scanner into `bluetooth.sensors@1` with copied open BTHome readings.
+- [ble-telemetry](docs/drivers/ble-telemetry.md) 0.1.0 publishes explicitly selected `sensor.telemetry@1` values as open nonconnectable advertisements under the existing radio lease.
+- [telemetry-battery](docs/drivers/telemetry-battery.md) 0.1.0 adapts the generic battery capability without board-specific access.
+
+These are experimental software-tested packages, not installed or hardware-qualified firmware. They preserve the existing HID stack and controller ownership. Open advertising requires informed caller opt-in; encrypted/GATT-only sensors remain outside this increment.

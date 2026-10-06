@@ -1,5 +1,7 @@
 #pragma once
-#include "RiscProviderV2.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 /* Copied scalar values. Units are part of the metric, never board identity.
  * enumerate: 1 item, 0 end, -1 failure; IDs stay stable for a provider lifetime.
  * read: 1 current value, 0 temporarily unavailable, -1 failure. No cached value
