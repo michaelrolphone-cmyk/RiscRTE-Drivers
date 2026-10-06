@@ -162,6 +162,12 @@
       "version": "0.1.1",
       "source_path": "Drivers/s3_radio_iq_v1",
       "source_tree_sha": "8f717b216500336e77ce92f0220b8780ca503358"
+    },
+    {
+      "id": "ble-hid",
+      "version": "0.1.0",
+      "source_path": "Drivers/ble_hid",
+      "source_tree_sha": "0df2e5f38d5b2368ae5aa91429e911e3c230d336"
     }
   ]
 }

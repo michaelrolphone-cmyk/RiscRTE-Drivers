@@ -1,0 +1,32 @@
+name: Generic BLE HID peripheral
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ble-hid:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: python -m pip install cryptography==50.0.0 platformio==6.1.19
+      - run: bash test/run_ble_hid_test.sh
+      - run: SANITIZE=1 bash test/run_ble_hid_test.sh
+      - run: pio pkg install --global --tool 'espressif/toolchain-xtensa-esp32s3@8.4.0+2021r2-patch5'
+      - run: python scripts/build_ble_hid.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ble-hid-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            dist/ble-hid/driver.elf
+            dist/ble-hid/manifest.json
+            dist/ble-hid/build-record.json
+            dist/ble-hid/NimBLE-*
+            dist/ble-hid/TinyCrypt-LICENSE
+          if-no-files-found: error
