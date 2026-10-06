@@ -59,14 +59,13 @@ static bool release_resource(void *context,uint64_t token){
 }
 int main(void){
     risc_radio_iq_resource_v1 guard={1,sizeof(guard),NULL,claim_resource,release_resource,CAPTURE_BANK_BASE,CAPTURE_BANK_BYTES};
-    risc_hw_radio_v1 config={sizeof(config),0,1};
-    risc_hardware_device_v1 hw={1,sizeof(hw),17,"espressif,esp32s3-iq","unspecified","radio.integrated",1,sizeof(config),&config};
-    risc_provider_dependency_v1 deps[]={{"hardware.device",1,&hw},{RISC_RADIO_IQ_RESOURCE_CAPABILITY,1,&guard}};
+    risc_provider_dependency_v1 deps[]={{RISC_RADIO_IQ_RESOURCE_CAPABILITY,1,&guard}};
     uint32_t pairs[258];for(unsigned i=0;i<258;++i)pairs[i]=0xdeadbeef;
-    assert(!start(NULL,0));guard.bank_bytes=1024;assert(!start(deps,2));guard.bank_bytes=CAPTURE_BANK_BYTES;
-    config.features=3;assert(!start(deps,2));config.features=1;
-    hw.compatible="other,soc";assert(!start(deps,2));hw.compatible="espressif,esp32s3-iq";
-    assert(!accesses && !claims && start(deps,2));assert(!start(deps,2));assert(!accesses && !claims);
+    assert(!start(NULL,0));guard.bank_bytes=1024;assert(!start(deps,1));guard.bank_bytes=CAPTURE_BANK_BYTES;
+    guard.api_version=2;assert(!start(deps,1));guard.api_version=1;
+    guard.struct_size=12;assert(!start(deps,1));guard.struct_size=sizeof(guard);
+    deps[0].capability_id="other.resource";assert(!start(deps,1));deps[0].capability_id=RISC_RADIO_IQ_RESOURCE_CAPABILITY;
+    assert(!accesses && !claims && start(deps,1));assert(!start(deps,1));assert(!accesses && !claims);
     assert(capture_burst(NULL,NULL,1)==RISC_RADIO_IQ_BAD_ARGUMENT);
     assert(capture_burst(NULL,pairs,0)==RISC_RADIO_IQ_BAD_ARGUMENT);
     assert(capture_burst(NULL,pairs,257)==RISC_RADIO_IQ_BAD_ARGUMENT);assert(!claims);
@@ -95,6 +94,6 @@ int main(void){
     unsigned before=accesses;assert(!suspend_receiver(NULL));assert(accesses==before);
     release_ok=true;assert(suspend_receiver(NULL));assert(accesses==before && !lease);
     assert(capture_burst(NULL,pairs+1,256)==RISC_RADIO_IQ_OK);assert(quiesce());stop();assert(!running && !resource);
-    assert(capture_burst(NULL,pairs+1,256)==RISC_RADIO_IQ_NOT_RUNNING);assert(start(deps,2));stop();
+    assert(capture_burst(NULL,pairs+1,256)==RISC_RADIO_IQ_NOT_RUNNING);assert(start(deps,1));stop();
     assert(tx_writes>=12);puts("IQ lifecycle: lazy admission, exclusive custody, bounded failures, retry, ring reset/wrap, restore, receive-only and restart passed");
 }

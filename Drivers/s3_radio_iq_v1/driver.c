@@ -40,7 +40,6 @@
 #include "RiscRadioIqV1.h"
 #include "lo_plan.h"
 #include "RiscRadioIqResourceV1.h"
-#include "RiscHardwareConfigV1.h"
 #include <string.h>
 
 #ifdef RISC_IQ_HOST_TEST
@@ -423,29 +422,17 @@ static int capture_burst(void *context, uint32_t *pairs, uint32_t count) {
 }
 
 static bool start(const risc_provider_dependency_v1 *deps, size_t count) {
-    if (running || lease || !deps || count != 2) return false;
-    const risc_radio_iq_resource_v1 *candidate = NULL;
-    const risc_hardware_device_v1 *hardware = NULL;
-    for (size_t i = 0; i < count; ++i) {
-        if (!deps[i].capability_id || deps[i].api_version != 1 || !deps[i].api) return false;
-        if (!strcmp(deps[i].capability_id, RISC_RADIO_IQ_RESOURCE_CAPABILITY) && !candidate)
-            candidate = deps[i].api;
-        else if (!strcmp(deps[i].capability_id, "hardware.device") && !hardware)
-            hardware = deps[i].api;
-        else return false;
-    }
-    if (!candidate || candidate->api_version != 1 || candidate->struct_size < sizeof(*candidate) ||
+    if (running || lease || !deps || count != 1 || !deps[0].capability_id ||
+        strcmp(deps[0].capability_id,RISC_RADIO_IQ_RESOURCE_CAPABILITY) ||
+        deps[0].api_version != 1 || !deps[0].api) return false;
+    const risc_radio_iq_resource_v1 *candidate = deps[0].api;
+    if (candidate->api_version != 1 || candidate->struct_size < sizeof(*candidate) ||
         !candidate->claim || !candidate->release || candidate->bank_base != CAPTURE_BANK_BASE ||
-        candidate->bank_bytes != CAPTURE_BANK_BYTES || !hardware || hardware->api_version != 1 ||
-        hardware->struct_size < sizeof(*hardware) || !hardware->instance_id ||
-        !hardware->compatible || strcmp(hardware->compatible, "espressif,esp32s3-iq") ||
-        !hardware->config_type || strcmp(hardware->config_type, "radio.integrated") ||
-        hardware->config_version != 1 || hardware->config_size != sizeof(risc_hw_radio_v1) ||
-        !hardware->config) return false;
-    const risc_hw_radio_v1 *config = hardware->config;
-    if (config->struct_size != sizeof(*config) || config->unit || config->features != 1) return false;
+        candidate->bank_bytes != CAPTURE_BANK_BYTES) return false;
+    /* The opt-in CPU resource owns SoC/ROM/SRAM admission. There are no board
+     * pins or external radio resources to map, and no raw authority for apps. */
     resource = candidate;
-    running = true; /* Admission only; boot never initializes the modem. */
+    running = true;
     return true;
 }
 

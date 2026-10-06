@@ -13,7 +13,7 @@ OUT=ROOT/"dist/s3-radio-iq-v1"
 
 manifest=json.loads((SRC/"manifest.json").read_text())
 if manifest['id'] != 's3-radio-iq-v1' or manifest['version'] != '0.1.1' or manifest['requires'] != [
-    {'capability':'hardware.device','api':1}, {'capability':'platform.radio.iq.resource','api':1}]:
+    {'capability':'platform.radio.iq.resource','api':1}]:
     raise SystemExit("guarded IQ manifest/requirements differ")
 
 cc=os.environ.get("NATIVE_DRIVER_CC") or shutil.which("xtensa-esp32s3-elf-gcc")

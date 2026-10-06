@@ -7,10 +7,6 @@
   "file_name": "driver.elf",
   "requires": [
     {
-      "capability": "hardware.device",
-      "api": 1
-    },
-    {
       "capability": "platform.radio.iq.resource",
       "api": 1
     }
@@ -21,15 +17,5 @@
       "api": 1
     }
   ],
-  "status": "experimental-unpublished",
-  "hardware_compatibility": [
-    {
-      "compatible": "espressif,esp32s3-iq",
-      "config_type": "radio.integrated",
-      "config_version": 1,
-      "revisions": [
-        "unspecified"
-      ]
-    }
-  ]
+  "status": "experimental-unpublished"
 }

@@ -1,10 +1,10 @@
 # Guarded ESP32-S3 receive bursts
 
 `s3-radio-iq-v1` 0.1.1 provides `radio.iq@1`. It remains an experimental,
-unpublished component. `start` only validates the selected hardware record and
-`platform.radio.iq.resource@1`; boot performs no modem register or ROM access.
-The required record is `espressif,esp32s3-iq`, `radio.integrated@1`, unit 0,
-features 1. The resource service must admit the actual SoC/ROM, reserve the entire
+unpublished component. `start` only validates `platform.radio.iq.resource@1`; boot performs no modem register
+or ROM access. The opt-in CPU resource supplies physical admission without
+changing any board pins, external radio records, or instance mapping. The
+resource service must admit the actual SoC/ROM, reserve the entire
 64 KiB bank at 0x3FCB0000 before heap setup, and exclude Wi-Fi/BLE/native mutation.
 An idle logical station claim is not active Wi-Fi.
 
@@ -50,11 +50,11 @@ the driver, and no raw capability is granted to Waterfall.
 - `NATIVE_DRIVER_CC=/path/to/xtensa-esp32s3-elf-gcc python3 scripts/build_s3_radio_iq_v1.py`
 
 The fixtures execute production driver code with only MMIO/ROM/CPU-cycle access
-mocked. They cover lazy boot, invalid dependencies/configuration/bank geometry,
+mocked. They cover lazy boot, invalid dependencies/API/bank geometry,
 admission refusal, repeated captures, index reset/wrap, PLL/dump failure, PBUS
 and release cleanup retention/retry, stop/quiesce, register restoration and
 transmit-group values. Target builds check ELF32/Xtensa/DYN, sole export,
 imports and hashes. No device, radio, installer or release is accessed.
 
-The current Watch integration owns the instance ID, manifest grants and cohort
+The current Watch integration owns manifest grants and cohort
 package. The old PR #8 instance/pin examples are not a valid current deployment.
