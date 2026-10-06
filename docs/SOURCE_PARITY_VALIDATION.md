@@ -67,3 +67,17 @@ The continuation handoff reports prospective U1 CDC candidate `5466d93c`, canoni
 `usb-cdc-acm` 0.1.8 and Driver Manager 1.0.8 with target CI pending. Those are not
 current master parity inputs. No candidate code or metadata is imported here;
 future synchronization requires re-inspecting the actually merged source.
+
+## Shared source and original experimental drivers
+
+The exact upstream `Drivers/common` directory contains shared include fragments,
+not an installable package. The scanner inspects that pinned tree and excludes it
+only while `manifest.json` is absent. A manifest appearing there is an error;
+all failed reads still fail, and every other directory still requires its real
+manifest. This does not suppress generic 404s or skip malformed driver packages.
+
+`original_drivers` explicitly records local experimental packages without a
+Reader source ancestor. Their IDs/versions/status and complete local source-tree
+hash must match the reviewed record. They are reported as original-experimental,
+with no claimed upstream parity. The IQ driver has this explicit custody record;
+it is not silently omitted as an untracked directory.
