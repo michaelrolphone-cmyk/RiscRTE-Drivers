@@ -39,8 +39,16 @@
  */
 #include "RiscRadioIqV1.h"
 #include "lo_plan.h"
+#include "RiscRadioIqResourceV1.h"
+#include "RiscHardwareConfigV1.h"
+#include <string.h>
 
+#ifdef RISC_IQ_HOST_TEST
+#include "s3_radio_iq_mock.h"
+#define REG(address) (*iq_test_register(address))
+#else
 #define REG(address) (*(volatile uint32_t *)(uintptr_t)(address))
+#endif
 
 /* eSpDR board.h */
 #define CAPTURE_BANK_BASE 0x3FCB0000u
@@ -104,23 +112,56 @@
 #define RADIO_LO_HZ 2440000000u
 #define RADIO_GAIN 24u
 
+#ifndef RISC_IQ_HOST_TEST
 #define ROM_I2C_READ ((uint8_t (*)(uint8_t, uint8_t, uint8_t))0x40005d48u)
 #define ROM_I2C_WRITE ((void (*)(uint8_t, uint8_t, uint8_t, uint8_t))0x40005d60u)
 #define ROM_PBUS_RD ((unsigned (*)(unsigned, unsigned))0x40005df0u)
-#define ROM_DELAY_US ((void (*)(uint32_t))0x40000600u)
+static void rom_delay_us(uint32_t us) {
+    void (*volatile fn)(uint32_t) = (void (*)(uint32_t))0x40000600u;
+    fn(us);
+}
+#define ROM_DELAY_US rom_delay_us
+#endif
 
 static const uint8_t dc_block[4] = {3, 3, 2, 2};
 static const uint8_t dc_index[4] = {1, 2, 1, 2};
 
 static bool running;
-static int bringup_status;
-static bool owned;
-static uint32_t saved_pbus_ctrl, saved_pbus_mode, saved_iq;
+static const risc_radio_iq_resource_v1 *resource;
+static uint64_t lease;
+static bool restored;
+/* Every changed digital register is restored; power/clock controls are last.
+ * Dump RUN/bank bits must be clear on admission and are never restored live. */
+static const uint32_t saved_addresses[] = {
+    DUMP_CTRL_REG, DUMP_CONFIG_REG, DUMP_BANK_SELECT_REG,
+    BB_ENABLE_REG, AGC_CTRL_REG, AGC_GAIN_FORCE_REG, AGC_DISABLE_REG,
+    AGC_RX_FORCE_REG, IQ_CORRECTION_REG, FE_WIDTH_REG, PBUS_CTRL_REG,
+    PBUS_MODE_REG, PBUS_STATUS_REG, RFPLL_OWNER_REG,
+    SYSTEM_WIFI_RST_EN_REG, RTC_CNTL_DIG_ISO_REG,
+    SYSTEM_WIFI_CLK_EN_REG, RTC_CNTL_DIG_PWC_REG
+};
+static uint32_t saved_registers[sizeof(saved_addresses)/sizeof(saved_addresses[0])];
+static const uint8_t analog_addresses[][2] = {
+    {I2C_RFPLL,0},{I2C_RFPLL,1},{I2C_RFPLL,2},{I2C_RFPLL,11},
+    {I2C_SDM,0},{I2C_SDM,3},{I2C_SDM,4},{I2C_SDM,5},
+    {I2C_BB_FILTER,6},{I2C_BB_FILTER,7},{ESP32S3_CKGEN_BLOCK,ESP32S3_CKGEN_REG}
+};
+static uint8_t saved_analog[sizeof(analog_addresses)/sizeof(analog_addresses[0])];
+static bool analog_saved;
+static void barrier(void) {
+#ifndef RISC_IQ_HOST_TEST
+    __asm__ volatile("memw" ::: "memory");
+#endif
+}
 
 static uint32_t cpu_cycles(void) {
+#ifdef RISC_IQ_HOST_TEST
+    return iq_test_cycles();
+#else
     uint32_t cycles;
     __asm__ volatile("rsr.ccount %0" : "=a"(cycles));
     return cycles;
+#endif
 }
 
 static uint8_t analog_read(uint8_t block, uint8_t reg) {
@@ -237,18 +278,33 @@ static void park_receiver(void) {
     REG(BB_ENABLE_REG) &= ~2u;
 }
 
-static void release_receiver(void) {
-    park_receiver();
-    if (!owned) return;
-    (void)pbus_write(4, 1, 0);
-    (void)pbus_write(5, 1, 0);
-    (void)pbus_write(0, 1, 0);
-    (void)pbus_write(1, 1, 0);
-    (void)pbus_write(1, 2, 0);
-    REG(PBUS_CTRL_REG) = saved_pbus_ctrl;
-    REG(PBUS_MODE_REG) = saved_pbus_mode;
-    REG(IQ_CORRECTION_REG) = saved_iq;
-    owned = false;
+static bool release_receiver(void) {
+    if (!lease) return true;
+    if (!restored) {
+        park_receiver();
+        barrier();
+        ROM_DELAY_US(1); /* settle the stopped ADC pipeline before releasing SRAM */
+        if ((REG(DUMP_CTRL_REG) & DUMP_CTRL_RUN) || (REG(DUMP_BANK_SELECT_REG) & 15u)) return false;
+        bool ok = true;
+        /* Do not short-circuit: both transmit groups are always explicitly off. */
+        ok = pbus_write(4, 1, 0) && ok;
+        ok = pbus_write(5, 1, 0) && ok;
+        ok = pbus_write(0, 1, 0) && ok;
+        ok = pbus_write(1, 1, 0) && ok;
+        ok = pbus_write(1, 2, 0) && ok;
+        if (!ok) return false;
+        if (analog_saved)
+            for (unsigned i = 0; i < sizeof(saved_analog); ++i)
+                analog_write(analog_addresses[i][0], analog_addresses[i][1], saved_analog[i]);
+        for (unsigned i = 0; i < sizeof(saved_registers)/sizeof(saved_registers[0]); ++i)
+            REG(saved_addresses[i]) = saved_registers[i];
+        barrier();
+        restored = true;
+    }
+    if (!resource->release(resource->context, lease)) return false;
+    lease = 0;
+    restored = analog_saved = false;
+    return true;
 }
 
 static int configure_receiver(void) {
@@ -269,15 +325,13 @@ static int configure_receiver(void) {
     ROM_DELAY_US(100);
     unsigned bb = (REG(PBUS_BB_GAIN_REG) >> 9) & 511u;
     unsigned rf = (REG(PBUS_RF_GAIN_REG) >> 18) & 511u;
-    saved_pbus_ctrl = REG(PBUS_CTRL_REG);
-    saved_pbus_mode = REG(PBUS_MODE_REG);
-    saved_iq = REG(IQ_CORRECTION_REG);
     REG(PBUS_MODE_REG) &= ~0x08000000u;
     REG(PBUS_CTRL_REG) |= 1u;
-    owned = true;
     REG(BB_ENABLE_REG) &= ~2u;
     /* Receive only. Both TX groups stay off. */
-    bool ok = pbus_write(4, 1, 0) && pbus_write(5, 1, 0) && pbus_write(0, 1, 0x184) &&
+    bool tx4_off = pbus_write(4, 1, 0);
+    bool tx5_off = pbus_write(5, 1, 0);
+    bool ok = tx4_off && tx5_off && pbus_write(0, 1, 0x184) &&
               pbus_write(1, 1, 0x189) && pbus_write(1, 2, rf) && pbus_write(0, 1, bb);
     for (unsigned r = 0; r < 4 && ok; r++)
         (void)(ROM_PBUS_RD(dc_block[r], dc_index[r]) & 511u);
@@ -295,64 +349,120 @@ static int configure_receiver(void) {
 }
 
 static int bring_up(void) {
+    for (unsigned i = 0; i < sizeof(saved_registers)/sizeof(saved_registers[0]); ++i)
+        saved_registers[i] = REG(saved_addresses[i]);
     power_up_modem();
+    for (unsigned i = 0; i < sizeof(saved_analog); ++i)
+        saved_analog[i] = analog_read(analog_addresses[i][0], analog_addresses[i][1]);
+    analog_saved = true;
     if (!tune_pll()) return RISC_RADIO_IQ_PLL_FAILED;
     return configure_receiver();
 }
 
 static int copy_burst(uint32_t *pairs, uint32_t count) {
-    uint32_t start = REG(DUMP_WRITE_INDEX_REG);
+#ifdef RISC_IQ_HOST_TEST
+    volatile uint32_t *bank = iq_test_bank();
+#else
+    volatile uint32_t *bank = (volatile uint32_t *)(uintptr_t)resource->bank_base;
+#endif
+    /* A dump can reset its index and may wrap while the task is preempted.
+     * Sentinel initialization and the final stopped index select only samples
+     * written by this invocation, never the stale pre-start cursor. */
+    const uint32_t sentinel = 0xa5c33c5au; /* impossible in the 20-bit pair layout */
+    for (unsigned i = 0; i < RING_PAIRS; ++i) bank[i] = sentinel;
+    barrier();
     REG(DUMP_CTRL_REG) = DUMP_CTRL_CIRCULAR;
     REG(DUMP_BANK_SELECT_REG) = (REG(DUMP_BANK_SELECT_REG) & ~15u) | 1u;
+    barrier();
     REG(DUMP_CTRL_REG) = DUMP_CTRL_CIRCULAR | DUMP_CTRL_RUN;
     uint32_t began = cpu_cycles();
-    while (((REG(DUMP_WRITE_INDEX_REG) - start) & RING_MASK) < count) {
-        if (cpu_cycles() - began > PBUS_TIMEOUT_CYCLES * 100u) {
-            REG(DUMP_CTRL_REG) = DUMP_CTRL_CIRCULAR;
-            REG(DUMP_BANK_SELECT_REG) &= ~15u;
-            return RISC_RADIO_IQ_DUMP_TIMEOUT;
+    bool ready = false;
+    for (;;) {
+        uint32_t end = REG(DUMP_WRITE_INDEX_REG) & RING_MASK;
+        if (bank[(end - count) & RING_MASK] != sentinel && bank[(end - 1u) & RING_MASK] != sentinel) {
+            ready = true;
+            break;
         }
+        if (cpu_cycles() - began > PBUS_TIMEOUT_CYCLES * 100u) break;
     }
     REG(DUMP_CTRL_REG) = DUMP_CTRL_CIRCULAR;
+    barrier();
     REG(DUMP_BANK_SELECT_REG) &= ~15u;
-    volatile uint32_t *bank = (volatile uint32_t *)(uintptr_t)CAPTURE_BANK_BASE;
-    uint32_t at = start & RING_MASK;
+    ROM_DELAY_US(1);
+    barrier();
+    if (!ready) return RISC_RADIO_IQ_DUMP_TIMEOUT;
+    uint32_t at = (REG(DUMP_WRITE_INDEX_REG) - count) & RING_MASK;
     for (uint32_t i = 0; i < count; i++) {
-        pairs[i] = bank[at];
-        at = (at + 1u) & RING_MASK;
+        uint32_t sample = bank[(at + i) & RING_MASK];
+        if (sample == sentinel) return RISC_RADIO_IQ_DUMP_TIMEOUT;
+        pairs[i] = sample & 0x000fffffu;
     }
     return RISC_RADIO_IQ_OK;
+}
+
+static bool suspend_receiver(void *context) {
+    (void)context;
+    return release_receiver();
 }
 
 static int capture_burst(void *context, uint32_t *pairs, uint32_t count) {
     (void)context;
     if (!pairs || count == 0 || count > RISC_RADIO_IQ_PAIRS) return RISC_RADIO_IQ_BAD_ARGUMENT;
     if (!running) return RISC_RADIO_IQ_NOT_RUNNING;
-    if (bringup_status != RISC_RADIO_IQ_OK) return bringup_status;
-    return copy_burst(pairs, count);
+    if (lease && !release_receiver()) return RISC_RADIO_IQ_CLEANUP_RETAINED;
+    if (!resource->claim(resource->context, &lease)) {
+        /* Failed admission cannot authorize any modem/ROM/SRAM access. */
+        if (lease) { restored = true; return RISC_RADIO_IQ_CLEANUP_RETAINED; }
+        return RISC_RADIO_IQ_BUSY;
+    }
+    if (!lease) return RISC_RADIO_IQ_BUSY;
+    int status = bring_up();
+    if (status == RISC_RADIO_IQ_OK) status = copy_burst(pairs, count);
+    if (!release_receiver()) return RISC_RADIO_IQ_CLEANUP_RETAINED;
+    return status;
 }
 
 static bool start(const risc_provider_dependency_v1 *deps, size_t count) {
-    (void)deps;
-    if (running || count) return false;
-    bringup_status = bring_up();
-    running = true;
+    if (running || lease || !deps || count != 2) return false;
+    const risc_radio_iq_resource_v1 *candidate = NULL;
+    const risc_hardware_device_v1 *hardware = NULL;
+    for (size_t i = 0; i < count; ++i) {
+        if (!deps[i].capability_id || deps[i].api_version != 1 || !deps[i].api) return false;
+        if (!strcmp(deps[i].capability_id, RISC_RADIO_IQ_RESOURCE_CAPABILITY) && !candidate)
+            candidate = deps[i].api;
+        else if (!strcmp(deps[i].capability_id, "hardware.device") && !hardware)
+            hardware = deps[i].api;
+        else return false;
+    }
+    if (!candidate || candidate->api_version != 1 || candidate->struct_size < sizeof(*candidate) ||
+        !candidate->claim || !candidate->release || candidate->bank_base != CAPTURE_BANK_BASE ||
+        candidate->bank_bytes != CAPTURE_BANK_BYTES || !hardware || hardware->api_version != 1 ||
+        hardware->struct_size < sizeof(*hardware) || !hardware->instance_id ||
+        !hardware->compatible || strcmp(hardware->compatible, "espressif,esp32s3-iq") ||
+        !hardware->config_type || strcmp(hardware->config_type, "radio.integrated") ||
+        hardware->config_version != 1 || hardware->config_size != sizeof(risc_hw_radio_v1) ||
+        !hardware->config) return false;
+    const risc_hw_radio_v1 *config = hardware->config;
+    if (config->struct_size != sizeof(*config) || config->unit || config->features != 1) return false;
+    resource = candidate;
+    running = true; /* Admission only; boot never initializes the modem. */
     return true;
 }
 
 static void stop(void) {
-    release_receiver();
+    if (!release_receiver()) return;
     running = false;
+    resource = NULL;
 }
 
 static bool quiesce(void) {
-    release_receiver();
+    if (!release_receiver()) return false;
     running = false;
     return true;
 }
 
 static const risc_radio_iq_api_v1 api = {
-    RISC_RADIO_IQ_API_V1, sizeof(risc_radio_iq_api_v1), 0, capture_burst
+    RISC_RADIO_IQ_API_V1, sizeof(risc_radio_iq_api_v1), 0, capture_burst, suspend_receiver
 };
 
 static const risc_driver_v2 driver = {
