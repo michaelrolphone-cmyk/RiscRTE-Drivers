@@ -31,7 +31,7 @@ class Fixture:
  def __init__(self,path):
   self.lib=C.CDLL(str(path));self.lib.t5_driver_get.argtypes=[U32];self.lib.t5_driver_get.restype=C.POINTER(Driver)
   self.driver=self.lib.t5_driver_get(2).contents;self.hid=C.cast(self.driver.api,C.POINTER(Hid)).contents
-  self.rx=collections.deque();self.acl=[];self.commands=[];self.kv={};self.time=100;self.lease=0;self.claims=0;self.releases=0;self.fail_send=False;self.fail_close=False;self.fail_write=False;self.drop_ack=False;self.random_counter=0;self.callbacks=[]
+  self.rx=collections.deque();self.acl=[];self.commands=[];self.kv={};self.time=100;self.lease=0;self.claims=0;self.releases=0;self.fail_send=False;self.fail_close=False;self.fail_write=False;self.drop_ack=False;self.random_counter=0;self.callbacks=[];self.no_credits=False;self.claim_failure=0
   def wrap(t,fn):v=t(fn);self.callbacks.append(v);return v
   self.host=Host(1,C.sizeof(Host),None,Send(),Next(),F(B,P,B)(),F(B,P,C.POINTER(U8))(),wrap(Claim,self.claim),wrap(OwnedSend,self.send),wrap(OwnedNext,self.next),wrap(Release,self.release))
   self.clock=Clock(1,C.sizeof(Clock),None,wrap(F(U64,P),lambda _:self.time),wrap(F(None,P,U32),self.sleep))
@@ -48,7 +48,11 @@ class Fixture:
  def put(self,_,key,p,n):
   if self.fail_write:return -5
   self.kv[key]=C.string_at(p,n);return 0
- def claim(self,_,out):self.claims+=1;self.lease=7;out[0]=7;return True
+ def claim(self,_,out):
+  self.claims+=1
+  if self.claim_failure:
+   self.lease=7 if self.claim_failure==2 else 0;out[0]=self.lease;return False
+  self.lease=7;out[0]=7;return True
  def release(self,_,token):
   assert token==7
   self.releases+=1
@@ -66,7 +70,9 @@ class Fixture:
   b=C.string_at(p,n)
   if self.fail_send:return False
   if kind==2:
-   self.acl.append(b);self.event(b'\x13\x05\x01'+le(int.from_bytes(b[:2],'little')&0xfff)+b'\x01\x00');return True
+   self.acl.append(b)
+   if not self.no_credits:self.event(b'\x13\x05\x01'+le(int.from_bytes(b[:2],'little')&0xfff)+b'\x01\x00')
+   return True
   assert kind==1 and n==3+b[2]
   op=int.from_bytes(b[:2],'little');self.commands.append((op,b[3:]))
   if self.drop_ack:return True
@@ -197,18 +203,21 @@ class Fixture:
   assert self.outgoing(4)==[b'\x1b'+le(self.bootmouse)+bytes([2,10,20])]
   assert self.hid.release(None,self.t);self.pump();self.outgoing(4)
   print('FIFO keyboard/modifier/click reports, signed motion, watchdog, CCC/protocol cleanup, boot mouse: PASS')
- def pair(self,accept=True,timeout=False,tamper=False):
+ def pair(self,accept=True,timeout=False,tamper=False,late=False,wrap=False):
   self.connect();assert self.status().state==3
   assert not self.hid.keyboard(None,self.t,1,arr(bytes(6)))
   req=bytes([1,1,0,13,16,2,2]);out=self.smp(req);rsp=next(p for p in out if p[0]==2)
   assert rsp[:5]==bytes([2,1,0,13,16]),rsp.hex()
   private=ec.derive_private_key(0xdeadbeefcafe123456789abcdef,ec.SECP256R1());pub=private.public_key().public_numbers();pk=le(pub.x,32)+le(pub.y,32)
   out=self.smp(b'\x0c'+pk);other=next(p[1:] for p in out if p[0]==12);confirm=next(p[1:] for p in out if p[0]==3)
+  if wrap:self.time=0xfffffff0
   na=bytes.fromhex('ab77cba98dabb8c1995ad3fbe72cfb46');out=self.smp(b'\x04'+na);nb=next(p[1:] for p in out if p[0]==4)
   assert confirm==f4(other[:32],pk[:32],nb)
   s=self.status();assert s.state==4 and s.number==g2(pk[:32],other[:32],na,nb),(s.state,s.number)
   # No keys or mouse reports can be sent before explicit numeric confirmation.
   assert not self.hid.mouse(None,self.t,1,0,0,0)
+  if late:
+   self.time+=30001;assert not self.hid.confirm(None,self.t,True);self.pump();assert not self.status().flags&12;assert b"hid_ours" not in self.kv;assert any(op==0x0406 for op,_ in self.commands);print("Direct expired comparison rejects, including clock wrap: PASS");return
   if timeout:
    self.time+=30001;self.pump();assert not self.status().flags&12;assert any(op==0x0406 for op,_ in self.commands);print("Numeric comparison timeout disconnects without accepting: PASS");return
   assert self.hid.confirm(None,self.t,accept)
@@ -237,10 +246,58 @@ def close_fixture(f):
  assert f.hid.close(None,f.t);f.t.value=0;assert f.status().state==0
  assert f.driver.quiesce()
 def main():
- f=Fixture(Path(sys.argv[1]));f.start();print('Driver admission, bounded HCI startup and HID advertising: PASS')
- scenario=sys.argv[2] if len(sys.argv)>2 else 'happy'
+ f=Fixture(Path(sys.argv[1]));scenario=sys.argv[2] if len(sys.argv)>2 else 'happy'
+ if scenario=='immediate-close':
+  assert f.driver.start(f.deps,3)
+  for _ in range(4):
+   assert f.hid.open(None,b'Retry',True,C.byref(f.t));assert f.hid.close(None,f.t);f.t.value=0
+  assert f.driver.quiesce();print('First-ever and repeated close before the next caller poll remains restartable: PASS');return
+ f.start();print('Driver admission, bounded HCI startup and HID advertising: PASS')
+ if scenario in ('late','late-wrap'):
+  f.pair(late=True,wrap=scenario=='late-wrap');close_fixture(f);return
  if scenario in ('reject','timeout','tamper'):
   f.pair(scenario!='reject',scenario=='timeout',scenario=='tamper');close_fixture(f);return
+ if scenario=='claim-retry':
+  for failure in (1,2):
+   assert f.hid.close(None,f.t);f.t.value=0;f.claim_failure=failure
+   assert not f.hid.open(None,b'Retry',True,C.byref(f.t));assert f.t.value
+   if failure==2:
+    f.fail_close=True;assert not f.hid.close(None,f.t);f.fail_close=False
+   assert f.hid.close(None,f.t);f.t.value=0;f.claim_failure=0
+   assert f.hid.open(None,b'Retry',True,C.byref(f.t));f.pump(20)
+  close_fixture(f);print('Failed zero-token and retained-token HCI claims remain retryable after a prior clean session: PASS');return
+ if scenario.startswith('backpressure-'):
+  f.pair();f.discover();f.outgoing(4);f.no_credits=True
+  assert f.hid.mouse(None,f.t,1,0,0,0)
+  count=0
+  while f.hid.keyboard(None,f.t,2,arr(b'\x04'+bytes(5))):
+   count+=1;assert count<=32
+  assert count>8
+  action=scenario.split('-',1)[1]
+  if action=='explicit':
+   assert not f.hid.release(None,f.t)
+   f.no_credits=False;f.event(b'\x13\x05\x01\x01\x00\x08\x00');f.pump(30);f.outgoing(4)
+   assert f.hid.release(None,f.t);f.pump();wire=f.outgoing(4)
+   assert b'\x1b'+le(f.kbd)+bytes(8) in wire and b'\x1b'+le(f.mouse)+bytes(4) in wire
+  elif action=='disconnect':
+   f.event(b'\x05\x04\x00\x01\x00\x13');f.no_credits=False;f.pump(30)
+   assert not f.status().flags&15
+  else:
+   if action=='watchdog':f.time+=1001
+   else:
+    control=next(c[2] for c in f.chars if c[3]==0x2a4c)
+    p={'mode':b'\x52'+le(f.proto)+b'\x01','control':b'\x52'+le(control)+b'\x00','ccc':b'\x52'+le(f.mcc)+b'\x00\x00','refresh':b'\x52'+le(f.proto)+b'\x01'}[action]
+    data=le(len(p))+le(4)+p;f.rx.append((2,b'\x01\x20'+le(len(data))+data))
+   if action=='refresh':f.event(b'\x08\x04\x00\x01\x00\x01')
+   faulted=False
+   for _ in range(20):
+    if not f.hid.poll(None,f.t,16 if action=='refresh' else 1):faulted=True;break
+   assert faulted and f.status().state==6 and not f.status().flags&3,f.describe()
+   assert any(op==0x0406 for op,_ in f.commands),f.commands
+   assert not f.hid.keyboard(None,f.t,0,arr(bytes(6))) and not f.hid.mouse(None,f.t,0,0,0,0)
+   for _ in range(20):f.hid.poll(None,f.t,1)
+   assert not f.status().flags&15
+  close_fixture(f);print('Withheld controller credits safely handle '+action+' release/teardown: PASS');return
  if scenario=='invalid-public-key':
   f.connect();f.smp(bytes([1,1,0,13,16,2,2]));out=f.smp(b'\x0c'+bytes(64));assert any(p[0]==5 for p in out);assert not f.status().flags&12;close_fixture(f);print('Invalid Secure Connections public key rejected: PASS');return
  if scenario=='legacy':

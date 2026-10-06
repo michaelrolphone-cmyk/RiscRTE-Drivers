@@ -12,7 +12,7 @@ else
 fi
 cc -std=c11 -O1 -Wall -Wextra -Werror $extra -I Drivers/ble_hid/port -I sdk/driver -I vendor/nimble/nimble/include test/ble_hid_port_test.c "$dir"/*.o -o "$dir/port-test"
 ASAN_OPTIONS=detect_leaks=0 "$dir/port-test"
-for scenario in happy reject timeout legacy invalid-public-key tamper retained malformed storage; do
+for scenario in happy reject timeout late late-wrap legacy invalid-public-key tamper retained malformed storage claim-retry immediate-close backpressure-mode backpressure-refresh backpressure-control backpressure-ccc backpressure-watchdog backpressure-explicit backpressure-disconnect; do
  if [ "${SANITIZE:-0}" = 1 ]; then
   ASAN_OPTIONS=detect_leaks=0:verify_asan_link_order=0 LD_PRELOAD="$(cc -print-file-name=libasan.so)" python test/ble_hid_protocol_test.py "$dir/driver.so" "$scenario"
  else

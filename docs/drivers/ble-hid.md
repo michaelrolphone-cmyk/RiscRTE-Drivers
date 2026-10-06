@@ -91,8 +91,11 @@ is unknown; `battery(...,255)` means unknown, never fabricated 100%.
   modifier usages in the key array, invalid button masks and -128 axes reject.
 - Each accepted report is an explicit NimBLE notification, preserving FIFO
   press/release order; it is not a coalesced current-state update.
-- `release_all` sends neutral reports on available subscribed channels and always
-  clears local modifier/button state. Mouse motion is never retained for reads.
+- `release_all` sends neutral reports for held inputs. It clears each local
+  modifier/button state only after a neutral is accepted or disconnect/native
+  closure is confirmed; rejected reports retain state for retry. Automatic
+  release failure enters a terminal fault and requests connection termination
+  independently of ACL credits. Later queued GAP events cannot revive it. Mouse motion is never retained for reads.
 - Boot/report protocol transitions, suspend, subscription changes and disconnect
   neutralize held state. Independent cooperative 1,000 ms keyboard and mouse watchdogs also release
   held state; they cannot execute if the caller stops polling entirely.
@@ -117,7 +120,8 @@ The profile requires authenticated 128-bit LE Secure Connections with numeric
 comparison. The user compares the six-digit value on both devices and confirms
 explicitly through `confirm_pairing`. A 30-second confirmation timeout or
 rejection fails pairing, disconnects and disarms new pairing until an explicit
-restart. Legacy pairing and unauthenticated Just Works are not accepted. Hosts
+restart. The confirmation entry point checks the deadline itself, including
+clock wrap; a caller that missed polling cannot accept an expired comparison. Legacy pairing and unauthenticated Just Works are not accepted. Hosts
 without a compatible Secure Connections numeric-comparison association cannot
 pair with this profile; the app must report failure rather than a fake success.
 
@@ -141,7 +145,10 @@ Malformed transport packets, pool/queue exhaustion and failed native operations
 fail closed. A provider assertion retains the invocation and attempts native
 lease closure, then yields until reset; it never returns through corrupted
 state. Normal close/reopen re-registers the same immutable GATT definitions,
-without multiplying allocation limits. No per-session memory is leaked into
+without multiplying allocation limits. Open completes its initial host start
+stages under the claimed lease, so immediate close before the caller's first
+poll is safe. Refused native claims preserve the previous proven stopped state
+and remain retryable, including failed claims carrying a cleanup token. No per-session memory is leaked into
 Runtime. Static arena storage lives with the provider ELF mapping.
 
 ## Software evidence
@@ -162,7 +169,11 @@ service/characteristic/descriptor discovery, long Report Map reads, FIFO HID
 reports, modifier/mouse release, boot protocol, CCC changes, watchdog, invalid
 reports, stale tokens, duplicate/missing dependencies, rejection/timeout,
 legacy downgrade rejection, forged DHKey check rejection, malformed HCI,
-retained close retry, corrupt persistence and explicit recovery. The success
+retained close retry, corrupt persistence and explicit recovery. Withheld-ACL-credit
+cases exercise explicit retry, protocol/CCC/control transitions, watchdogs,
+queued encryption refresh, and disconnect cleanup; held state is retained until
+a neutral or safe teardown. Claim failures and expired direct confirmation are
+also covered. The success
 path includes quiescence/restart and twelve additional open/close cycles.
 A separate C fixture covers NPL event ordering, timer wrap/cancel, recursive
 owner locks, bounded queues and allocator reuse/overflow. Normal and ASan/UBSan

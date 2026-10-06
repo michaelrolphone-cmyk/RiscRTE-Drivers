@@ -23,7 +23,8 @@ static const risc_platform_clock_api_v1 *clock_api;
 static const risc_bound_key_value_v1 *storage;
 static uint64_t lease, token, serial;
 static bool started, initialized, stopping, stopped, poisoned, pair_allowed, pair_wait;
-static bool encrypted, authenticated, suspended, advertise_pending, secure_pending;
+static bool encrypted, authenticated, suspended, advertise_pending, secure_pending,
+    terminate_pending;
 static uint16_t connection = BLE_HS_CONN_HANDLE_NONE, handles[5];
 static bool subscribed[5];
 static uint8_t keyboard_report[8], mouse_report[4], leds, protocol = 1, battery_level = 255;
@@ -33,6 +34,7 @@ static char device_name[21];
 static struct ble_hs_stop_listener stop_listener;
 static const struct ble_gatt_svc_def *gap_definition, *gatt_definition;
 static atomic_flag guard = ATOMIC_FLAG_INIT;
+static void failed(int rc);
 /* Report IDs identify characteristics through Report Reference descriptors;
  * the ID is not repeated in the characteristic value or notification. */
 static const uint8_t report_map[] = {
@@ -118,7 +120,7 @@ static void disconnected(void) {
     neutral();
     memset(subscribed, 0, sizeof(subscribed));
     connection = BLE_HS_CONN_HANDLE_NONE;
-    encrypted = authenticated = pair_wait = suspended = secure_pending = false;
+    encrypted = authenticated = pair_wait = suspended = secure_pending = terminate_pending = false;
     number = pair_deadline = 0;
     protocol = 1;
     leds = 0;
@@ -128,7 +130,7 @@ static bool secure(void) {
            !hid_store_failed() && !hid_port_faulted();
 }
 static uint32_t ready_flags(void) {
-    if (!secure())
+    if (!secure() || state != RISC_HID_READY || stopping)
         return 0;
     return (subscribed[protocol ? 0 : 2] ? RISC_HID_KEYBOARD_READY : 0) |
            (subscribed[protocol ? 1 : 3] ? RISC_HID_MOUSE_READY : 0);
@@ -142,16 +144,40 @@ static bool notify(unsigned which, const uint8_t *p, size_t n) {
     return ble_gatts_notify_custom(connection, handles[which], om) == 0;
 }
 static bool release_impl(void) {
+    if (connection == BLE_HS_CONN_HANDLE_NONE) {
+        neutral();
+        return true;
+    }
     bool ok = true;
     uint8_t z[8] = {0};
-    if (secure()) {
-        if (subscribed[protocol ? 0 : 2] && !notify(protocol ? 0 : 2, z, 8))
+    bool keys_held = false;
+    for (unsigned i = 0; i < sizeof(keyboard_report); i++)
+        keys_held |= keyboard_report[i] != 0;
+    if (keys_held) {
+        if (!notify(protocol ? 0 : 2, z, 8)) {
             ok = false;
-        if (subscribed[protocol ? 1 : 3] && !notify(protocol ? 1 : 3, z, protocol ? 4 : 3))
-            ok = false;
+        } else {
+            memset(keyboard_report, 0, sizeof(keyboard_report));
+            keyboard_since = 0;
+        }
     }
-    neutral();
+    if (mouse_report[0]) {
+        if (!notify(protocol ? 1 : 3, z, protocol ? 4 : 3)) {
+            ok = false;
+        } else {
+            memset(mouse_report, 0, sizeof(mouse_report));
+            mouse_since = 0;
+        }
+    }
+    /* A rejected neutral must not erase the last accepted pressed report.
+     * The caller can retry, or keep that custody until confirmed disconnect. */
     return ok;
+}
+static bool automatic_release(void) {
+    if (release_impl())
+        return true;
+    failed(BLE_HS_EBUSY);
+    return false;
 }
 static int access_reference(uint16_t c, uint16_t a, struct ble_gatt_access_ctxt *x, void *arg) {
     (void)c;
@@ -178,14 +204,16 @@ static int access_value(uint16_t c, uint16_t a, struct ble_gatt_access_ctxt *x, 
         if (kind == A_CONTROL) {
             if (v > 1)
                 return BLE_ATT_ERR_UNLIKELY;
-            (void)release_impl();
+            if (!automatic_release())
+                return BLE_ATT_ERR_INSUFFICIENT_RES;
             suspended = v == 0;
             return 0;
         }
         if (kind == A_PROTOCOL) {
             if (v > 1)
                 return BLE_ATT_ERR_UNLIKELY;
-            (void)release_impl();
+            if (!automatic_release())
+                return BLE_ATT_ERR_INSUFFICIENT_RES;
             protocol = v;
             neutral();
             return 0;
@@ -251,11 +279,37 @@ static int access_value(uint16_t c, uint16_t a, struct ble_gatt_access_ctxt *x, 
 static void failed(int rc) {
     last_error = rc ? rc : BLE_HS_EUNKNOWN;
     state = RISC_HID_FAULT;
-    neutral();
+    if (connection == BLE_HS_CONN_HANDLE_NONE)
+        neutral();
+    else
+        terminate_pending = true;
     advertise_pending = secure_pending = false;
+}
+static bool disconnect_fault(void) {
+    /* Run only outside the host's access/GAP callbacks. Controller commands
+     * have independent credits, so a full ACL queue cannot prevent this stop. */
+    if (terminate_pending && connection != BLE_HS_CONN_HANDLE_NONE && !hid_port_faulted()) {
+        terminate_pending = false;
+        int rc = ble_gap_terminate(connection, BLE_ERR_REM_USER_CONN_TERM);
+        if (rc && rc != BLE_HS_EALREADY && rc != BLE_HS_ENOTCONN)
+            poisoned = true;
+    }
+    return false;
 }
 static int gap_event(struct ble_gap_event *e, void *arg) {
     (void)arg;
+    /* A later queued encryption refresh or connection event cannot revive a
+     * fault in the same cooperative pump batch. Only safe teardown ends it. */
+    if (state == RISC_HID_FAULT) {
+        if (e->type == BLE_GAP_EVENT_DISCONNECT) {
+            disconnected();
+        } else if (e->type == BLE_GAP_EVENT_CONNECT && !e->connect.status) {
+            connection = e->connect.conn_handle;
+            generation++;
+            terminate_pending = true;
+        }
+        return 0;
+    }
     switch (e->type) {
     case BLE_GAP_EVENT_CONNECT:
         disconnected();
@@ -282,7 +336,6 @@ static int gap_event(struct ble_gap_event *e, void *arg) {
         return 0;
     case BLE_GAP_EVENT_ENC_CHANGE: {
         struct ble_gap_conn_desc d;
-        neutral();
         pair_wait = false;
         number = 0;
         if (e->enc_change.status || ble_gap_conn_find(connection, &d) || !d.sec_state.encrypted ||
@@ -293,6 +346,8 @@ static int gap_event(struct ble_gap_event *e, void *arg) {
         }
         encrypted = d.sec_state.encrypted;
         authenticated = d.sec_state.authenticated;
+        if (!automatic_release())
+            return 0;
         state = RISC_HID_READY;
         pair_allowed = false;
         return 0;
@@ -303,18 +358,21 @@ static int gap_event(struct ble_gap_event *e, void *arg) {
             (void)ble_gap_terminate(connection, BLE_ERR_AUTH_FAIL);
             return 0;
         }
-        neutral();
+        if (!automatic_release())
+            return 0;
         pair_wait = true;
         number = e->passkey.params.numcmp;
         pair_deadline = ble_npl_time_get() + 30000;
         state = RISC_HID_PAIR_CONFIRM;
         return 0;
     case BLE_GAP_EVENT_SUBSCRIBE:
-        (void)release_impl();
+        /* Termination callbacks precede the disconnect callback, after
+         * NimBLE has already removed the connection's notification state. */
+        if (e->subscribe.reason != BLE_GAP_SUBSCRIBE_REASON_TERM)
+            (void)automatic_release();
         for (unsigned i = 0; i < 5; i++)
             if (e->subscribe.attr_handle == handles[i])
                 subscribed[i] = e->subscribe.cur_notify;
-        neutral();
         return 0;
     case BLE_GAP_EVENT_REPEAT_PAIRING:
         return BLE_GAP_REPEAT_PAIRING_IGNORE;
@@ -396,10 +454,13 @@ static bool pump(uint32_t count) {
     }
     if (hid_port_faulted() || hid_store_failed()) {
         failed(hid_store_failed() ? BLE_HS_ESTORE_FAIL : BLE_HS_ECONTROLLER);
-        return false;
     }
+    if (terminate_pending)
+        (void)disconnect_fault();
     if (stopping)
         return true;
+    if (state == RISC_HID_FAULT)
+        return false;
     if (pair_wait && (int32_t)(ble_npl_time_get() - pair_deadline) >= 0) {
         struct ble_sm_io io = {.action = BLE_SM_IOACT_NUMCMP, .numcmp_accept = 0};
         (void)ble_sm_inject_io(connection, &io);
@@ -419,14 +480,14 @@ static bool pump(uint32_t count) {
             int rc = ble_gap_security_initiate(connection);
             if (rc && rc != BLE_HS_EALREADY) {
                 failed(rc);
-                return false;
+                return disconnect_fault();
             }
         }
     }
     if (advertise_pending && state != RISC_HID_FAULT) {
         advertise_pending = false;
         if (!advertise())
-            return false;
+            return disconnect_fault();
     }
     /* One device's traffic cannot keep another device's modifiers/buttons
      * latched. Timestamp zero and uint32 wrap are ordinary clock values. */
@@ -437,19 +498,19 @@ static bool pump(uint32_t count) {
     uint8_t zero[8] = {0};
     if (keys_held && (uint32_t)(now - keyboard_since) >= 1000) {
         bool ok = notify(protocol ? 0 : 2, zero, 8);
-        memset(keyboard_report, 0, sizeof(keyboard_report));
         if (!ok) {
             failed(BLE_HS_EBUSY);
-            return false;
+            return disconnect_fault();
         }
+        memset(keyboard_report, 0, sizeof(keyboard_report));
     }
     if (mouse_report[0] && (uint32_t)(now - mouse_since) >= 1000) {
         bool ok = notify(protocol ? 1 : 3, zero, protocol ? 4 : 3);
-        memset(mouse_report, 0, sizeof(mouse_report));
         if (!ok) {
             failed(BLE_HS_EBUSY);
-            return false;
+            return disconnect_fault();
         }
+        memset(mouse_report, 0, sizeof(mouse_report));
     }
     return state != RISC_HID_FAULT;
 }
@@ -482,7 +543,7 @@ static bool open_impl(const char *name, bool pairing, uint64_t *out) {
     state = RISC_HID_STARTING;
     last_error = 0;
     pair_allowed = pairing && !hid_store_bonded();
-    stopping = stopped = false;
+    stopping = false;
     advertise_pending = secure_pending = false;
     disconnected();
     if (!host->claim(host->controls.context, &lease) || !lease) {
@@ -490,6 +551,8 @@ static bool open_impl(const char *name, bool pairing, uint64_t *out) {
         return false;
     }
     hid_port_bind(host, clock_api, lease);
+    /* A refused claim does not invalidate a previous proven host stop. */
+    stopped = false;
     if (!initialized) {
         nimble_port_init();
         ble_hs_cfg.reset_cb = reset_cb;
@@ -533,7 +596,9 @@ static bool open_impl(const char *name, bool pairing, uint64_t *out) {
         failed(BLE_HS_EINVAL);
         return false;
     }
-    return true;
+    /* Complete the initial host start stages while this explicit open owns
+     * the lease. An immediate close before the caller's first poll is safe. */
+    return pump(2);
 }
 static void stopped_cb(int status, void *arg) {
     (void)arg;
@@ -609,9 +674,8 @@ static bool keyboard_impl(uint64_t t, uint8_t mods, const uint8_t *keys) {
     return true;
 }
 static bool mouse_impl(uint64_t t, uint8_t buttons, int8_t dx, int8_t dy, int8_t wheel) {
-    if (!valid(t) || buttons > 31 || (!protocol && (buttons > 7 || wheel != 0)) ||
-        dx == -128 || dy == -128 || wheel == -128 ||
-        !(ready_flags() & RISC_HID_MOUSE_READY))
+    if (!valid(t) || buttons > 31 || (!protocol && (buttons > 7 || wheel != 0)) || dx == -128 ||
+        dy == -128 || wheel == -128 || !(ready_flags() & RISC_HID_MOUSE_READY))
         return false;
     uint8_t b[] = {buttons, (uint8_t)dx, (uint8_t)dy, (uint8_t)wheel};
     if (!notify(protocol ? 1 : 3, b, protocol ? 4 : 3))
@@ -651,20 +715,21 @@ static bool api_status(void *c, uint64_t t, risc_bluetooth_hid_status_v1 *s) {
 static bool api_confirm(void *c, uint64_t t, bool accept) {
     (void)c;
     ENTER();
-    if (!valid(t) || !pair_wait) {
+    if (!valid(t) || !pair_wait || state != RISC_HID_PAIR_CONFIRM) {
         atomic_flag_clear(&guard);
         return false;
     }
-    struct ble_sm_io io = {.action = BLE_SM_IOACT_NUMCMP, .numcmp_accept = accept};
+    bool expired = (int32_t)(ble_npl_time_get() - pair_deadline) >= 0;
+    struct ble_sm_io io = {.action = BLE_SM_IOACT_NUMCMP, .numcmp_accept = accept && !expired};
     pair_wait = false;
     number = 0;
     state = RISC_HID_CONNECTED;
     int rc = ble_sm_inject_io(connection, &io);
-    if (!accept) {
+    if (!accept || expired) {
         pair_allowed = false;
         (void)ble_gap_terminate(connection, BLE_ERR_AUTH_FAIL);
     }
-    LEAVE(rc == 0 || (!accept && rc == BLE_HS_SM_US_ERR(BLE_SM_ERR_NUMCMP)));
+    LEAVE(!expired && (rc == 0 || (!accept && rc == BLE_HS_SM_US_ERR(BLE_SM_ERR_NUMCMP))));
 }
 static bool api_keyboard(void *c, uint64_t t, uint8_t m, const uint8_t *k) {
     (void)c;
