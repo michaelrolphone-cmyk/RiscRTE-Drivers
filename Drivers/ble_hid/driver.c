@@ -30,6 +30,9 @@ static bool subscribed[5];
 static uint8_t keyboard_report[8], mouse_report[4], leds, protocol = 1, battery_level = 255;
 static uint32_t state, number, pair_deadline, keyboard_since, mouse_since, generation;
 static int32_t last_error;
+static risc_bluetooth_hid_diagnostics_v1 diagnostics;
+static uint32_t last_poll;
+static bool polled;
 static char device_name[21];
 static struct ble_hs_stop_listener stop_listener;
 static const struct ble_gatt_svc_def *gap_definition, *gatt_definition;
@@ -139,9 +142,10 @@ static bool notify(unsigned which, const uint8_t *p, size_t n) {
     if (!secure() || !subscribed[which])
         return false;
     struct os_mbuf *om = ble_hs_mbuf_from_flat(p, (uint16_t)n);
-    if (!om)
-        return false;
-    return ble_gatts_notify_custom(connection, handles[which], om) == 0;
+    int rc = om ? ble_gatts_notify_custom(connection, handles[which], om) : BLE_HS_ENOMEM;
+    diagnostics.notify_error = rc;
+    if (rc) diagnostics.notify_failures++;
+    return rc == 0;
 }
 static bool release_impl(void) {
     if (connection == BLE_HS_CONN_HANDLE_NONE) {
@@ -298,6 +302,20 @@ static bool disconnect_fault(void) {
 }
 static int gap_event(struct ble_gap_event *e, void *arg) {
     (void)arg;
+    /* A queued event belongs to its connection, never to a newer session. */
+    uint16_t event_connection = connection;
+    switch (e->type) {
+    case BLE_GAP_EVENT_DISCONNECT: event_connection = e->disconnect.conn.conn_handle; break;
+    case BLE_GAP_EVENT_ENC_CHANGE: event_connection = e->enc_change.conn_handle; break;
+    case BLE_GAP_EVENT_PASSKEY_ACTION: event_connection = e->passkey.conn_handle; break;
+    case BLE_GAP_EVENT_SUBSCRIBE: event_connection = e->subscribe.conn_handle; break;
+    default: break;
+    }
+    if (event_connection != connection) { diagnostics.stale_events++; return 0; }
+    if (e->type == BLE_GAP_EVENT_DISCONNECT)
+        diagnostics.disconnect_reason = (uint32_t)e->disconnect.reason;
+    if (e->type == BLE_GAP_EVENT_ENC_CHANGE)
+        diagnostics.security_status = (uint32_t)e->enc_change.status;
     /* A later queued encryption refresh or connection event cannot revive a
      * fault in the same cooperative pump batch. Only safe teardown ends it. */
     if (state == RISC_HID_FAULT) {
@@ -312,6 +330,8 @@ static int gap_event(struct ble_gap_event *e, void *arg) {
     }
     switch (e->type) {
     case BLE_GAP_EVENT_CONNECT:
+        if (connection != BLE_HS_CONN_HANDLE_NONE) { diagnostics.stale_events++; return 0; }
+        advertise_pending = false;
         disconnected();
         if (e->connect.status) {
             if (!stopping)
@@ -443,13 +463,16 @@ static bool pump(uint32_t count) {
     if (!count)
         count = 1;
     for (uint32_t i = 0; i < count; i++) {
-        if (!hid_port_receive())
+        /* Once closing, the native transport may already be faulted. Drain
+         * only the bounded host work/timers as needed to prove its stop; the
+         * faulted port rejects all further I/O. */
+        if (!hid_port_receive() && !stopping)
             break;
         hid_port_timers();
         struct ble_npl_event *e = ble_npl_eventq_get(nimble_port_get_dflt_eventq(), 0);
         if (e)
             ble_npl_event_run(e);
-        if (hid_port_faulted() || hid_store_failed())
+        if ((hid_port_faulted() || hid_store_failed()) && !stopping)
             break;
     }
     if (hid_port_faulted() || hid_store_failed()) {
@@ -484,7 +507,7 @@ static bool pump(uint32_t count) {
             }
         }
     }
-    if (advertise_pending && state != RISC_HID_FAULT) {
+    if (advertise_pending && connection == BLE_HS_CONN_HANDLE_NONE && state != RISC_HID_FAULT) {
         advertise_pending = false;
         if (!advertise())
             return disconnect_fault();
@@ -544,6 +567,8 @@ static bool open_impl(const char *name, bool pairing, uint64_t *out) {
     last_error = 0;
     pair_allowed = pairing && !hid_store_bonded();
     stopping = false;
+    diagnostics = (risc_bluetooth_hid_diagnostics_v1){.struct_size = sizeof(diagnostics)};
+    polled = false;
     advertise_pending = secure_pending = false;
     disconnected();
     if (!host->claim(host->controls.context, &lease) || !lease) {
@@ -603,6 +628,7 @@ static bool open_impl(const char *name, bool pairing, uint64_t *out) {
 static void stopped_cb(int status, void *arg) {
     (void)arg;
     stopped = true;
+    diagnostics.host_stop_error = status;
     if (status)
         poisoned = true;
 }
@@ -611,23 +637,28 @@ static bool close_impl(uint64_t t) {
         return false;
     stopping = true;
     advertise_pending = secure_pending = false;
-    if (initialized && lease && !hid_port_faulted() && !stopped) {
+    /* Host teardown remains necessary after a transport failure. NimBLE can
+     * clear its software state even when controller commands fail; successful
+     * native release below is the independent proof that callbacks are gone. */
+    if (initialized && lease && !stopped) {
         (void)release_impl();
         int rc = ble_hs_stop(&stop_listener, stopped_cb, NULL);
+        if (rc && rc != BLE_HS_EALREADY && rc != BLE_HS_EBUSY) diagnostics.host_stop_error = rc;
         if (rc == BLE_HS_EALREADY)
             stopped = true;
         uint32_t begin = ble_npl_time_get();
-        while (!stopped && !hid_port_faulted() && (uint32_t)(ble_npl_time_get() - begin) < 300) {
+        while (!stopped && (uint32_t)(ble_npl_time_get() - begin) < 300) {
             (void)pump(8);
             clock_api->sleep_ms(clock_api->context, 1);
         }
     }
-    if (initialized && (!stopped || connection != BLE_HS_CONN_HANDLE_NONE || hid_port_faulted()))
+    if (initialized && (!stopped || connection != BLE_HS_CONN_HANDLE_NONE))
         poisoned = true;
     /* Native close is the final proof that radio callbacks and packets cannot
      * reference this provider. Failure retains every token and dependency. */
     if (lease) {
         int32_t rc = host->release(host->controls.context, lease);
+        diagnostics.native_close_result = rc;
         if (rc < 0) {
             failed(BLE_HS_ECONTROLLER);
             return false;
@@ -705,6 +736,12 @@ static bool api_open(void *c, const char *n, bool p, uint64_t *t) {
 static bool api_poll(void *c, uint64_t t, uint32_t n) {
     (void)c;
     ENTER();
+    uint32_t now = ble_npl_time_get();
+    if (valid(t)) {
+        uint32_t gap = now - last_poll;
+        if (polled && gap > diagnostics.max_poll_gap_ms) diagnostics.max_poll_gap_ms = gap;
+        last_poll = now; polled = true;
+    }
     LEAVE(valid(t) && pump(n));
 }
 static bool api_status(void *c, uint64_t t, risc_bluetooth_hid_status_v1 *s) {
@@ -760,6 +797,19 @@ static bool api_close(void *c, uint64_t t) {
     (void)c;
     ENTER();
     LEAVE(close_impl(t));
+}
+static bool api_diagnostics(void *c, uint64_t t, risc_bluetooth_hid_diagnostics_v1 *out) {
+    (void)c;
+    ENTER();
+    if (!started || !out || out->struct_size < sizeof(*out) || (token ? t != token : t != 0)) {
+        atomic_flag_clear(&guard); return false;
+    }
+    *out = diagnostics;
+    out->struct_size = sizeof(*out);
+    out->port_fault = hid_port_fault_reason();
+    out->poisoned = poisoned;
+    out->host_stopped = stopped;
+    LEAVE(true);
 }
 static bool api_forget(void *c) {
     (void)c;
@@ -837,10 +887,10 @@ static bool start(const risc_provider_dependency_v1 *d, size_t n) {
         last_error = BLE_HS_ESTORE_FAIL;
     LEAVE(true);
 }
-static const risc_bluetooth_hid_v1 api = {1,          sizeof(api), NULL,        api_open,
+static const risc_bluetooth_hid_diagnostics_api_v1 api = {{1,          sizeof(api), NULL,        api_open,
                                           api_poll,   api_status,  api_confirm, api_keyboard,
                                           api_mouse,  api_release, api_close,   api_forget,
-                                          api_battery};
+                                          api_battery}, api_diagnostics};
 static const risc_driver_v2 driver = {
     2, sizeof(driver), "ble-hid", RISC_BLUETOOTH_HID_CAPABILITY, 1, &api, start, stop, quiesce};
 __attribute__((visibility("default"))) const risc_driver_v2 *t5_driver_get(uint32_t abi) {

@@ -47,3 +47,22 @@ typedef struct {
     bool (*forget_bond)(void *);
     bool (*battery)(void *, uint64_t token, uint8_t percent);
 } risc_bluetooth_hid_v1;
+
+/* Optional copied diagnostics; the original API prefix and status stay intact.
+ * Contains only stages, result codes and counters, never keys, peer addresses,
+ * pairing values or input report contents. Snapshot before close for the cause;
+ * snapshot after successful close for the independent cleanup outcome. */
+enum { RISC_HID_PORT_OK, RISC_HID_PORT_INTERNAL, RISC_HID_PORT_QUEUE_FULL,
+       RISC_HID_PORT_SEND_COMMAND, RISC_HID_PORT_SEND_ACL, RISC_HID_PORT_RECEIVE,
+       RISC_HID_PORT_EVENT_POOL, RISC_HID_PORT_EVENT_DISPATCH,
+       RISC_HID_PORT_ACL_POOL, RISC_HID_PORT_ACL_APPEND,
+       RISC_HID_PORT_ACL_DISPATCH, RISC_HID_PORT_PACKET };
+typedef struct {
+    uint32_t struct_size, port_fault, disconnect_reason, security_status;
+    int32_t notify_error, host_stop_error, native_close_result;
+    uint32_t notify_failures, stale_events, max_poll_gap_ms, poisoned, host_stopped;
+} risc_bluetooth_hid_diagnostics_v1;
+typedef struct {
+    risc_bluetooth_hid_v1 base;
+    bool (*diagnostics)(void *context, uint64_t token, risc_bluetooth_hid_diagnostics_v1 *out);
+} risc_bluetooth_hid_diagnostics_api_v1;

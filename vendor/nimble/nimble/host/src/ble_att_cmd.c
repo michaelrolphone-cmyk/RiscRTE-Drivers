@@ -80,7 +80,8 @@ ble_att_tx_with_conn(struct ble_hs_conn *conn, struct ble_l2cap_chan *chan, stru
 
     BLE_HS_DBG_ASSERT_EVAL(txom->om_len >= 1);
 
-    if (ble_att_is_request_op(txom->om_data[0])) {
+    bool request = ble_att_is_request_op(txom->om_data[0]);
+    if (request) {
         if (conn->client_att_busy) {
             BLE_EATT_LOG_DEBUG("ATT Queue %p, client busy %d\n", txom, conn->client_att_busy);
             STAILQ_INSERT_TAIL(&conn->att_tx_q, OS_MBUF_PKTHDR(txom), omp_next);
@@ -93,7 +94,12 @@ ble_att_tx_with_conn(struct ble_hs_conn *conn, struct ble_l2cap_chan *chan, stru
 
     ble_att_truncate_to_mtu(chan, txom);
     rc = ble_l2cap_tx(conn, chan, txom);
-    assert(rc == 0);
+    /* The bounded external controller transport can reject a packet. L2CAP
+     * consumes it on this path; propagate the error to the owner for teardown
+     * instead of asserting through a recoverable transport failure. */
+    if (rc != 0 && request) {
+        conn->client_att_busy = false;
+    }
     return rc;
 }
 

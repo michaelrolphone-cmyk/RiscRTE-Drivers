@@ -7,6 +7,7 @@ bool hid_port_receive(void);
 void hid_port_timers(void);
 void hid_port_clear(void);
 bool hid_port_faulted(void);
+uint32_t hid_port_fault_reason(void);
 void hid_port_fault(void);
 void *hid_malloc(size_t);
 void *hid_calloc(size_t, size_t);

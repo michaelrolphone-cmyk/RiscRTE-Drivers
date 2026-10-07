@@ -13,6 +13,8 @@ class Dep(C.Structure):_fields_=[('name',C.c_char_p),('version',U32),('api',P)]
 class Driver(C.Structure):_fields_=[('version',U32),('size',U32),('id',C.c_char_p),('cap',C.c_char_p),('api_version',U32),('api',P),('start',F(B,C.POINTER(Dep),SZ)),('stop',F(None)),('quiesce',F(B))]
 class Status(C.Structure):_fields_=[('size',U32),('state',U32),('flags',U32),('number',U32),('error',I32),('generation',U32)]
 class Hid(C.Structure):_fields_=[('version',U32),('size',U32),('ctx',P),('open',F(B,P,C.c_char_p,B,C.POINTER(U64))),('poll',F(B,P,U64,U32)),('status',F(B,P,U64,C.POINTER(Status))),('confirm',F(B,P,U64,B)),('keyboard',F(B,P,U64,U8,C.POINTER(U8))),('mouse',F(B,P,U64,U8,I8,I8,I8)),('release',F(B,P,U64)),('close',F(B,P,U64)),('forget',F(B,P)),('battery',F(B,P,U64,U8))]
+class Diagnostics(C.Structure):_fields_=[('size',U32),('port_fault',U32),('disconnect_reason',U32),('security_status',U32),('notify_error',I32),('stop_error',I32),('native_close',I32),('notify_failures',U32),('stale_events',U32),('max_poll_gap_ms',U32),('poisoned',U32),('host_stopped',U32)]
+class HidDiagnostics(C.Structure):_fields_=[('base',Hid),('diagnostics',F(B,P,U64,C.POINTER(Diagnostics)))]
 Send=F(B,P,U8,C.POINTER(U8),SZ); Next=F(I32,P,C.POINTER(U8),C.POINTER(U8),SZ,C.POINTER(SZ))
 Claim=F(B,P,C.POINTER(U64)); OwnedSend=F(B,P,U64,U8,C.POINTER(U8),SZ); OwnedNext=F(I32,P,U64,C.POINTER(U8),C.POINTER(U8),SZ,C.POINTER(SZ)); Release=F(I32,P,U64)
 class Host(C.Structure):_fields_=[('version',U32),('size',U32),('ctx',P),('send',Send),('next',Next),('enable',F(B,P,B)),('status',F(B,P,C.POINTER(U8))),('claim',Claim),('send_owned',OwnedSend),('next_owned',OwnedNext),('release',Release)]
@@ -31,7 +33,7 @@ class Fixture:
  def __init__(self,path):
   self.lib=C.CDLL(str(path));self.lib.t5_driver_get.argtypes=[U32];self.lib.t5_driver_get.restype=C.POINTER(Driver)
   self.driver=self.lib.t5_driver_get(2).contents;self.hid=C.cast(self.driver.api,C.POINTER(Hid)).contents
-  self.rx=collections.deque();self.acl=[];self.commands=[];self.kv={};self.time=100;self.lease=0;self.claims=0;self.releases=0;self.fail_send=False;self.fail_close=False;self.fail_write=False;self.drop_ack=False;self.random_counter=0;self.callbacks=[];self.no_credits=False;self.claim_failure=0
+  self.fail_receive=False;self.connection=1;self.rx=collections.deque();self.acl=[];self.commands=[];self.kv={};self.time=100;self.lease=0;self.claims=0;self.releases=0;self.fail_send=False;self.fail_close=False;self.fail_write=False;self.drop_ack=False;self.random_counter=0;self.callbacks=[];self.no_credits=False;self.claim_failure=0
   def wrap(t,fn):v=t(fn);self.callbacks.append(v);return v
   self.host=Host(1,C.sizeof(Host),None,Send(),Next(),F(B,P,B)(),F(B,P,C.POINTER(U8))(),wrap(Claim,self.claim),wrap(OwnedSend,self.send),wrap(OwnedNext,self.next),wrap(Release,self.release))
   self.clock=Clock(1,C.sizeof(Clock),None,wrap(F(U64,P),lambda _:self.time),wrap(F(None,P,U32),self.sleep))
@@ -61,6 +63,7 @@ class Fixture:
  def next(self,_,token,typ,p,cap,size):
   assert token==7 and self.lease and cap>=1028
   size[0]=0
+  if self.fail_receive:return -1
   if not self.rx:return 0
   kind,b=self.rx.popleft();typ[0]=kind;size[0]=len(b);C.memmove(p,b,len(b));return 1
  def event(self,b):self.rx.append((4,bytes(b)))
@@ -104,16 +107,21 @@ class Fixture:
   assert self.hid.open(None,b'RiscRTE HID',True,C.byref(self.t)) and self.t.value
   self.pump(20);assert self.status().state==2,self.describe()
  def status(self):s=Status(C.sizeof(Status));assert self.hid.status(None,self.t,C.byref(s));return s
+ def diagnostics(self):
+  assert self.hid.size>=C.sizeof(HidDiagnostics)
+  d=Diagnostics(C.sizeof(Diagnostics));api=C.cast(self.driver.api,C.POINTER(HidDiagnostics)).contents
+  assert api.diagnostics(None,self.t,C.byref(d));return d
  def describe(self):s=self.status();return (s.state,s.flags,s.error,self.commands)
  def pump(self,n=8):
   for _ in range(n):
    if not self.hid.poll(None,self.t,1):raise AssertionError(self.describe())
    self.time+=1
- def connect(self):
-  # LE Connection Complete: handle1, peripheral role, peer public address.
+ def connect(self,handle=1):
+  self.connection=handle
+  # LE Connection Complete: peripheral role, peer public address.
   self.peer=bytes.fromhex('ca61a06794e0');self.own=bytes.fromhex('33221100450a')
-  self.event(b'\x3e\x13\x01\x00\x01\x00\x01\x00'+self.peer+b'\x18\x00\x00\x00\xc8\x00\x00');self.pump(10)
- def l2cap(self,cid,payload):b=le(len(payload))+le(cid)+payload;self.rx.append((2,b'\x01\x20'+le(len(b))+b));self.pump(10)
+  self.event(b'\x3e\x13\x01\x00'+le(handle)+b'\x01\x00'+self.peer+b'\x18\x00\x00\x00\xc8\x00\x00');self.pump(10)
+ def l2cap(self,cid,payload):b=le(len(payload))+le(cid)+payload;self.rx.append((2,le(self.connection|0x2000)+le(len(b))+b));self.pump(10)
  def outgoing(self,cid):
   found=[];remaining=[]
   for b in self.acl:
@@ -166,6 +174,12 @@ class Fixture:
   self.outgoing(4)
   assert self.status().flags&3==3,self.describe()
   print('ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS')
+ def reconnect(self,handle=2):
+  self.connect(handle)
+  self.event(b'\x3e\x0d\x05'+le(handle)+bytes(10));self.pump()
+  assert [p for op,p in self.commands if op==0x201a][-1][2:]==self.ltk
+  self.event(b'\x08\x04\x00'+le(handle)+b'\x01');self.pump()
+  assert self.status().state==5 and self.status().flags&28==28,self.describe()
  def reports(self):
   self.outgoing(4)
   assert not self.hid.keyboard(None,self.t,0,arr(b'\x04\x04'+bytes(4)))
@@ -298,6 +312,58 @@ def main():
    for _ in range(20):f.hid.poll(None,f.t,1)
    assert not f.status().flags&15
   close_fixture(f);print('Withheld controller credits safely handle '+action+' release/teardown: PASS');return
+ if scenario in ('mouse-reconnect','mouse-no-subscription','mouse-transport-recovery','mouse-receive-recovery','mouse-retained-recovery','mouse-queued-recovery'):
+  f.pair();f.discover();identity={k:v for k,v in f.kv.items() if k!=b'hid_ccc'}
+  # Established pointer motion and a held mouse button before the failure.
+  for _ in range(60):
+   assert f.hid.mouse(None,f.t,1,2,-1,0);f.time+=20;f.pump(8)
+  if scenario.endswith('-recovery'):
+   if scenario=='mouse-receive-recovery':f.fail_receive=True
+   elif scenario=='mouse-queued-recovery':
+    f.no_credits=True
+    for _ in range(9):assert f.hid.mouse(None,f.t,1,2,1,0)
+    f.fail_send=True
+    f.event(b'\x13\x05\x01\x01\x00\x08\x00')
+   else:
+    f.fail_send=True
+    assert not f.hid.mouse(None,f.t,1,3,4,0)
+   assert not f.hid.poll(None,f.t,8)
+   cause=f.diagnostics();assert cause.port_fault==(5 if scenario=='mouse-receive-recovery' else 4)
+   assert f.status().error==12
+   if scenario=='mouse-retained-recovery':
+    f.fail_close=True;assert not f.hid.close(None,f.t);assert f.lease==7
+    assert not f.hid.open(None,b'Retry',False,C.byref(U64()))
+    f.fail_close=False
+   assert f.hid.close(None,f.t);f.t.value=0
+   done=f.diagnostics();assert done.host_stopped and not done.poisoned and done.native_close==1
+   f.fail_send=f.fail_receive=f.no_credits=False
+   assert f.hid.open(None,b'RiscRTE HID',False,C.byref(f.t)), 'A closed transport fault must not require reboot or deleting the host bond'
+   f.pump(20)
+  else:
+   if scenario=='mouse-no-subscription':
+    assert f.hid.release(None,f.t);f.pump()
+    assert b'\x13' in f.att(b'\x12'+le(f.mcc)+b'\x00\x00')
+   f.event(b'\x05\x04\x00\x01\x00\x08');f.pump(20)
+   assert f.status().state==2 and f.status().flags==16,f.describe()
+  f.reconnect(2)
+  before=(f.status().state,f.status().flags,f.status().generation)
+  # Stale controller notifications for the retired handle never affect handle 2.
+  f.event(b'\x08\x04\x05\x01\x00\x00')
+  f.event(b'\x05\x04\x00\x01\x00\x13');f.pump(20)
+  assert (f.status().state,f.status().flags,f.status().generation)==before
+  f.outgoing(4)
+  assert f.att(b'\x0a'+le(f.mouse))==[b'\x0b'+bytes(4)]
+  if scenario=='mouse-no-subscription':
+   assert f.status().flags&1 and not f.status().flags&2
+   assert not f.hid.mouse(None,f.t,0,1,0,0)
+   for _ in range(70):f.time+=20;f.pump(8)
+   assert f.status().state==5 and f.status().flags&1
+   assert b'\x13' in f.att(b'\x12'+le(f.mcc)+b'\x01\x00')
+  assert f.hid.mouse(None,f.t,1,3,-2,0);assert f.hid.mouse(None,f.t,0,0,0,0)
+  f.pump(12)
+  assert {k:v for k,v in f.kv.items() if k!=b'hid_ccc'}==identity
+  close_fixture(f)
+  print('Established mouse, disconnect, saved-LTK reconnect, stale events and unchanged bond ('+scenario+'): PASS');return
  if scenario=='invalid-public-key':
   f.connect();f.smp(bytes([1,1,0,13,16,2,2]));out=f.smp(b'\x0c'+bytes(64));assert any(p[0]==5 for p in out);assert not f.status().flags&12;close_fixture(f);print('Invalid Secure Connections public key rejected: PASS');return
  if scenario=='legacy':
