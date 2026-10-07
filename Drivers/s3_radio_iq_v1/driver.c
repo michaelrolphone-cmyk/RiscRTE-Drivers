@@ -58,6 +58,7 @@
 #define DUMP_BANK_SELECT_REG 0x600C101Cu
 #define DUMP_CTRL_RUN 0x80000000u
 #define DUMP_CTRL_CIRCULAR 0x00024000u
+#define DUMP_CTRL_16MSPS 0x00010000u
 #define DUMP_CONFIG_IQ 0x000C2040u
 #define BB_ENABLE_REG 0x6002600Cu
 #define AGC_CTRL_REG 0x6001C01Cu
@@ -79,6 +80,9 @@
 /* One 64 KiB bank holds 16384 pairs (board.h bank size and circular comment). */
 #define RING_PAIRS (CAPTURE_BANK_BYTES / 4u)
 #define RING_MASK (RING_PAIRS - 1u)
+#define END_GUARD_PAIRS 1024u
+_Static_assert(RISC_RADIO_IQ_MAX_PAIRS + END_GUARD_PAIRS < RING_PAIRS,
+               "one coherent burst must leave a sentinel guard in the leased bank");
 
 /* ESP-IDF rtc_cntl_reg.h / syscon_reg.h / clk_gate_ll.h */
 #define DR_REG_RTCCNTL_BASE 0x60008000u
@@ -108,8 +112,8 @@
 #define WIFI_MAC_CLK_BIT6 (1u << 6)
 
 #define PBUS_TIMEOUT_CYCLES 24000u
-#define RADIO_LO_HZ 2440000000u
-#define RADIO_GAIN 24u
+#define IQ_FIELDS 0x1fff0000u
+#define IQ_MANUAL 0x08000000u
 
 #ifndef RISC_IQ_HOST_TEST
 #define ROM_I2C_READ ((uint8_t (*)(uint8_t, uint8_t, uint8_t))0x40005d48u)
@@ -126,6 +130,8 @@ static const uint8_t dc_block[4] = {3, 3, 2, 2};
 static const uint8_t dc_index[4] = {1, 2, 1, 2};
 
 static bool running;
+static bool capturing;
+static const risc_radio_iq_settings_v1 default_settings = RISC_RADIO_IQ_SETTINGS_DEFAULT;
 static risc_radio_iq_diagnostics_v1 diagnostic_state;
 static const risc_radio_iq_resource_v1 *resource;
 static uint64_t lease;
@@ -144,10 +150,13 @@ static uint32_t saved_registers[sizeof(saved_addresses)/sizeof(saved_addresses[0
 static const uint8_t analog_addresses[][2] = {
     {I2C_RFPLL,0},{I2C_RFPLL,1},{I2C_RFPLL,2},{I2C_RFPLL,11},
     {I2C_SDM,0},{I2C_SDM,3},{I2C_SDM,4},{I2C_SDM,5},
-    {I2C_BB_FILTER,6},{I2C_BB_FILTER,7},{ESP32S3_CKGEN_BLOCK,ESP32S3_CKGEN_REG}
+    {I2C_BB_FILTER,4},{I2C_BB_FILTER,5},{I2C_BB_FILTER,6},{I2C_BB_FILTER,7},
+    {ESP32S3_CKGEN_BLOCK,ESP32S3_CKGEN_REG}
 };
 static uint8_t saved_analog[sizeof(analog_addresses)/sizeof(analog_addresses[0])];
 static bool analog_saved;
+static unsigned saved_dc[4];
+static unsigned changed_dc;
 static void barrier(void) {
 #ifndef RISC_IQ_HOST_TEST
     __asm__ volatile("memw" ::: "memory");
@@ -190,16 +199,14 @@ static void set_pll_manual_capacitor(bool manual) {
     analog_write_bits(I2C_RFPLL, 11, 0x40, manual ? 0x40 : 0);
 }
 
-static bool tune_pll(void) {
-    struct esp32s3_lo_plan plan;
-    if (!esp32s3_plan_lo(RADIO_LO_HZ, ESP32S3_LO_AUTO, &plan)) return false;
+static bool tune_pll(const struct esp32s3_lo_plan *plan) {
     analog_write_bits(ESP32S3_CKGEN_BLOCK, ESP32S3_CKGEN_REG, ESP32S3_CKGEN_5_6_BIT, 0);
     REG(RFPLL_OWNER_REG) |= 1u << 25;
     set_pll_manual_capacitor(false);
     analog_write(I2C_SDM, 0, 0x07);
-    analog_write(I2C_SDM, 3, (uint8_t)(plan.sdm_word >> 16));
-    analog_write(I2C_SDM, 4, (uint8_t)(plan.sdm_word >> 8));
-    analog_write(I2C_SDM, 5, (uint8_t)plan.sdm_word);
+    analog_write(I2C_SDM, 3, (uint8_t)(plan->sdm_word >> 16));
+    analog_write(I2C_SDM, 4, (uint8_t)(plan->sdm_word >> 8));
+    analog_write(I2C_SDM, 5, (uint8_t)plan->sdm_word);
     analog_write(I2C_SDM, 0, 0x17);
     analog_write_bits(I2C_RFPLL, 0, 0x40, 0x40);
     analog_write_bits(I2C_RFPLL, 0, 0x20, 0x00);
@@ -237,7 +244,7 @@ static bool tune_pll(void) {
     if (!best_length) return false;
     set_pll_capacitor(best_start + (best_length - 1) / 2);
     set_pll_manual_capacitor(true);
-    uint8_t mode = plan.mode == ESP32S3_LO_5_6 ? ESP32S3_CKGEN_5_6_BIT : 0;
+    uint8_t mode = plan->mode == ESP32S3_LO_5_6 ? ESP32S3_CKGEN_5_6_BIT : 0;
     analog_write_bits(ESP32S3_CKGEN_BLOCK, ESP32S3_CKGEN_REG, ESP32S3_CKGEN_5_6_BIT, mode);
     return true;
 }
@@ -275,6 +282,9 @@ static bool release_receiver(void) {
         /* Do not short-circuit: both transmit groups are always explicitly off. */
         ok = pbus_write(4, 1, 0) && ok;
         ok = pbus_write(5, 1, 0) && ok;
+        for (unsigned r = 0; r < 4; ++r)
+            if (changed_dc & (1u << r))
+                ok = pbus_write(dc_block[r], dc_index[r], saved_dc[r]) && ok;
         ok = pbus_write(0, 1, 0) && ok;
         ok = pbus_write(1, 1, 0) && ok;
         ok = pbus_write(1, 2, 0) && ok;
@@ -286,6 +296,7 @@ static bool release_receiver(void) {
             REG(saved_addresses[i]) = saved_registers[i];
         barrier();
         restored = true;
+        changed_dc = 0;
     }
     if (!resource->release(resource->context, lease)) return false;
     lease = 0;
@@ -293,10 +304,17 @@ static bool release_receiver(void) {
     return true;
 }
 
-static int configure_receiver(void) {
+static uint32_t dump_control(const risc_radio_iq_settings_v1 *settings) {
+    return DUMP_CTRL_CIRCULAR | (settings->sample_rate_hz == 16000000u ? DUMP_CTRL_16MSPS : 0);
+}
+
+static int configure_receiver(const risc_radio_iq_settings_v1 *settings,
+                              const struct esp32s3_lo_plan *plan,
+                              risc_radio_iq_format_v1 *format) {
     park_receiver();
-    REG(FE_WIDTH_REG) = (REG(FE_WIDTH_REG) & ~0x003F0000u) | 0x00120000u;
-    REG(BB_ENABLE_REG) = (REG(BB_ENABLE_REG) & ~0xCu) | 0x4u;
+    bool wide = settings->bandwidth_hz == 40000000u;
+    REG(FE_WIDTH_REG) = (REG(FE_WIDTH_REG) & ~0x003F0000u) | (wide ? 0x00120000u : 0);
+    REG(BB_ENABLE_REG) = (REG(BB_ENABLE_REG) & ~0xCu) | (wide ? 0x4u : 0);
     REG(BB_ENABLE_REG) |= 0x10000000u;
     REG(BB_ENABLE_REG) &= ~2u;
     ROM_DELAY_US(1);
@@ -304,13 +322,16 @@ static int configure_receiver(void) {
     REG(AGC_CTRL_REG) = (REG(AGC_CTRL_REG) & 0xFF00FFFFu) | 0x007F0000u;
     REG(AGC_DISABLE_REG) |= 0x80u;
     REG(AGC_RX_FORCE_REG) |= 1u;
-    REG(AGC_GAIN_FORCE_REG) = (REG(AGC_GAIN_FORCE_REG) & 0x007FFFFFu) | (RADIO_GAIN << 24) | 0x00800000u;
+    REG(AGC_GAIN_FORCE_REG) = (REG(AGC_GAIN_FORCE_REG) & 0x007FFFFFu) | (settings->gain_selector << 24) | 0x00800000u;
     REG(PBUS_STATUS_REG) |= 0xC000u;
-    analog_write(I2C_BB_FILTER, 6, 0);
-    analog_write(I2C_BB_FILTER, 7, 0);
+    unsigned filter_reg = wide ? 6 : 4;
+    analog_write(I2C_BB_FILTER, filter_reg, settings->filter & 63u);
+    analog_write(I2C_BB_FILTER, filter_reg + 1, (settings->filter >> 8) & 63u);
     ROM_DELAY_US(100);
     unsigned bb = (REG(PBUS_BB_GAIN_REG) >> 9) & 511u;
     unsigned rf = (REG(PBUS_RF_GAIN_REG) >> 18) & 511u;
+    if (settings->bb_gain != RISC_RADIO_IQ_AUTO) bb = 0x180u | settings->bb_gain;
+    if (settings->rf_gain != RISC_RADIO_IQ_AUTO) rf = settings->rf_gain;
     REG(PBUS_MODE_REG) &= ~0x08000000u;
     REG(PBUS_CTRL_REG) |= 1u;
     REG(BB_ENABLE_REG) &= ~2u;
@@ -319,16 +340,32 @@ static int configure_receiver(void) {
     bool tx5_off = pbus_write(5, 1, 0);
     bool ok = tx4_off && tx5_off && pbus_write(0, 1, 0x184) &&
               pbus_write(1, 1, 0x189) && pbus_write(1, 2, rf) && pbus_write(0, 1, bb);
-    for (unsigned r = 0; r < 4 && ok; r++)
-        (void)(ROM_PBUS_RD(dc_block[r], dc_index[r]) & 511u);
+    for (unsigned r = 0; r < 4 && ok; r++) {
+        saved_dc[r] = ROM_PBUS_RD(dc_block[r], dc_index[r]) & 511u;
+        format->dc[r] = saved_dc[r];
+        if (settings->dc[r] != RISC_RADIO_IQ_AUTO && settings->dc[r] != saved_dc[r]) {
+            /* A failed write can still have reached hardware. Keep the old
+             * code and dirty bit until all cleanup writes have succeeded. */
+            changed_dc |= 1u << r;
+            ok = pbus_write(dc_block[r], dc_index[r], settings->dc[r]);
+            format->dc[r] = settings->dc[r];
+        }
+    }
+    if (settings->iq_correction != RISC_RADIO_IQ_AUTO)
+        REG(IQ_CORRECTION_REG) = (REG(IQ_CORRECTION_REG) & ~IQ_FIELDS) | IQ_MANUAL |
+            ((settings->iq_correction & 31u) << 16) | (((settings->iq_correction >> 8) & 63u) << 21);
+    format->rf_gain = rf;
+    format->bb_gain = bb & 127u;
+    uint32_t iq = REG(IQ_CORRECTION_REG);
+    format->iq_correction = ((iq >> 16) & 31u) | (((iq >> 21) & 63u) << 8);
     if (!ok) return RISC_RADIO_IQ_PBUS_FAILED;
     REG(DUMP_CONFIG_REG) = DUMP_CONFIG_IQ;
     ROM_DELAY_US(100);
-    REG(DUMP_CTRL_REG) = DUMP_CTRL_CIRCULAR;
+    REG(DUMP_CTRL_REG) = dump_control(settings);
     /* Keep a strict CPU-owned initialization window: no MAC bank selection
      * until sentinel initialization is complete. */
     REG(DUMP_BANK_SELECT_REG) &= ~15u;
-    uint8_t mode = 0; /* 2440 MHz plans as normal conversion. */
+    uint8_t mode = plan->mode == ESP32S3_LO_5_6 ? ESP32S3_CKGEN_5_6_BIT : 0;
     analog_write_bits(ESP32S3_CKGEN_BLOCK, ESP32S3_CKGEN_REG, ESP32S3_CKGEN_5_6_BIT, mode);
     ROM_DELAY_US(3000);
     if ((analog_read(ESP32S3_CKGEN_BLOCK, ESP32S3_CKGEN_REG) & ESP32S3_CKGEN_5_6_BIT) != mode)
@@ -352,7 +389,9 @@ static void trace_registers(risc_radio_iq_trace_v1 trace,void *context) {
     }
     trace_stage(trace,context,line);
 }
-static int bring_up(risc_radio_iq_trace_v1 trace,void *trace_context) {
+static int bring_up(const risc_radio_iq_settings_v1 *settings,
+                    const struct esp32s3_lo_plan *plan, risc_radio_iq_format_v1 *format,
+                    risc_radio_iq_trace_v1 trace,void *trace_context) {
     trace_stage(trace,trace_context,"register-snapshot");
     for (unsigned i = 0; i < sizeof(saved_registers)/sizeof(saved_registers[0]); ++i)
         saved_registers[i] = REG(saved_addresses[i]);
@@ -368,13 +407,14 @@ static int bring_up(risc_radio_iq_trace_v1 trace,void *trace_context) {
     diagnostic_state.clock_mask = REG(SYSTEM_WIFI_CLK_EN_REG);
     trace_stage(trace,trace_context,"pll-tune");
     diagnostic_state.stage = RISC_RADIO_IQ_STAGE_PLL;
-    if (!tune_pll()) return RISC_RADIO_IQ_PLL_FAILED;
+    if (!tune_pll(plan)) return RISC_RADIO_IQ_PLL_FAILED;
     trace_stage(trace,trace_context,"receiver-configure");
     diagnostic_state.stage = RISC_RADIO_IQ_STAGE_RECEIVER;
-    return configure_receiver();
+    return configure_receiver(settings,plan,format);
 }
 
-static int copy_burst(uint32_t *pairs,uint32_t count,risc_radio_iq_trace_v1 trace,void *trace_context) {
+static int copy_burst(uint32_t *pairs,uint32_t count,uint32_t control,
+                     risc_radio_iq_trace_v1 trace,void *trace_context) {
 #ifdef RISC_IQ_HOST_TEST
     volatile uint32_t *bank = iq_test_bank();
 #else
@@ -390,10 +430,10 @@ static int copy_burst(uint32_t *pairs,uint32_t count,risc_radio_iq_trace_v1 trac
     for (unsigned i = 0; i < RING_PAIRS; ++i) bank[i] = sentinel;
     barrier();
     trace_stage(trace,trace_context,"dump-start");
-    REG(DUMP_CTRL_REG) = DUMP_CTRL_CIRCULAR;
+    REG(DUMP_CTRL_REG) = control;
     REG(DUMP_BANK_SELECT_REG) = (REG(DUMP_BANK_SELECT_REG) & ~15u) | 1u;
     barrier();
-    REG(DUMP_CTRL_REG) = DUMP_CTRL_CIRCULAR | DUMP_CTRL_RUN;
+    REG(DUMP_CTRL_REG) = control | DUMP_CTRL_RUN;
     uint32_t began = cpu_cycles();
     bool ready = false, observed_progress = false;
     uint32_t previous = REG(DUMP_WRITE_INDEX_REG) & RING_MASK, produced = 0;
@@ -414,7 +454,7 @@ static int copy_burst(uint32_t *pairs,uint32_t count,risc_radio_iq_trace_v1 trac
     /* STOP can reset the hardware cursor. Preserve the live reference first;
      * it is only a search origin, because writes can still be in flight. */
     uint32_t stop_reference = REG(DUMP_WRITE_INDEX_REG) & RING_MASK;
-    REG(DUMP_CTRL_REG) = DUMP_CTRL_CIRCULAR;
+    REG(DUMP_CTRL_REG) = control;
     barrier();
     REG(DUMP_BANK_SELECT_REG) &= ~15u;
     ROM_DELAY_US(1);
@@ -430,11 +470,11 @@ static int copy_burst(uint32_t *pairs,uint32_t count,risc_radio_iq_trace_v1 trac
      * Never use the post-STOP cursor, and fail closed if preemption filled the
      * entire guard region (there is then no unambiguous sentinel boundary). */
     uint32_t end = stop_reference, guard = 0;
-    while (guard < 1024u && bank[end] != sentinel) {
+    while (guard < END_GUARD_PAIRS && bank[end] != sentinel) {
         end = (end + 1u) & RING_MASK;
         ++guard;
     }
-    if (guard == 1024u) return RISC_RADIO_IQ_DUMP_TIMEOUT;
+    if (guard == END_GUARD_PAIRS) return RISC_RADIO_IQ_DUMP_TIMEOUT;
     diagnostic_state.dump_after = end;
     uint32_t at = (end - count) & RING_MASK;
     for (uint32_t i = 0; i < count; i++) {
@@ -447,42 +487,142 @@ static int copy_burst(uint32_t *pairs,uint32_t count,risc_radio_iq_trace_v1 trac
 
 static bool suspend_receiver(void *context) {
     (void)context;
-    return release_receiver();
+    return !capturing && release_receiver();
 }
 
 static int capture_result(int result) {
     diagnostic_state.result = result;
     return result;
 }
-static int capture_burst_traced(void *context,uint32_t *pairs,uint32_t count,
-                                risc_radio_iq_trace_v1 trace,void *trace_context) {
-    (void)context;
-    diagnostic_state = (risc_radio_iq_diagnostics_v1){.struct_size=sizeof(diagnostic_state),
-        .stage=RISC_RADIO_IQ_STAGE_IDLE,.requested_pairs=count};
-    if (!pairs || count == 0 || count > RISC_RADIO_IQ_PAIRS) return capture_result(RISC_RADIO_IQ_BAD_ARGUMENT);
-    if (!running) return capture_result(RISC_RADIO_IQ_NOT_RUNNING);
+static bool valid_settings(const risc_radio_iq_settings_v1 *settings,
+                           struct esp32s3_lo_plan *plan) {
+    if (settings->struct_size < sizeof(*settings) ||
+        !esp32s3_plan_lo(settings->center_hz,ESP32S3_LO_AUTO,plan) ||
+        (settings->sample_rate_hz != 16000000u && settings->sample_rate_hz != 80000000u) ||
+        (settings->bandwidth_hz != 20000000u && settings->bandwidth_hz != 40000000u) ||
+        settings->gain_selector > 127u ||
+        (settings->rf_gain != RISC_RADIO_IQ_AUTO && settings->rf_gain > 511u) ||
+        (settings->bb_gain != RISC_RADIO_IQ_AUTO && settings->bb_gain > 127u) ||
+        (settings->filter & ~0x3f3fu) ||
+        (settings->iq_correction != RISC_RADIO_IQ_AUTO && (settings->iq_correction & ~0x3f1fu)))
+        return false;
+    for (unsigned r = 0; r < 4; ++r)
+        if (settings->dc[r] != RISC_RADIO_IQ_AUTO && settings->dc[r] > 511u) return false;
+    return true;
+}
+
+static int execute_capture(uint32_t *pairs,uint32_t count,
+                           const risc_radio_iq_settings_v1 *settings,
+                           const struct esp32s3_lo_plan *plan,risc_radio_iq_format_v1 *format,
+                           risc_radio_iq_trace_v1 trace,void *trace_context) {
+    int status = RISC_RADIO_IQ_NOT_RUNNING;
+    if (!running) return status;
+    capturing = true;
     diagnostic_state.stage = RISC_RADIO_IQ_STAGE_CLEANUP;
-    if (lease && !release_receiver()) return capture_result(RISC_RADIO_IQ_CLEANUP_RETAINED);
+    if (lease && !release_receiver()) { status = RISC_RADIO_IQ_CLEANUP_RETAINED; goto done; }
     diagnostic_state.stage = RISC_RADIO_IQ_STAGE_CLAIM;
     trace_stage(trace,trace_context,"native-claim");
     if (!resource->claim(resource->context, &lease)) {
         /* Failed admission cannot authorize any modem/ROM/SRAM access. */
-        if (lease) { restored = true; return capture_result(RISC_RADIO_IQ_CLEANUP_RETAINED); }
-        return capture_result(RISC_RADIO_IQ_BUSY);
+        if (lease) { restored = true; status = RISC_RADIO_IQ_CLEANUP_RETAINED; }
+        else status = RISC_RADIO_IQ_BUSY;
+        goto done;
     }
-    if (!lease) return capture_result(RISC_RADIO_IQ_BUSY);
+    if (!lease) { status = RISC_RADIO_IQ_BUSY; goto done; }
     trace_stage(trace,trace_context,"native-ready");
-    int status = bring_up(trace,trace_context);
-    if (status == RISC_RADIO_IQ_OK) status = copy_burst(pairs,count,trace,trace_context);
+    status = bring_up(settings,plan,format,trace,trace_context);
+    if (status == RISC_RADIO_IQ_OK) status = copy_burst(pairs,count,dump_control(settings),trace,trace_context);
     trace_stage(trace,trace_context,"cleanup-begin");
     diagnostic_state.cleanup_ok = release_receiver();
     trace_stage(trace,trace_context,diagnostic_state.cleanup_ok?"cleanup-complete":"cleanup-retained");
-    if (!diagnostic_state.cleanup_ok) return capture_result(RISC_RADIO_IQ_CLEANUP_RETAINED);
+    if (!diagnostic_state.cleanup_ok) status = RISC_RADIO_IQ_CLEANUP_RETAINED;
     if (status == RISC_RADIO_IQ_OK) diagnostic_state.stage = RISC_RADIO_IQ_STAGE_COMPLETE;
+done:
+    capturing = false;
+    return status;
+}
+
+static int capture_with_settings(uint32_t *pairs,uint32_t count,uint32_t maximum,
+                                  const risc_radio_iq_settings_v1 *requested,
+                                  risc_radio_iq_format_v1 *format,
+                                  risc_radio_iq_trace_v1 trace,void *trace_context) {
+    /* A synchronous trace callback cannot start another capture or release the
+     * outer capture's lease. Normal API consumers serialize their calls. */
+    if (capturing) {
+        if (pairs && count && count <= maximum) memset(pairs,0,count*sizeof(*pairs));
+        if (format && format->struct_size >= sizeof(*format))
+            *format = (risc_radio_iq_format_v1){.struct_size=sizeof(*format)};
+        return RISC_RADIO_IQ_BUSY;
+    }
+    diagnostic_state = (risc_radio_iq_diagnostics_v1){.struct_size=sizeof(diagnostic_state),
+        .stage=RISC_RADIO_IQ_STAGE_IDLE,.requested_pairs=count};
+    bool valid_output = pairs && count && count <= maximum;
+    bool valid_format = format && format->struct_size >= sizeof(*format);
+    /* Copy caller settings before clearing outputs; never retain pointers. */
+    risc_radio_iq_settings_v1 settings = default_settings;
+    bool settings_sized = !requested || requested->struct_size >= sizeof(*requested);
+    if (requested && settings_sized) settings = *requested;
+    if (valid_format) *format = (risc_radio_iq_format_v1){.struct_size=sizeof(*format)};
+    if (valid_output) memset(pairs,0,count*sizeof(*pairs));
+    struct esp32s3_lo_plan plan;
+    if (!valid_output || !valid_format || !settings_sized || !valid_settings(&settings,&plan))
+        return capture_result(RISC_RADIO_IQ_BAD_ARGUMENT);
+    risc_radio_iq_format_v1 acquired = {
+        .struct_size=sizeof(acquired),
+        .flags=RISC_RADIO_IQ_FLAG_COHERENT_BURST | RISC_RADIO_IQ_FLAG_NOMINAL_FREQUENCIES |
+               RISC_RADIO_IQ_FLAG_UNCALIBRATED_AMPLITUDE,
+        .center_hz=plan.lo_hz,.sample_rate_hz=settings.sample_rate_hz,
+        .bandwidth_hz=settings.bandwidth_hz,.pair_count=count,
+        .sample_format=RISC_RADIO_IQ_FORMAT_S10_I0_Q10,.component_bits=10,
+        .component_full_scale=512,.lo_mode=plan.mode
+    };
+    int status = execute_capture(pairs,count,&settings,&plan,&acquired,trace,trace_context);
+    if (status == RISC_RADIO_IQ_OK) *format = acquired;
+    else memset(pairs,0,count*sizeof(*pairs));
     return capture_result(status);
+}
+
+static int capture_burst_traced(void *context,uint32_t *pairs,uint32_t count,
+                                risc_radio_iq_trace_v1 trace,void *trace_context) {
+    (void)context;
+    risc_radio_iq_format_v1 format = {.struct_size=sizeof(format)};
+    return capture_with_settings(pairs,count,RISC_RADIO_IQ_PAIRS,NULL,&format,trace,trace_context);
 }
 static int capture_burst(void *context,uint32_t *pairs,uint32_t count) {
     return capture_burst_traced(context,pairs,count,NULL,NULL);
+}
+static int capture_configured_traced(void *context,uint32_t *pairs,uint32_t count,
+                                     const risc_radio_iq_settings_v1 *settings,
+                                     risc_radio_iq_format_v1 *format,
+                                     risc_radio_iq_trace_v1 trace,void *trace_context) {
+    (void)context;
+    return capture_with_settings(pairs,count,RISC_RADIO_IQ_MAX_PAIRS,settings,format,trace,trace_context);
+}
+static int capture_configured(void *context,uint32_t *pairs,uint32_t count,
+                              const risc_radio_iq_settings_v1 *settings,
+                              risc_radio_iq_format_v1 *format) {
+    return capture_configured_traced(context,pairs,count,settings,format,NULL,NULL);
+}
+static bool capabilities(void *context,risc_radio_iq_capabilities_v1 *out) {
+    (void)context;
+    if (!out || out->struct_size < sizeof(*out)) return false;
+    *out = (risc_radio_iq_capabilities_v1){
+        .struct_size=sizeof(*out),
+        .flags=RISC_RADIO_IQ_FLAG_COHERENT_BURST | RISC_RADIO_IQ_FLAG_NOMINAL_FREQUENCIES |
+               RISC_RADIO_IQ_FLAG_UNCALIBRATED_AMPLITUDE,
+        .controls=RISC_RADIO_IQ_CONTROL_CENTER | RISC_RADIO_IQ_CONTROL_RATE |
+            RISC_RADIO_IQ_CONTROL_BANDWIDTH | RISC_RADIO_IQ_CONTROL_GAIN |
+            RISC_RADIO_IQ_CONTROL_RF_GAIN | RISC_RADIO_IQ_CONTROL_BB_GAIN |
+            RISC_RADIO_IQ_CONTROL_FILTER | RISC_RADIO_IQ_CONTROL_DC | RISC_RADIO_IQ_CONTROL_IQ,
+        .min_pairs=1,.max_pairs=RISC_RADIO_IQ_MAX_PAIRS,
+        .center_min_hz=ESP32S3_LO_MIN_HZ,.center_max_hz=ESP32S3_PLL_MAX_HZ,
+        .sample_rates_hz={16000000u,80000000u},.bandwidths_hz={20000000u,40000000u},
+        .gain_selector_max=127,.rf_gain_max=511,.bb_gain_max=127,
+        .filter_mask=0x3f3f,.dc_max=511,.iq_correction_mask=0x3f1f,.automatic_value=RISC_RADIO_IQ_AUTO,
+        .sample_format=RISC_RADIO_IQ_FORMAT_S10_I0_Q10,.component_bits=10,.component_full_scale=512,
+        .defaults=RISC_RADIO_IQ_SETTINGS_DEFAULT
+    };
+    return true;
 }
 static bool diagnostics(void *context, risc_radio_iq_diagnostics_v1 *out) {
     (void)context;
@@ -507,25 +647,26 @@ static bool start(const risc_provider_dependency_v1 *deps, size_t count) {
 }
 
 static void stop(void) {
-    if (!release_receiver()) return;
+    if (capturing || !release_receiver()) return;
     running = false;
     resource = NULL;
 }
 
 static bool quiesce(void) {
-    if (!release_receiver()) return false;
+    if (capturing || !release_receiver()) return false;
     running = false;
     return true;
 }
 
-static const risc_radio_iq_diagnostics_api_v1 api = {
-    {RISC_RADIO_IQ_API_V1, sizeof(risc_radio_iq_diagnostics_api_v1), 0, capture_burst, suspend_receiver}, diagnostics, capture_burst_traced
+static const risc_radio_iq_extended_api_v1 api = {
+    {{RISC_RADIO_IQ_API_V1, sizeof(risc_radio_iq_extended_api_v1), 0, capture_burst, suspend_receiver},
+      diagnostics, capture_burst_traced}, capabilities, capture_configured, capture_configured_traced
 };
 
 static const risc_driver_v2 driver = {
     RISC_PROVIDER_DRIVER_ABI_V2, sizeof(risc_driver_v2),
     "s3-radio-iq-v1", "radio.iq", RISC_RADIO_IQ_API_V1,
-    &api.base, start, stop, quiesce
+    &api.base.base, start, stop, quiesce
 };
 
 __attribute__((visibility("default")))
