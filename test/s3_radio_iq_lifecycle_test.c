@@ -29,7 +29,8 @@ volatile uint32_t *iq_test_register(uint32_t address) {
 volatile uint32_t *iq_test_bank(void){assert(native_lease);return bank_words;}
 uint32_t iq_test_cycles(void){
     assert(native_lease);cycles+=24001;
-    if(dump_ok && (*raw_register(DUMP_CTRL_REG)&DUMP_CTRL_RUN)) {
+    if(dump_ok && (*raw_register(SYSTEM_WIFI_CLK_EN_REG)&WIFI_MAC_CLK_BIT6) &&
+       (*raw_register(DUMP_CTRL_REG)&DUMP_CTRL_RUN)) {
         unsigned end=wrap?128:512;
         for(unsigned i=0;i<(wrap?RING_PAIRS:512);++i)bank_words[i]=i&0xfffff;
         *raw_register(DUMP_WRITE_INDEX_REG)=end;
@@ -85,9 +86,20 @@ int main(void){
         assert(*raw_register(RTC_CNTL_DIG_ISO_REG)==RTC_CNTL_WIFI_FORCE_ISO);
         assert(*raw_register(SYSTEM_WIFI_CLK_EN_REG)==0x10000000);
         assert(analog_regs[I2C_SDM][0]==0xab);
+        risc_radio_iq_diagnostics_v1 detail={.struct_size=sizeof(detail)};
+        unsigned before_reads=accesses;
+        assert(diagnostics(NULL,&detail) && accesses==before_reads);
+        assert(detail.stage==RISC_RADIO_IQ_STAGE_COMPLETE && detail.result==RISC_RADIO_IQ_OK);
+        assert(detail.clock_mask==(0x10000000|WIFI_MAC_CLK_BIT6));
+        assert(detail.dump_ready && detail.cleanup_ok && detail.requested_pairs==256);
+        assert(detail.dump_before==12345 && detail.dump_after==(wrap?128u:512u));
     }
     pll_ok=false;assert(capture_burst(NULL,pairs+1,256)==RISC_RADIO_IQ_PLL_FAILED);assert(!native_lease);pll_ok=true;
     dump_ok=false;assert(capture_burst(NULL,pairs+1,256)==RISC_RADIO_IQ_DUMP_TIMEOUT);assert(!native_lease);dump_ok=true;
+    assert(diagnostic_state.stage==RISC_RADIO_IQ_STAGE_DUMP && !diagnostic_state.dump_ready && diagnostic_state.cleanup_ok);
+    assert(diagnostic_state.result==RISC_RADIO_IQ_DUMP_TIMEOUT);
+    assert(diagnostic_state.elapsed_cycles>PBUS_TIMEOUT_CYCLES*100u);
+    assert(!diagnostics(NULL,NULL));risc_radio_iq_diagnostics_v1 short_record={.struct_size=1};assert(!diagnostics(NULL,&short_record));
     pbus_ok=false;assert(capture_burst(NULL,pairs+1,256)==RISC_RADIO_IQ_CLEANUP_RETAINED);assert(native_lease && lease);
     assert(!quiesce());stop();assert(running && lease);pbus_ok=true;assert(suspend_receiver(NULL));assert(!lease);
     release_ok=false;assert(capture_burst(NULL,pairs+1,256)==RISC_RADIO_IQ_CLEANUP_RETAINED);assert(lease && restored);

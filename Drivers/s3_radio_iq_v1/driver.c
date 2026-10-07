@@ -126,6 +126,7 @@ static const uint8_t dc_block[4] = {3, 3, 2, 2};
 static const uint8_t dc_index[4] = {1, 2, 1, 2};
 
 static bool running;
+static risc_radio_iq_diagnostics_v1 diagnostic_state;
 static const risc_radio_iq_resource_v1 *resource;
 static uint64_t lease;
 static bool restored;
@@ -339,7 +340,14 @@ static int bring_up(void) {
     for (unsigned i = 0; i < sizeof(saved_analog); ++i)
         saved_analog[i] = analog_read(analog_addresses[i][0], analog_addresses[i][1]);
     analog_saved = true;
+    /* IDF PHY calibration does not enable the dump engine's MAC clock bit.
+     * Preserve calibrated modem state and restore this one owned bit on exit. */
+    REG(SYSTEM_WIFI_CLK_EN_REG) |= WIFI_MAC_CLK_BIT6;
+    barrier();
+    diagnostic_state.clock_mask = REG(SYSTEM_WIFI_CLK_EN_REG);
+    diagnostic_state.stage = RISC_RADIO_IQ_STAGE_PLL;
     if (!tune_pll()) return RISC_RADIO_IQ_PLL_FAILED;
+    diagnostic_state.stage = RISC_RADIO_IQ_STAGE_RECEIVER;
     return configure_receiver();
 }
 
@@ -349,6 +357,8 @@ static int copy_burst(uint32_t *pairs, uint32_t count) {
 #else
     volatile uint32_t *bank = (volatile uint32_t *)(uintptr_t)resource->bank_base;
 #endif
+    diagnostic_state.stage = RISC_RADIO_IQ_STAGE_DUMP;
+    diagnostic_state.dump_before = REG(DUMP_WRITE_INDEX_REG) & RING_MASK;
     /* A dump can reset its index and may wrap while the task is preempted.
      * Sentinel initialization and the final stopped index select only samples
      * written by this invocation, never the stale pre-start cursor. */
@@ -369,12 +379,16 @@ static int copy_burst(uint32_t *pairs, uint32_t count) {
         }
         if (cpu_cycles() - began > PBUS_TIMEOUT_CYCLES * 100u) break;
     }
+    diagnostic_state.elapsed_cycles = cpu_cycles() - began;
+    diagnostic_state.dump_ready = ready;
     REG(DUMP_CTRL_REG) = DUMP_CTRL_CIRCULAR;
     barrier();
     REG(DUMP_BANK_SELECT_REG) &= ~15u;
     ROM_DELAY_US(1);
     barrier();
+    diagnostic_state.dump_after = REG(DUMP_WRITE_INDEX_REG) & RING_MASK;
     if (!ready) return RISC_RADIO_IQ_DUMP_TIMEOUT;
+    diagnostic_state.stage = RISC_RADIO_IQ_STAGE_COPY;
     uint32_t at = (REG(DUMP_WRITE_INDEX_REG) - count) & RING_MASK;
     for (uint32_t i = 0; i < count; i++) {
         uint32_t sample = bank[(at + i) & RING_MASK];
@@ -389,21 +403,37 @@ static bool suspend_receiver(void *context) {
     return release_receiver();
 }
 
+static int capture_result(int result) {
+    diagnostic_state.result = result;
+    return result;
+}
 static int capture_burst(void *context, uint32_t *pairs, uint32_t count) {
     (void)context;
-    if (!pairs || count == 0 || count > RISC_RADIO_IQ_PAIRS) return RISC_RADIO_IQ_BAD_ARGUMENT;
-    if (!running) return RISC_RADIO_IQ_NOT_RUNNING;
-    if (lease && !release_receiver()) return RISC_RADIO_IQ_CLEANUP_RETAINED;
+    diagnostic_state = (risc_radio_iq_diagnostics_v1){.struct_size=sizeof(diagnostic_state),
+        .stage=RISC_RADIO_IQ_STAGE_IDLE,.requested_pairs=count};
+    if (!pairs || count == 0 || count > RISC_RADIO_IQ_PAIRS) return capture_result(RISC_RADIO_IQ_BAD_ARGUMENT);
+    if (!running) return capture_result(RISC_RADIO_IQ_NOT_RUNNING);
+    diagnostic_state.stage = RISC_RADIO_IQ_STAGE_CLEANUP;
+    if (lease && !release_receiver()) return capture_result(RISC_RADIO_IQ_CLEANUP_RETAINED);
+    diagnostic_state.stage = RISC_RADIO_IQ_STAGE_CLAIM;
     if (!resource->claim(resource->context, &lease)) {
         /* Failed admission cannot authorize any modem/ROM/SRAM access. */
-        if (lease) { restored = true; return RISC_RADIO_IQ_CLEANUP_RETAINED; }
-        return RISC_RADIO_IQ_BUSY;
+        if (lease) { restored = true; return capture_result(RISC_RADIO_IQ_CLEANUP_RETAINED); }
+        return capture_result(RISC_RADIO_IQ_BUSY);
     }
-    if (!lease) return RISC_RADIO_IQ_BUSY;
+    if (!lease) return capture_result(RISC_RADIO_IQ_BUSY);
     int status = bring_up();
     if (status == RISC_RADIO_IQ_OK) status = copy_burst(pairs, count);
-    if (!release_receiver()) return RISC_RADIO_IQ_CLEANUP_RETAINED;
-    return status;
+    diagnostic_state.cleanup_ok = release_receiver();
+    if (!diagnostic_state.cleanup_ok) return capture_result(RISC_RADIO_IQ_CLEANUP_RETAINED);
+    if (status == RISC_RADIO_IQ_OK) diagnostic_state.stage = RISC_RADIO_IQ_STAGE_COMPLETE;
+    return capture_result(status);
+}
+static bool diagnostics(void *context, risc_radio_iq_diagnostics_v1 *out) {
+    (void)context;
+    if (!out || out->struct_size < sizeof(*out)) return false;
+    *out = diagnostic_state;
+    return true;
 }
 
 static bool start(const risc_provider_dependency_v1 *deps, size_t count) {
@@ -433,14 +463,14 @@ static bool quiesce(void) {
     return true;
 }
 
-static const risc_radio_iq_api_v1 api = {
-    RISC_RADIO_IQ_API_V1, sizeof(risc_radio_iq_api_v1), 0, capture_burst, suspend_receiver
+static const risc_radio_iq_diagnostics_api_v1 api = {
+    {RISC_RADIO_IQ_API_V1, sizeof(risc_radio_iq_diagnostics_api_v1), 0, capture_burst, suspend_receiver}, diagnostics
 };
 
 static const risc_driver_v2 driver = {
     RISC_PROVIDER_DRIVER_ABI_V2, sizeof(risc_driver_v2),
     "s3-radio-iq-v1", "radio.iq", RISC_RADIO_IQ_API_V1,
-    &api, start, stop, quiesce
+    &api.base, start, stop, quiesce
 };
 
 __attribute__((visibility("default")))
