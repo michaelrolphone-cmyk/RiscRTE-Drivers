@@ -12,6 +12,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 SHA = re.compile(r"[0-9a-f]{40}\Z")
+SHARED_SOURCE_DIRS = frozenset({"Drivers/common"})
 VERSION = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+\Z")
 
 
@@ -87,8 +88,24 @@ class Source:
                 _, kind, digest = meta.split()
                 if kind == 'tree':
                     rows.append({'path': path, 'sha': digest})
-            return rows
-        return [r for r in self.api('contents/Drivers', sha) if r['type'] == 'dir']
+        else:
+            rows = [r for r in self.api('contents/Drivers', sha) if r['type'] == 'dir']
+        result = []
+        for row in rows:
+            if row['path'] in SHARED_SOURCE_DIRS:
+                # This exact documented include directory is not a package.
+                # Inspect the resolved tree; never suppress a failed read/404.
+                if self.reader:
+                    names = [line.split('\t', 1)[1] for line in self.git('ls-tree', row['sha']).splitlines()]
+                else:
+                    tree = self.api('git/trees/' + row['sha'])
+                    if tree.get('truncated'): raise ValueError('truncated shared source tree')
+                    names = [entry['path'] for entry in tree['tree']]
+                if 'manifest.json' in names:
+                    raise ValueError('shared source directory became a package: ' + row['path'])
+                continue
+            result.append(row)
+        return result
 
 
 def unique(rows, context):
@@ -161,12 +178,24 @@ def validate(root, inventory, trees, source, released, head, release):
             errors.append(f'{identity}: {state} source drift (preserve/reconcile local edits)')
         if baseline != upstream['tree_sha']:
             errors.append(f'{identity}: recorded source tree needs refresh')
+    original = unique(inventory.get('original_drivers', []), 'original')
+    for identity, entry in original.items():
+        path = entry.get('source_path', '')
+        if identity in entries or identity in source or not re.fullmatch(r'Drivers/[A-Za-z0-9_-]+', path) or path in paths:
+            errors.append('invalid original driver identity/path: ' + identity)
+            continue
+        paths.add(path)
+        manifest = json.loads((root / path / 'manifest.json').read_text())
+        actual = local_tree(root / path)
+        if manifest.get('id') != identity or manifest.get('version') != entry['version'] or manifest.get('status') != 'experimental-unpublished' or actual != entry.get('source_tree_sha'):
+            errors.append('original driver custody mismatch: ' + identity)
+        rows.append({'id':identity,'path':path,'local_tree':actual,'state':'original-experimental','upstream_tree':None})
     for path in (root / 'Drivers').iterdir():
         if (path.is_dir() or path.is_symlink()) and 'Drivers/' + path.name not in paths:
             errors.append('untracked local source directory: ' + path.name)
     return {'source_repository': origin['repository'], 'source_commit': head,
             'release_index_commit': release, 'recorded_source_commit': trees['source_master_sha'],
-            'released_count': len(released), 'source_count': len(source),
+            'released_count': len(released), 'source_count': len(source), 'original_count': len(original),
             'files_scope': 'actual driver directory bytes and modes; SDK/build/runtime excluded',
             'drivers': rows, 'errors': errors}
 

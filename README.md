@@ -101,3 +101,12 @@ Until Michael explicitly declares `RiscRTE-Drivers` the source repository for dr
 ## Xteink X4 Pro board package
 
 Board-specific loadable ELFs live in `boards/xteink-x4-pro/` and are outside the T5S3 `Drivers/` parity set. They use the same ABI-v2 `t5_driver_get` entry and capability structs. See [Xteink X4 Pro drivers](docs/boards/xteink-x4-pro.md). Build with `python3 scripts/build_x4pro_drivers.py`. Do not load `i2c-esp32s3-v2` on this board.
+
+## Generic BLE HID peripheral
+
+[ble-hid](docs/drivers/ble-hid.md) 0.1.0 provides `bluetooth.hid@1` through a
+pinned Apache NimBLE 1.9.0 host and the existing exclusive raw-HCI lease.
+It supports authenticated Secure Connections numeric comparison, one scoped
+persistent bond, keyboard/mouse reports and checked teardown. It is a logical
+Global0 provider with no Watch hardware identity. Software protocol tests are
+separate from pending physical/host-OS qualification.

@@ -133,6 +133,34 @@ class SourceParityTests(unittest.TestCase):
             with self.assertRaises(subprocess.CalledProcessError):
                 parity.snapshot(fake, 'master', 'release-index', 'release-index.json')
 
+    def test_shared_source_directory_is_explicit_and_never_hides_broken_driver(self):
+        source = parity.Source('owner/repo')
+        def api(path, ref=None):
+            if path == 'contents/Drivers':
+                self.assertEqual(ref, HEAD)
+                return [{'path':'Drivers/common','sha':'c'*40,'type':'dir'},
+                        {'path':'Drivers/sample','sha':'d'*40,'type':'dir'},
+                        {'path':'Drivers/broken','sha':'e'*40,'type':'dir'}]
+            self.assertEqual(path, 'git/trees/'+'c'*40)
+            return {'tree':[{'path':'SerialStreamPump.inc'},{'path':'pcf8563_rtc_ops.h'}]}
+        with patch.object(source, 'api', side_effect=api):
+            self.assertEqual([r['path'] for r in source.driver_dirs(HEAD)], ['Drivers/sample','Drivers/broken'])
+            with patch.object(source, 'resolve', side_effect=[HEAD, RELEASE]), patch.object(source, 'read_json', side_effect=[{'drivers':[]},{'id':'sample','version':'1.0.0'}, ValueError('missing actual package manifest')]):
+                with self.assertRaisesRegex(ValueError, 'missing actual package'):
+                    parity.snapshot(source,'master','release-index','release-index.json')
+        with patch.object(source,'api',side_effect=[api('contents/Drivers',HEAD),{'tree':[{'path':'manifest.json'}]}]):
+            with self.assertRaisesRegex(ValueError,'became a package'):source.driver_dirs(HEAD)
+        with patch.object(source,'api',side_effect=[api('contents/Drivers',HEAD),subprocess.CalledProcessError(1,'gh')]):
+            with self.assertRaises(subprocess.CalledProcessError):source.driver_dirs(HEAD)
+
+    def test_original_experimental_driver_requires_exact_manifest_and_tree(self):
+        path=self.root/'Drivers/original';path.mkdir();(path/'driver.c').write_text('original source')
+        (path/'manifest.json').write_text(json.dumps({'id':'original','version':'0.1.0','status':'experimental-unpublished'}))
+        self.inventory['original_drivers']=[{'id':'original','version':'0.1.0','source_path':'Drivers/original','source_tree_sha':parity.local_tree(path)}]
+        self.assertEqual(self.audit()['errors'],[])
+        (path/'driver.c').write_text('tampered')
+        self.assertIn('original driver custody mismatch: original',self.audit()['errors'])
+
     def test_duplicate_upstream_release_ids_fail_instead_of_collapsing(self):
         with self.assertRaisesRegex(ValueError, 'duplicate upstream released'):
             parity.unique([{'id': 'x', 'version': '1.0.0'}] * 2, 'upstream released')

@@ -155,5 +155,19 @@
       "source_path": "Drivers/usb_cdc",
       "migrated": true
     }
+  ],
+  "original_drivers": [
+    {
+      "id": "s3-radio-iq-v1",
+      "version": "0.1.1",
+      "source_path": "Drivers/s3_radio_iq_v1",
+      "source_tree_sha": "8f717b216500336e77ce92f0220b8780ca503358"
+    },
+    {
+      "id": "ble-hid",
+      "version": "0.1.0",
+      "source_path": "Drivers/ble_hid",
+      "source_tree_sha": "5af342c450c1663de327fcce817f35f157da29c3"
+    }
   ]
 }
