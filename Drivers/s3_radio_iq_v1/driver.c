@@ -176,23 +176,9 @@ static void analog_write_bits(uint8_t block, uint8_t reg, uint8_t mask, uint8_t 
     analog_write(block, reg, (uint8_t)((old & (uint8_t)~mask) | (value & mask)));
 }
 
-static void power_up_modem(void) {
-    REG(RTC_CNTL_DIG_PWC_REG) &= ~RTC_CNTL_WIFI_FORCE_PD;
-    ROM_DELAY_US(10);
-    REG(SYSTEM_WIFI_CLK_EN_REG) |= SYSTEM_WIFI_CLK_WIFI_BT_COMMON_M;
-    REG(SYSTEM_WIFI_RST_EN_REG) |= MODEM_RESET_FIELD_WHEN_PU;
-    REG(SYSTEM_WIFI_RST_EN_REG) &= ~MODEM_RESET_FIELD_WHEN_PU;
-    REG(RTC_CNTL_DIG_ISO_REG) &= ~RTC_CNTL_WIFI_FORCE_ISO;
-    REG(SYSTEM_WIFI_CLK_EN_REG) &= ~SYSTEM_WIFI_CLK_WIFI_BT_COMMON_M;
-    /* periph_ll_enable_clk_clear_rst(PERIPH_WIFI_MODULE): published Wi-Fi
-     * clock mask is 0; reset bit is SYSTEM_WIFIMAC_RST. */
-    REG(SYSTEM_WIFI_RST_EN_REG) &= ~SYSTEM_WIFIMAC_RST;
-    REG(SYSTEM_WIFI_CLK_EN_REG) |= WIFI_MAC_CLK_BIT6;
-    /* radio.c: dump registers stop responding without the PHY/RNG clocks.
-     * RNG is SYSTEM_WIFI_CLK_RNG_EN. Common modem clocks are turned back on
-     * because calibrate_phy() did that and this ELF does not call it. */
-    REG(SYSTEM_WIFI_CLK_EN_REG) |= SYSTEM_WIFI_CLK_WIFI_BT_COMMON_M | SYSTEM_WIFI_CLK_RNG_EN | WIFI_MAC_CLK_BIT6;
-}
+/* The Runtime-owned platform.radio.iq.resource lease now enters with the
+ * ESP32-S3 PHY calibrated and enabled. This ELF must not reset the modem after
+ * that calibration; it owns only the tuning/capture state below. */
 
 static void set_pll_capacitor(unsigned cap) {
     analog_write(I2C_RFPLL, 1, (uint8_t)cap);
@@ -350,7 +336,6 @@ static int configure_receiver(void) {
 static int bring_up(void) {
     for (unsigned i = 0; i < sizeof(saved_registers)/sizeof(saved_registers[0]); ++i)
         saved_registers[i] = REG(saved_addresses[i]);
-    power_up_modem();
     for (unsigned i = 0; i < sizeof(saved_analog); ++i)
         saved_analog[i] = analog_read(analog_addresses[i][0], analog_addresses[i][1]);
     analog_saved = true;
