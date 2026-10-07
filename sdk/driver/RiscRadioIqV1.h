@@ -29,6 +29,27 @@ typedef struct {
      * lease and provider. Retry without normal I/O until this returns true. */
     bool (*suspend)(void *context);
 } risc_radio_iq_api_v1;
+
+/* Optional copied diagnostic extension. No sample data or borrowed pointers.
+ * Old consumers retain the unchanged risc_radio_iq_api_v1 prefix. */
+enum { RISC_RADIO_IQ_STAGE_IDLE, RISC_RADIO_IQ_STAGE_CLAIM,
+       RISC_RADIO_IQ_STAGE_PLL, RISC_RADIO_IQ_STAGE_RECEIVER,
+       RISC_RADIO_IQ_STAGE_DUMP, RISC_RADIO_IQ_STAGE_COPY,
+       RISC_RADIO_IQ_STAGE_COMPLETE, RISC_RADIO_IQ_STAGE_CLEANUP };
+typedef struct {
+    uint32_t struct_size, stage;
+    int32_t result;
+    uint32_t requested_pairs, clock_mask, dump_before, dump_after, elapsed_cycles;
+    uint32_t dump_ready, cleanup_ok;
+} risc_radio_iq_diagnostics_v1;
+typedef bool (*risc_radio_iq_trace_v1)(void *context, const char *stage);
+typedef struct {
+    risc_radio_iq_api_v1 base;
+    bool (*diagnostics)(void *context, risc_radio_iq_diagnostics_v1 *out);
+    /* Optional synchronous stage callback; never retained after this call. */
+    int (*capture_burst_traced)(void *context,uint32_t *pairs,uint32_t count,
+                               risc_radio_iq_trace_v1 trace,void *trace_context);
+} risc_radio_iq_diagnostics_api_v1;
 #ifdef __cplusplus
 }
 #endif

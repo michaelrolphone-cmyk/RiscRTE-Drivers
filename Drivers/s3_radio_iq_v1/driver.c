@@ -126,6 +126,7 @@ static const uint8_t dc_block[4] = {3, 3, 2, 2};
 static const uint8_t dc_index[4] = {1, 2, 1, 2};
 
 static bool running;
+static risc_radio_iq_diagnostics_v1 diagnostic_state;
 static const risc_radio_iq_resource_v1 *resource;
 static uint64_t lease;
 static bool restored;
@@ -176,23 +177,9 @@ static void analog_write_bits(uint8_t block, uint8_t reg, uint8_t mask, uint8_t 
     analog_write(block, reg, (uint8_t)((old & (uint8_t)~mask) | (value & mask)));
 }
 
-static void power_up_modem(void) {
-    REG(RTC_CNTL_DIG_PWC_REG) &= ~RTC_CNTL_WIFI_FORCE_PD;
-    ROM_DELAY_US(10);
-    REG(SYSTEM_WIFI_CLK_EN_REG) |= SYSTEM_WIFI_CLK_WIFI_BT_COMMON_M;
-    REG(SYSTEM_WIFI_RST_EN_REG) |= MODEM_RESET_FIELD_WHEN_PU;
-    REG(SYSTEM_WIFI_RST_EN_REG) &= ~MODEM_RESET_FIELD_WHEN_PU;
-    REG(RTC_CNTL_DIG_ISO_REG) &= ~RTC_CNTL_WIFI_FORCE_ISO;
-    REG(SYSTEM_WIFI_CLK_EN_REG) &= ~SYSTEM_WIFI_CLK_WIFI_BT_COMMON_M;
-    /* periph_ll_enable_clk_clear_rst(PERIPH_WIFI_MODULE): published Wi-Fi
-     * clock mask is 0; reset bit is SYSTEM_WIFIMAC_RST. */
-    REG(SYSTEM_WIFI_RST_EN_REG) &= ~SYSTEM_WIFIMAC_RST;
-    REG(SYSTEM_WIFI_CLK_EN_REG) |= WIFI_MAC_CLK_BIT6;
-    /* radio.c: dump registers stop responding without the PHY/RNG clocks.
-     * RNG is SYSTEM_WIFI_CLK_RNG_EN. Common modem clocks are turned back on
-     * because calibrate_phy() did that and this ELF does not call it. */
-    REG(SYSTEM_WIFI_CLK_EN_REG) |= SYSTEM_WIFI_CLK_WIFI_BT_COMMON_M | SYSTEM_WIFI_CLK_RNG_EN | WIFI_MAC_CLK_BIT6;
-}
+/* The Runtime-owned platform.radio.iq.resource lease now enters with the
+ * ESP32-S3 PHY calibrated and enabled. This ELF must not reset the modem after
+ * that calibration; it owns only the tuning/capture state below. */
 
 static void set_pll_capacitor(unsigned cap) {
     analog_write(I2C_RFPLL, 1, (uint8_t)cap);
@@ -338,7 +325,9 @@ static int configure_receiver(void) {
     REG(DUMP_CONFIG_REG) = DUMP_CONFIG_IQ;
     ROM_DELAY_US(100);
     REG(DUMP_CTRL_REG) = DUMP_CTRL_CIRCULAR;
-    REG(DUMP_BANK_SELECT_REG) = (REG(DUMP_BANK_SELECT_REG) & ~15u) | 1u;
+    /* Keep a strict CPU-owned initialization window: no MAC bank selection
+     * until sentinel initialization is complete. */
+    REG(DUMP_BANK_SELECT_REG) &= ~15u;
     uint8_t mode = 0; /* 2440 MHz plans as normal conversion. */
     analog_write_bits(ESP32S3_CKGEN_BLOCK, ESP32S3_CKGEN_REG, ESP32S3_CKGEN_5_6_BIT, mode);
     ROM_DELAY_US(3000);
@@ -347,50 +336,107 @@ static int configure_receiver(void) {
     return RISC_RADIO_IQ_OK;
 }
 
-static int bring_up(void) {
+static void trace_stage(risc_radio_iq_trace_v1 trace,void *context,const char *stage) {
+    if (trace) (void)trace(context,stage);
+}
+static void trace_registers(risc_radio_iq_trace_v1 trace,void *context) {
+    if (!trace) return;
+    char line[]="regs clk=00000000 rst=00000000 pd=00000000 iso=00000000";
+    const unsigned offsets[]={9,22,34,47};
+    const uint32_t addresses[]={SYSTEM_WIFI_CLK_EN_REG,SYSTEM_WIFI_RST_EN_REG,RTC_CNTL_DIG_PWC_REG,RTC_CNTL_DIG_ISO_REG};
+    for(unsigned field=0;field<4;++field){
+        uint32_t value=0;
+        for(unsigned i=0;i<sizeof(saved_addresses)/sizeof(saved_addresses[0]);++i)
+            if(saved_addresses[i]==addresses[field])value=saved_registers[i];
+        for(unsigned i=0;i<8;++i)line[offsets[field]+i]="0123456789abcdef"[(value>>(28-4*i))&15u];
+    }
+    trace_stage(trace,context,line);
+}
+static int bring_up(risc_radio_iq_trace_v1 trace,void *trace_context) {
+    trace_stage(trace,trace_context,"register-snapshot");
     for (unsigned i = 0; i < sizeof(saved_registers)/sizeof(saved_registers[0]); ++i)
         saved_registers[i] = REG(saved_addresses[i]);
-    power_up_modem();
     for (unsigned i = 0; i < sizeof(saved_analog); ++i)
         saved_analog[i] = analog_read(analog_addresses[i][0], analog_addresses[i][1]);
     analog_saved = true;
+    trace_registers(trace,trace_context);
+    /* IDF PHY calibration does not enable the dump engine's MAC clock bit.
+     * Preserve calibrated modem state and restore this one owned bit on exit. */
+    trace_stage(trace,trace_context,"dump-clock-enable");
+    REG(SYSTEM_WIFI_CLK_EN_REG) |= WIFI_MAC_CLK_BIT6;
+    barrier();
+    diagnostic_state.clock_mask = REG(SYSTEM_WIFI_CLK_EN_REG);
+    trace_stage(trace,trace_context,"pll-tune");
+    diagnostic_state.stage = RISC_RADIO_IQ_STAGE_PLL;
     if (!tune_pll()) return RISC_RADIO_IQ_PLL_FAILED;
+    trace_stage(trace,trace_context,"receiver-configure");
+    diagnostic_state.stage = RISC_RADIO_IQ_STAGE_RECEIVER;
     return configure_receiver();
 }
 
-static int copy_burst(uint32_t *pairs, uint32_t count) {
+static int copy_burst(uint32_t *pairs,uint32_t count,risc_radio_iq_trace_v1 trace,void *trace_context) {
 #ifdef RISC_IQ_HOST_TEST
     volatile uint32_t *bank = iq_test_bank();
 #else
     volatile uint32_t *bank = (volatile uint32_t *)(uintptr_t)resource->bank_base;
 #endif
+    diagnostic_state.stage = RISC_RADIO_IQ_STAGE_DUMP;
+    diagnostic_state.dump_before = REG(DUMP_WRITE_INDEX_REG) & RING_MASK;
+    trace_stage(trace,trace_context,"bank-initialize");
     /* A dump can reset its index and may wrap while the task is preempted.
      * Sentinel initialization and the final stopped index select only samples
      * written by this invocation, never the stale pre-start cursor. */
     const uint32_t sentinel = 0xa5c33c5au; /* impossible in the 20-bit pair layout */
     for (unsigned i = 0; i < RING_PAIRS; ++i) bank[i] = sentinel;
     barrier();
+    trace_stage(trace,trace_context,"dump-start");
     REG(DUMP_CTRL_REG) = DUMP_CTRL_CIRCULAR;
     REG(DUMP_BANK_SELECT_REG) = (REG(DUMP_BANK_SELECT_REG) & ~15u) | 1u;
     barrier();
     REG(DUMP_CTRL_REG) = DUMP_CTRL_CIRCULAR | DUMP_CTRL_RUN;
     uint32_t began = cpu_cycles();
-    bool ready = false;
+    bool ready = false, observed_progress = false;
+    uint32_t previous = REG(DUMP_WRITE_INDEX_REG) & RING_MASK, produced = 0;
+    /* The ADC owns the selected SRAM bank while RUN is set. Never read that
+     * bank to test progress: a CPU access can stall on the dump-owned bank.
+     * Like upstream capture.c, observe only the MMIO index until stopped.
+     * Discard the first transition because RUN may reset a stale cursor. */
     for (;;) {
         uint32_t end = REG(DUMP_WRITE_INDEX_REG) & RING_MASK;
-        if (bank[(end - count) & RING_MASK] != sentinel && bank[(end - 1u) & RING_MASK] != sentinel) {
-            ready = true;
-            break;
+        if (end != previous) {
+            if (observed_progress) produced += (end - previous) & RING_MASK;
+            observed_progress = true;
+            previous = end;
+            if (produced >= count) { ready = true; break; }
         }
         if (cpu_cycles() - began > PBUS_TIMEOUT_CYCLES * 100u) break;
     }
+    /* STOP can reset the hardware cursor. Preserve the live reference first;
+     * it is only a search origin, because writes can still be in flight. */
+    uint32_t stop_reference = REG(DUMP_WRITE_INDEX_REG) & RING_MASK;
     REG(DUMP_CTRL_REG) = DUMP_CTRL_CIRCULAR;
     barrier();
     REG(DUMP_BANK_SELECT_REG) &= ~15u;
     ROM_DELAY_US(1);
     barrier();
+    diagnostic_state.elapsed_cycles = cpu_cycles() - began;
+    diagnostic_state.dump_ready = ready;
+    diagnostic_state.dump_after = stop_reference;
+    trace_stage(trace,trace_context,"dump-stopped");
     if (!ready) return RISC_RADIO_IQ_DUMP_TIMEOUT;
-    uint32_t at = (REG(DUMP_WRITE_INDEX_REG) - count) & RING_MASK;
+    trace_stage(trace,trace_context,"bank-copy");
+    diagnostic_state.stage = RISC_RADIO_IQ_STAGE_COPY;
+    /* Locate the committed end after the pipeline settles, as upstream does.
+     * Never use the post-STOP cursor, and fail closed if preemption filled the
+     * entire guard region (there is then no unambiguous sentinel boundary). */
+    uint32_t end = stop_reference, guard = 0;
+    while (guard < 1024u && bank[end] != sentinel) {
+        end = (end + 1u) & RING_MASK;
+        ++guard;
+    }
+    if (guard == 1024u) return RISC_RADIO_IQ_DUMP_TIMEOUT;
+    diagnostic_state.dump_after = end;
+    uint32_t at = (end - count) & RING_MASK;
     for (uint32_t i = 0; i < count; i++) {
         uint32_t sample = bank[(at + i) & RING_MASK];
         if (sample == sentinel) return RISC_RADIO_IQ_DUMP_TIMEOUT;
@@ -404,21 +450,45 @@ static bool suspend_receiver(void *context) {
     return release_receiver();
 }
 
-static int capture_burst(void *context, uint32_t *pairs, uint32_t count) {
+static int capture_result(int result) {
+    diagnostic_state.result = result;
+    return result;
+}
+static int capture_burst_traced(void *context,uint32_t *pairs,uint32_t count,
+                                risc_radio_iq_trace_v1 trace,void *trace_context) {
     (void)context;
-    if (!pairs || count == 0 || count > RISC_RADIO_IQ_PAIRS) return RISC_RADIO_IQ_BAD_ARGUMENT;
-    if (!running) return RISC_RADIO_IQ_NOT_RUNNING;
-    if (lease && !release_receiver()) return RISC_RADIO_IQ_CLEANUP_RETAINED;
+    diagnostic_state = (risc_radio_iq_diagnostics_v1){.struct_size=sizeof(diagnostic_state),
+        .stage=RISC_RADIO_IQ_STAGE_IDLE,.requested_pairs=count};
+    if (!pairs || count == 0 || count > RISC_RADIO_IQ_PAIRS) return capture_result(RISC_RADIO_IQ_BAD_ARGUMENT);
+    if (!running) return capture_result(RISC_RADIO_IQ_NOT_RUNNING);
+    diagnostic_state.stage = RISC_RADIO_IQ_STAGE_CLEANUP;
+    if (lease && !release_receiver()) return capture_result(RISC_RADIO_IQ_CLEANUP_RETAINED);
+    diagnostic_state.stage = RISC_RADIO_IQ_STAGE_CLAIM;
+    trace_stage(trace,trace_context,"native-claim");
     if (!resource->claim(resource->context, &lease)) {
         /* Failed admission cannot authorize any modem/ROM/SRAM access. */
-        if (lease) { restored = true; return RISC_RADIO_IQ_CLEANUP_RETAINED; }
-        return RISC_RADIO_IQ_BUSY;
+        if (lease) { restored = true; return capture_result(RISC_RADIO_IQ_CLEANUP_RETAINED); }
+        return capture_result(RISC_RADIO_IQ_BUSY);
     }
-    if (!lease) return RISC_RADIO_IQ_BUSY;
-    int status = bring_up();
-    if (status == RISC_RADIO_IQ_OK) status = copy_burst(pairs, count);
-    if (!release_receiver()) return RISC_RADIO_IQ_CLEANUP_RETAINED;
-    return status;
+    if (!lease) return capture_result(RISC_RADIO_IQ_BUSY);
+    trace_stage(trace,trace_context,"native-ready");
+    int status = bring_up(trace,trace_context);
+    if (status == RISC_RADIO_IQ_OK) status = copy_burst(pairs,count,trace,trace_context);
+    trace_stage(trace,trace_context,"cleanup-begin");
+    diagnostic_state.cleanup_ok = release_receiver();
+    trace_stage(trace,trace_context,diagnostic_state.cleanup_ok?"cleanup-complete":"cleanup-retained");
+    if (!diagnostic_state.cleanup_ok) return capture_result(RISC_RADIO_IQ_CLEANUP_RETAINED);
+    if (status == RISC_RADIO_IQ_OK) diagnostic_state.stage = RISC_RADIO_IQ_STAGE_COMPLETE;
+    return capture_result(status);
+}
+static int capture_burst(void *context,uint32_t *pairs,uint32_t count) {
+    return capture_burst_traced(context,pairs,count,NULL,NULL);
+}
+static bool diagnostics(void *context, risc_radio_iq_diagnostics_v1 *out) {
+    (void)context;
+    if (!out || out->struct_size < sizeof(*out)) return false;
+    *out = diagnostic_state;
+    return true;
 }
 
 static bool start(const risc_provider_dependency_v1 *deps, size_t count) {
@@ -448,14 +518,14 @@ static bool quiesce(void) {
     return true;
 }
 
-static const risc_radio_iq_api_v1 api = {
-    RISC_RADIO_IQ_API_V1, sizeof(risc_radio_iq_api_v1), 0, capture_burst, suspend_receiver
+static const risc_radio_iq_diagnostics_api_v1 api = {
+    {RISC_RADIO_IQ_API_V1, sizeof(risc_radio_iq_diagnostics_api_v1), 0, capture_burst, suspend_receiver}, diagnostics, capture_burst_traced
 };
 
 static const risc_driver_v2 driver = {
     RISC_PROVIDER_DRIVER_ABI_V2, sizeof(risc_driver_v2),
     "s3-radio-iq-v1", "radio.iq", RISC_RADIO_IQ_API_V1,
-    &api, start, stop, quiesce
+    &api.base, start, stop, quiesce
 };
 
 __attribute__((visibility("default")))

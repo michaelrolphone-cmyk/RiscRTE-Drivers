@@ -180,6 +180,10 @@
     "ext/tinycrypt/src/aes_encrypt.c": {
       "sha256": "f74320ebe58d2da484bcbe0bca14442ec19cce1df577e6ee1f72051f971c2c73",
       "reason": "Promote AES key bytes and S-box bytes to uint32_t before 24-bit shift, avoiding signed-int undefined behavior detected by UBSan. No algorithm change."
+    },
+    "nimble/host/src/ble_att_cmd.c": {
+      "sha256": "e86dcf4a1297eefa502ae0b94356999706b0239ddec4a5e74aaa5bcc70fbadd1",
+      "reason": "Propagate bounded external-controller L2CAP send errors to the owner instead of asserting; reset the failed ATT request busy state."
     }
   }
 }

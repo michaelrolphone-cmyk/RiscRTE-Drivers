@@ -2,6 +2,8 @@
  * execute on the Runtime owner task. Synchronous HCI waits service RX only;
  * they never recursively dispatch host events or invoke application callbacks. */
 #include "ble_port.h"
+#include "RiscBluetoothHidV1.h"
+#include "host/ble_hs.h"
 #include "nimble/nimble_npl.h"
 // Upstream transport declarations require the OS mbuf types first.
 // clang-format off
@@ -20,6 +22,8 @@ static const portable_bluetooth_host_v1 *host;
 static const risc_platform_clock_api_v1 *clock_api;
 static uint64_t lease;
 static bool fault;
+static uint32_t fault_reason;
+static void port_failed(uint32_t reason) { if (!fault) fault_reason = reason; fault = true; }
 static unsigned critical_depth;
 static struct ble_npl_callout *timers[CALLOUT_LIMIT];
 static unsigned timer_count;
@@ -42,9 +46,11 @@ void hid_port_bind(const portable_bluetooth_host_v1 *h, const risc_platform_cloc
     clock_api = c;
     lease = t;
     fault = false;
+    fault_reason = RISC_HID_PORT_OK;
 }
 bool hid_port_faulted(void) { return fault; }
-void hid_port_fault(void) { fault = true; }
+uint32_t hid_port_fault_reason(void) { return fault_reason; }
+void hid_port_fault(void) { port_failed(RISC_HID_PORT_INTERNAL); }
 void hid_port_clear(void) {
     memset(timers, 0, sizeof(timers));
     timer_count = critical_depth = 0;
@@ -52,11 +58,12 @@ void hid_port_clear(void) {
     host = NULL;
     clock_api = NULL;
     fault = false;
+    fault_reason = RISC_HID_PORT_OK;
     memset(arena.bytes, 0, sizeof(arena.bytes));
     arena_started = false;
 }
 void hid_panic(void) {
-    fault = true;
+    port_failed(RISC_HID_PORT_INTERNAL);
 #ifdef HID_HOST_TEST
     abort();
 #else
@@ -160,7 +167,7 @@ void ble_npl_eventq_put(struct ble_npl_eventq *q, struct ble_npl_event *e) {
     if (e->queue)
         return;
     if (q->count >= QUEUE_LIMIT) {
-        fault = true;
+        port_failed(RISC_HID_PORT_QUEUE_FULL);
         return;
     }
     e->next = NULL;
@@ -336,8 +343,10 @@ int ble_transport_to_ll_cmd_impl(void *p) {
               host->send_owned(host->controls.context, lease, 1, b, (size_t)b[2] + 3);
     ble_transport_free(p);
     if (!ok)
-        fault = true;
-    return ok ? 0 : 1;
+        port_failed(RISC_HID_PORT_SEND_COMMAND);
+    /* BLE_HS_EAGAIN (1) promises an unconsumed remainder to L2CAP. This
+     * transport consumes its packet on every path, so failure is terminal. */
+    return ok ? 0 : BLE_HS_ECONTROLLER;
 }
 int ble_transport_to_ll_acl_impl(struct os_mbuf *om) {
     size_t n = OS_MBUF_PKTLEN(om);
@@ -347,8 +356,10 @@ int ble_transport_to_ll_acl_impl(struct os_mbuf *om) {
         ok = host && lease && !fault && host->send_owned(host->controls.context, lease, 2, tx, n);
     os_mbuf_free_chain(om);
     if (!ok)
-        fault = true;
-    return ok ? 0 : 1;
+        port_failed(RISC_HID_PORT_SEND_ACL);
+    /* BLE_HS_EAGAIN (1) promises an unconsumed remainder to L2CAP. This
+     * transport consumes its packet on every path, so failure is terminal. */
+    return ok ? 0 : BLE_HS_ECONTROLLER;
 }
 int ble_transport_to_ll_iso_impl(struct os_mbuf *om) {
     os_mbuf_free_chain(om);
@@ -361,7 +372,7 @@ bool hid_port_receive(void) {
     size_t n = 0;
     int32_t rc = host->next_owned(host->controls.context, lease, &type, packet, sizeof(packet), &n);
     if (rc < 0) {
-        fault = true;
+        port_failed(RISC_HID_PORT_RECEIVE);
         return false;
     }
     if (!rc)
@@ -369,27 +380,27 @@ bool hid_port_receive(void) {
     if (type == 4 && n >= 2 && n <= 257 && n == (size_t)packet[1] + 2) {
         void *p = ble_transport_alloc_evt(0);
         if (!p) {
-            fault = true;
+            port_failed(RISC_HID_PORT_EVENT_POOL);
             return false;
         }
         memcpy(p, packet, n);
         if (ble_transport_to_hs_evt(p))
-            fault = true;
+            port_failed(RISC_HID_PORT_EVENT_DISPATCH);
     } else if (type == 2 && n >= 4 && n <= sizeof(packet) &&
                n == 4u + packet[2] + ((size_t)packet[3] << 8)) {
         struct os_mbuf *om = ble_transport_alloc_acl_from_ll();
         if (!om) {
-            fault = true;
+            port_failed(RISC_HID_PORT_ACL_POOL);
             return false;
         }
         if (os_mbuf_append(om, packet, (uint16_t)n)) {
             os_mbuf_free_chain(om);
-            fault = true;
+            port_failed(RISC_HID_PORT_ACL_APPEND);
             return false;
         }
         if (ble_transport_to_hs_acl(om))
-            fault = true;
+            port_failed(RISC_HID_PORT_ACL_DISPATCH);
     } else
-        fault = true;
+        port_failed(RISC_HID_PORT_PACKET);
     return !fault;
 }

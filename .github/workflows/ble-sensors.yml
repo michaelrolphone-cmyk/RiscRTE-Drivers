@@ -1,0 +1,30 @@
+name: Generic BLE sensors and telemetry
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ble-sensors:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: bash test/run_ble_sensor_test.sh
+      - run: SANITIZE=1 bash test/run_ble_sensor_test.sh
+      - run: python -m pip install platformio==6.1.19
+      - run: pio pkg install --global --tool 'espressif/toolchain-xtensa-esp32s3@8.4.0+2021r2-patch5'
+      - run: python scripts/build_ble_sensors.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ble-sensors-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            dist/ble-sensors/
+            dist/ble-telemetry/
+            dist/telemetry-battery/
+          if-no-files-found: error

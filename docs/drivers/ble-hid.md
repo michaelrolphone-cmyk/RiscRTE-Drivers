@@ -1,4 +1,4 @@
-# ble-hid 0.1.0
+# ble-hid 0.1.2
 
 `ble-hid` is an original ABI-v2 logical provider for `bluetooth.hid@1`.
 It is board-neutral: no Watch, e-paper panel, GPIO, SDK controller or radio
@@ -17,10 +17,12 @@ GAP, GATT, ATT, L2CAP, SMP, HCI ACL credits, ECDH and AES-CMAC are Apache NimBLE
 https://github.com/apache/mynewt-nimble/tree/da7e3256da3ba80b232df880f40d8359311cc62e
 
 The selected upstream sources and licenses are vendored with per-file upstream
-SHA-256 values in `vendor/nimble/SOURCE.json`. The sole upstream patch adds
+SHA-256 values in `vendor/nimble/SOURCE.json`. One upstream patch adds
 `uint32_t` promotions before two AES 24-bit shifts in TinyCrypt, removing signed
 integer undefined behavior found by UBSan. Its patched hash and reason are
-recorded separately; cryptographic algorithms are otherwise unchanged. Logs are
+recorded separately; cryptographic algorithms are otherwise unchanged. A second
+pinned patch propagates bounded transport errors through ATT instead of
+asserting. Its original hash, patched hash and reason are recorded too. Logs are
 compiled to no-op functions: keys, peer identity material and reports are never
 printed. The build verifies every recorded source hash before compiling.
 
@@ -185,3 +187,31 @@ Physical advertising, PC/phone/macOS/Windows/Linux interoperability, controller
 entropy behavior, RF coexistence, latency, current consumption and device
 teardown remain untested. The Watch deployment must also pass the real Runtime
 store/graph and full-cohort preservation gates before integration readiness.
+
+## Mouse transport failure and reconnect regression (0.1.2)
+
+A rejected native ACL send previously returned literal 1 after consuming its
+packet. NimBLE interprets 1 as `BLE_HS_EAGAIN`, which promises a remaining packet;
+the production L2CAP path dereferenced a null remainder. Returning the correct
+controller error also exposed the upstream ATT unconditional success assertion.
+Both error paths now propagate a controller fault to the caller without a crash.
+
+Close now asks NimBLE to finish its bounded software teardown even when the
+transport has faulted. Reopen is permitted only after the host stopped, the old
+connection is gone, and native release proves controller callback custody ended.
+An unproven host stop still poisons the loaded provider; failed native closure
+still retains the token and dependencies for retry. No bond is erased or replaced.
+
+The optional size-checked diagnostic suffix copies transport failure stage,
+last disconnect/security/notification results, bounded counters, maximum caller
+poll gap, and independent host-stop/native-close results. It excludes pairing
+codes, keys, addresses and input content. The original API/status prefix is intact.
+
+Regressions establish a real Secure Connections mouse session, send sustained
+motion with a held button, inject immediate/queued send or receive failure, close,
+reopen and authenticate using the saved LTK, then send mouse input again. They
+also cover retained native close, remote disconnect, missing mouse subscription,
+stale controller events, and byte-for-byte unchanged security/identity records.
+Normal and sanitizer runs use the same production paths. This reproduces a
+software defect; the physical Watch's initiating transport failure is not yet
+identified. The copied diagnostics are intended to distinguish that trigger.

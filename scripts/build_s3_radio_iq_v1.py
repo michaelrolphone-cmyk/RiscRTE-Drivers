@@ -12,7 +12,7 @@ SRC=ROOT/"Drivers/s3_radio_iq_v1"
 OUT=ROOT/"dist/s3-radio-iq-v1"
 
 manifest=json.loads((SRC/"manifest.json").read_text())
-if manifest['id'] != 's3-radio-iq-v1' or manifest['version'] != '0.1.1' or manifest['requires'] != [
+if manifest['id'] != 's3-radio-iq-v1' or manifest['version'] != '0.1.5' or manifest['requires'] != [
     {'capability':'platform.radio.iq.resource','api':1}]:
     raise SystemExit("guarded IQ manifest/requirements differ")
 
@@ -42,7 +42,7 @@ if exports!={"t5_driver_get"}:
 nm=str(Path(cc).with_name(Path(cc).name.replace("gcc","nm")))
 undef={line.split()[-1] for line in subprocess.check_output([nm,"-D",str(elf)],text=True).splitlines() if " U " in " "+line}
 forbidden={"register_chipv7_phy","phy_init_param_set","phy_bbpll_en_usb","esp_rom_regi2c_read","esp_rom_regi2c_write","rom_pbus_rd"}
-if undef - {'strcmp'}:
+if undef - {'strcmp','memcpy','memset'}:
     raise SystemExit(f"driver imports modem symbols: {sorted(undef)}")
 
 data=elf.read_bytes()

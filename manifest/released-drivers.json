@@ -159,15 +159,33 @@
   "original_drivers": [
     {
       "id": "s3-radio-iq-v1",
-      "version": "0.1.1",
+      "version": "0.1.5",
       "source_path": "Drivers/s3_radio_iq_v1",
-      "source_tree_sha": "8f717b216500336e77ce92f0220b8780ca503358"
+      "source_tree_sha": "2d710e4a5cf34b3d18620a09df33d9a3c5df5e00"
     },
     {
       "id": "ble-hid",
-      "version": "0.1.0",
+      "version": "0.1.2",
       "source_path": "Drivers/ble_hid",
-      "source_tree_sha": "5af342c450c1663de327fcce817f35f157da29c3"
+      "source_tree_sha": "26a778b39286cde051d373c8f62284a4408f13a1"
+    },
+    {
+      "id": "ble-sensors",
+      "version": "0.1.0",
+      "source_path": "Drivers/ble_sensors",
+      "source_tree_sha": "a190629bc6beada053596d8950716e9a15a08b10"
+    },
+    {
+      "id": "ble-telemetry",
+      "version": "0.1.0",
+      "source_path": "Drivers/ble_telemetry",
+      "source_tree_sha": "4897f2c8e0ea5880c8323ec77199dfeee8473525"
+    },
+    {
+      "id": "telemetry-battery",
+      "version": "0.1.0",
+      "source_path": "Drivers/telemetry_battery",
+      "source_tree_sha": "a451ee283ff55a9dbe83fd93538853d6d54d5812"
     }
   ]
 }
