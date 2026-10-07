@@ -244,8 +244,8 @@ static bool tune_pll(const struct esp32s3_lo_plan *plan) {
     if (!best_length) return false;
     set_pll_capacitor(best_start + (best_length - 1) / 2);
     set_pll_manual_capacitor(true);
-    uint8_t mode = plan->mode == ESP32S3_LO_5_6 ? ESP32S3_CKGEN_5_6_BIT : 0;
-    analog_write_bits(ESP32S3_CKGEN_BLOCK, ESP32S3_CKGEN_REG, ESP32S3_CKGEN_5_6_BIT, mode);
+    /* Upstream configures the receiver in normal conversion and reapplies
+     * the selected LO mode only after that sequence, including on retries. */
     return true;
 }
 

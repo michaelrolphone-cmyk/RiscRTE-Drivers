@@ -20,6 +20,7 @@ static unsigned fail_pbus_command, pbus_commands;
 static bool stale_reset, corrupt_pair, native_dirty_refusal, ckgen_reject, pll_lock=true;
 static unsigned pbus_words[6][3];
 static uint32_t pbus_command_seen;
+static bool configuring_gain;
 static uint8_t analog_regs[128][16];
 static bool native_lease, admission=true, release_ok=true, pll_ok=true, pbus_ok=true, dump_ok=true, wrap;
 static uint32_t *raw_register(uint32_t address) {
@@ -35,6 +36,10 @@ static void protect_bank(bool locked){
 static void sync_bank_owner(void){protect_bank((*raw_register(DUMP_BANK_SELECT_REG)&15u)!=0 && (*raw_register(DUMP_CTRL_REG)&DUMP_CTRL_RUN)!=0);}
 volatile uint32_t *iq_test_register(uint32_t address) {
     assert(native_lease);sync_bank_owner();++accesses;
+    if(address==AGC_GAIN_FORCE_REG && diagnostic_state.stage==RISC_RADIO_IQ_STAGE_RECEIVER && analog_saved && !configuring_gain){
+        assert(!(analog_regs[ESP32S3_CKGEN_BLOCK][ESP32S3_CKGEN_REG]&ESP32S3_CKGEN_5_6_BIT));
+        configuring_gain=true;
+    }
     if(address==PBUS_CTRL_REG && !(*raw_register(address)&2))pbus_command_seen=0;
     if(address==PBUS_STATUS_REG) {
         uint32_t command=*raw_register(PBUS_CTRL_REG);
@@ -104,7 +109,7 @@ void iq_test_delay(uint32_t us){
 static bool claim_resource(void *context,uint64_t *token){
     (void)context;*token=0;++claims;assert(!native_lease);
     if(!admission){if(native_dirty_refusal){native_lease=true;*token=claims;}return false;}
-    native_lease=true;*token=claims;return true;
+    native_lease=true;configuring_gain=false;*token=claims;return true;
 }
 static bool release_resource(void *context,uint64_t token){
     (void)context;assert(native_lease && token);++releases;
