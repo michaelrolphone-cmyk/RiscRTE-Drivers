@@ -308,13 +308,17 @@ static uint32_t dump_control(const risc_radio_iq_settings_v1 *settings) {
     return DUMP_CTRL_CIRCULAR | (settings->sample_rate_hz == 16000000u ? DUMP_CTRL_16MSPS : 0);
 }
 
+static void set_width(bool wide) {
+    REG(FE_WIDTH_REG) = (REG(FE_WIDTH_REG) & ~0x003F0000u) | (wide ? 0x00120000u : 0);
+    REG(BB_ENABLE_REG) = (REG(BB_ENABLE_REG) & ~0xCu) | (wide ? 0x4u : 0);
+}
+
 static int configure_receiver(const risc_radio_iq_settings_v1 *settings,
                               const struct esp32s3_lo_plan *plan,
                               risc_radio_iq_format_v1 *format) {
     park_receiver();
     bool wide = settings->bandwidth_hz == 40000000u;
-    REG(FE_WIDTH_REG) = (REG(FE_WIDTH_REG) & ~0x003F0000u) | (wide ? 0x00120000u : 0);
-    REG(BB_ENABLE_REG) = (REG(BB_ENABLE_REG) & ~0xCu) | (wide ? 0x4u : 0);
+    set_width(wide);
     REG(BB_ENABLE_REG) |= 0x10000000u;
     REG(BB_ENABLE_REG) &= ~2u;
     ROM_DELAY_US(1);
@@ -324,6 +328,9 @@ static int configure_receiver(const risc_radio_iq_settings_v1 *settings,
     REG(AGC_RX_FORCE_REG) |= 1u;
     REG(AGC_GAIN_FORCE_REG) = (REG(AGC_GAIN_FORCE_REG) & 0x007FFFFFu) | (settings->gain_selector << 24) | 0x00800000u;
     REG(PBUS_STATUS_REG) |= 0xC000u;
+    /* The RC bank is selected at the enable edge. Reapply width before filter
+     * programming as in upstream's characterized setting-change sequence. */
+    set_width(wide);
     unsigned filter_reg = wide ? 6 : 4;
     analog_write(I2C_BB_FILTER, filter_reg, settings->filter & 63u);
     analog_write(I2C_BB_FILTER, filter_reg + 1, (settings->filter >> 8) & 63u);
