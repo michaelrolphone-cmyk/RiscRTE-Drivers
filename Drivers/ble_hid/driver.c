@@ -728,6 +728,16 @@ static bool api_confirm(void *c, uint64_t t, bool accept) {
     if (!accept || expired) {
         pair_allowed = false;
         (void)ble_gap_terminate(connection, BLE_ERR_AUTH_FAIL);
+    } else if (rc == 0) {
+        /* Numeric comparison is the only application-driven SMP boundary.
+         * Advance the cooperative host immediately after accepting it so the
+         * DHKey-check transaction is emitted/consumed while the confirmation
+         * call still owns the HCI lease. Real centrals may wait at this exact
+         * boundary and do not guarantee another packet before our next UI poll. */
+        if (!pump(8)) {
+            atomic_flag_clear(&guard);
+            return false;
+        }
     }
     LEAVE(!expired && (rc == 0 || (!accept && rc == BLE_HS_SM_US_ERR(BLE_SM_ERR_NUMCMP))));
 }
