@@ -42,9 +42,13 @@ typedef struct {
     uint32_t requested_pairs, clock_mask, dump_before, dump_after, elapsed_cycles;
     uint32_t dump_ready, cleanup_ok;
 } risc_radio_iq_diagnostics_v1;
+typedef bool (*risc_radio_iq_trace_v1)(void *context, const char *stage);
 typedef struct {
     risc_radio_iq_api_v1 base;
     bool (*diagnostics)(void *context, risc_radio_iq_diagnostics_v1 *out);
+    /* Optional synchronous stage callback; never retained after this call. */
+    int (*capture_burst_traced)(void *context,uint32_t *pairs,uint32_t count,
+                               risc_radio_iq_trace_v1 trace,void *trace_context);
 } risc_radio_iq_diagnostics_api_v1;
 #ifdef __cplusplus
 }
