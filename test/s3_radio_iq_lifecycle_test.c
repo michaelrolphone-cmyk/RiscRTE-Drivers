@@ -10,6 +10,8 @@ static struct {uint32_t address,value;} registers[64];
 static unsigned register_count, accesses, claims, releases, tx_writes;
 static uint32_t *bank_words, cycles;
 static bool bank_protected,dump_was_running;
+static bool reset_on_stop=true;
+static unsigned pipeline_tail=3;
 static uint32_t dump_cursor;
 static uint8_t analog_regs[128][16];
 static bool native_lease, admission=true, release_ok=true, pll_ok=true, pbus_ok=true, dump_ok=true, wrap;
@@ -60,7 +62,17 @@ void iq_test_analog_write(uint8_t block,uint8_t host,uint8_t reg,uint8_t value){
     assert(native_lease && host==1);++accesses;analog_regs[block][reg]=value;
 }
 unsigned iq_test_pbus_read(unsigned block,unsigned index){assert(native_lease && block<=3 && index<=2);return 0;}
-void iq_test_delay(uint32_t us){assert(native_lease && us<=3000);sync_bank_owner();if(!(*raw_register(DUMP_CTRL_REG)&DUMP_CTRL_RUN))dump_was_running=false;++accesses;}
+void iq_test_delay(uint32_t us){
+    assert(native_lease && us<=3000);sync_bank_owner();
+    if(!(*raw_register(DUMP_CTRL_REG)&DUMP_CTRL_RUN)) {
+        if(dump_was_running && dump_ok) {
+            for(unsigned n=0;n<pipeline_tail;++n){bank_words[dump_cursor]=dump_cursor&0xfffff;dump_cursor=(dump_cursor+1)&RING_MASK;}
+            *raw_register(DUMP_WRITE_INDEX_REG)=reset_on_stop?0:dump_cursor;
+        }
+        dump_was_running=false;
+    }
+    ++accesses;
+}
 static bool claim_resource(void *context,uint64_t *token){
     (void)context;*token=0;++claims;assert(!native_lease);
     if(!admission)return false;native_lease=true;*token=claims;return true;
@@ -100,7 +112,7 @@ int main(void){
     *raw_register(SYSTEM_WIFI_CLK_EN_REG)=0x10000000;
     analog_regs[I2C_SDM][0]=0xab;
     for(unsigned n=0;n<3;++n){
-        wrap=n==1;*raw_register(DUMP_WRITE_INDEX_REG)=12345;
+        wrap=n==1;reset_on_stop=n!=2;pipeline_tail=n==2?0:3;*raw_register(DUMP_WRITE_INDEX_REG)=12345;
         assert(capture_burst(NULL,pairs+1,256)==RISC_RADIO_IQ_OK);
         assert(!native_lease && !lease && pairs[0]==0xdeadbeef && pairs[257]==0xdeadbeef);
         assert(pairs[1]==((dump_cursor-256)&RING_MASK));assert(pairs[256]==((dump_cursor-1)&RING_MASK));
@@ -115,6 +127,7 @@ int main(void){
         assert(detail.clock_mask==(0x10000000|WIFI_MAC_CLK_BIT6));
         assert(detail.dump_ready && detail.cleanup_ok && detail.requested_pairs==256);
         assert(detail.dump_before==12345 && detail.dump_after==dump_cursor);
+        if(reset_on_stop)assert(*raw_register(DUMP_WRITE_INDEX_REG)==0);
     }
     pll_ok=false;assert(capture_burst(NULL,pairs+1,256)==RISC_RADIO_IQ_PLL_FAILED);assert(!native_lease);pll_ok=true;
     dump_ok=false;assert(capture_burst(NULL,pairs+1,256)==RISC_RADIO_IQ_DUMP_TIMEOUT);assert(!native_lease);dump_ok=true;

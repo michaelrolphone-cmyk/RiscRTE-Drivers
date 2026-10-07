@@ -411,19 +411,32 @@ static int copy_burst(uint32_t *pairs,uint32_t count,risc_radio_iq_trace_v1 trac
         }
         if (cpu_cycles() - began > PBUS_TIMEOUT_CYCLES * 100u) break;
     }
-    diagnostic_state.elapsed_cycles = cpu_cycles() - began;
-    diagnostic_state.dump_ready = ready;
+    /* STOP can reset the hardware cursor. Preserve the live reference first;
+     * it is only a search origin, because writes can still be in flight. */
+    uint32_t stop_reference = REG(DUMP_WRITE_INDEX_REG) & RING_MASK;
     REG(DUMP_CTRL_REG) = DUMP_CTRL_CIRCULAR;
     barrier();
     REG(DUMP_BANK_SELECT_REG) &= ~15u;
     ROM_DELAY_US(1);
     barrier();
+    diagnostic_state.elapsed_cycles = cpu_cycles() - began;
+    diagnostic_state.dump_ready = ready;
+    diagnostic_state.dump_after = stop_reference;
     trace_stage(trace,trace_context,"dump-stopped");
-    diagnostic_state.dump_after = REG(DUMP_WRITE_INDEX_REG) & RING_MASK;
     if (!ready) return RISC_RADIO_IQ_DUMP_TIMEOUT;
     trace_stage(trace,trace_context,"bank-copy");
     diagnostic_state.stage = RISC_RADIO_IQ_STAGE_COPY;
-    uint32_t at = (REG(DUMP_WRITE_INDEX_REG) - count) & RING_MASK;
+    /* Locate the committed end after the pipeline settles, as upstream does.
+     * Never use the post-STOP cursor, and fail closed if preemption filled the
+     * entire guard region (there is then no unambiguous sentinel boundary). */
+    uint32_t end = stop_reference, guard = 0;
+    while (guard < 1024u && bank[end] != sentinel) {
+        end = (end + 1u) & RING_MASK;
+        ++guard;
+    }
+    if (guard == 1024u) return RISC_RADIO_IQ_DUMP_TIMEOUT;
+    diagnostic_state.dump_after = end;
+    uint32_t at = (end - count) & RING_MASK;
     for (uint32_t i = 0; i < count; i++) {
         uint32_t sample = bank[(at + i) & RING_MASK];
         if (sample == sentinel) return RISC_RADIO_IQ_DUMP_TIMEOUT;

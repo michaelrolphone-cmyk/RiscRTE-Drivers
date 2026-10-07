@@ -159,9 +159,9 @@
   "original_drivers": [
     {
       "id": "s3-radio-iq-v1",
-      "version": "0.1.4",
+      "version": "0.1.5",
       "source_path": "Drivers/s3_radio_iq_v1",
-      "source_tree_sha": "6c193b1cfcbfe61a301fb77656dabfc52d9e2762"
+      "source_tree_sha": "2d710e4a5cf34b3d18620a09df33d9a3c5df5e00"
     },
     {
       "id": "ble-hid",
