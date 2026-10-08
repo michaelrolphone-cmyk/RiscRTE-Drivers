@@ -7,6 +7,23 @@ extern "C" {
 #endif
 #define RISC_RADIO_IQ_API_V1 1u
 #define RISC_RADIO_IQ_PAIRS 256u
+/* Legacy entry points retain the 256-pair limit. Query the optional extension
+ * before using larger, independently acquired coherent bursts. */
+#define RISC_RADIO_IQ_MAX_PAIRS 8192u
+#define RISC_RADIO_IQ_AUTO 0xffffffffu
+#define RISC_RADIO_IQ_FORMAT_S10_I0_Q10 1u
+#define RISC_RADIO_IQ_FLAG_COHERENT_BURST (1u << 0)
+#define RISC_RADIO_IQ_FLAG_NOMINAL_FREQUENCIES (1u << 1)
+#define RISC_RADIO_IQ_FLAG_UNCALIBRATED_AMPLITUDE (1u << 2)
+#define RISC_RADIO_IQ_CONTROL_CENTER (1u << 0)
+#define RISC_RADIO_IQ_CONTROL_RATE (1u << 1)
+#define RISC_RADIO_IQ_CONTROL_BANDWIDTH (1u << 2)
+#define RISC_RADIO_IQ_CONTROL_GAIN (1u << 3)
+#define RISC_RADIO_IQ_CONTROL_RF_GAIN (1u << 4)
+#define RISC_RADIO_IQ_CONTROL_BB_GAIN (1u << 5)
+#define RISC_RADIO_IQ_CONTROL_FILTER (1u << 6)
+#define RISC_RADIO_IQ_CONTROL_DC (1u << 7)
+#define RISC_RADIO_IQ_CONTROL_IQ (1u << 8)
 
 #define RISC_RADIO_IQ_OK 0
 #define RISC_RADIO_IQ_NOT_RUNNING 1
@@ -50,6 +67,60 @@ typedef struct {
     int (*capture_burst_traced)(void *context,uint32_t *pairs,uint32_t count,
                                risc_radio_iq_trace_v1 trace,void *trace_context);
 } risc_radio_iq_diagnostics_api_v1;
+
+/* All settings are per invocation; none change the defaults of legacy calls.
+ * These are nominal RF settings and raw upstream receiver codes, never dB/dBm.
+ * Gain selector: 0..127 (forced, not live AGC); RF word: 0..511 or AUTO;
+ * BB code: 0..127 or AUTO; filter: I[5:0] | Q[5:0]<<8 (mask 0x3f3f);
+ * DC: four 0..511 codes or AUTO; IQ: amplitude[4:0] | phase[5:0]<<8
+ * (mask 0x3f1f) or AUTO. AUTO retains native calibrated selection/correction.
+ * Center: 1841666667..2790000000 Hz, quantized by the PLL; rate: 16M or 80M;
+ * width: 20M or 40M. Width does not guarantee a measured analog passband. */
+typedef struct {
+    uint32_t struct_size;
+    uint32_t center_hz, sample_rate_hz, bandwidth_hz, gain_selector;
+    uint32_t rf_gain, bb_gain, filter, dc[4], iq_correction;
+} risc_radio_iq_settings_v1;
+#define RISC_RADIO_IQ_SETTINGS_DEFAULT {sizeof(risc_radio_iq_settings_v1), \
+    2440000000u, 80000000u, 40000000u, 24u, RISC_RADIO_IQ_AUTO, \
+    RISC_RADIO_IQ_AUTO, 0u, {RISC_RADIO_IQ_AUTO, RISC_RADIO_IQ_AUTO, \
+    RISC_RADIO_IQ_AUTO, RISC_RADIO_IQ_AUTO}, RISC_RADIO_IQ_AUTO}
+typedef struct {
+    uint32_t struct_size, flags, controls;
+    uint32_t min_pairs, max_pairs, center_min_hz, center_max_hz;
+    uint32_t sample_rates_hz[2], bandwidths_hz[2];
+    uint32_t gain_selector_max, rf_gain_max, bb_gain_max;
+    uint32_t filter_mask, dc_max, iq_correction_mask, automatic_value;
+    uint32_t sample_format, component_bits, component_full_scale;
+    risc_radio_iq_settings_v1 defaults;
+} risc_radio_iq_capabilities_v1;
+typedef struct {
+    uint32_t struct_size, flags;
+    uint32_t center_hz, sample_rate_hz, bandwidth_hz, pair_count;
+    uint32_t sample_format, component_bits, component_full_scale;
+    uint32_t rf_gain, bb_gain, dc[4], iq_correction, lo_mode;
+} risc_radio_iq_format_v1;
+typedef struct {
+    /* Test base.base.struct_size before reading any new function pointer. */
+    risc_radio_iq_diagnostics_api_v1 base;
+    /* Copied metadata only; no hardware access. Caller sets out->struct_size. */
+    bool (*capabilities)(void *context, risc_radio_iq_capabilities_v1 *out);
+    /* One coherent 1..max_pairs burst, never assembled from separate captures.
+     * NULL settings selects defaults. Set format->struct_size before calling;
+     * format and pairs are valid only on OK. Valid-sized outputs are cleared
+     * on failure. Invalid count/pointers cannot authorize clearing their memory.
+     * On failure, hardware state is restored or CLEANUP_RETAINED keeps custody
+     * until suspend succeeds. No settings persist, even after a failed capture.
+     * Calls must be serialized, as with the original provider API. */
+    int (*capture_configured)(void *context, uint32_t *pairs, uint32_t count,
+                              const risc_radio_iq_settings_v1 *settings,
+                              risc_radio_iq_format_v1 *format);
+    /* Same synchronous, never-retained stage callback as the old extension. */
+    int (*capture_configured_traced)(void *context, uint32_t *pairs, uint32_t count,
+                                     const risc_radio_iq_settings_v1 *settings,
+                                     risc_radio_iq_format_v1 *format,
+                                     risc_radio_iq_trace_v1 trace, void *trace_context);
+} risc_radio_iq_extended_api_v1;
 #ifdef __cplusplus
 }
 #endif
