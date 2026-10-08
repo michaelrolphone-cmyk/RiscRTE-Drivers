@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+  "tag": "watch-v1.0.12",
+  "title": "RiscRTE-Drivers source for Watch 1.0.12",
+  "source": {
+    "local_commit": "4088b6892c2e2654b0342f04a7d191068e4a8e2e",
+    "public_commit": "4088b6892c2e2654b0342f04a7d191068e4a8e2e",
+    "tree": "1c59a23db93d88ea11a2bc4964004df3505dc7d7"
+  },
+  "verification": {
+    "commit": "4088b6892c2e2654b0342f04a7d191068e4a8e2e",
+    "checks": [
+      "driver",
+      "build",
+      "ble-sensors",
+      "ble-hid"
+    ]
+  },
+  "notes": "Exact generic-driver source used by accepted Watch 1.0.12, including SDR IQ 0.2.0 and BLE sensor/battery telemetry. The original build already used this public commit. IQ, BLE and full driver builds pass; the separate repository parity job reports pre-existing external Reader camera, USB, display and power drift outside this Watch source change."
+}
