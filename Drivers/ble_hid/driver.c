@@ -669,6 +669,13 @@ static bool close_impl(uint64_t t) {
             last_error = BLE_HS_ECONTROLLER;
         lease = 0;
     }
+    /* A failed disconnect request can race the controller's own disconnect.
+     * It fences this session, but is not a permanent host failure after both
+     * NimBLE and native release independently prove teardown. Preserve poison
+     * for incomplete initialization, failed host stop, or any live connection. */
+    if (initialized && stopped && !diagnostics.host_stop_error &&
+        connection == BLE_HS_CONN_HANDLE_NONE)
+        poisoned = false;
     disconnected();
     token = 0;
     state = RISC_HID_OFF;
@@ -835,7 +842,21 @@ static bool api_diagnostics(void *c, uint64_t t, risc_bluetooth_hid_diagnostics_
 static bool api_forget(void *c) {
     (void)c;
     ENTER();
-    LEAVE(started && !token && hid_store_forget());
+    /* Forget is an OFF operation after proven cleanup. Do not report success
+     * while an unsafe host state would still prevent the next pairing. */
+    if (!started || token || lease || poisoned || (initialized && !stopped)) {
+        atomic_flag_clear(&guard);
+        return false;
+    }
+    if (!hid_store_forget()) {
+        last_error = BLE_HS_ESTORE_FAIL;
+        LEAVE(false);
+    }
+    disconnected();
+    pair_allowed = advertise_pending = false;
+    last_error = 0;
+    state = RISC_HID_OFF;
+    LEAVE(true);
 }
 static bool api_battery(void *c, uint64_t t, uint8_t p) {
     (void)c;

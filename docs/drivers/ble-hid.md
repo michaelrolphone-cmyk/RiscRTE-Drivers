@@ -1,4 +1,4 @@
-# ble-hid 0.1.3
+# ble-hid 0.1.4
 
 `ble-hid` is an original ABI-v2 logical provider for `bluetooth.hid@1`.
 It is board-neutral: no Watch, e-paper panel, GPIO, SDK controller or radio
@@ -242,3 +242,37 @@ stale controller events, and byte-for-byte unchanged security/identity records.
 Normal and sanitizer runs use the same production paths. This reproduces a
 software defect; the physical Watch's initiating transport failure is not yet
 identified. The copied diagnostics are intended to distinguish that trigger.
+
+## Disconnect and Forget Host recovery (0.1.4)
+
+A controller error responding to a disconnect request could set `poisoned`
+permanently even when a later close completed all teardown. The production
+regression reproduces this with a held-input/backpressure fault followed by an
+Unknown Connection Identifier or Command Disallowed response. Version 0.1.3
+reports host stopped and native close successful, but rejects all subsequent
+opens, including after Forget. That contradicts its proven safe cleanup state.
+
+Close now clears that recoverable latch only after initialized NimBLE reports a
+successful stop, no old connection remains, and native release succeeds.
+Incomplete initialization, failed/unproven host stop and retained native close
+remain fenced. Ordinary disconnect never removes the saved bond. Explicit
+Forget rejects an unsafe host state, clears only the four bound HID records,
+resets the provider's peer/session state and stale error, and allows new pairing.
+NimBLE stop and native release reset controller/privacy state before Forget;
+the next open loads the tombstones and generates a fresh local identity key.
+The application still owns the OFF-only close/Forget ordering and the host-side
+Bluetooth settings step. Watch/X4 Utilities 59cb050 already performs that order;
+this increment requires no application ABI or gesture change.
+
+Seven additional production protocol scenarios cover the disconnect-command
+race, a retained native-close retry, a missing disconnect completion, remote
+disconnect advertising restart, same-host reconnect after provider relaunch,
+controller-resolved private-address reconnect, Forget followed by another host's
+full authenticated pairing, and fresh-process restarts before and after Forget.
+They check old resolving-list entries are gone, the advertising filter remains
+unrestricted, all four tombstones are durable, unrelated settings stay byte-for-
+byte intact, and horizontal/vertical mouse scrolling still works. A deliberately
+unproven host stop cannot report successful Forget or permit reuse.
+
+These tests establish a software lockout cause. The reported physical device's
+initiating controller event remains unverified; no delivered image was changed.

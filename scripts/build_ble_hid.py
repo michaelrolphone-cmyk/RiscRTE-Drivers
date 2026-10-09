@@ -52,7 +52,7 @@ def build(host=False,sanitize=False):
     b=elf.read_bytes()
     if b[:7]!=b'\x7fELF\x01\x01\x01' or b[16:20]!=b'\x03\x00\x5e\x00':raise ValueError('Wrong ELF target')
     m=json.loads((SOURCE/'manifest.json').read_text())
-    if m['id']!='ble-hid' or m['version']!='0.1.3':raise ValueError('Wrong manifest')
+    if m['id']!='ble-hid' or m['version']!='0.1.4':raise ValueError('Wrong manifest')
     record={'schema':1,'source_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'source_dirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),'nimble_commit':pin['commit'],'compiler':subprocess.check_output([cc,'--version'],text=True).splitlines()[0],'size_bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'imports':sorted(imports),'exports':sorted(exports),'physical_verification':'not-performed'}
     (out/'build-record.json').write_text(json.dumps(record,indent=2)+'\n');(out/'manifest.json').write_text(json.dumps(m,indent=2)+'\n')
     for f in ('LICENSE','NOTICE','SOURCE.json'):shutil.copyfile(VENDOR/f,out/('NimBLE-'+f))

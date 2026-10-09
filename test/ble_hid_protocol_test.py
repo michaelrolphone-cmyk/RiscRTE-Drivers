@@ -2,7 +2,7 @@
 """Production NimBLE/HID ELF against an independent, deterministic HCI central.
 No RF is used. cryptography/OpenSSL is the independent Secure Connections oracle.
 """
-import ctypes as C, sys, struct, collections, hashlib
+import ctypes as C, sys, struct, collections, hashlib, json, subprocess, tempfile
 from pathlib import Path
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.cmac import CMAC
@@ -36,14 +36,14 @@ class Fixture:
   self.driver=self.lib.t5_driver_get(2).contents;self.hid=C.cast(self.driver.api,C.POINTER(Hid)).contents
   assert self.hid.version==1 and self.hid.size>=C.sizeof(HidScroll)
   self.scroll=C.cast(self.driver.api,C.POINTER(HidScroll)).contents.mouse_scroll
-  self.fail_receive=False;self.connection=1;self.rx=collections.deque();self.acl=[];self.commands=[];self.kv={};self.time=100;self.lease=0;self.claims=0;self.releases=0;self.fail_send=False;self.fail_close=False;self.fail_write=False;self.drop_ack=False;self.random_counter=0;self.callbacks=[];self.no_credits=False;self.claim_failure=0
+  self.fail_receive=False;self.connection=1;self.rx=collections.deque();self.acl=[];self.commands=[];self.kv={};self.time=100;self.lease=0;self.claims=0;self.releases=0;self.fail_send=False;self.fail_close=False;self.fail_write=False;self.drop_ack=False;self.random_counter=0;self.callbacks=[];self.no_credits=False;self.claim_failure=0;self.resolving={}
   def wrap(t,fn):v=t(fn);self.callbacks.append(v);return v
   self.host=Host(1,C.sizeof(Host),None,Send(),Next(),F(B,P,B)(),F(B,P,C.POINTER(U8))(),wrap(Claim,self.claim),wrap(OwnedSend,self.send),wrap(OwnedNext,self.next),wrap(Release,self.release))
   self.clock=Clock(1,C.sizeof(Clock),None,wrap(F(U64,P),lambda _:self.time),wrap(F(None,P,U32),self.sleep))
   self.storage=KV(1,C.sizeof(KV),None,wrap(F(I32,P,C.c_char_p,P,U32,C.POINTER(U32)),self.get),wrap(F(I32,P,C.c_char_p,P,U32),self.put))
   self.deps=(Dep*3)(Dep(b'bluetooth.hci',1,C.addressof(self.host)),Dep(b'platform.clock',1,C.addressof(self.clock)),Dep(b'storage.key-value.bound',1,C.addressof(self.storage)))
   self.t=U64()
- def sleep(self,_,n):self.time+=n
+ def sleep(self,_,n):self.time+=max(n,getattr(self,'sleep_jump',0))
  def get(self,_,key,buf,cap,size):
   size[0]=0
   if key not in self.kv:return -1
@@ -62,7 +62,7 @@ class Fixture:
   assert token==7
   self.releases+=1
   if self.fail_close:return -1
-  self.lease=0;self.rx.clear();return 1
+  self.lease=0;self.rx.clear();self.resolving.clear();return 1
  def next(self,_,token,typ,p,cap,size):
   assert token==7 and self.lease and cap>=1028
   size[0]=0
@@ -82,6 +82,8 @@ class Fixture:
   assert kind==1 and n==3+b[2]
   op=int.from_bytes(b[:2],'little');self.commands.append((op,b[3:]))
   if self.drop_ack:return True
+  if op in (0x0c03,0x2029):self.resolving.clear()
+  elif op==0x2027:self.resolving[(b[3],b[4:10])]=(b[10:26],b[26:42])
   data=b''
   if op==0x1001:data=bytes([9,0,0,9,0,0,0,0])
   elif op==0x1002:data=bytes(64)
@@ -94,7 +96,11 @@ class Fixture:
   elif op in (0x202a,0x2007):data=b'\x08'
   elif op in (0x201a,0x201b):data=b[:2] if False else b[3:5]
   elif op==0x0406:
-   self.event(b'\x0f\x04\x00\x01'+le(op));self.event(b'\x05\x04\x00'+b[3:5]+b'\x13');return True
+   status=getattr(self,'terminate_status',0);self.terminate_status=0
+   self.event(b'\x0f\x04'+bytes([status,1])+le(op))
+   if status:return True
+   if not getattr(self,'drop_disconnect',False):self.event(b'\x05\x04\x00'+b[3:5]+b'\x13')
+   return True
   self.complete(op,data);return True
  def start(self):
   assert not self.lib.t5_driver_get(1)
@@ -122,7 +128,7 @@ class Fixture:
  def connect(self,handle=1):
   self.connection=handle
   # LE Connection Complete: peripheral role, peer public address.
-  self.peer=bytes.fromhex('ca61a06794e0');self.own=bytes.fromhex('33221100450a')
+  self.peer=getattr(self,'peer_address',bytes.fromhex('ca61a06794e0'));self.own=bytes.fromhex('33221100450a')
   self.event(b'\x3e\x13\x01\x00'+le(handle)+b'\x01\x00'+self.peer+b'\x18\x00\x00\x00\xc8\x00\x00');self.pump(10)
  def l2cap(self,cid,payload):b=le(len(payload))+le(cid)+payload;self.rx.append((2,le(self.connection|0x2000)+le(len(b))+b));self.pump(10)
  def outgoing(self,cid):
@@ -206,8 +212,15 @@ class Fixture:
   assert fields[5]==(5,3,1,None,0,1),fields
   assert fields[6:]==[(8,8,6,(1,0x30),-127,127),(16,8,6,(1,0x31),-127,127),
                        (24,8,6,(1,0x38),-127,127),(32,8,6,(0x0c,0x238),-127,127)],fields
- def reconnect(self,handle=2):
-  self.connect(handle)
+ def reconnect(self,handle=2,private=False):
+  if private:
+   # A real controller resolves the rotating RPA using the peer IRK installed
+   # by production NimBLE and reports the stable identity in this event.
+   self.peer=getattr(self,'peer_address',bytes.fromhex('ca61a06794e0'))
+   assert (0,self.peer) in self.resolving
+   self.connection=handle;rpa=bytes.fromhex('a1b2c3d4e542')
+   self.event(b'\x3e\x1f\x0a\x00'+le(handle)+b'\x01\x02'+self.peer+bytes(6)+rpa+b'\x18\x00\x00\x00\xc8\x00\x00');self.pump(10)
+  else:self.connect(handle)
   self.event(b'\x3e\x0d\x05'+le(handle)+bytes(10));self.pump()
   assert [p for op,p in self.commands if op==0x201a][-1][2:]==self.ltk
   self.event(b'\x08\x04\x00'+le(handle)+b'\x01');self.pump()
@@ -354,12 +367,114 @@ def close_fixture(f):
  assert f.driver.quiesce()
 def main():
  f=Fixture(Path(sys.argv[1]));scenario=sys.argv[2] if len(sys.argv)>2 else 'happy'
+ if scenario in ('reboot-saved-host','reboot-forgotten-host'):
+  checkpoint=Path(sys.argv[3]);saved=json.loads(checkpoint.read_text())
+  f.kv={bytes.fromhex(k):bytes.fromhex(v) for k,v in saved['kv'].items()}
+  f.ltk=bytes.fromhex(saved['ltk'])
+  assert f.driver.start(f.deps,3)
+  if scenario=='reboot-saved-host':
+   assert f.status().flags&16
+   assert f.hid.open(None,b'RiscRTE HID',False,C.byref(f.t));f.pump(20);f.reconnect(2,private=True)
+   assert f.status().flags&3==3
+   assert f.scroll(None,f.t,1,1,-2,3,-4);f.pump()
+   assert f.hid.close(None,f.t);f.t.value=0
+   assert f.hid.forget(None) and not f.status().flags&16
+   saved['kv']={k.hex():v.hex() for k,v in f.kv.items()};checkpoint.write_text(json.dumps(saved))
+   assert f.driver.quiesce()
+  else:
+   assert not f.status().flags&16
+   assert not f.hid.open(None,b'RiscRTE HID',False,C.byref(f.t))
+   assert f.hid.open(None,b'RiscRTE HID',True,C.byref(f.t));f.pump(20)
+   assert (0,bytes.fromhex('ca61a06794e0')) not in f.resolving
+   f.peer_address=bytes.fromhex('aabbccddee10');f.pair();f.discover()
+   assert f.scroll(None,f.t,1,1,-2,3,-4);f.pump();close_fixture(f)
+  assert f.kv[b'unrelated_setting']==b'preserve me'
+  print('Fresh-process durable bond and Forget lifecycle ('+scenario+'): PASS');return
  if scenario=='immediate-close':
   assert f.driver.start(f.deps,3)
   for _ in range(4):
    assert f.hid.open(None,b'Retry',True,C.byref(f.t));assert f.hid.close(None,f.t);f.t.value=0
   assert f.driver.quiesce();print('First-ever and repeated close before the next caller poll remains restartable: PASS');return
  f.start();print('Driver admission, bounded HCI startup and HID advertising: PASS')
+ if scenario=='forget-reboot':
+  f.kv[b'unrelated_setting']=b'preserve me';f.pair();f.discover();close_fixture(f)
+  with tempfile.TemporaryDirectory() as td:
+   checkpoint=Path(td)/'synthetic-bond.json'
+   checkpoint.write_text(json.dumps({'kv':{k.hex():v.hex() for k,v in f.kv.items()},'ltk':f.ltk.hex()}))
+   for stage in ('reboot-saved-host','reboot-forgotten-host'):
+    subprocess.run([sys.executable,__file__,sys.argv[1],stage,str(checkpoint)],check=True)
+  print('Cold restart reconnect and durable Forget allow another host without settings loss: PASS');return
+ if scenario=='forget-unsafe-close':
+  f.pair();f.discover();identity=dict(f.kv)
+  f.drop_disconnect=True;f.sleep_jump=500
+  assert f.hid.close(None,f.t);f.t.value=0
+  d=f.diagnostics();assert d.poisoned and not d.host_stopped and d.native_close==1
+  assert not f.hid.forget(None) and f.kv==identity
+  assert not f.hid.open(None,b'RiscRTE HID',False,C.byref(f.t))
+  assert f.driver.quiesce()
+  print('Unproven cooperative host stop cannot claim successful Forget or reopen: PASS');return
+ if scenario in ('forget-terminate-race','forget-race-new-host','forget-race-retained'):
+  f.kv[b'unrelated_setting']=b'preserve me'
+  f.pair();f.discover();identity=dict(f.kv);old_peer=f.peer;f.no_credits=True
+  assert f.scroll(None,f.t,1,0,0,1,1)
+  while f.hid.keyboard(None,f.t,2,arr(b'\x04'+bytes(5))):pass
+  f.terminate_status=12 if scenario=='forget-race-new-host' else 2;f.time+=1001
+  assert not f.hid.poll(None,f.t,1)
+  assert f.diagnostics().poisoned
+  f.no_credits=False
+  if scenario=='forget-race-retained':
+   f.fail_close=True;assert not f.hid.close(None,f.t)
+   assert f.diagnostics().poisoned and f.lease==7
+   assert not f.hid.forget(None) and f.kv==identity
+   assert not f.hid.open(None,b'RiscRTE HID',False,C.byref(U64()))
+   f.fail_close=False
+  assert f.hid.close(None,f.t);f.t.value=0
+  d=f.diagnostics();assert not d.poisoned and d.host_stopped and d.native_close==1, ('poisoned state survived proven stop',d.poisoned,d.host_stopped,d.native_close)
+  assert f.kv==identity and not f.resolving
+  f.outgoing(4);f.outgoing(6)
+  if scenario=='forget-race-new-host':
+   assert f.hid.forget(None)
+   assert not f.status().flags&16 and f.status().error==0
+   assert f.kv[b'unrelated_setting']==identity[b'unrelated_setting']
+   f.peer_address=bytes.fromhex('aabbccddee10')
+   assert f.hid.open(None,b'RiscRTE HID',True,C.byref(f.t));f.pump(20)
+   assert (0,old_peer) not in f.resolving
+   f.outgoing(6);f.pair();f.discover()
+   assert f.kv[b'hid_identity']!=identity[b'hid_identity']
+  else:
+   assert f.hid.open(None,b'RiscRTE HID',False,C.byref(f.t)), 'Proven close must permit the same saved host without reloading firmware'
+   f.pump(20);f.reconnect(2,private=True)
+   assert {k:v for k,v in f.kv.items() if k!=b'hid_ccc'}=={k:v for k,v in identity.items() if k!=b'hid_ccc'}
+  assert f.scroll(None,f.t,1,1,-2,3,-4);f.pump()
+  close_fixture(f);print('Disconnect command race recovers after proven teardown ('+scenario+'): PASS');return
+ if scenario in ('forget-new-host','forget-lost-disconnect'):
+  f.kv[b'unrelated_setting']=b'preserve me'
+  f.pair();f.discover();identity=dict(f.kv)
+  assert not f.hid.forget(None), 'Forget must reject while active'
+  f.event(b'\x05\x04\x00'+le(f.connection)+b'\x08');f.pump(20)
+  assert f.status().state==2 and [p for op,p in f.commands if op==0x200a][-1]==b'\x01'
+  assert [p for op,p in f.commands if op==0x2006][-1][-1]==0, 'No stale whitelist restriction'
+  f.reconnect(2,private=True)
+  if scenario=='forget-lost-disconnect':f.drop_disconnect=True
+  assert f.hid.close(None,f.t);f.t.value=0
+  assert f.driver.quiesce();assert f.driver.start(f.deps,3)
+  assert f.hid.open(None,b'RiscRTE HID',False,C.byref(f.t));f.pump(20)
+  f.reconnect(3,private=True);assert f.status().flags&28==28
+  assert f.hid.close(None,f.t);f.t.value=0
+  assert f.hid.forget(None)
+  assert not f.status().flags&16
+  assert f.kv[b'unrelated_setting']==identity[b'unrelated_setting']
+  for key in (b'hid_ours',b'hid_peer',b'hid_ccc',b'hid_identity'):
+   assert f.kv[key][2]==0, key
+  assert not f.resolving
+  assert f.driver.quiesce();assert f.driver.start(f.deps,3)
+  assert not f.hid.open(None,b'RiscRTE HID',False,C.byref(f.t))
+  f.peer_address=bytes.fromhex('aabbccddee10')
+  assert f.hid.open(None,b'RiscRTE HID',True,C.byref(f.t));f.pump(20)
+  f.outgoing(6);f.pair();f.discover()
+  assert f.scroll(None,f.t,1,1,-2,3,-4);f.pump()
+  close_fixture(f)
+  print('Provider relaunch preserves saved-host reconnect; Forget allows a different bonded host: PASS');return
  assert not f.scroll(None,f.t,0,0,0,1,1)
  if scenario=='scroll':
   f.pair();f.discover();f.scroll_reports();return
