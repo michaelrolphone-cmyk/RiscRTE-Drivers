@@ -27,7 +27,7 @@ static bool encrypted, authenticated, suspended, advertise_pending, secure_pendi
     terminate_pending;
 static uint16_t connection = BLE_HS_CONN_HANDLE_NONE, handles[5];
 static bool subscribed[5];
-static uint8_t keyboard_report[8], mouse_report[4], leds, protocol = 1, battery_level = 255;
+static uint8_t keyboard_report[8], mouse_report[5], leds, protocol = 1, battery_level = 255;
 static uint32_t state, number, pair_deadline, keyboard_since, mouse_since, generation;
 static int32_t last_error;
 static risc_bluetooth_hid_diagnostics_v1 diagnostics;
@@ -48,7 +48,9 @@ static const uint8_t report_map[] = {
     0x00, 0x29, 0xff, 0x81, 0x00, 0xc0, 0x05, 0x01, 0x09, 0x02, 0xa1, 0x01, 0x85, 0x02, 0x09,
     0x01, 0xa1, 0x00, 0x05, 0x09, 0x19, 0x01, 0x29, 0x05, 0x15, 0x00, 0x25, 0x01, 0x95, 0x05,
     0x75, 0x01, 0x81, 0x02, 0x95, 0x01, 0x75, 0x03, 0x81, 0x01, 0x05, 0x01, 0x09, 0x30, 0x09,
-    0x31, 0x09, 0x38, 0x15, 0x81, 0x25, 0x7f, 0x75, 0x08, 0x95, 0x03, 0x81, 0x06, 0xc0, 0xc0};
+    0x31, 0x09, 0x38, 0x15, 0x81, 0x25, 0x7f, 0x75, 0x08, 0x95, 0x03, 0x81, 0x06,
+    /* Consumer AC Pan: a separate signed relative horizontal wheel byte. */
+    0x05, 0x0c, 0x0a, 0x38, 0x02, 0x95, 0x01, 0x81, 0x06, 0xc0, 0xc0};
 enum {
     A_INFO,
     A_MAP,
@@ -166,7 +168,7 @@ static bool release_impl(void) {
         }
     }
     if (mouse_report[0]) {
-        if (!notify(protocol ? 1 : 3, z, protocol ? 4 : 3)) {
+        if (!notify(protocol ? 1 : 3, z, protocol ? sizeof(mouse_report) : 3)) {
             ok = false;
         } else {
             memset(mouse_report, 0, sizeof(mouse_report));
@@ -250,7 +252,7 @@ static int access_value(uint16_t c, uint16_t a, struct ble_gatt_access_ctxt *x, 
     case A_MOUSE:
     case A_BOOT_MOUSE:
         p = mouse_report;
-        n = kind == A_MOUSE ? 4 : 3;
+        n = kind == A_MOUSE ? sizeof(mouse_report) : 3;
         break;
     case A_KEY_OUT:
     case A_BOOT_OUT:
@@ -528,7 +530,7 @@ static bool pump(uint32_t count) {
         memset(keyboard_report, 0, sizeof(keyboard_report));
     }
     if (mouse_report[0] && (uint32_t)(now - mouse_since) >= 1000) {
-        bool ok = notify(protocol ? 1 : 3, zero, protocol ? 4 : 3);
+        bool ok = notify(protocol ? 1 : 3, zero, protocol ? sizeof(mouse_report) : 3);
         if (!ok) {
             failed(BLE_HS_EBUSY);
             return disconnect_fault();
@@ -667,6 +669,13 @@ static bool close_impl(uint64_t t) {
             last_error = BLE_HS_ECONTROLLER;
         lease = 0;
     }
+    /* A failed disconnect request can race the controller's own disconnect.
+     * It fences this session, but is not a permanent host failure after both
+     * NimBLE and native release independently prove teardown. Preserve poison
+     * for incomplete initialization, failed host stop, or any live connection. */
+    if (initialized && stopped && !diagnostics.host_stop_error &&
+        connection == BLE_HS_CONN_HANDLE_NONE)
+        poisoned = false;
     disconnected();
     token = 0;
     state = RISC_HID_OFF;
@@ -704,17 +713,30 @@ static bool keyboard_impl(uint64_t t, uint8_t mods, const uint8_t *keys) {
     keyboard_since = ble_npl_time_get();
     return true;
 }
-static bool mouse_impl(uint64_t t, uint8_t buttons, int8_t dx, int8_t dy, int8_t wheel) {
-    if (!valid(t) || buttons > 31 || (!protocol && (buttons > 7 || wheel != 0)) || dx == -128 ||
-        dy == -128 || wheel == -128 || !(ready_flags() & RISC_HID_MOUSE_READY))
+static int8_t mouse_delta(int16_t value) {
+    return value < -127 ? -127 : value > 127 ? 127 : (int8_t)value;
+}
+static bool mouse_scroll_impl(uint64_t t, uint8_t buttons, int16_t dx, int16_t dy,
+                              int16_t wheel_x, int16_t wheel_y) {
+    if (!valid(t) || buttons > 31 ||
+        (!protocol && (buttons > 7 || wheel_x != 0 || wheel_y != 0)) ||
+        !(ready_flags() & RISC_HID_MOUSE_READY))
         return false;
-    uint8_t b[] = {buttons, (uint8_t)dx, (uint8_t)dy, (uint8_t)wheel};
-    if (!notify(protocol ? 1 : 3, b, protocol ? 4 : 3))
+    /* Keep vertical Wheel in the existing report prefix; AC Pan is the tail. */
+    uint8_t b[] = {buttons, (uint8_t)mouse_delta(dx), (uint8_t)mouse_delta(dy),
+                   (uint8_t)mouse_delta(wheel_y), (uint8_t)mouse_delta(wheel_x)};
+    if (!notify(protocol ? 1 : 3, b, protocol ? sizeof(b) : 3))
         return false;
+    memset(mouse_report, 0, sizeof(mouse_report));
     mouse_report[0] = buttons;
-    mouse_report[1] = mouse_report[2] = mouse_report[3] = 0;
     mouse_since = ble_npl_time_get();
     return true;
+}
+static bool mouse_impl(uint64_t t, uint8_t buttons, int8_t dx, int8_t dy, int8_t wheel) {
+    /* Preserve the original API's rejection of the unrepresentable -128. */
+    if (dx == -128 || dy == -128 || wheel == -128)
+        return false;
+    return mouse_scroll_impl(t, buttons, dx, dy, 0, wheel);
 }
 /* Serialize the public API. No busy caller can enter the cooperative host. */
 #define ENTER()                                                                                    \
@@ -788,6 +810,12 @@ static bool api_mouse(void *c, uint64_t t, uint8_t b, int8_t x, int8_t y, int8_t
     ENTER();
     LEAVE(mouse_impl(t, b, x, y, w));
 }
+static bool api_mouse_scroll(void *c, uint64_t t, uint8_t b, int16_t x, int16_t y,
+                              int16_t wheel_x, int16_t wheel_y) {
+    (void)c;
+    ENTER();
+    LEAVE(mouse_scroll_impl(t, b, x, y, wheel_x, wheel_y));
+}
 static bool api_release(void *c, uint64_t t) {
     (void)c;
     ENTER();
@@ -814,7 +842,21 @@ static bool api_diagnostics(void *c, uint64_t t, risc_bluetooth_hid_diagnostics_
 static bool api_forget(void *c) {
     (void)c;
     ENTER();
-    LEAVE(started && !token && hid_store_forget());
+    /* Forget is an OFF operation after proven cleanup. Do not report success
+     * while an unsafe host state would still prevent the next pairing. */
+    if (!started || token || lease || poisoned || (initialized && !stopped)) {
+        atomic_flag_clear(&guard);
+        return false;
+    }
+    if (!hid_store_forget()) {
+        last_error = BLE_HS_ESTORE_FAIL;
+        LEAVE(false);
+    }
+    disconnected();
+    pair_allowed = advertise_pending = false;
+    last_error = 0;
+    state = RISC_HID_OFF;
+    LEAVE(true);
 }
 static bool api_battery(void *c, uint64_t t, uint8_t p) {
     (void)c;
@@ -887,10 +929,10 @@ static bool start(const risc_provider_dependency_v1 *d, size_t n) {
         last_error = BLE_HS_ESTORE_FAIL;
     LEAVE(true);
 }
-static const risc_bluetooth_hid_diagnostics_api_v1 api = {{1,          sizeof(api), NULL,        api_open,
+static const risc_bluetooth_hid_scroll_api_v1 api = {{{1,          sizeof(api), NULL,        api_open,
                                           api_poll,   api_status,  api_confirm, api_keyboard,
                                           api_mouse,  api_release, api_close,   api_forget,
-                                          api_battery}, api_diagnostics};
+                                          api_battery}, api_diagnostics}, api_mouse_scroll};
 static const risc_driver_v2 driver = {
     2, sizeof(driver), "ble-hid", RISC_BLUETOOTH_HID_CAPABILITY, 1, &api, start, stop, quiesce};
 __attribute__((visibility("default"))) const risc_driver_v2 *t5_driver_get(uint32_t abi) {
