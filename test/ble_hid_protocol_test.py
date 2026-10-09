@@ -7,7 +7,7 @@ from pathlib import Path
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.cmac import CMAC
 from cryptography.hazmat.primitives.ciphers import algorithms
-B=C.c_bool; U8=C.c_uint8; U16=C.c_uint16; U32=C.c_uint32; U64=C.c_uint64; I8=C.c_int8; I32=C.c_int32; SZ=C.c_size_t; P=C.c_void_p
+B=C.c_bool; U8=C.c_uint8; U16=C.c_uint16; U32=C.c_uint32; U64=C.c_uint64; I8=C.c_int8; I16=C.c_int16; I32=C.c_int32; SZ=C.c_size_t; P=C.c_void_p
 F=lambda r,*a:C.CFUNCTYPE(r,*a)
 class Dep(C.Structure):_fields_=[('name',C.c_char_p),('version',U32),('api',P)]
 class Driver(C.Structure):_fields_=[('version',U32),('size',U32),('id',C.c_char_p),('cap',C.c_char_p),('api_version',U32),('api',P),('start',F(B,C.POINTER(Dep),SZ)),('stop',F(None)),('quiesce',F(B))]
@@ -15,6 +15,7 @@ class Status(C.Structure):_fields_=[('size',U32),('state',U32),('flags',U32),('n
 class Hid(C.Structure):_fields_=[('version',U32),('size',U32),('ctx',P),('open',F(B,P,C.c_char_p,B,C.POINTER(U64))),('poll',F(B,P,U64,U32)),('status',F(B,P,U64,C.POINTER(Status))),('confirm',F(B,P,U64,B)),('keyboard',F(B,P,U64,U8,C.POINTER(U8))),('mouse',F(B,P,U64,U8,I8,I8,I8)),('release',F(B,P,U64)),('close',F(B,P,U64)),('forget',F(B,P)),('battery',F(B,P,U64,U8))]
 class Diagnostics(C.Structure):_fields_=[('size',U32),('port_fault',U32),('disconnect_reason',U32),('security_status',U32),('notify_error',I32),('stop_error',I32),('native_close',I32),('notify_failures',U32),('stale_events',U32),('max_poll_gap_ms',U32),('poisoned',U32),('host_stopped',U32)]
 class HidDiagnostics(C.Structure):_fields_=[('base',Hid),('diagnostics',F(B,P,U64,C.POINTER(Diagnostics)))]
+class HidScroll(C.Structure):_fields_=[('base',HidDiagnostics),('mouse_scroll',F(B,P,U64,U8,I16,I16,I16,I16))]
 Send=F(B,P,U8,C.POINTER(U8),SZ); Next=F(I32,P,C.POINTER(U8),C.POINTER(U8),SZ,C.POINTER(SZ))
 Claim=F(B,P,C.POINTER(U64)); OwnedSend=F(B,P,U64,U8,C.POINTER(U8),SZ); OwnedNext=F(I32,P,U64,C.POINTER(U8),C.POINTER(U8),SZ,C.POINTER(SZ)); Release=F(I32,P,U64)
 class Host(C.Structure):_fields_=[('version',U32),('size',U32),('ctx',P),('send',Send),('next',Next),('enable',F(B,P,B)),('status',F(B,P,C.POINTER(U8))),('claim',Claim),('send_owned',OwnedSend),('next_owned',OwnedNext),('release',Release)]
@@ -33,6 +34,8 @@ class Fixture:
  def __init__(self,path):
   self.lib=C.CDLL(str(path));self.lib.t5_driver_get.argtypes=[U32];self.lib.t5_driver_get.restype=C.POINTER(Driver)
   self.driver=self.lib.t5_driver_get(2).contents;self.hid=C.cast(self.driver.api,C.POINTER(Hid)).contents
+  assert self.hid.version==1 and self.hid.size>=C.sizeof(HidScroll)
+  self.scroll=C.cast(self.driver.api,C.POINTER(HidScroll)).contents.mouse_scroll
   self.fail_receive=False;self.connection=1;self.rx=collections.deque();self.acl=[];self.commands=[];self.kv={};self.time=100;self.lease=0;self.claims=0;self.releases=0;self.fail_send=False;self.fail_close=False;self.fail_write=False;self.drop_ack=False;self.random_counter=0;self.callbacks=[];self.no_credits=False;self.claim_failure=0
   def wrap(t,fn):v=t(fn);self.callbacks.append(v);return v
   self.host=Host(1,C.sizeof(Host),None,Send(),Next(),F(B,P,B)(),F(B,P,C.POINTER(U8))(),wrap(Claim,self.claim),wrap(OwnedSend,self.send),wrap(OwnedNext,self.next),wrap(Release,self.release))
@@ -168,12 +171,41 @@ class Fixture:
    if len(b)<64:break
    offset=len(data)
   assert b'\x85\x01' in data and b'\x85\x02' in data and len(data)>100
+  self.check_mouse_map(data)
   self.kbd,self.kcc=self.report_handles[(1,1)];self.mouse,self.mcc=self.report_handles[(2,1)]
   for ccc in (self.kcc,self.mcc):
    reply=self.att(b'\x12'+le(ccc)+b'\x01\x00');assert b'\x13' in reply,reply
   self.outgoing(4)
   assert self.status().flags&3==3,self.describe()
   print('ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS')
+ def check_mouse_map(self,data):
+  # Independently decode HID short items received over ATT, including globals
+  # inherited by AC Pan. Assert field semantics, offsets, bounds and length.
+  state={};local={};fields=[];offset=0;i=0
+  while i<len(data):
+   prefix=data[i];i+=1;size=(0,1,2,4)[prefix&3]
+   raw=data[i:i+size];i+=size;value=int.from_bytes(raw,'little')
+   kind=(prefix>>2)&3;tag=prefix>>4
+   assert prefix!=0xfe and len(raw)==size
+   if kind==1:
+    state[tag]=int.from_bytes(raw,'little',signed=True) if tag in (1,2) else value
+   elif kind==2:
+    if tag==0:local.setdefault('usages',[]).append((state.get(0),value))
+    else:local[tag]=value
+   elif kind==0:
+    if tag==8 and state.get(8)==2:
+     usages=local.get('usages',[])
+     if 1 in local and 2 in local:usages=[(state.get(0),v) for v in range(local[1],local[2]+1)]
+     for index in range(state[9]):
+      usage=usages[min(index,len(usages)-1)] if usages else None
+      fields.append((offset,state[7],value,usage,state.get(1),state.get(2)))
+      offset+=state[7]
+    local={}
+  assert offset==40,fields
+  assert fields[:5]==[(i,1,2,(9,i+1),0,1) for i in range(5)],fields
+  assert fields[5]==(5,3,1,None,0,1),fields
+  assert fields[6:]==[(8,8,6,(1,0x30),-127,127),(16,8,6,(1,0x31),-127,127),
+                       (24,8,6,(1,0x38),-127,127),(32,8,6,(0x0c,0x238),-127,127)],fields
  def reconnect(self,handle=2):
   self.connect(handle)
   self.event(b'\x3e\x0d\x05'+le(handle)+bytes(10));self.pump()
@@ -190,7 +222,7 @@ class Fixture:
   assert self.hid.mouse(None,self.t,1,17,-20,1)
   assert self.hid.mouse(None,self.t,0,0,0,0)
   self.pump();reports=self.outgoing(4)
-  assert reports==[b'\x1b'+le(self.kbd)+b'\x03\x00\x04'+bytes(5),b'\x1b'+le(self.kbd)+bytes(8),b'\x1b'+le(self.mouse)+bytes([1,17,236,1]),b'\x1b'+le(self.mouse)+bytes(4)],reports
+  assert reports==[b'\x1b'+le(self.kbd)+b'\x03\x00\x04'+bytes(5),b'\x1b'+le(self.kbd)+bytes(8),b'\x1b'+le(self.mouse)+bytes([1,17,236,1,0]),b'\x1b'+le(self.mouse)+bytes(5)],reports
   assert self.hid.keyboard(None,self.t,2,arr(b'\x05'+bytes(5)))
   self.pump();self.outgoing(4);self.time+=1001;self.pump()
   releases=self.outgoing(4);assert b'\x1b'+le(self.kbd)+bytes(8) in releases
@@ -204,7 +236,7 @@ class Fixture:
   assert self.hid.mouse(None,self.t,1,0,0,0);self.pump();self.outgoing(4)
   for _ in range(3):
    self.time+=400;assert self.hid.keyboard(None,self.t,0,arr(bytes(6)));self.pump()
-  assert b'\x1b'+le(self.mouse)+bytes(4) in self.outgoing(4)
+  assert b'\x1b'+le(self.mouse)+bytes(5) in self.outgoing(4)
   # A different CCC change while a modifier is held must not silently lose it.
   assert self.hid.keyboard(None,self.t,2,arr(b'\x05'+bytes(5)));self.pump();self.outgoing(4)
   reply=self.att(b'\x12'+le(self.mcc)+b'\x00\x00')
@@ -217,6 +249,67 @@ class Fixture:
   assert self.outgoing(4)==[b'\x1b'+le(self.bootmouse)+bytes([2,10,20])]
   assert self.hid.release(None,self.t);self.pump();self.outgoing(4)
   print('FIFO keyboard/modifier/click reports, signed motion, watchdog, CCC/protocol cleanup, boot mouse: PASS')
+ def scroll_reports(self):
+  self.outgoing(4)
+  assert not self.scroll(None,self.t.value+1,0,0,0,1,1)
+  assert not self.scroll(None,self.t,32,0,0,1,1)
+  # Old clients keep the exact same argument ABI and -128 rejection behavior.
+  for dx,dy,wheel in ((-128,0,0),(0,-128,0),(0,0,-128)):
+   assert not self.hid.mouse(None,self.t,0,dx,dy,wheel)
+  self.pump();assert not self.outgoing(4)
+  cases=[((0,0,0,1,0),[0,0,0,0,1]),((0,0,0,-1,0),[0,0,0,0,255]),
+         ((0,0,0,0,1),[0,0,0,1,0]),((0,0,0,0,-1),[0,0,0,255,0]),
+         ((1,17,-20,7,-11),[1,17,236,245,7]),
+         ((31,32767,-32768,32767,-32768),[31,127,129,129,127]),
+         ((0,-32768,32767,-32768,32767),[0,129,127,127,129]),
+         ((0,-128,128,-128,128),[0,129,127,127,129]),
+         ((0,127,-127,127,-127),[0,127,129,129,127])]
+  for args,expected in cases:
+   assert self.scroll(None,self.t,*args)
+   self.pump();assert self.outgoing(4)==[b'\x1b'+le(self.mouse)+bytes(expected)]
+   # Relative movement and either scroll axis must never be replayed on read.
+   assert self.att(b'\x0a'+le(self.mouse))==[b'\x0b'+bytes([args[0],0,0,0,0])]
+  # Explicit, watchdog, suspend, CCC and protocol cleanup use the full report.
+  neutral=b'\x1b'+le(self.mouse)+bytes(5)
+  def held():
+   assert self.scroll(None,self.t,1,2,-3,4,-5)
+   self.pump();self.outgoing(4)
+  held();assert self.hid.release(None,self.t);self.pump()
+  assert self.outgoing(4)==[neutral]
+  held();self.time+=1001;self.pump();assert self.outgoing(4)==[neutral]
+  self.time+=1001;self.pump();assert not self.outgoing(4)
+  held();control=next(c[2] for c in self.chars if c[3]==0x2a4c)
+  assert self.att(b'\x52'+le(control)+b'\x00')==[neutral]
+  assert not self.scroll(None,self.t,0,0,0,1,1)
+  self.att(b'\x52'+le(control)+b'\x01')
+  held();assert neutral in self.att(b'\x12'+le(self.mcc)+b'\x00\x00')
+  assert not self.scroll(None,self.t,0,0,0,1,1)
+  self.att(b'\x12'+le(self.mcc)+b'\x01\x00')
+  for ccc in (self.bootkey+1,self.bootmouse+1):self.att(b'\x12'+le(ccc)+b'\x01\x00')
+  held();assert self.att(b'\x52'+le(self.proto)+b'\x00')==[neutral]
+  for args in ((0,0,0,1,0),(0,0,0,0,1),(0,0,0,-1,-1),(8,0,0,0,0)):
+   assert not self.scroll(None,self.t,*args)
+  assert self.scroll(None,self.t,7,32767,-32768,0,0);self.pump()
+  assert self.outgoing(4)==[b'\x1b'+le(self.bootmouse)+bytes([7,127,129])]
+  assert self.hid.release(None,self.t);self.pump()
+  assert self.outgoing(4)==[b'\x1b'+le(self.bootmouse)+bytes(3)]
+  self.att(b'\x52'+le(self.proto)+b'\x01')
+  # A held click with both scroll axes cannot survive a disconnected session.
+  held();generation=self.status().generation
+  self.event(b'\x05\x04\x00'+le(self.connection)+b'\x08');self.pump(20)
+  assert not self.scroll(None,self.t,0,0,0,1,1)
+  self.reconnect(2);self.outgoing(4)
+  assert self.status().generation!=generation
+  assert self.att(b'\x0a'+le(self.mouse))==[b'\x0b'+bytes(5)]
+  assert self.att(b'\x0a'+le(self.bootmouse))==[b'\x0b'+bytes(3)]
+  assert self.scroll(None,self.t,0,0,0,-2,3);self.pump()
+  assert self.outgoing(4)==[b'\x1b'+le(self.mouse)+bytes([0,0,0,3,254])]
+  # Close also emits a full neutral before disconnecting the held button.
+  held();assert self.hid.close(None,self.t);self.t.value=0
+  assert neutral in self.outgoing(4)
+  assert not self.scroll(None,self.t,0,0,0,1,1)
+  assert self.driver.quiesce()
+  print('Two-axis AC Pan/Wheel bytes, signs, saturation, legacy ABI, boot and all cleanup paths: PASS')
  def pair(self,accept=True,timeout=False,tamper=False,late=False,wrap=False):
   self.connect();assert self.status().state==3
   assert not self.hid.keyboard(None,self.t,1,arr(bytes(6)))
@@ -267,6 +360,9 @@ def main():
    assert f.hid.open(None,b'Retry',True,C.byref(f.t));assert f.hid.close(None,f.t);f.t.value=0
   assert f.driver.quiesce();print('First-ever and repeated close before the next caller poll remains restartable: PASS');return
  f.start();print('Driver admission, bounded HCI startup and HID advertising: PASS')
+ assert not f.scroll(None,f.t,0,0,0,1,1)
+ if scenario=='scroll':
+  f.pair();f.discover();f.scroll_reports();return
  if scenario in ('late','late-wrap'):
   f.pair(late=True,wrap=scenario=='late-wrap');close_fixture(f);return
  if scenario in ('reject','timeout','tamper'):
@@ -282,7 +378,7 @@ def main():
   close_fixture(f);print('Failed zero-token and retained-token HCI claims remain retryable after a prior clean session: PASS');return
  if scenario.startswith('backpressure-'):
   f.pair();f.discover();f.outgoing(4);f.no_credits=True
-  assert f.hid.mouse(None,f.t,1,0,0,0)
+  assert f.scroll(None,f.t,1,0,0,5,-7)
   count=0
   while f.hid.keyboard(None,f.t,2,arr(b'\x04'+bytes(5))):
    count+=1;assert count<=32
@@ -292,7 +388,7 @@ def main():
    assert not f.hid.release(None,f.t)
    f.no_credits=False;f.event(b'\x13\x05\x01\x01\x00\x08\x00');f.pump(30);f.outgoing(4)
    assert f.hid.release(None,f.t);f.pump();wire=f.outgoing(4)
-   assert b'\x1b'+le(f.kbd)+bytes(8) in wire and b'\x1b'+le(f.mouse)+bytes(4) in wire
+   assert b'\x1b'+le(f.kbd)+bytes(8) in wire and b'\x1b'+le(f.mouse)+bytes(5) in wire
   elif action=='disconnect':
    f.event(b'\x05\x04\x00\x01\x00\x13');f.no_credits=False;f.pump(30)
    assert not f.status().flags&15
@@ -352,7 +448,7 @@ def main():
   f.event(b'\x05\x04\x00\x01\x00\x13');f.pump(20)
   assert (f.status().state,f.status().flags,f.status().generation)==before
   f.outgoing(4)
-  assert f.att(b'\x0a'+le(f.mouse))==[b'\x0b'+bytes(4)]
+  assert f.att(b'\x0a'+le(f.mouse))==[b'\x0b'+bytes(5)]
   if scenario=='mouse-no-subscription':
    assert f.status().flags&1 and not f.status().flags&2
    assert not f.hid.mouse(None,f.t,0,1,0,0)
@@ -389,7 +485,7 @@ def main():
  assert f.status().flags&28==28,f.describe()
  f.outgoing(4)
  assert f.att(b'\x0a'+le(f.kbd))==[b'\x0b'+bytes(8)]
- assert f.att(b'\x0a'+le(f.mouse))==[b'\x0b'+bytes(4)]
+ assert f.att(b'\x0a'+le(f.mouse))==[b'\x0b'+bytes(5)]
  assert f.att(b'\x0a'+le(f.proto))==[b'\x0b\x01']
  print('Bonded reconnect restores CCCs without re-pairing; neutral reports/protocol reset: PASS')
  close_fixture(f)

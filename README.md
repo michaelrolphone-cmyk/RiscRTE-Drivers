@@ -104,7 +104,7 @@ Board-specific loadable ELFs live in `boards/xteink-x4-pro/` and are outside the
 
 ## Generic BLE HID peripheral
 
-[ble-hid](docs/drivers/ble-hid.md) 0.1.0 provides `bluetooth.hid@1` through a
+[ble-hid](docs/drivers/ble-hid.md) 0.1.3 provides `bluetooth.hid@1` through a
 pinned Apache NimBLE 1.9.0 host and the existing exclusive raw-HCI lease.
 It supports authenticated Secure Connections numeric comparison, one scoped
 persistent bond, keyboard/mouse reports and checked teardown. It is a logical

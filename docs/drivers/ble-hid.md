@@ -1,4 +1,4 @@
-# ble-hid 0.1.2
+# ble-hid 0.1.3
 
 `ble-hid` is an original ABI-v2 logical provider for `bluetooth.hid@1`.
 It is board-neutral: no Watch, e-paper panel, GPIO, SDK controller or radio
@@ -76,8 +76,12 @@ The HID service exposes HID Information (1.11), Report Map, keyboard input/outpu
 with Report ID 1, five-button relative mouse with Report ID 2, Report Reference
 descriptors, HID Control Point, Protocol Mode, Boot Keyboard Input/Output and
 Boot Mouse Input. Report mode keyboard values are 8 bytes: modifiers, reserved,
-six key usages. Mouse values are 4 bytes: buttons, signed X, signed Y, signed
-wheel. Boot mouse omits the wheel byte; nonzero wheel and buttons beyond its three-button mask are rejected rather than silently lost. Report IDs are in Report Reference and
+six key usages. Mouse values are 5 bytes: buttons, signed X, signed Y, signed
+vertical Wheel, signed horizontal Consumer AC Pan (usage page `0x0c`, usage
+`0x0238`, as specified by the [USB-IF HID Usage Tables](https://www.usb.org/sites/default/files/hut1_7.pdf)).
+Each relative field has logical bounds -127..127. Boot mouse remains 3 bytes;
+either nonzero wheel and buttons beyond its three-button mask are rejected
+rather than silently lost. Report IDs are in Report Reference and
 Report Map, not repeated in characteristic values. LED output is validated and
 stored without inventing physical LEDs. GAP, GATT and Device Information
 services are present. Battery Service reads return an ATT error while the level
@@ -90,14 +94,26 @@ is unknown; `battery(...,255)` means unknown, never fabricated 100%.
   FAULT, with separate keyboard/mouse-ready, encrypted/authenticated/bonded flags.
 - Keyboard/mouse calls reject before the relevant notification subscription,
   authentication and encryption. Duplicated keyboard keys, error usages,
-  modifier usages in the key array, invalid button masks and -128 axes reject.
+  modifier usages in the key array and invalid button masks reject. The original
+  `mouse` call retains its signed-byte arguments and rejects -128 as before;
+  its horizontal wheel is always zero.
+- Optional `risc_bluetooth_hid_scroll_api_v1` appends `mouse_scroll` after the
+  unchanged `risc_bluetooth_hid_diagnostics_api_v1` prefix. Check the original
+  API's `struct_size >= sizeof(risc_bluetooth_hid_scroll_api_v1)` and a nonnull
+  function pointer before calling. It accepts signed 16-bit X, Y, horizontal
+  wheel and vertical wheel deltas, saturating each independently to -127..127.
+  Positive horizontal scroll means right and positive vertical scroll means
+  away/up before host preferences. Calls use the same guard, readiness, FIFO,
+  pressed-button custody and watchdog as the original mouse function. An old
+  provider remains usable through the original API without horizontal scroll.
 - Each accepted report is an explicit NimBLE notification, preserving FIFO
   press/release order; it is not a coalesced current-state update.
 - `release_all` sends neutral reports for held inputs. It clears each local
   modifier/button state only after a neutral is accepted or disconnect/native
   closure is confirmed; rejected reports retain state for retry. Automatic
   release failure enters a terminal fault and requests connection termination
-  independently of ACL credits. Later queued GAP events cannot revive it. Mouse motion is never retained for reads.
+  independently of ACL credits. Later queued GAP events cannot revive it. Mouse
+  motion and both scroll axes are never retained or replayed by report reads.
 - Boot/report protocol transitions, suspend, subscription changes and disconnect
   neutralize held state. Independent cooperative 1,000 ms keyboard and mouse watchdogs also release
   held state; they cannot execute if the caller stops polling entirely.
@@ -177,6 +193,14 @@ queued encryption refresh, and disconnect cleanup; held state is retained until
 a neutral or safe teardown. Claim failures and expired direct confirmation are
 also covered. The success
 path includes quiescence/restart and twelve additional open/close cycles.
+The two-axis scenario independently decodes the actual Report Map obtained
+through ATT, checks every mouse bit offset/usage/logical bound, verifies positive
+and negative AC Pan/Wheel bytes and 16-bit saturation, exercises legacy calls,
+and checks full-length neutral reports on release, watchdog, suspend, CCC and
+protocol changes, disconnect/reconnect and close. Backpressure scenarios hold
+a button through the new two-axis function and verify the same retained release
+and disconnect behavior. Both original API prefixes are exercised by their old
+client layouts in the fixture.
 A separate C fixture covers NPL event ordering, timer wrap/cancel, recursive
 owner locks, bounded queues and allocator reuse/overflow. Normal and ASan/UBSan
 builds run the same protocol paths. The target build verifies provenance,
@@ -187,6 +211,9 @@ Physical advertising, PC/phone/macOS/Windows/Linux interoperability, controller
 entropy behavior, RF coexistence, latency, current consumption and device
 teardown remain untested. The Watch deployment must also pass the real Runtime
 store/graph and full-cohort preservation gates before integration readiness.
+Hosts that cache the earlier four-byte Report Map must refresh their HID service
+metadata when adopting this provider; whether a host requires re-pairing needs
+physical verification. This source change does not alter any delivered image.
 
 ## Mouse transport failure and reconnect regression (0.1.2)
 

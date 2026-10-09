@@ -165,9 +165,9 @@
     },
     {
       "id": "ble-hid",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "source_path": "Drivers/ble_hid",
-      "source_tree_sha": "26a778b39286cde051d373c8f62284a4408f13a1"
+      "source_tree_sha": "1020946bfb32c71d1ef6cfd652cd9f9017e0fee7"
     },
     {
       "id": "ble-sensors",
