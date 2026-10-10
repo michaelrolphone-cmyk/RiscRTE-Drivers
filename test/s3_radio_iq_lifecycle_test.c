@@ -163,11 +163,11 @@ static bool reentrant_trace(void *context,const char *stage){
 
 static void extension_regressions(void){
     const risc_radio_iq_api_v1 *prefix=driver.capability;
-    assert(prefix->api_version==1 && prefix->struct_size==sizeof(risc_radio_iq_extended_api_v1));
+    assert(prefix->api_version==1 && prefix->struct_size==sizeof(risc_radio_iq_temporal_api_v1));
     assert((const void *)&api.base.base==(const void *)&api);
-    assert(prefix->capture_burst==capture_burst && api.base.capture_burst_traced==capture_burst_traced);
+    assert(prefix->capture_burst==capture_burst && api.base.base.capture_burst_traced==capture_burst_traced);
     risc_radio_iq_capabilities_v1 caps={.struct_size=sizeof(caps)};
-    unsigned before=accesses;assert(api.capabilities(NULL,&caps) && accesses==before);
+    unsigned before=accesses;assert(api.base.capabilities(NULL,&caps) && accesses==before);
     assert(caps.min_pairs==1 && caps.max_pairs==8192 && caps.defaults.gain_selector==24);
     assert(caps.center_min_hz==1841666667u && caps.center_max_hz==2790000000u);
     assert(caps.sample_rates_hz[0]==16000000u && caps.sample_rates_hz[1]==80000000u);
@@ -175,7 +175,7 @@ static void extension_regressions(void){
     assert(caps.gain_selector_max==127 && caps.rf_gain_max==511 && caps.bb_gain_max==127);
     assert(caps.filter_mask==0x3f3f && caps.dc_max==511 && caps.iq_correction_mask==0x3f1f);
     assert(caps.controls==511 && caps.automatic_value==RISC_RADIO_IQ_AUTO);
-    assert(!api.capabilities(NULL,NULL));caps.struct_size=1;assert(!api.capabilities(NULL,&caps));
+    assert(!api.base.capabilities(NULL,NULL));caps.struct_size=1;assert(!api.base.capabilities(NULL,&caps));
     uint32_t words[RISC_RADIO_IQ_MAX_PAIRS+2];
     risc_radio_iq_format_v1 format={.struct_size=sizeof(format)};
     risc_radio_iq_settings_v1 settings=RISC_RADIO_IQ_SETTINGS_DEFAULT;
@@ -189,7 +189,7 @@ static void extension_regressions(void){
             unsigned count=lengths[n];wrap=(n&1)!=0;reset_on_stop=(n&2)!=0;
             delay_polls=n;pipeline_tail=n%4;*raw_register(DUMP_WRITE_INDEX_REG)=12345;
             words[count+1]=0xdeadbeef;unsigned starts=dump_starts;snapshot();
-            assert(api.capture_configured(NULL,words+1,count,&settings,&format)==RISC_RADIO_IQ_OK);
+            assert(api.base.capture_configured(NULL,words+1,count,&settings,&format)==RISC_RADIO_IQ_OK);
             assert(dump_starts==starts+1);assert_complete(words+1,count,&format);assert_restored();
             assert(words[0]==0xdeadbeef && words[count+1]==0xdeadbeef);
             assert(format.sample_rate_hz==settings.sample_rate_hz && format.bandwidth_hz==settings.bandwidth_hz);
@@ -281,9 +281,9 @@ static void extension_regressions(void){
     assert(capture_configured(NULL,words+1,8192,NULL,&format)==RISC_RADIO_IQ_CLEANUP_RETAINED);
     assert_empty(words+1,8192,&format);assert(accesses==before && lease && restored);
     assert(suspend_receiver(NULL) && accesses==before);native_dirty_refusal=false;admission=true;
-    trace_count=0;assert(api.capture_configured_traced(NULL,words+1,8192,NULL,&format,trace,&trace_count)==RISC_RADIO_IQ_OK);
+    trace_count=0;assert(api.base.capture_configured_traced(NULL,words+1,8192,NULL,&format,trace,&trace_count)==RISC_RADIO_IQ_OK);
     assert(trace_count==13);assert_complete(words+1,8192,&format);
-    assert(api.capture_configured_traced(NULL,words+1,8192,NULL,&format,reentrant_trace,NULL)==RISC_RADIO_IQ_OK);
+    assert(api.base.capture_configured_traced(NULL,words+1,8192,NULL,&format,reentrant_trace,NULL)==RISC_RADIO_IQ_OK);
     assert_complete(words+1,8192,&format);
     /* A configured call never changes the original capture entry point. */
     assert(capture_burst(NULL,words+1,257)==RISC_RADIO_IQ_BAD_ARGUMENT);
