@@ -11,7 +11,7 @@ extern "C" {
 #define RISC_SESSION_SETUP_VALIDITY_UUID "cc12f003-6b62-4c86-a72d-1b4864247521"
 enum { RISC_SESSION_HTTP = 1, RISC_SESSION_HTTPS = 2 };
 enum { RISC_SETUP_OK = 0, RISC_SETUP_PENDING = 1, RISC_SETUP_BUSY = 2, RISC_SETUP_CLEANUP_PENDING = 3,
-       RISC_SETUP_INVALID = -1, RISC_SETUP_CONTEXT = -2,
+       RISC_SETUP_INVALID = -1, RISC_SETUP_CONTEXT = -2, RISC_SETUP_RETAINED = -3,
        RISC_SETUP_FAULT = -4, RISC_SETUP_EXPIRED = -5 };
 enum { RISC_SETUP_OFF, RISC_SETUP_STARTING, RISC_SETUP_ADVERTISING,
        RISC_SETUP_CONNECTED, RISC_SETUP_PAIR_CONFIRM, RISC_SETUP_READY,
@@ -29,7 +29,9 @@ typedef struct {
     int32_t error, native_close_result;
 } risc_bluetooth_session_setup_status_v1;
 /* Serialized, cooperative owner-task API, without caller pointers/callbacks
- * retained after calls. open copies name (1..20 printable ASCII) and descriptor.
+ * retained after calls. Provider start requires the validated scheduler-only
+ * platform.clock suffix from RiscPlatformClockWaitV1.h; legacy clocks reject
+ * before any HCI claim. open copies name (1..20 printable ASCII) and descriptor.
  * URL: matching http(s) scheme, nonempty authority, no userinfo, controls,
  * whitespace or fragment. Credentials and session ID: 1..64 printable ASCII.
  * The caller must first establish a ready, authorized WebDAV session.
@@ -47,7 +49,12 @@ typedef struct {
  * A failed open may return a nonzero cleanup token. CLEANUP_PENDING means
  * native close is unproven: retain token, module and dependencies; only close may retry.
  * poll/status/confirm reject CLEANUP_PENDING without entering host or transport.
- * The native ABI has no terminal-owner-loss result; no such claim is inferred.
+ * Each refused close cooperates via the required scheduler-only clock suffix,
+ * never legacy sleep_ms. After a native release attempt, retries never pump HCI.
+ * RETAINED means the owner-checked scheduler wait explicitly rejected a valid
+ * delay. Custody is terminal: no further provider call is legal; all API calls
+ * reject without host/clock access and quiesce remains false. Keep module and
+ * dependencies pinned. Generic BUSY/transport failures never imply owner loss.
  * Successful close (OK) proves native release, invalidates the token and permits unload.
  * No status or error contains credentials. status(0) is accepted only while OFF.
  */

@@ -10,6 +10,8 @@ class SetupStatus(C.Structure):
  _fields_=[('size',U32),('state',U32),('flags',U32),('number',U32),('pair_generation',U32),('generation',U32),('remaining',U32),('error',I32),('native_close',I32)]
 class Setup(C.Structure):
  _fields_=[('version',U32),('size',U32),('ctx',P),('open',F(I32,P,C.c_char_p,C.POINTER(Descriptor),U32,C.POINTER(U64))),('poll',F(I32,P,U64,U32)),('status',F(I32,P,U64,C.POINTER(SetupStatus))),('confirm',F(I32,P,U64,U32,U32,B)),('close',F(I32,P,U64))]
+class ClockWait(C.Structure):
+ _fields_=Clock._fields_+[('wait_tag',U32),('wait_version',U32),('wait',F(B,P,U32))]
 class Central(Fixture):
  def __init__(self,path):
   symbols={row.split()[-1]:int(row.split()[0],16) for row in subprocess.check_output(['nm','--defined-only',str(path)],text=True).splitlines() if len(row.split())==3}
@@ -19,11 +21,25 @@ class Central(Fixture):
   self.fail_receive=False;self.connection=1;self.rx=collections.deque();self.acl=[];self.commands=[];self.kv={};self.time=100;self.lease=0;self.claims=0;self.releases=0;self.fail_send=False;self.fail_close=False;self.fail_write=False;self.drop_ack=False;self.random_counter=0;self.callbacks=[];self.no_credits=False;self.claim_failure=0;self.resolving={}
   def wrap(t,fn):v=t(fn);self.callbacks.append(v);return v
   self.host=Host(1,C.sizeof(Host),None,Send(),Next(),F(B,P,B)(),F(B,P,C.POINTER(U8))(),wrap(Claim,self.claim),wrap(OwnedSend,self.send),wrap(OwnedNext,self.next),wrap(Release,self.release))
-  self.clock=Clock(1,C.sizeof(Clock),None,wrap(F(U64,P),lambda _:self.time),wrap(F(None,P,U32),self.sleep))
+  self.clock=ClockWait(1,C.sizeof(ClockWait),None,wrap(F(U64,P),self.clock_now),wrap(F(None,P,U32),self.sleep),0x43575431,1,wrap(F(B,P,U32),self.scheduler_wait))
   self.deps=(Dep*2)(Dep(b'bluetooth.hci',1,C.addressof(self.host)),Dep(b'platform.clock',1,C.addressof(self.clock)))
-  self.t=U64();self.allow_failure=False
+  self.t=U64();self.allow_failure=False;self.cleanup_calls=[];self.wait_refuse=False
   base=C.cast(self.lib.t5_driver_get,P).value-symbols['t5_driver_get']
   self.wire_address=base+symbols['descriptor']
+ def clock_now(self,context):
+  self.cleanup_calls.append(('now',));return self.time
+ def scheduler_wait(self,context,n):
+  self.cleanup_calls.append(('wait',n))
+  if self.wait_refuse or not 1<=n<=50:return False
+  Fixture.sleep(self,context,n);return True
+ def sleep(self,context,n):
+  self.cleanup_calls.append(('sleep',n));Fixture.sleep(self,context,n)
+ def next(self,*args):
+  self.cleanup_calls.append(('next',));return Fixture.next(self,*args)
+ def send(self,*args):
+  self.cleanup_calls.append(('send',));return Fixture.send(self,*args)
+ def release(self,*args):
+  result=Fixture.release(self,*args);self.cleanup_calls.append(('release',result));return result
  def descriptor(self):
   return Descriptor(C.sizeof(Descriptor),1,900000,b'http://192.0.2.7:8080/dav/'+b'x'*200,b'temporary-user',b'ephemeral-password-DO-NOT-LOG',b'session-0001')
  def open(self,lifetime=300000):
@@ -129,6 +145,16 @@ class Central(Fixture):
 
 def main():
  f=Central(Path(sys.argv[1]));scenario=sys.argv[2] if len(sys.argv)>2 else 'happy'
+ if scenario=='clock-admission':
+  original=(f.clock.size,f.clock.wait_tag,f.clock.wait_version,f.callbacks[-1])
+  for size,tag,version,callback in ((C.sizeof(Clock),0x43575431,1,original[3]),(C.sizeof(ClockWait)-1,0x43575431,1,original[3]),(C.sizeof(ClockWait),0,1,original[3]),(C.sizeof(ClockWait),0x43575431,2,original[3]),(C.sizeof(ClockWait),0x43575431,1,F(B,P,U32)())):
+   f.clock.size=size;f.clock.wait_tag=tag;f.clock.wait_version=version;f.clock.wait=callback
+   assert not f.driver.start(f.deps,2)
+   d=f.descriptor();assert f.api.open(None,b'Setup',C.byref(d),1000,C.byref(f.t))==-2 and not f.t.value
+   assert not f.claims and not f.cleanup_calls
+  f.clock.size,f.clock.wait_tag,f.clock.wait_version,f.clock.wait=original
+  f.start();f.close();assert f.driver.quiesce()
+  print('Prefix-only, truncated, invalid tag/version/null scheduler suffix reject before any native or clock call: PASS');return
  if scenario=='validation':
   assert f.driver.start(f.deps,2)
   cases=[('transport',2),('url',b'http://user:pass@example.org/'),('url',b'http://example.org/#fragment'),('url',b'http://example.org/a\nb'),('url',b'http:///dav'),('url',b'http://example.org\\@evil/'),('url',b'http://example.org/a b'),('username',b''),('password',b'a\x01'),('remaining',0)]
@@ -150,6 +176,45 @@ def main():
     f.fail_close=True;assert f.api.close(None,f.t)==3;f.fail_close=False
    f.close();f.claim_failure=0;f.open();f.close()
   assert f.driver.quiesce();print('Failed and retained native claims preserve cleanup custody: PASS');return
+ if scenario=='retained-terminal':
+  f.connect();f.discover();f.pair();f.fail_close=True
+  assert f.api.close(None,f.t)==3;f.wait_refuse=True;f.cleanup_calls.clear()
+  assert f.api.close(None,f.t)==-3 and f.cleanup_calls==[('release',-1),('wait',1)]
+  f.wiped();f.cleanup_calls.clear();token=f.t.value;f.fail_close=False;f.wait_refuse=False
+  s=SetupStatus(C.sizeof(SetupStatus));d=f.descriptor()
+  for _ in range(32):
+   assert f.api.close(None,f.t)==-3 and f.api.poll(None,f.t,16)==-3
+   assert f.api.status(None,f.t,C.byref(s))==-3 and f.api.confirm(None,f.t,1,0,True)==-3
+   assert f.api.open(None,b'Setup',C.byref(d),1000,C.byref(U64()))==-3
+   assert not f.driver.quiesce() and not f.driver.start(f.deps,2)
+   f.driver.stop()
+  assert f.cleanup_calls==[] and f.t.value==token and f.lease==7
+  print('Explicit owner-checked wait refusal is terminal: all later APIs/fini inert and custody retained: PASS');return
+ if scenario=='retained-incomplete':
+  f.connect();f.discover();f.pair();f.fail_close=True;f.drop_disconnect=True;f.sleep_jump=500
+  f.cleanup_calls.clear();assert f.api.close(None,f.t)==3
+  assert sum(call==('wait',1) for call in f.cleanup_calls)>=2
+  assert not any(call[0]=='sleep' for call in f.cleanup_calls)
+  f.cleanup_calls.clear()
+  for _ in range(8):assert f.api.close(None,f.t)==3
+  assert f.cleanup_calls==[('release',-1),('wait',1)]*8
+  f.fail_close=False;f.close();assert f.driver.quiesce()
+  print('Native release attempt fences further NimBLE work even after incomplete host stop: PASS');return
+ if scenario=='retained-cooperate':
+  f.connect();f.discover();f.pair();f.read_descriptor();f.fail_close=True
+  assert f.api.close(None,f.t)==3;f.wiped()
+  token=f.t.value;before=(len(f.commands),len(f.rx));f.cleanup_calls.clear()
+  for _ in range(64):
+   assert f.api.close(None,f.t)==3 and f.t.value==token and f.lease==7
+   f.wiped()
+  assert f.cleanup_calls==[('release',-1),('wait',1)]*64,f.cleanup_calls
+  assert before==(len(f.commands),len(f.rx))
+  f.cleanup_calls.clear();assert not f.driver.quiesce()
+  assert f.cleanup_calls==[('release',-1),('wait',1)] and f.lease==7
+  f.cleanup_calls.clear();f.fail_close=False;assert f.api.close(None,f.t)==0;f.t.value=0;f.wiped()
+  assert f.cleanup_calls==[('release',1)] and not f.lease
+  assert f.api.close(None,token)==-2 and f.driver.quiesce()
+  print('64 retained close retries and quiesce yield once each, never poll transport, then release custody: PASS');return
  if scenario=='retained':
   f.connect();f.discover();f.pair();f.read_descriptor();f.fail_close=True
   assert f.api.close(None,f.t)==3

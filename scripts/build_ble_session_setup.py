@@ -53,7 +53,7 @@ def build(host=False,sanitize=False):
     b=elf.read_bytes()
     if b[:7]!=b'\x7fELF\x01\x01\x01' or b[16:20]!=b'\x03\x00\x5e\x00':raise ValueError('Wrong ELF target')
     m=json.loads((SOURCE/'manifest.json').read_text())
-    if m['id']!='ble-session-setup' or m['version']!='0.1.0':raise ValueError('Wrong manifest')
+    if m['id']!='ble-session-setup' or m['version']!='0.1.1':raise ValueError('Wrong manifest')
     section_offset=struct.unpack_from('<I',b,32)[0]
     entry_size,entry_count,names_index=struct.unpack_from('<HHH',b,46)
     sections=[struct.unpack_from('<10I',b,section_offset+i*entry_size) for i in range(entry_count)]

@@ -2,7 +2,7 @@
  * Apache NimBLE owns ATT/GATT/SMP; the pinned cooperative port owns HCI custody. */
 #include "RiscBluetoothSessionSetupV1.h"
 #include "RiscBluetoothHostV1.h"
-#include "RiscPlatformClockV1.h"
+#include "RiscPlatformClockWaitV1.h"
 #include "host/ble_gap.h"
 #include "host/ble_gatt.h"
 #include "host/ble_hs.h"
@@ -18,6 +18,8 @@
 #include <string.h>
 static const portable_bluetooth_host_v1 *host;
 static const risc_platform_clock_api_v1 *clock_api;
+static const risc_platform_clock_wait_v1 *clock_wait;
+static bool native_close_started, terminal_retained;
 static uint64_t lease, token, serial, setup_deadline, webdav_deadline, pair_deadline;
 static bool started, initialized, stopping, stopped, poisoned, advertising_pending, secure_pending;
 static bool pair_wait, confirmed, encrypted, authenticated, terminate_pending;
@@ -273,7 +275,7 @@ static int32_t open_impl(const char *name, const risc_bluetooth_session_descript
     put16(descriptor + 2, descriptor_size);
     memcpy(device_name, name, strlen(name) + 1);
     token = ++serial; *out = token; state = RISC_SETUP_STARTING; last_error = stop_error = 0;
-    native_close_result = -1; stopping = false; advertising_pending = secure_pending = terminate_pending = false;
+    native_close_result = -1; native_close_started = false; stopping = false; advertising_pending = secure_pending = terminate_pending = false;
     connection = BLE_HS_CONN_HANDLE_NONE;
     if (!host->claim(host->controls.context, &lease) || !lease) { failed(BLE_HS_EBUSY); return RISC_SETUP_FAULT; }
     hid_port_bind(host, clock_api, lease); stopped = false;
@@ -303,30 +305,45 @@ static int32_t open_impl(const char *name, const risc_bluetooth_session_descript
 static void stopped_cb(int error, void *arg) {
     (void)arg; stopped = true; stop_error = error; if (error) poisoned = true;
 }
+static bool cleanup_wait(void) {
+    if (clock_wait->scheduler_wait_ms(clock_api->context, 1)) return true;
+    /* A valid one-millisecond wait was explicitly refused. Never guess that
+     * native ownership can recover, or call a different yielding API. */
+    terminal_retained = true; last_error = RISC_SETUP_RETAINED;
+    return false;
+}
 static int32_t close_impl(uint64_t t) {
+    if (terminal_retained) return RISC_SETUP_RETAINED;
     if (!valid(t)) return RISC_SETUP_CONTEXT;
     erase_descriptor(); stopping = true; state = RISC_SETUP_CLOSING;
     advertising_pending = secure_pending = false;
-    if (initialized && lease && !stopped) {
+    if (initialized && lease && !stopped && !native_close_started) {
         int rc = ble_hs_stop(&stop_listener, stopped_cb, NULL);
         if (rc && rc != BLE_HS_EALREADY && rc != BLE_HS_EBUSY) stop_error = rc;
         if (rc == BLE_HS_EALREADY) stopped = true;
         uint64_t begin = now();
         for (unsigned steps = 0; !stopped && now() - begin < 300 && steps < 300; steps++) {
-            (void)pump(8); clock_api->sleep_ms(clock_api->context, 1);
+            (void)pump(8);
+            if (!cleanup_wait()) return RISC_SETUP_RETAINED;
         }
     }
     if (initialized && (!stopped || connection != BLE_HS_CONN_HANDLE_NONE)) poisoned = true;
     if (lease) {
+        native_close_started = true;
         native_close_result = host->release(host->controls.context, lease);
-        if (native_close_result < 0) { last_error = RISC_SETUP_CLEANUP_PENDING; return RISC_SETUP_CLEANUP_PENDING; }
+        if (native_close_result < 0) {
+            last_error = RISC_SETUP_CLEANUP_PENDING;
+            if (!cleanup_wait()) return RISC_SETUP_RETAINED;
+            return RISC_SETUP_CLEANUP_PENDING;
+        }
         lease = 0;
     }
     if (initialized && stopped && !stop_error && connection == BLE_HS_CONN_HANDLE_NONE) poisoned = false;
     connection = BLE_HS_CONN_HANDLE_NONE; token = 0; state = RISC_SETUP_OFF; stopping = false;
     terminate_pending = false; return RISC_SETUP_OK;
 }
-#define ENTER() do { if (atomic_flag_test_and_set(&guard)) return RISC_SETUP_BUSY; } while (0)
+#define ENTER() do { if (atomic_flag_test_and_set(&guard)) return RISC_SETUP_BUSY; \
+    if (terminal_retained) { atomic_flag_clear(&guard); return RISC_SETUP_RETAINED; } } while (0)
 #define LEAVE(expr) do { int32_t r = (expr); atomic_flag_clear(&guard); return r; } while (0)
 static int32_t api_open(void *c, const char *name, const risc_bluetooth_session_descriptor_v1 *d,
                         uint32_t lifetime, uint64_t *out) { (void)c; ENTER(); LEAVE(open_impl(name,d,lifetime,out)); }
@@ -367,15 +384,16 @@ static int32_t api_confirm(void *c, uint64_t t, uint32_t generation, uint32_t sh
 static int32_t api_close(void *c, uint64_t t) { (void)c; ENTER(); LEAVE(close_impl(t)); }
 static bool quiesce(void) {
     if (atomic_flag_test_and_set(&guard)) return false;
+    if (terminal_retained) { atomic_flag_clear(&guard); return false; }
     if (token && close_impl(token) != RISC_SETUP_OK) { atomic_flag_clear(&guard); return false; }
-    erase_descriptor(); hid_port_bind(NULL, NULL, 0); host = NULL; clock_api = NULL; started = false;
+    erase_descriptor(); hid_port_bind(NULL, NULL, 0); host = NULL; clock_api = NULL; clock_wait = NULL; started = false;
     atomic_flag_clear(&guard); return true;
 }
 static void stop(void) { (void)quiesce(); }
 static bool start(const risc_provider_dependency_v1 *d, size_t n) {
     if (atomic_flag_test_and_set(&guard)) return false;
     const portable_bluetooth_host_v1 *h = NULL; const risc_platform_clock_api_v1 *k = NULL;
-    bool ok = !started && n == 2 && d;
+    bool ok = !terminal_retained && !started && n == 2 && d;
     for (size_t i = 0; ok && i < n; i++) {
         if (!d[i].capability_id || d[i].api_version != 1 || !d[i].api) ok = false;
         else if (!strcmp(d[i].capability_id, "bluetooth.hci") && !h) h = d[i].api;
@@ -384,8 +402,10 @@ static bool start(const risc_provider_dependency_v1 *d, size_t n) {
     }
     ok = ok && h && h->controls.api_version == 1 && h->controls.struct_size >= sizeof(*h) &&
          h->claim && h->release && h->send_owned && h->next_owned && k && k->api_version == 1 &&
-         k->struct_size >= sizeof(*k) && k->monotonic_ms && k->sleep_ms;
-    if (ok) { host = h; clock_api = k; started = true; state = RISC_SETUP_OFF; last_error = 0; }
+         k->struct_size >= sizeof(risc_platform_clock_wait_v1) && k->monotonic_ms && k->sleep_ms;
+    const risc_platform_clock_wait_v1 *w = ok ? risc_platform_clock_wait_from_v1(k) : NULL;
+    ok = ok && w;
+    if (ok) { host = h; clock_api = k; clock_wait = w; started = true; state = RISC_SETUP_OFF; last_error = 0; }
     atomic_flag_clear(&guard); return ok;
 }
 static const risc_bluetooth_session_setup_v1 api = {

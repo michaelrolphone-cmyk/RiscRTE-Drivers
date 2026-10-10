@@ -121,4 +121,4 @@ These are experimental software-tested packages, not installed or hardware-quali
 
 ## Experimental BLE session setup
 
-The [ble-session-setup profile](docs/ble-session-setup/profile.md) exposes copied, temporary WebDAV connection metadata after explicit authenticated Secure Connections pairing. See the [local verification checkpoint](docs/ble-session-setup/verification.md). This provider is unpublished and has no device qualification claim.
+The [ble-session-setup profile](docs/ble-session-setup/profile.md) exposes copied, temporary WebDAV connection metadata after explicit authenticated Secure Connections pairing. See the [cleanup-cooperation successor checkpoint](docs/ble-session-setup/cleanup-cooperation-0.1.1.md). This provider is unpublished and has no device qualification claim.
