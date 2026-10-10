@@ -1,0 +1,15 @@
+{
+  "type": "driver",
+  "id": "ble-session-setup",
+  "version": "0.1.0",
+  "driver_abi": 2,
+  "architecture": "xtensa-esp32s3",
+  "file_name": "driver.elf",
+  "requires": [
+    {"capability": "bluetooth.hci", "api": 1},
+    {"capability": "platform.clock", "api": 1}
+  ],
+  "provides": [{"capability": "bluetooth.session-setup", "api": 1}],
+  "status": "experimental-unpublished",
+  "physical_verification": "pending"
+}

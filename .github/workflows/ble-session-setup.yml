@@ -1,0 +1,32 @@
+name: BLE session setup provider
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  session-setup:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: python -m pip install cryptography==50.0.0 platformio==6.1.19
+      - run: bash test/run_ble_session_setup_test.sh
+      - run: SANITIZE=1 bash test/run_ble_session_setup_test.sh
+      - run: pio pkg install --global --tool 'espressif/toolchain-xtensa-esp32s3@8.4.0+2021r2-patch5'
+      - run: python scripts/build_ble_session_setup.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ble-session-setup-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            dist/ble-session-setup/driver.elf
+            dist/ble-session-setup/manifest.json
+            dist/ble-session-setup/build-record.json
+            dist/ble-session-setup/NimBLE-*
+            dist/ble-session-setup/TinyCrypt-LICENSE
+          if-no-files-found: error
