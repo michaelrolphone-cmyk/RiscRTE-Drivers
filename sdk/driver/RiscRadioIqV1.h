@@ -121,6 +121,24 @@ typedef struct {
                                      risc_radio_iq_format_v1 *format,
                                      risc_radio_iq_trace_v1 trace, void *trace_context);
 } risc_radio_iq_extended_api_v1;
+/* IQt1 timed envelope extension; old capture tables remain exact prefixes.
+ * Hardware captures coherent bursts at the requested cadence. It does not
+ * claim uninterrupted IQ between bursts. Every record includes real timestamp,
+ * observed IQ duration and loss flags; consumers must preserve these limits. */
+#define RISC_RADIO_IQ_TEMPORAL_ABI 0x31745149u
+#define RISC_RADIO_IQ_ENVELOPE_GAP 1u
+typedef struct {uint64_t timestamp_us;float magnitude;uint32_t observed_us,sequence,flags;} risc_radio_iq_envelope_v1;
+typedef struct {
+    risc_radio_iq_extended_api_v1 base;
+    uint32_t temporal_abi;
+    int (*start_envelope)(void *,const risc_radio_iq_settings_v1 *,uint32_t interval_us,risc_radio_iq_format_v1 *);
+    int (*read_envelope)(void *,risc_radio_iq_envelope_v1 *,uint32_t capacity,uint32_t *count,uint32_t *dropped);
+    int (*latest_iq)(void *,uint32_t *pairs,uint32_t count,uint64_t *timestamp_us);
+    bool (*stop_envelope)(void *);
+} risc_radio_iq_temporal_api_v1;
+static inline const risc_radio_iq_temporal_api_v1*risc_radio_iq_temporal(const risc_radio_iq_extended_api_v1*p){
+ return p&&p->base.base.struct_size>=sizeof(risc_radio_iq_temporal_api_v1)&&((const risc_radio_iq_temporal_api_v1*)p)->temporal_abi==RISC_RADIO_IQ_TEMPORAL_ABI?(const risc_radio_iq_temporal_api_v1*)p:0;
+}
 #ifdef __cplusplus
 }
 #endif
