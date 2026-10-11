@@ -159,15 +159,15 @@
   "original_drivers": [
     {
       "id": "s3-radio-iq-v1",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "source_path": "Drivers/s3_radio_iq_v1",
-      "source_tree_sha": "2c0106864664051f3f77275e590d13bab44aff0e"
+      "source_tree_sha": "0c5116d2d2817f133aa40b22f7af701796afc952"
     },
     {
       "id": "ble-hid",
-      "version": "0.1.2",
+      "version": "0.1.4",
       "source_path": "Drivers/ble_hid",
-      "source_tree_sha": "26a778b39286cde051d373c8f62284a4408f13a1"
+      "source_tree_sha": "e29671937bbc7c8d947d027514640c46facf05c8"
     },
     {
       "id": "ble-sensors",
