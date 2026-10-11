@@ -1,8 +1,8 @@
 #pragma once
 /* Override only the constrained peripheral profile. Upstream defaults are
  * vendored verbatim and hashed; no controller or operating-system code builds. */
-#define MYNEWT_VAL_BLE_ROLE_CENTRAL 0
-#define MYNEWT_VAL_BLE_ROLE_OBSERVER 0
+#define MYNEWT_VAL_BLE_ROLE_CENTRAL 1
+#define MYNEWT_VAL_BLE_ROLE_OBSERVER 1
 #define MYNEWT_VAL_BLE_ROLE_BROADCASTER 0
 #define MYNEWT_VAL_BLE_ROLE_PERIPHERAL 1
 #define MYNEWT_VAL_BLE_MAX_CONNECTIONS 1

@@ -37,7 +37,10 @@ def build(host=False,sanitize=False):
     for s in src:
         obj=out/(str(s.relative_to(ROOT)).replace('/','_')+'.o');objs.append(obj)
         warnings=['-Wall','-Wextra','-Werror','-Wno-misleading-indentation','-Wno-unused-parameter'] if not s.is_relative_to(VENDOR) else ['-w']
-        subprocess.run([cc,*flags,*warnings,*['-I'+str(p) for p in include],'-c',str(s),'-o',str(obj)],check=True)
+        # GATT UUID formatting is solely for the disabled diagnostic logger.
+        # Avoid pulling an unbounded sprintf import into the capability ELF.
+        local_flags=['-Dble_uuid_to_str=setup_log_uuid'] if s.name=='ble_gattc.c' else []
+        subprocess.run([cc,*flags,*local_flags,*warnings,*['-I'+str(p) for p in include],'-c',str(s),'-o',str(obj)],check=True)
     mapping=out/'exports.map';mapping.write_text('{ global: t5_driver_get; local: *; };\n')
     elf=out/('driver.so' if host else 'driver.elf')
     link=[] if host else ['-nostdlib','-nostartfiles','-Wl,--no-relax','-Wl,--hash-style=sysv','-Wl,--exclude-libs,ALL']
@@ -48,12 +51,12 @@ def build(host=False,sanitize=False):
     symbols=subprocess.check_output([nm,'-D',str(elf)],text=True)
     imports={p.split()[-1] for p in symbols.splitlines() if ' U ' in ' '+p}
     exports={p.split()[-1] for p in symbols.splitlines() if len(p.split())>=3 and p.split()[-2] in ('T','D','B','R')}
-    allowed={'memcpy','memset','memcmp','memmove','strlen','strcmp','strncat'}
+    allowed={'memcpy','memset','memcmp','memmove','strlen','strcmp','strncat','memchr'}
     if imports-allowed or exports!={'t5_driver_get'}:raise ValueError((imports-allowed,exports))
     b=elf.read_bytes()
     if b[:7]!=b'\x7fELF\x01\x01\x01' or b[16:20]!=b'\x03\x00\x5e\x00':raise ValueError('Wrong ELF target')
     m=json.loads((SOURCE/'manifest.json').read_text())
-    if m['id']!='ble-session-setup' or m['version']!='0.1.1':raise ValueError('Wrong manifest')
+    if m['id']!='ble-session-setup' or m['version']!='0.1.2':raise ValueError('Wrong manifest')
     section_offset=struct.unpack_from('<I',b,32)[0]
     entry_size,entry_count,names_index=struct.unpack_from('<HHH',b,46)
     sections=[struct.unpack_from('<10I',b,section_offset+i*entry_size) for i in range(entry_count)]

@@ -17,7 +17,7 @@ class Central(Fixture):
   symbols={row.split()[-1]:int(row.split()[0],16) for row in subprocess.check_output(['nm','--defined-only',str(path)],text=True).splitlines() if len(row.split())==3}
   self.lib=C.CDLL(str(path));self.lib.t5_driver_get.argtypes=[U32];self.lib.t5_driver_get.restype=C.POINTER(Driver)
   self.driver=self.lib.t5_driver_get(2).contents;self.api=C.cast(self.driver.api,C.POINTER(Setup)).contents
-  assert self.api.version==1 and self.api.size==C.sizeof(Setup)
+  assert self.api.version==1 and self.api.size>=C.sizeof(Setup)
   self.fail_receive=False;self.connection=1;self.rx=collections.deque();self.acl=[];self.commands=[];self.kv={};self.time=100;self.lease=0;self.claims=0;self.releases=0;self.fail_send=False;self.fail_close=False;self.fail_write=False;self.drop_ack=False;self.random_counter=0;self.callbacks=[];self.no_credits=False;self.claim_failure=0;self.resolving={}
   def wrap(t,fn):v=t(fn);self.callbacks.append(v);return v
   self.host=Host(1,C.sizeof(Host),None,Send(),Next(),F(B,P,B)(),F(B,P,C.POINTER(U8))(),wrap(Claim,self.claim),wrap(OwnedSend,self.send),wrap(OwnedNext,self.next),wrap(Release,self.release))

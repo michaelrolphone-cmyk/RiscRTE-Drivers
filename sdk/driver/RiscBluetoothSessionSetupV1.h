@@ -15,7 +15,8 @@ enum { RISC_SETUP_OK = 0, RISC_SETUP_PENDING = 1, RISC_SETUP_BUSY = 2, RISC_SETU
        RISC_SETUP_FAULT = -4, RISC_SETUP_EXPIRED = -5 };
 enum { RISC_SETUP_OFF, RISC_SETUP_STARTING, RISC_SETUP_ADVERTISING,
        RISC_SETUP_CONNECTED, RISC_SETUP_PAIR_CONFIRM, RISC_SETUP_READY,
-       RISC_SETUP_ENDED, RISC_SETUP_FAILED, RISC_SETUP_CLOSING };
+       RISC_SETUP_ENDED, RISC_SETUP_FAILED, RISC_SETUP_CLOSING,
+       RISC_SETUP_DISCOVERING, RISC_SETUP_CONNECTING, RISC_SETUP_READING };
 enum { RISC_SETUP_ENCRYPTED = 1, RISC_SETUP_AUTHENTICATED = 2,
        RISC_SETUP_NUMERIC_CONFIRMED = 4, RISC_SETUP_READABLE = 8 };
 typedef struct {
@@ -28,6 +29,13 @@ typedef struct {
     uint32_t pairing_generation, connection_generation, remaining_ms;
     int32_t error, native_close_result;
 } risc_bluetooth_session_setup_status_v1;
+#define RISC_SESSION_PEERS_MAX 8u
+#define RISC_SESSION_PEER_TAG UINT32_C(0x42504331)
+typedef struct {
+    uint32_t struct_size, peer_id;
+    int32_t rssi;
+    char name[21];
+} risc_bluetooth_session_peer_v1;
 /* Serialized, cooperative owner-task API, without caller pointers/callbacks
  * retained after calls. Provider start requires the validated scheduler-only
  * platform.clock suffix from RiscPlatformClockWaitV1.h; legacy clocks reject
@@ -69,6 +77,17 @@ typedef struct {
     int32_t (*confirm_pairing)(void *, uint64_t token, uint32_t pairing_generation,
                                uint32_t displayed_number, bool accept);
     int32_t (*close)(void *, uint64_t token);
+    /* Optional central role. Check size, tag and all four pointers. Discovery
+     * and advertising are mutually exclusive under the same checked HCI lease.
+     * peer_id is copied discovery identity, never a caller-supplied address.
+     * select requires explicit user choice. Existing numeric-comparison API is
+     * mandatory on both devices; credentials are unavailable until authenticated
+     * secure GATT descriptor+live-validity reads complete. Close wipes copies. */
+    uint32_t peer_tag;
+    int32_t (*discover)(void*, uint32_t lifetime_ms, uint64_t*);
+    int32_t (*peer)(void*,uint64_t,uint32_t index,risc_bluetooth_session_peer_v1*);
+    int32_t (*select_peer)(void*,uint64_t,uint32_t peer_id);
+    int32_t (*peer_descriptor)(void*,uint64_t,risc_bluetooth_session_descriptor_v1*);
 } risc_bluetooth_session_setup_v1;
 #ifdef __cplusplus
 }

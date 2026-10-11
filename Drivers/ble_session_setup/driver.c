@@ -20,6 +20,13 @@ static const portable_bluetooth_host_v1 *host;
 static const risc_platform_clock_api_v1 *clock_api;
 static const risc_platform_clock_wait_v1 *clock_wait;
 static bool native_close_started, terminal_retained;
+static bool central_role;
+static unsigned central_phase;
+static uint64_t peer_expiry, validity_started;
+static risc_bluetooth_session_descriptor_v1 peer_value;
+static void central_reset(void);
+static bool central_step(void);
+static int central_event(struct ble_gap_event*);
 static uint64_t lease, token, serial, setup_deadline, webdav_deadline, pair_deadline;
 static bool started, initialized, stopping, stopped, poisoned, advertising_pending, secure_pending;
 static bool pair_wait, confirmed, encrypted, authenticated, terminate_pending;
@@ -42,12 +49,12 @@ static void erase_descriptor(void) {
     pair_wait = confirmed = encrypted = authenticated = false; number = 0;
 }
 static void end_session(uint32_t next_state, int32_t error) {
-    erase_descriptor(); state = next_state; last_error = error;
+    erase_descriptor(); if(central_role)central_reset(); state = next_state; last_error = error;
     advertising_pending = secure_pending = false;
     if (connection != BLE_HS_CONN_HANDLE_NONE) terminate_pending = true;
 }
 static void expire(void) {
-    if (token && !stopping && descriptor_size && now() >= setup_deadline)
+    if (token && !stopping && (central_role || descriptor_size) && now() >= setup_deadline)
         end_session(RISC_SETUP_ENDED, RISC_SETUP_EXPIRED);
 }
 static bool readable(void) {
@@ -59,7 +66,7 @@ static bool valid(uint64_t t) { return started && token && t == token; }
 static void failed(int error) { end_session(RISC_SETUP_FAILED, error); }
 static int access_value(uint16_t c, uint16_t a, struct ble_gatt_access_ctxt *x, void *arg) {
     (void)a;
-    if (x->op != BLE_GATT_ACCESS_OP_READ_CHR) return BLE_ATT_ERR_WRITE_NOT_PERMITTED;
+    if (central_role || x->op != BLE_GATT_ACCESS_OP_READ_CHR) return BLE_ATT_ERR_WRITE_NOT_PERMITTED;
     if (c != connection || !readable()) return BLE_ATT_ERR_INSUFFICIENT_AUTHEN;
     /* Independent live-security check, beyond NimBLE's ATT permission flags. */
     struct ble_gap_conn_desc d;
@@ -88,6 +95,7 @@ static const struct ble_gatt_svc_def services[] = {
 static int gap_event(struct ble_gap_event *e, void *arg) {
     (void)arg;
     expire();
+    if (central_role && (e->type == BLE_GAP_EVENT_DISC || e->type == BLE_GAP_EVENT_DISC_COMPLETE)) return central_event(e);
     uint16_t handle = connection;
     switch (e->type) {
     case BLE_GAP_EVENT_DISCONNECT: handle = e->disconnect.conn.conn_handle; break;
@@ -113,7 +121,7 @@ static int gap_event(struct ble_gap_event *e, void *arg) {
     case BLE_GAP_EVENT_CONNECT:
         if (connection != BLE_HS_CONN_HANDLE_NONE) return 0;
         advertising_pending = false;
-        if (e->connect.status) { advertising_pending = true; return 0; }
+        if (e->connect.status) { if(central_role)failed(e->connect.status);else advertising_pending = true; return 0; }
         connection = e->connect.conn_handle;
         if (connection_generation == UINT32_MAX) { failed(RISC_SETUP_CONTEXT); return 0; }
         connection_generation++;
@@ -139,7 +147,8 @@ static int gap_event(struct ble_gap_event *e, void *arg) {
         if (e->enc_change.status || !confirmed || ble_gap_conn_find(connection, &d) ||
             !d.sec_state.encrypted || !d.sec_state.authenticated || d.sec_state.key_size != 16 ||
             d.sec_state.bonded) { failed(BLE_HS_EAUTHEN); return 0; }
-        encrypted = authenticated = true; state = RISC_SETUP_READY;
+        encrypted = authenticated = true; state = central_role ? RISC_SETUP_READING : RISC_SETUP_READY;
+        if(central_role)central_phase=1;
         return 0;
     }
     case BLE_GAP_EVENT_REPEAT_PAIRING: return BLE_GAP_REPEAT_PAIRING_IGNORE;
@@ -205,7 +214,7 @@ static int32_t pump(uint32_t count) {
     if (stopping) return RISC_SETUP_PENDING;
     if (state == RISC_SETUP_FAILED) return RISC_SETUP_FAULT;
     if (state == RISC_SETUP_ENDED) {
-        (void)ble_gap_adv_stop();
+        if(central_role)(void)ble_gap_disc_cancel();else (void)ble_gap_adv_stop();
         return last_error == RISC_SETUP_EXPIRED ? RISC_SETUP_EXPIRED : RISC_SETUP_FAULT;
     }
     if (pair_wait && now() >= pair_deadline) {
@@ -220,8 +229,9 @@ static int32_t pump(uint32_t count) {
     }
     if (advertising_pending && connection == BLE_HS_CONN_HANDLE_NONE) {
         advertising_pending = false;
-        if (!advertise()) return RISC_SETUP_FAULT;
+        if (central_role)central_phase=10;else if (!advertise()) return RISC_SETUP_FAULT;
     }
+    if(central_role && !central_step())return RISC_SETUP_FAULT;
     return state == RISC_SETUP_STARTING ? RISC_SETUP_PENDING : RISC_SETUP_OK;
 }
 static size_t text_size(const char *s, size_t capacity) {
@@ -273,6 +283,7 @@ static int32_t open_impl(const char *name, const risc_bluetooth_session_descript
         memcpy(descriptor + descriptor_size, parts[i], sizes[i]); descriptor_size += sizes[i];
     }
     put16(descriptor + 2, descriptor_size);
+    if(central_role){erase_descriptor();central_reset();}
     memcpy(device_name, name, strlen(name) + 1);
     token = ++serial; *out = token; state = RISC_SETUP_STARTING; last_error = stop_error = 0;
     native_close_result = -1; native_close_started = false; stopping = false; advertising_pending = secure_pending = terminate_pending = false;
@@ -315,7 +326,7 @@ static bool cleanup_wait(void) {
 static int32_t close_impl(uint64_t t) {
     if (terminal_retained) return RISC_SETUP_RETAINED;
     if (!valid(t)) return RISC_SETUP_CONTEXT;
-    erase_descriptor(); stopping = true; state = RISC_SETUP_CLOSING;
+    erase_descriptor(); central_reset(); stopping = true; state = RISC_SETUP_CLOSING;
     advertising_pending = secure_pending = false;
     if (initialized && lease && !stopped && !native_close_started) {
         int rc = ble_hs_stop(&stop_listener, stopped_cb, NULL);
@@ -346,7 +357,7 @@ static int32_t close_impl(uint64_t t) {
     if (terminal_retained) { atomic_flag_clear(&guard); return RISC_SETUP_RETAINED; } } while (0)
 #define LEAVE(expr) do { int32_t r = (expr); atomic_flag_clear(&guard); return r; } while (0)
 static int32_t api_open(void *c, const char *name, const risc_bluetooth_session_descriptor_v1 *d,
-                        uint32_t lifetime, uint64_t *out) { (void)c; ENTER(); LEAVE(open_impl(name,d,lifetime,out)); }
+                        uint32_t lifetime, uint64_t *out) { (void)c; ENTER(); if(token)LEAVE(RISC_SETUP_BUSY);central_role=false; LEAVE(open_impl(name,d,lifetime,out)); }
 static int32_t api_poll(void *c, uint64_t t, uint32_t count) {
     (void)c; ENTER(); if (!valid(t)) LEAVE(RISC_SETUP_CONTEXT);
     if (stopping) LEAVE(RISC_SETUP_CLEANUP_PENDING);
@@ -362,7 +373,7 @@ static int32_t api_status(void *c, uint64_t t, risc_bluetooth_session_setup_stat
         (encrypted ? RISC_SETUP_ENCRYPTED : 0) | (authenticated ? RISC_SETUP_AUTHENTICATED : 0) |
         (confirmed ? RISC_SETUP_NUMERIC_CONFIRMED : 0) | (readable() ? RISC_SETUP_READABLE : 0),
         pair_wait ? number : 0, pairing_generation, connection_generation,
-        descriptor_size && time < setup_deadline ? (uint32_t)(setup_deadline - time) : 0,
+        (central_role || descriptor_size) && time < setup_deadline ? (uint32_t)(setup_deadline - time) : 0,
         last_error, native_close_result};
     LEAVE(RISC_SETUP_OK);
 }
@@ -408,8 +419,10 @@ static bool start(const risc_provider_dependency_v1 *d, size_t n) {
     if (ok) { host = h; clock_api = k; clock_wait = w; started = true; state = RISC_SETUP_OFF; last_error = 0; }
     atomic_flag_clear(&guard); return ok;
 }
+#include "central.inc"
 static const risc_bluetooth_session_setup_v1 api = {
-    1, sizeof(api), NULL, api_open, api_poll, api_status, api_confirm, api_close};
+    1, sizeof(api), NULL, api_open, api_poll, api_status, api_confirm, api_close,
+    RISC_SESSION_PEER_TAG, api_discover, api_peer, api_select_peer, api_peer_descriptor};
 static const risc_driver_v2 driver = {
     2, sizeof(driver), "ble-session-setup", RISC_BLUETOOTH_SESSION_SETUP_CAPABILITY, 1, &api, start, stop, quiesce};
 __attribute__((visibility("default"))) const risc_driver_v2 *t5_driver_get(uint32_t abi) {
