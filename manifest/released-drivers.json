@@ -186,6 +186,18 @@
       "version": "0.1.0",
       "source_path": "Drivers/telemetry_battery",
       "source_tree_sha": "a451ee283ff55a9dbe83fd93538853d6d54d5812"
+    },
+    {
+      "id": "ble-serial",
+      "version": "0.1.0",
+      "source_path": "Drivers/ble_serial",
+      "source_tree_sha": "96ea97fc6124e2bdd764e29f6b855ccc4fcafec5"
+    },
+    {
+      "id": "ble-session-setup",
+      "version": "0.1.2",
+      "source_path": "Drivers/ble_session_setup",
+      "source_tree_sha": "1c445b17396a6363affb2943c238c32cf241d244"
     }
   ]
 }
