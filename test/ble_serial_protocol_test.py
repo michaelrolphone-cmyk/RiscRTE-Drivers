@@ -10,7 +10,7 @@ class Serial(C.Structure):_fields_=[('version',U32),('size',U32),('ctx',P),('ope
 class Central(Fixture):
  def __init__(self,path,profile="fff0"):
   self.profile=profile;self.tx_handle=0x12;self.rx_handle=0x12 if profile=="ffe0" else 0x15;self.ccc_handle=self.rx_handle+1;self.indicate=profile=="nus";self.no_response=profile in ("ffe0","nus");self.drop_ack=False
-  super().__init__(path);self.hid=C.cast(self.driver.api,C.POINTER(Serial)).contents;self.deps=(Dep*2)(self.deps[0],self.deps[1]);self.tx=[];self.att_requests=[];self.reject_subscribe=False;self.peer_address=bytes.fromhex('ca61a06794e0');self.connection=1
+  super().__init__(path,hid_api=False);self.hid=C.cast(self.driver.api,C.POINTER(Serial)).contents;assert self.hid.version==1 and self.hid.size>=C.sizeof(Serial);self.deps=(Dep*2)(self.deps[0],self.deps[1]);self.tx=[];self.att_requests=[];self.reject_subscribe=False;self.peer_address=bytes.fromhex('ca61a06794e0');self.connection=1
  def status(self):
   s=SerialStatus(C.sizeof(SerialStatus));assert self.hid.status(None,self.t,C.byref(s));return s
  def describe(self):

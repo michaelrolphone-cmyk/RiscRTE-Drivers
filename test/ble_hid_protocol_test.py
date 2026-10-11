@@ -31,11 +31,13 @@ def f5(w,n1,n2,a1,a2):
 def f6(w,n1,n2,r,io,a1,a2):return cmac(w[::-1],n1[::-1]+n2[::-1]+r[::-1]+io[::-1]+a1[:1]+a1[1:][::-1]+a2[:1]+a2[1:][::-1])[::-1]
 def g2(u,v,x,y):return int.from_bytes(cmac(x[::-1],u[::-1]+v[::-1]+y[::-1])[-4:],'big')%1000000
 class Fixture:
- def __init__(self,path):
+ def __init__(self,path,hid_api=True):
   self.lib=C.CDLL(str(path));self.lib.t5_driver_get.argtypes=[U32];self.lib.t5_driver_get.restype=C.POINTER(Driver)
-  self.driver=self.lib.t5_driver_get(2).contents;self.hid=C.cast(self.driver.api,C.POINTER(Hid)).contents
-  assert self.hid.version==1 and self.hid.size>=C.sizeof(HidScroll)
-  self.scroll=C.cast(self.driver.api,C.POINTER(HidScroll)).contents.mouse_scroll
+  self.driver=self.lib.t5_driver_get(2).contents
+  if hid_api:
+   self.hid=C.cast(self.driver.api,C.POINTER(Hid)).contents
+   assert self.hid.version==1 and self.hid.size>=C.sizeof(HidScroll)
+   self.scroll=C.cast(self.driver.api,C.POINTER(HidScroll)).contents.mouse_scroll
   self.fail_receive=False;self.connection=1;self.rx=collections.deque();self.acl=[];self.commands=[];self.kv={};self.time=100;self.lease=0;self.claims=0;self.releases=0;self.fail_send=False;self.fail_close=False;self.fail_write=False;self.drop_ack=False;self.random_counter=0;self.callbacks=[];self.no_credits=False;self.claim_failure=0;self.resolving={}
   def wrap(t,fn):v=t(fn);self.callbacks.append(v);return v
   self.host=Host(1,C.sizeof(Host),None,Send(),Next(),F(B,P,B)(),F(B,P,C.POINTER(U8))(),wrap(Claim,self.claim),wrap(OwnedSend,self.send),wrap(OwnedNext,self.next),wrap(Release,self.release))
