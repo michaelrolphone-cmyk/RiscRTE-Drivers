@@ -16,3 +16,8 @@ for scenario in happy clock-admission validation maximum stale-events clock-wrap
  fi
 done
 python test/ble_session_setup_central_test.py
+
+# Paired production hosts exercise the encrypted network offer end to end.
+for scenario in network network-reject network-expiry; do
+ python test/ble_session_peer_test.py "$dir/driver.so" "$scenario"
+done
