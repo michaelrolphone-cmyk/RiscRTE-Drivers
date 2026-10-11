@@ -66,3 +66,18 @@ typedef struct {
     risc_bluetooth_hid_v1 base;
     bool (*diagnostics)(void *context, uint64_t token, risc_bluetooth_hid_diagnostics_v1 *out);
 } risc_bluetooth_hid_diagnostics_api_v1;
+
+/* Optional append-only two-axis mouse report extension. Check the original
+ * base.struct_size >= sizeof(risc_bluetooth_hid_scroll_api_v1) and a non-NULL
+ * mouse_scroll before calling. Both the original API and diagnostics prefix
+ * remain unchanged. dx/dy/wheel_x/wheel_y saturate independently to -127..127.
+ * wheel_x is Consumer AC Pan (positive right); wheel_y is Generic Desktop
+ * Wheel (positive away/up). Host scroll preferences may reverse either axis.
+ * Boot protocol rejects either nonzero wheel and buttons beyond its three-
+ * button mask. All session, readiness, FIFO and cleanup rules still apply.
+ * Relative deltas are sent once and are never retained for report reads. */
+typedef struct {
+    risc_bluetooth_hid_diagnostics_api_v1 base;
+    bool (*mouse_scroll)(void *context, uint64_t token, uint8_t buttons,
+                         int16_t dx, int16_t dy, int16_t wheel_x, int16_t wheel_y);
+} risc_bluetooth_hid_scroll_api_v1;

@@ -104,7 +104,7 @@ Board-specific loadable ELFs live in `boards/xteink-x4-pro/` and are outside the
 
 ## Generic BLE HID peripheral
 
-[ble-hid](docs/drivers/ble-hid.md) 0.1.0 provides `bluetooth.hid@1` through a
+[ble-hid](docs/drivers/ble-hid.md) 0.1.4 provides `bluetooth.hid@1` through a
 pinned Apache NimBLE 1.9.0 host and the existing exclusive raw-HCI lease.
 It supports authenticated Secure Connections numeric comparison, one scoped
 persistent bond, keyboard/mouse reports and checked teardown. It is a logical
@@ -118,3 +118,7 @@ separate from pending physical/host-OS qualification.
 - [telemetry-battery](docs/drivers/telemetry-battery.md) 0.1.0 adapts the generic battery capability without board-specific access.
 
 These are experimental software-tested packages, not installed or hardware-qualified firmware. They preserve the existing HID stack and controller ownership. Open advertising requires informed caller opt-in; encrypted/GATT-only sensors remain outside this increment.
+
+## Experimental BLE session setup
+
+The [ble-session-setup profile](docs/ble-session-setup/profile.md) exposes copied, temporary WebDAV connection metadata after explicit authenticated Secure Connections pairing. See the [cleanup-cooperation successor checkpoint](docs/ble-session-setup/cleanup-cooperation-0.1.1.md). This provider is unpublished and has no device qualification claim.
