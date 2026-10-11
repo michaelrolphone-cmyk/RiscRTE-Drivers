@@ -8,6 +8,10 @@ class Peer(C.Structure):
  _fields_=[('size',U32),('id',U32),('rssi',I32),('name',C.c_char*21)]
 class PeerApi(C.Structure):
  _fields_=Setup._fields_+[('peer_tag',U32),('discover_peer',F(I32,P,U32,C.POINTER(U64))),('peer',F(I32,P,U64,U32,C.POINTER(Peer))),('select',F(I32,P,U64,U32)),('descriptor',F(I32,P,U64,C.POINTER(Descriptor)))]
+class NetworkOffer(C.Structure):
+ _fields_=[('size',U32),('endpoint',Descriptor),('ssid',C.c_char*33),('password',C.c_char*64),('address',U8*4)]
+class NetworkApi(C.Structure):
+ _fields_=PeerApi._fields_+[('network_tag',U32),('open_network',F(I32,P,C.c_char_p,C.POINTER(NetworkOffer),U32,C.POINTER(U64))),('peer_network',F(I32,P,U64,C.POINTER(NetworkOffer)))]
 class Node(Central):
  def __init__(self,path,index):
   self.index=index;self.other=None;self.address=bytes([0x30+index,0x22,0x11,0,0x45,0x0a]);self.ltk=None;self.trace=[]
@@ -57,6 +61,14 @@ def main():
   server=Node(files[0],0);client=Node(files[1],1);server.other=client;client.other=server
   assert C.cast(server.lib.t5_driver_get,P).value!=C.cast(client.lib.t5_driver_get,P).value
   server.start();assert client.driver.start(client.deps,2)
+  direct=scenario.startswith('network')
+  if direct:
+   server.close();server.net=C.cast(server.driver.api,C.POINTER(NetworkApi)).contents;client.net=C.cast(client.driver.api,C.POINTER(NetworkApi)).contents
+   offer=NetworkOffer();offer.size=C.sizeof(offer);offer.endpoint=server.descriptor();offer.endpoint.url=b'http://192.168.4.1:8080/';offer.ssid=b'Files-ephemeral';offer.password=b'128-bit-random-fixture-password';offer.address[:]=[192,168,4,1]
+   assert server.net.network_tag==client.net.network_tag==0x42504e31
+   assert server.net.open_network(None,b'RiscRTE Files',C.byref(offer),300000,C.byref(server.t)) in (0,1)
+   offer.ssid=b'caller-wiped';offer.password=b'caller-wiped';network=NetworkOffer();network.size=C.sizeof(network)
+   assert client.net.peer_network(None,client.t,C.byref(network))<0
   assert client.client.discover_peer(None,300000,C.byref(client.t)) in (0,1)
   def pump(count=1):
    for _ in range(count):
@@ -76,7 +88,7 @@ def main():
   assert a.number==b.number
   assert client.client.descriptor(None,client.t,C.byref(out))<0
   assert client.api.confirm(None,client.t,b.pair_generation+1,b.number,True)==-1
-  if scenario=='reject':
+  if scenario in ('reject','network-reject'):
    server.allow_failure=client.allow_failure=True
    assert client.api.confirm(None,client.t,b.pair_generation,b.number,False)==0;pump(20)
    assert client.client.descriptor(None,client.t,C.byref(out))<0
@@ -88,9 +100,13 @@ def main():
     if client.status().state==5:break
    assert client.status().state==5,(server.describe(),client.describe())
    assert client.client.descriptor(None,client.t,C.byref(out))==0
-   assert bytes(out.url)==b'http://192.168.2.7:8080/' and bytes(out.password)==b'test-password' and 0<out.remaining<300000
+   assert bytes(out.url)==(b'http://192.168.4.1:8080/' if direct else b'http://192.168.2.7:8080/') and bytes(out.password)==b'test-password' and 0<out.remaining<300000
+   if direct:
+    assert client.net.peer_network(None,client.t,C.byref(network))==0
+    assert bytes(network.ssid)==b'Files-ephemeral' and bytes(network.password)==b'128-bit-random-fixture-password' and list(network.address)==[192,168,4,1]
+    assert server.status().flags&16
    if scenario=='happy' and len(sys.argv)>3:Path(sys.argv[3]).write_bytes(bytes(out))
-   if scenario=='expiry':
+   if scenario in ('expiry','network-expiry'):
     server.allow_failure=client.allow_failure=True;client.time+=300000;pump(2)
     assert client.client.descriptor(None,client.t,C.byref(out))<0
   client.allow_failure=server.allow_failure=True

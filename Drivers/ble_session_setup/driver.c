@@ -33,7 +33,9 @@ static bool pair_wait, confirmed, encrypted, authenticated, terminate_pending;
 static uint16_t connection = BLE_HS_CONN_HANDLE_NONE;
 static uint32_t state, number, pairing_generation, connection_generation;
 static int32_t last_error, stop_error, native_close_result;
-static uint8_t descriptor[464];
+static uint8_t descriptor[576];
+static risc_bluetooth_network_offer_v1 network_value;
+static bool network_offered,network_authorized;
 static uint16_t descriptor_size;
 static char device_name[21];
 static struct ble_hs_stop_listener stop_listener;
@@ -45,7 +47,7 @@ static void put16(uint8_t *p, uint16_t v) { p[0] = v; p[1] = v >> 8; }
 static void put32(uint8_t *p, uint32_t v) { for (unsigned i = 0; i < 4; i++) p[i] = v >> (i * 8); }
 static void put64(uint8_t *p, uint64_t v) { for (unsigned i = 0; i < 8; i++) p[i] = v >> (i * 8); }
 static void erase_descriptor(void) {
-    erase(descriptor, sizeof(descriptor)); descriptor_size = 0;
+    erase(descriptor, sizeof(descriptor)); descriptor_size = 0;erase(&network_value,sizeof(network_value));
     pair_wait = confirmed = encrypted = authenticated = false; number = 0;
 }
 static void end_session(uint32_t next_state, int32_t error) {
@@ -147,7 +149,7 @@ static int gap_event(struct ble_gap_event *e, void *arg) {
         if (e->enc_change.status || !confirmed || ble_gap_conn_find(connection, &d) ||
             !d.sec_state.encrypted || !d.sec_state.authenticated || d.sec_state.key_size != 16 ||
             d.sec_state.bonded) { failed(BLE_HS_EAUTHEN); return 0; }
-        encrypted = authenticated = true; state = central_role ? RISC_SETUP_READING : RISC_SETUP_READY;
+        encrypted = authenticated = true;if(network_offered&&!central_role)network_authorized=true; state = central_role ? RISC_SETUP_READING : RISC_SETUP_READY;
         if(central_role)central_phase=1;
         return 0;
     }
@@ -215,7 +217,7 @@ static int32_t pump(uint32_t count) {
     if (state == RISC_SETUP_FAILED) return RISC_SETUP_FAULT;
     if (state == RISC_SETUP_ENDED) {
         if(central_role)(void)ble_gap_disc_cancel();else (void)ble_gap_adv_stop();
-        return last_error == RISC_SETUP_EXPIRED ? RISC_SETUP_EXPIRED : RISC_SETUP_FAULT;
+        return network_authorized && last_error!=RISC_SETUP_EXPIRED ? RISC_SETUP_OK : last_error == RISC_SETUP_EXPIRED ? RISC_SETUP_EXPIRED : RISC_SETUP_FAULT;
     }
     if (pair_wait && now() >= pair_deadline) {
         struct ble_sm_io io = {.action = BLE_SM_IOACT_NUMCMP, .numcmp_accept = 0};
@@ -257,6 +259,12 @@ static bool descriptor_valid(const risc_bluetooth_session_descriptor_v1 *d, uint
     }
     return authority_size != 0;
 }
+static bool network_valid(const risc_bluetooth_network_offer_v1*n){
+    if(!n || n->struct_size!=sizeof(*n))return false;
+    uint16_t sizes[4];unsigned ssid=text_size(n->ssid,sizeof(n->ssid)),password=text_size(n->password,sizeof(n->password));
+    return descriptor_valid(&n->endpoint,sizes) && 22u+sizes[0]+sizes[1]+sizes[2]+sizes[3]+ssid+password<=512 && ssid && password>=8 &&
+      n->address[0]==192 && n->address[1]==168 && n->address[2]==4 && n->address[3]==1;
+}
 static int32_t open_impl(const char *name, const risc_bluetooth_session_descriptor_v1 *d,
                          uint32_t lifetime, uint64_t *out) {
     if (!out) return RISC_SETUP_INVALID;
@@ -272,7 +280,7 @@ static int32_t open_impl(const char *name, const risc_bluetooth_session_descript
     setup_deadline = t + lifetime;
     webdav_deadline = t + d->remaining_lifetime_ms;
     if (setup_deadline > webdav_deadline) setup_deadline = webdav_deadline;
-    erase_descriptor();
+    erase_descriptor();network_offered=network_authorized=false;
     /* Immutable wire value: schema, transport, total bytes, original WebDAV remaining duration,
      * then four uint16 lengths and concatenated non-NUL strings. */
     descriptor[0] = 1; descriptor[1] = d->transport; put32(descriptor + 4, d->remaining_lifetime_ms);
@@ -371,7 +379,7 @@ static int32_t api_status(void *c, uint64_t t, risc_bluetooth_session_setup_stat
     expire(); uint64_t time = now();
     *out = (risc_bluetooth_session_setup_status_v1){sizeof(*out), state,
         (encrypted ? RISC_SETUP_ENCRYPTED : 0) | (authenticated ? RISC_SETUP_AUTHENTICATED : 0) |
-        (confirmed ? RISC_SETUP_NUMERIC_CONFIRMED : 0) | (readable() ? RISC_SETUP_READABLE : 0),
+        (confirmed ? RISC_SETUP_NUMERIC_CONFIRMED : 0) | (readable() ? RISC_SETUP_READABLE : 0) | (network_authorized ? RISC_SETUP_NETWORK_AUTHORIZED : 0),
         pair_wait ? number : 0, pairing_generation, connection_generation,
         (central_role || descriptor_size) && time < setup_deadline ? (uint32_t)(setup_deadline - time) : 0,
         last_error, native_close_result};
@@ -420,9 +428,28 @@ static bool start(const risc_provider_dependency_v1 *d, size_t n) {
     atomic_flag_clear(&guard); return ok;
 }
 #include "central.inc"
+static int32_t api_open_network(void*c,const char*name,const risc_bluetooth_network_offer_v1*n,uint32_t lifetime,uint64_t*out){
+    (void)c;ENTER();if(token)LEAVE(RISC_SETUP_BUSY);if(!network_valid(n))LEAVE(RISC_SETUP_INVALID);central_role=false;
+    int32_t rc=open_impl(name,&n->endpoint,lifetime,out);
+    if(rc==RISC_SETUP_OK || rc==RISC_SETUP_PENDING){
+        network_offered=true;unsigned sn=strlen(n->ssid),pn=strlen(n->password);descriptor[0]=2;
+        uint8_t*tail=descriptor+descriptor_size;tail[0]=sn;tail[1]=pn;memcpy(tail+2,n->address,4);
+        memcpy(tail+6,n->ssid,sn);memcpy(tail+6+sn,n->password,pn);
+        descriptor_size+=6+sn+pn;put16(descriptor+2,descriptor_size);
+    }LEAVE(rc);
+}
+static int32_t api_peer_network(void*c,uint64_t t,risc_bluetooth_network_offer_v1*out){
+    (void)c;ENTER();if(!valid(t)||!central_role)LEAVE(RISC_SETUP_CONTEXT);
+    if(stopping)LEAVE(RISC_SETUP_CLEANUP_PENDING);expire();
+    if(!out||out->struct_size<sizeof(*out))LEAVE(RISC_SETUP_INVALID);
+    uint64_t time=now();if(state!=RISC_SETUP_READY||central_phase!=9||!central_secure(connection)||time>=peer_expiry)LEAVE(RISC_SETUP_EXPIRED);
+    if(!network_value.struct_size)LEAVE(RISC_SETUP_INVALID);
+    *out=network_value;out->endpoint.remaining_lifetime_ms=(uint32_t)(peer_expiry-time);LEAVE(RISC_SETUP_OK);
+}
 static const risc_bluetooth_session_setup_v1 api = {
     1, sizeof(api), NULL, api_open, api_poll, api_status, api_confirm, api_close,
-    RISC_SESSION_PEER_TAG, api_discover, api_peer, api_select_peer, api_peer_descriptor};
+    RISC_SESSION_PEER_TAG, api_discover, api_peer, api_select_peer, api_peer_descriptor,
+    RISC_SESSION_NETWORK_TAG,api_open_network,api_peer_network};
 static const risc_driver_v2 driver = {
     2, sizeof(driver), "ble-session-setup", RISC_BLUETOOTH_SESSION_SETUP_CAPABILITY, 1, &api, start, stop, quiesce};
 __attribute__((visibility("default"))) const risc_driver_v2 *t5_driver_get(uint32_t abi) {

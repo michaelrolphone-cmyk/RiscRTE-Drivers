@@ -18,7 +18,7 @@ enum { RISC_SETUP_OFF, RISC_SETUP_STARTING, RISC_SETUP_ADVERTISING,
        RISC_SETUP_ENDED, RISC_SETUP_FAILED, RISC_SETUP_CLOSING,
        RISC_SETUP_DISCOVERING, RISC_SETUP_CONNECTING, RISC_SETUP_READING };
 enum { RISC_SETUP_ENCRYPTED = 1, RISC_SETUP_AUTHENTICATED = 2,
-       RISC_SETUP_NUMERIC_CONFIRMED = 4, RISC_SETUP_READABLE = 8 };
+       RISC_SETUP_NUMERIC_CONFIRMED = 4, RISC_SETUP_READABLE = 8, RISC_SETUP_NETWORK_AUTHORIZED = 16 };
 typedef struct {
     uint32_t struct_size, transport;
     uint32_t remaining_lifetime_ms; /* WebDAV remaining duration sampled just before open. */
@@ -36,6 +36,18 @@ typedef struct {
     int32_t rssi;
     char name[21];
 } risc_bluetooth_session_peer_v1;
+#define RISC_SESSION_NETWORK_TAG UINT32_C(0x42504e31)
+typedef struct {
+    uint32_t struct_size;
+    risc_bluetooth_session_descriptor_v1 endpoint;
+    char ssid[33], password[64];
+    uint8_t address[4];
+} risc_bluetooth_network_offer_v1;
+/* Explicit temporary WPA2 network offer. Advertising creates no Wi-Fi state.
+ * The offer is readable only under the same authenticated numeric-confirmed
+ * BLE conditions as the endpoint. Credentials are volatile, one-session only.
+ * The sharing caller starts the AP after authenticated setup; the recipient
+ * joins as a station. Both own teardown and restoration independently. */
 /* Serialized, cooperative owner-task API, without caller pointers/callbacks
  * retained after calls. Provider start requires the validated scheduler-only
  * platform.clock suffix from RiscPlatformClockWaitV1.h; legacy clocks reject
@@ -88,6 +100,9 @@ typedef struct {
     int32_t (*peer)(void*,uint64_t,uint32_t index,risc_bluetooth_session_peer_v1*);
     int32_t (*select_peer)(void*,uint64_t,uint32_t peer_id);
     int32_t (*peer_descriptor)(void*,uint64_t,risc_bluetooth_session_descriptor_v1*);
+    uint32_t network_tag;
+    int32_t (*open_network)(void*,const char*,const risc_bluetooth_network_offer_v1*,uint32_t,uint64_t*);
+    int32_t (*peer_network)(void*,uint64_t,risc_bluetooth_network_offer_v1*);
 } risc_bluetooth_session_setup_v1;
 #ifdef __cplusplus
 }

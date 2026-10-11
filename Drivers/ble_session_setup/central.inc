@@ -7,7 +7,7 @@ static uint16_t service_start,service_end,descriptor_handle,validity_handle,char
 static uint16_t get16(const uint8_t*p){return (uint16_t)(p[0]|(uint16_t)p[1]<<8);}
 static uint32_t get32(const uint8_t*p){return (uint32_t)p[0]|(uint32_t)p[1]<<8|(uint32_t)p[2]<<16|(uint32_t)p[3]<<24;}
 static uint64_t get64(const uint8_t*p){return get32(p)|(uint64_t)get32(p+4)<<32;}
-static void central_reset(void){central_phase=0;peers_count=0;service_start=service_end=descriptor_handle=validity_handle=0;peer_expiry=validity_started=0;erase(&peer_value,sizeof(peer_value));erase(peers,sizeof(peers));}
+static void central_reset(void){central_phase=0;peers_count=0;service_start=service_end=descriptor_handle=validity_handle=0;peer_expiry=validity_started=0;erase(&peer_value,sizeof(peer_value));erase(&network_value,sizeof(network_value));erase(peers,sizeof(peers));}
 static bool central_secure(uint16_t handle){struct ble_gap_conn_desc d;expire();return central_role&&!stopping&&state!=RISC_SETUP_FAILED&&state!=RISC_SETUP_ENDED&&handle==connection&&confirmed&&encrypted&&authenticated&&!ble_gap_conn_find(handle,&d)&&d.sec_state.encrypted&&d.sec_state.authenticated&&d.sec_state.key_size==16&&!d.sec_state.bonded;}
 static int central_event(struct ble_gap_event*e){
  if(!central_role||stopping||state!=RISC_SETUP_DISCOVERING)return 0;
@@ -24,10 +24,16 @@ static int service_result(uint16_t h,const struct ble_gatt_error*e,const struct 
 static int characteristic_result(uint16_t h,const struct ble_gatt_error*e,const struct ble_gatt_chr*x,void*arg){(void)arg;if(!central_secure(h))return BLE_HS_EAUTHEN;if(e->status==BLE_HS_EDONE){if(descriptor_handle&&validity_handle)central_phase=5;else if(characteristic_last>=characteristic_cursor&&characteristic_last<service_end){characteristic_cursor=characteristic_last+1;central_phase=3;}else failed(BLE_HS_ENOENT);return 0;}if(e->status||!x){failed(e->status);return e->status;}
  characteristic_last=x->val_handle;uint16_t*target=NULL;if(!ble_uuid_cmp(&x->uuid.u,&descriptor_uuid.u))target=&descriptor_handle;else if(!ble_uuid_cmp(&x->uuid.u,&validity_uuid.u))target=&validity_handle;if(target){if(*target||x->val_handle<service_start||x->val_handle>service_end){failed(BLE_HS_EINVAL);return BLE_HS_EINVAL;}*target=x->val_handle;}return 0;}
 static bool decode_peer(void){
- if(descriptor_size<16||descriptor[0]!=1||get16(descriptor+2)!=descriptor_size)return false;
+ if(descriptor_size<16||(descriptor[0]!=1&&descriptor[0]!=2)||get16(descriptor+2)!=descriptor_size)return false;
  peer_value.struct_size=sizeof(peer_value);peer_value.transport=descriptor[1];peer_value.remaining_lifetime_ms=get32(descriptor+4);
  char*fields[]={peer_value.url,peer_value.username,peer_value.password,peer_value.session_id};const unsigned caps[]={sizeof(peer_value.url),sizeof(peer_value.username),sizeof(peer_value.password),sizeof(peer_value.session_id)};unsigned at=16;
- for(unsigned i=0;i<4;i++){unsigned n=get16(descriptor+8+2*i);if(!n||n>=caps[i]||n>descriptor_size-at)return false;memcpy(fields[i],descriptor+at,n);fields[i][n]=0;if(memchr(fields[i],0,n))return false;at+=n;}uint16_t sizes[4];return at==descriptor_size&&descriptor_valid(&peer_value,sizes);
+ for(unsigned i=0;i<4;i++){unsigned n=get16(descriptor+8+2*i);if(!n||n>=caps[i]||n>descriptor_size-at)return false;memcpy(fields[i],descriptor+at,n);fields[i][n]=0;if(memchr(fields[i],0,n))return false;at+=n;}uint16_t sizes[4];if(!descriptor_valid(&peer_value,sizes))return false;
+ if(descriptor[0]==1)return at==descriptor_size;
+ if(descriptor_size-at<6)return false;unsigned sn=descriptor[at],pn=descriptor[at+1];
+ if(!sn||sn>=sizeof(network_value.ssid)||pn<8||pn>=sizeof(network_value.password)||descriptor_size-at!=6+sn+pn)return false;
+ network_value.struct_size=sizeof(network_value);network_value.endpoint=peer_value;memcpy(network_value.address,descriptor+at+2,4);
+ memcpy(network_value.ssid,descriptor+at+6,sn);memcpy(network_value.password,descriptor+at+6+sn,pn);
+ return network_valid(&network_value);
 }
 static int descriptor_result(uint16_t h,const struct ble_gatt_error*e,struct ble_gatt_attr*a,void*arg){(void)arg;if(!central_secure(h))return BLE_HS_EAUTHEN;if(e->status==BLE_HS_EDONE){if(!decode_peer()){failed(BLE_HS_EINVAL);return BLE_HS_EINVAL;}central_phase=7;return 0;}if(e->status||!a||a->handle!=descriptor_handle||a->offset!=descriptor_size){failed(e->status?e->status:BLE_HS_EINVAL);return BLE_HS_EINVAL;}unsigned n=OS_MBUF_PKTLEN(a->om);if(!n||n>sizeof(descriptor)-descriptor_size||os_mbuf_copydata(a->om,0,n,descriptor+descriptor_size)){failed(BLE_HS_EMSGSIZE);return BLE_HS_EMSGSIZE;}descriptor_size+=n;return 0;}
 static int validity_result(uint16_t h,const struct ble_gatt_error*e,struct ble_gatt_attr*a,void*arg){(void)arg;uint8_t value[16];if(!central_secure(h))return BLE_HS_EAUTHEN;if(e->status||!a||a->handle!=validity_handle||a->offset||OS_MBUF_PKTLEN(a->om)!=sizeof(value)||os_mbuf_copydata(a->om,0,sizeof(value),value)){failed(e->status?e->status:BLE_HS_EINVAL);return BLE_HS_EINVAL;}uint32_t setup=get32(value),generation=get32(value+4);uint64_t remaining=get64(value+8);if(!setup||setup>RISC_SESSION_SETUP_MAX_LIFETIME_MS||!generation||remaining<setup||remaining>RISC_SESSION_SETUP_MAX_LIFETIME_MS||remaining>peer_value.remaining_lifetime_ms||validity_started>UINT64_MAX-remaining){failed(BLE_HS_EINVAL);return BLE_HS_EINVAL;}peer_expiry=validity_started+remaining;if(now()>=peer_expiry){failed(BLE_HS_ETIMEOUT);return BLE_HS_ETIMEOUT;}state=RISC_SETUP_READY;central_phase=9;return 0;}
