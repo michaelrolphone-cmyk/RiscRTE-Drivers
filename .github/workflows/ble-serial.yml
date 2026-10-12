@@ -1,10 +1,10 @@
 name: BLE serial central
 on:
   push:
-    branches: [feat/ble-serial-client]
-    paths: ['Drivers/ble_serial/**', 'sdk/driver/RiscBluetoothSerialV1.h', 'scripts/build_ble_serial.py', 'scripts/test_ble_serial.py', 'test/ble_serial_protocol_test.py', '.github/workflows/ble-serial.yml']
+    branches: [feat/ble-serial-client, audit/obd-test-readiness-20261012]
+    paths: ['Drivers/ble_serial/**', 'sdk/driver/RiscBluetoothSerialV1.h', 'scripts/build_ble_serial.py', 'scripts/test_ble_serial.py', 'test/ble_serial*.py', '.github/workflows/ble-serial.yml']
   pull_request:
-    paths: ['Drivers/ble_serial/**', 'sdk/driver/RiscBluetoothSerialV1.h', 'scripts/build_ble_serial.py', 'scripts/test_ble_serial.py', 'test/ble_serial_protocol_test.py', '.github/workflows/ble-serial.yml']
+    paths: ['Drivers/ble_serial/**', 'sdk/driver/RiscBluetoothSerialV1.h', 'scripts/build_ble_serial.py', 'scripts/test_ble_serial.py', 'test/ble_serial*.py', '.github/workflows/ble-serial.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -34,7 +34,7 @@ jobs:
           python scripts/build_ble_serial.py | tee build/evidence/target.log
       - uses: actions/upload-artifact@v4
         with:
-          name: ble-serial-010
+          name: ble-serial-011
           path: |
             dist/ble-serial/driver.elf
             dist/ble-serial/manifest.json

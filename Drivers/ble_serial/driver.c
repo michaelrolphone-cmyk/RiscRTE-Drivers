@@ -30,7 +30,7 @@ static char message[72];
 static risc_serial_peer_v1 peers[RISC_SERIAL_MAX_PEERS];
 static struct ble_gatt_svc services[SERVICE_MAX];
 static struct {struct ble_gatt_chr chr;uint16_t service;} chars[CHAR_MAX];
-static struct {risc_serial_channel_v1 api;uint16_t end;uint8_t properties;} channels[RISC_SERIAL_MAX_CHANNELS];
+static struct {risc_serial_channel_v1 api;uint16_t end;uint8_t properties;bool notify;} channels[RISC_SERIAL_MAX_CHANNELS];
 static uint8_t rx[RX_SIZE];
 static uint32_t rx_head,rx_count;
 static struct ble_hs_stop_listener stop_listener;
@@ -75,7 +75,7 @@ static void make_channels(void){
   channels[k].end=s->end_handle;channels[k].properties=w->properties;
   for(unsigned x=j+1;x<char_count;x++)if(chars[x].service==chars[j].service){channels[k].end=chars[x].chr.def_handle-1;break;}
   /* Store notification choice separately from transmitter properties. */
-  if(n->properties&BLE_GATT_CHR_PROP_NOTIFY)channels[k].properties|=0x80;
+  channels[k].notify=(n->properties&BLE_GATT_CHR_PROP_NOTIFY)!=0;
  }
  if(!channel_count)fail(BLE_HS_ENOENT,"No BLE serial channel. Classic SPP is unsupported.");
  else phase(RISC_SERIAL_CHANNELS,"Choose serial channel",0);
@@ -110,7 +110,7 @@ static int dsc_cb(uint16_t c,const struct ble_gatt_error *e,uint16_t value,const
  (void)arg;if(!callback_ok(c)||value!=channels[selected].api.rx_handle)return BLE_HS_EAPP;
  if(e->status==BLE_HS_EDONE){
   if(!ccc){fail(BLE_HS_ENOENT,"Notification subscription descriptor is missing");return 0;}
-  uint8_t enable[2]={(channels[selected].properties&0x80)?1:2,0};
+  uint8_t enable[2]={channels[selected].notify?1:2,0};
   int rc=ble_gattc_write_flat(c,ccc,enable,2,subscribed_cb,NULL);if(rc)fail(rc,"Subscription write failed");return 0;
  }
  if(e->status||!d){fail(e->status,"Descriptor discovery failed");return BLE_HS_EAPP;}

@@ -24,7 +24,9 @@ def run(sanitize: bool) -> None:
     for case in CASES:
         subprocess.run([sys.executable, str(ROOT/'test/ble_serial_protocol_test.py'),
                         str(binary), case], env=env, check=True, timeout=45)
-    print(f'BLE serial: {len(CASES)} real-stack host cases PASS; sanitized={sanitize}')
+    subprocess.run([sys.executable, str(ROOT/'test/ble_serial_extended_indication_test.py'),
+                    str(binary)], env=env, check=True, timeout=45)
+    print(f'BLE serial: {len(CASES)+1} real-stack host cases PASS; sanitized={sanitize}')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)

@@ -29,7 +29,7 @@ def build(host=False,sanitize=False):
  if imports-allowed or exports!={'t5_driver_get'}:raise ValueError((imports,exports))
  raw=elf.read_bytes();assert raw[:7]==b'\x7fELF\x01\x01\x01' and raw[16:20]==b'\x03\x00\x5e\x00'
  shutil.copyfile(profile/'manifest.json',out/'manifest.json')
- record={'schema':1,'id':'ble-serial','version':'0.1.0','source_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'source_dirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),'nimble_commit':pin['commit'],'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'imports':sorted(imports),'exports':sorted(exports),'hardware_tested':False}
+ record={'schema':1,'id':'ble-serial','version':'0.1.1','source_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'source_dirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),'nimble_commit':pin['commit'],'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'imports':sorted(imports),'exports':sorted(exports),'hardware_tested':False}
  (out/'build.json').write_text(json.dumps(record,indent=2)+'\n')
  for f in ['LICENSE','NOTICE','SOURCE.json']:shutil.copyfile(ROOT/'vendor/nimble'/f,out/('NimBLE-'+f))
  print(json.dumps(record));return elf

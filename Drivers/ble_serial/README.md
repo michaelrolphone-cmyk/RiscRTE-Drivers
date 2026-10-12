@@ -1,4 +1,4 @@
-# BLE serial client 0.1.0
+# BLE serial client 0.1.1
 
 `bluetooth.serial@1` is a reusable, board-independent BLE central/GATT transport.
 It uses the established exclusive `bluetooth.hci@1` lease and `platform.clock@1`.
@@ -38,14 +38,21 @@ python scripts/test_ble_serial.py --sanitize
 NATIVE_DRIVER_CC=/path/to/xtensa-esp32s3-elf-gcc python scripts/build_ble_serial.py
 ```
 
-Python test fixtures require `cryptography`. Ten cases exercise real NimBLE
+Python test fixtures require `cryptography`. Eleven cases exercise real NimBLE
 through an independent HCI controller/ATT peripheral: FFF0 and FFE0 notifications,
 128-bit Nordic UART indications, write modes/credits, scan/connect/discovery,
 fragmented RX, overflow, disconnect, subscription authentication refusal, write
-acknowledgement timeout, non-vendor rejection, uncertain close and ten reopen
+acknowledgement timeout, non-vendor rejection, extended-properties TX with
+indication-only RX, uncertain close and ten reopen
 cycles. Host ASan/UBSan runs disable leak reporting for the ctypes interpreter.
 No RF adapter, vehicle, board execution or physical timing is claimed.
 
 Primary sources: Espressif ESP32-S3 BLE overview
 (https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/ble/overview.html),
 and the pinned Apache NimBLE source and license in `vendor/nimble/`.
+
+## 0.1.1 readiness correction
+
+RX subscription mode is separate from TX characteristic properties. An extended-
+properties transmitter can no longer turn an indication subscription into a
+notification subscription. See [audit and reproduction](AUDIT-20261012.md).
