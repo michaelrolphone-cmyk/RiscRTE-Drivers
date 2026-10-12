@@ -1,0 +1,53 @@
+name: Generic power capability adapters
+on:
+  push:
+    branches: [feat/generic-power-capabilities]
+  pull_request:
+    paths: ['Drivers/legacy_power_*/**', 'Drivers/legacy_display_power/**', 'sdk/driver/RiscPower*', 'sdk/driver/RiscDisplayPower*', 'scripts/*legacy_power*', 'tests/test_legacy_power_bridge.c', '.github/workflows/generic-power.yml']
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/checkout@v4
+        with:
+          repository: michaelrolphone-cmyk/RiscRTE-Watch
+          ref: f5ee66e5ec4471a46a86b933adee79bd92715453
+          path: .source/watch
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: michaelrolphone-cmyk/RiscRTE-System-Apps
+          ref: 14762601b3fa7bbeeac5ed565a6825534bf74dca
+          path: .source/system
+          persist-credentials: false
+      - name: Test independent interfaces and legacy boundaries
+        run: |
+          for f in RiscPowerSleepV1.h RiscPowerKeyV1.h RiscDisplayPowerV1.h; do cmp "sdk/driver/$f" ".source/watch/sdk/driver/$f"; done
+          python3 scripts/test_legacy_power_bridge.py --sdk .source/watch/sdk/driver
+          python3 scripts/test_legacy_power_bridge.py --sdk .source/watch/sdk/driver --sanitize
+      - name: Prepare compiler and deployed ELF validator
+        run: |
+          mkdir -p .source/toolchain dist
+          curl --fail --location --retry 2 --max-time 180 https://github.com/espressif/crosstool-NG/releases/download/esp-2021r2-patch5/xtensa-esp32s3-elf-gcc8_4_0-esp-2021r2-patch5-linux-amd64.tar.gz -o "$RUNNER_TEMP/toolchain.tar.gz"
+          echo "8aa17a6adf01efa5b1628c8ac578063a44d26ae9581d39486b92223a41ef262f  $RUNNER_TEMP/toolchain.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/toolchain.tar.gz" -C .source/toolchain
+          python3 -m pip install pyelftools==0.32
+          cc -std=c11 -Wall -Wextra -Werror -I.source/system/test/native_apps/stubs -I.source/system/lib/elf_loader/include .source/system/lib/elf_loader/src/esp_elf_validate.c .source/system/test/native_apps/validate_test.c -o dist/validate-elf
+      - name: Build all three generic capability providers
+        run: |
+          python3 scripts/build_legacy_power_bridge.py --watch-sdk .source/watch --cc "$PWD/.source/toolchain/xtensa-esp32s3-elf/bin/xtensa-esp32s3-elf-gcc" --validator dist/validate-elf
+          git rev-parse HEAD > dist/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: generic-power-capabilities
+          path: |
+            dist/legacy-power/**/driver.elf
+            dist/legacy-power/**/manifest.json
+            dist/legacy-power/build.json
+            dist/COMMIT.txt
+          retention-days: 30

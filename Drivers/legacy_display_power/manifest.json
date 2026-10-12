@@ -1,0 +1,1 @@
+{"type":"driver","id":"compat-display-power","version":"0.1.0","driver_abi":2,"architecture":"xtensa-esp32s3","file_name":"driver.elf","requires":[{"capability":"display.output","api":1}],"provides":[{"capability":"display.power","api":1}]}
