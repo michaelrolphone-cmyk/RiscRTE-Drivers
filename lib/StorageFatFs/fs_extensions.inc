@@ -88,3 +88,31 @@ static bool fs_replace_file(void* c,const char* source,const char* destination){
  }
  return leave()&&ok;
 }
+
+#ifdef STORAGE_VOLUME_NATIVE_CAPACITY
+#include <RiscStorageNativeCapacityV1.h>
+/* Invoked only by the selected SD worker's copied capacity request. Ordinary
+ * Files/USB tables neither expose nor select this native-only admission. */
+static int32_t fs_native_capacity(void*c,const risc_storage_native_capacity_request_v1*q,risc_storage_native_capacity_result_v1*out){
+ (void)c;if(out)memset(out,0,sizeof(*out));
+ if(!out||!q||q->tag!=RISC_STORAGE_NATIVE_CAPACITY_TAG||q->version!=1u||!risc_storage_native_capacity_required(q->map_bytes,q->pages,512u))return RISC_STORAGE_ASYNC_INVALID;
+ if(!enter_ready())return RISC_STORAGE_ASYNC_IO;
+ int32_t status=RISC_STORAGE_ASYNC_IO;
+ if(!has_handles()&&!filesystem.wflag&&native_mount_epoch&&filesystem.csize){
+  const uint32_t cluster=(uint32_t)filesystem.csize*512u;
+  const uint32_t required=risc_storage_native_capacity_required(q->map_bytes,q->pages,cluster);
+  FILINFO info;FRESULT parent=f_stat("/RTECFG",&info);
+  if(required&&(parent==FR_NO_FILE||parent==FR_NO_PATH||(parent==FR_OK&&(info.fattrib&AM_DIR)))){
+   DWORD available=0;FATFS*fs=NULL;
+   FRESULT rc=f_getfree_bound("",required,parent==FR_OK?0u:1u,&available,&fs);
+   if(result_ok(rc)&&fs==&filesystem){
+    if(available<required)status=RISC_STORAGE_NATIVE_CAPACITY_NO_SPACE;
+    else {*out=(risc_storage_native_capacity_result_v1){RISC_STORAGE_NATIVE_CAPACITY_TAG,1u,cluster,required,available,0,native_mount_epoch,0};status=RISC_STORAGE_ASYNC_OK;}
+   }
+  }else if(parent!=FR_OK)(void)result_ok(parent);
+ }
+ if(!leave()){memset(out,0,sizeof(*out));return RISC_STORAGE_ASYNC_RETAINED;}
+ if(status!=RISC_STORAGE_ASYNC_OK)memset(out,0,sizeof(*out));
+ return status;
+}
+#endif

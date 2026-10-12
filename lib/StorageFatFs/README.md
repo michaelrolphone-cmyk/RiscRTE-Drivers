@@ -28,3 +28,18 @@ X4's wire-model tests exercise this production source, including seek/reopen,
 metadata, truncation, replacement, reset recovery, sharing/owner checks, failed
 writes, lock failure, SD export and sleep. Neither this source nor those host
 tests qualify physical media/power-loss behavior.
+
+## Opt-in native capacity admission
+
+`STORAGE_VOLUME_NATIVE_CAPACITY` selects a worker-only guarded first-export
+probe and a nonwrapping mount-attempt epoch. Ordinary Files/USB interfaces are
+unchanged. `f_getfree_bound` freshly reads FAT12/16/32 entries from cluster 2,
+stops once a requested lower bound is proved, and never consumes or updates
+`free_clst`/FSINFO. A dirty window is refused; capacity probing writes nothing.
+For fixed FAT12/16 roots, creating RTECFG also requires a vacant root slot.
+Every scanned cluster traverses the existing `get_fat` checkpoint, including
+cache hits; actual sector reads retain existing sector/time limits. Exhausting
+a budget or losing media returns an error, never a guessed capacity.
+The counted clusters are reserved only while the native caller continuously
+excludes all other writers and preserves exact session/mount custody. The
+probe does not allocate, format, recover, delete or change filesystem policy.

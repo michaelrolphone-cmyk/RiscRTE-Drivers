@@ -40,6 +40,9 @@
 #define STORAGE_VOLUME_OPERATION_SECTOR_LIMIT OP_SECTOR_LIMIT
 #endif
 static FATFS filesystem;
+#ifdef STORAGE_VOLUME_NATIVE_CAPACITY
+static uint64_t native_mount_epoch;
+#endif
 static uint64_t operation_start;
 static uint32_t operation_steps, operation_sectors;
 #ifdef STORAGE_VOLUME_OS_CPU_MUTEX
@@ -224,6 +227,10 @@ static dir_slot *dir_for(uint32_t handle) {
     return slot && slot <= DIR_SLOTS && dirs[slot - 1].handle == handle ? &dirs[slot - 1] : 0;
 }
 static bool mount_filesystem(void) {
+#ifdef STORAGE_VOLUME_NATIVE_CAPACITY
+    if (native_mount_epoch == UINT64_MAX) { mounted = false; fail("mount epoch exhausted"); return false; }
+    ++native_mount_epoch;
+#endif
     mounted = result_ok(f_mount(&filesystem, "", 1));
     return mounted;
 }

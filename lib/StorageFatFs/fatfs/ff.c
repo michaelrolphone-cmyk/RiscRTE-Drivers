@@ -4830,6 +4830,43 @@ FRESULT f_stat (
 /* Get Number of Free Clusters                                           */
 /*-----------------------------------------------------------------------*/
 
+/* Native capacity admission: read fresh FAT entries only until minimum free
+ * clusters are proven. Never trust free_clst/FSINFO and never turn a lower
+ * bound into their total. get_fat already calls the provider checkpoint for
+ * EVERY cluster, including cache hits; disk_read applies the sector budget.
+ * A dirty window is refused, since a read-only probe must not flush writes. */
+FRESULT f_getfree_bound (const TCHAR* path, DWORD minimum, UINT root_slots,
+                       DWORD* nclst, FATFS** fatfs)
+{
+ FRESULT res; FATFS* fs; FFOBJID obj; DWORD count = 0, clst;
+ if (!nclst || !fatfs || !minimum || root_slots > 1) return FR_INVALID_PARAMETER;
+ *nclst = 0; *fatfs = 0;
+ res = mount_volume(&path, &fs, 0);
+ if (res != FR_OK) LEAVE_FF(fs, res);
+ if (fs->fs_type != FS_FAT12 && fs->fs_type != FS_FAT16 && fs->fs_type != FS_FAT32) LEAVE_FF(fs, FR_INVALID_PARAMETER);
+ if (fs->wflag) LEAVE_FF(fs, FR_LOCKED);
+ fs->winsect = (LBA_t)0 - 1; /* Force first actual media read, even same sector. */
+ if (root_slots && fs->fs_type != FS_FAT32) {
+  UINT i; int vacant = 0;
+  for (i = 0; i < fs->n_rootdir; ++i) {
+   if (!risc_fatfs_checkpoint()) LEAVE_FF(fs, FR_DISK_ERR);
+   res = move_window(fs, fs->dirbase + (i * SZDIRE) / SS(fs));
+   if (res != FR_OK) LEAVE_FF(fs, res);
+   if (fs->win[(i * SZDIRE) % SS(fs)] == 0 || fs->win[(i * SZDIRE) % SS(fs)] == DDEM) { vacant = 1; break; }
+  }
+  if (!vacant) { *fatfs = fs; LEAVE_FF(fs, FR_OK); }
+ }
+ memset(&obj, 0, sizeof(obj)); obj.fs = fs;
+ for (clst = 2; clst < fs->n_fatent && count < minimum; ++clst) {
+  DWORD value = get_fat(&obj, clst);
+  if (value == 0xFFFFFFFF) LEAVE_FF(fs, FR_DISK_ERR);
+  if (value == 1) LEAVE_FF(fs, FR_INT_ERR);
+  if (value == 0) ++count;
+ }
+ *fatfs = fs; *nclst = count;
+ LEAVE_FF(fs, FR_OK);
+}
+
 FRESULT f_getfree (
 	const TCHAR* path,	/* Logical drive number */
 	DWORD* nclst,		/* Pointer to a variable to return number of free clusters */
