@@ -13,7 +13,8 @@ records={}
 for role in ('input','output'):
  source=root/'Drivers'/('pcm_audio_'+role);dest=out/role;dest.mkdir(exist_ok=True)
  elf=dest/'driver.elf';mapping=dest/'exports.map';mapping.write_text('{ global: t5_driver_get; local: *; };\n')
- command=[a.cc,'-std=c11','-Os','-fPIC','-mtext-section-literals','-mlongcalls','-fvisibility=hidden','-ffreestanding','-fno-builtin','-nostdlib','-nostartfiles','-shared','-Wl,--no-relax','-Wl,--hash-style=sysv','-Wl,--gc-sections','-ffunction-sections','-fdata-sections','-Wl,--version-script='+str(mapping),'-Wall','-Wextra','-Werror','-Wno-misleading-indentation','-I'+str(root/'sdk/driver'),'-I'+str(watch/'sdk/driver'),str(source/'driver.c'),'-lgcc','-o',str(elf)]
+ # Keep the selected complete consumer SDK first; local headers add PCM only.
+ command=[a.cc,'-std=c11','-Os','-fPIC','-mtext-section-literals','-mlongcalls','-fvisibility=hidden','-ffreestanding','-fno-builtin','-nostdlib','-nostartfiles','-shared','-Wl,--no-relax','-Wl,--hash-style=sysv','-Wl,--gc-sections','-ffunction-sections','-fdata-sections','-Wl,--version-script='+str(mapping),'-Wall','-Wextra','-Werror','-Wno-misleading-indentation','-I'+str(watch/'sdk/driver'),'-I'+str(root/'sdk/driver'),str(source/'driver.c'),'-lgcc','-o',str(elf)]
  subprocess.run(command,check=True);normalize(elf);compact(elf,a.cc,debug_path=out/'debug'/(role+'.elf'))
  subprocess.run([str(a.validator.resolve()),str(elf)],check=True)
  symbols=subprocess.check_output([a.cc.removesuffix('gcc')+'nm','-D',str(elf)],text=True)
