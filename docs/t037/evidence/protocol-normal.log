@@ -1,0 +1,124 @@
+Cooperative NPL FIFO, timer wrap/cancel, locks, arena reuse/overflow and bounded queues: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+FIFO keyboard/modifier/click reports, signed motion, watchdog, CCC/protocol cleanup, boot mouse: PASS
+Bonded reconnect restores CCCs without re-pairing; neutral reports/protocol reset: PASS
+Checked host stop, lease release, quiescence/restart and 12 repeat opens without arena growth: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Two-axis AC Pan/Wheel bytes, signs, saturation, legacy ABI, boot and all cleanup paths: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Explicit numeric rejection disconnects without accepting: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Numeric comparison timeout disconnects without accepting: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Direct expired comparison rejects, including clock wrap: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Direct expired comparison rejects, including clock wrap: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Legacy pairing cannot downgrade Secure Connections profile: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Invalid Secure Connections public key rejected: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Incorrect DHKey check is rejected without bonding: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Failed close/quiescence retain lease and retry safely: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Malformed HCI stream fails closed and closes custody: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Corrupt/uncertain persistence fails closed; explicit forget recovers: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Failed zero-token and retained-token HCI claims remain retryable after a prior clean session: PASS
+First-ever and repeated close before the next caller poll remains restartable: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Withheld controller credits safely handle mode release/teardown: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Withheld controller credits safely handle refresh release/teardown: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Withheld controller credits safely handle control release/teardown: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Withheld controller credits safely handle ccc release/teardown: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Withheld controller credits safely handle watchdog release/teardown: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Withheld controller credits safely handle explicit release/teardown: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Withheld controller credits safely handle disconnect release/teardown: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Established mouse, disconnect, saved-LTK reconnect, stale events and unchanged bond (mouse-reconnect): PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Established mouse, disconnect, saved-LTK reconnect, stale events and unchanged bond (mouse-no-subscription): PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Established mouse, disconnect, saved-LTK reconnect, stale events and unchanged bond (mouse-transport-recovery): PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Established mouse, disconnect, saved-LTK reconnect, stale events and unchanged bond (mouse-receive-recovery): PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Established mouse, disconnect, saved-LTK reconnect, stale events and unchanged bond (mouse-retained-recovery): PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Established mouse, disconnect, saved-LTK reconnect, stale events and unchanged bond (mouse-queued-recovery): PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Provider relaunch preserves saved-host reconnect; Forget allows a different bonded host: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Provider relaunch preserves saved-host reconnect; Forget allows a different bonded host: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Disconnect command race recovers after proven teardown (forget-terminate-race): PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Disconnect command race recovers after proven teardown (forget-race-new-host): PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Disconnect command race recovers after proven teardown (forget-race-retained): PASS
+Fresh-process durable bond and Forget lifecycle (reboot-saved-host): PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Fresh-process durable bond and Forget lifecycle (reboot-forgotten-host): PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Cold restart reconnect and durable Forget allow another host without settings loss: PASS
+Driver admission, bounded HCI startup and HID advertising: PASS
+Real NimBLE Secure Connections numeric comparison, ECDH/CMAC checks and persisted bond: PASS
+ATT service/characteristic/descriptor discovery, long report map, encrypted CCCs: PASS
+Unproven cooperative host stop cannot claim successful Forget or reopen: PASS

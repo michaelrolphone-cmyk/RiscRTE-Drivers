@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "source_revision": "58ad37140bd86bd2247bfa3244c4acc8942b2bd8",
+  "source_dirty": false,
+  "nimble_commit": "da7e3256da3ba80b232df880f40d8359311cc62e",
+  "compiler": "xtensa-esp32s3-elf-gcc (crosstool-NG esp-2021r2-patch5) 8.4.0",
+  "size_bytes": 233444,
+  "sha256": "9a4debf72654e4687b89d418827fa6b3b2df17d280c1032137f3ed55476802b9",
+  "imports": [
+    "memcmp",
+    "memcpy",
+    "memmove",
+    "memset",
+    "strcmp",
+    "strlen"
+  ],
+  "exports": [
+    "t5_driver_get"
+  ],
+  "physical_verification": "not-performed"
+}
