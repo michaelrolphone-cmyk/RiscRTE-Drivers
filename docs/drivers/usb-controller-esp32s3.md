@@ -141,7 +141,9 @@ Any failed cleanup step retains ownership for a later retry. A discovery/event f
 
 The repository-independent builder derives ESP32-S3 target flags from the `t5s3-pro` PlatformIO environment, rebuilds the pinned ESP-IDF v4.4.7 USB/PHY/SOC subset as PIC, supplies required ESP32-S3 MMIO symbols, links through `exports.map`, and audits ELF identity, exports, relocations, text relocations, unresolved USB-internal symbols, and scoped hardware ownership.
 
-Canonical release replay uses the exact release commit **491e06131a8e9dc39c7b7dbb9e4b3e7fc128b3a7** and overlays the migrated driver bytes only after proving the driver file set and bytes match that release commit. The target canonical artifact for v0.1.19 is 789,504 bytes with SHA-256 `18c95f4264dfff2b21af13b0f0366327be896c75a0ae2d4fc1c9b0a220424da6`.
+Canonical release replay uses the exact Reader release commit **491e06131a8e9dc39c7b7dbb9e4b3e7fc128b3a7** and overlays the historical Drivers bytes only after proving the complete driver file set and every byte match that release commit. CI obtains those bytes and the original replay/audit scripts from the separately checked-out immutable Drivers producer **179979b94cc5a1d4787c0ad99515c5c07edd92d8**, controller subtree `15c27125c163a50e1d41d7e9b15194ea03680488`. The target canonical artifact for v0.1.19 is 789,504 bytes with SHA-256 `18c95f4264dfff2b21af13b0f0366327be896c75a0ae2d4fc1c9b0a220424da6`.
+
+The SDK6 source at Drivers `0fc8268f694d0c633ac7934efbcb465ef7188f04` belongs to the separate [native USB producer qualification](usb-controller-native-idf61.md) and cannot satisfy the historical source comparison. See [toolchain source closure and verified CI evidence](../NATIVE_DRIVER_TOOLCHAIN.md#historical-byte-parity) for both immutable producer identities and the compiler-free positive/negative source tests.
 
 ## Host tests
 

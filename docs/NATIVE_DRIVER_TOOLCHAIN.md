@@ -78,6 +78,39 @@ strict parity purpose unchanged. Their original SDK/framework dependencies are
 not replaced by the generic native compiler. Root `platformio.ini` now only
 provisions the legacy toolchain; it no longer requests an Arduino framework.
 
+The historical USB controller gate checks out the immutable Drivers producer
+`179979b94cc5a1d4787c0ad99515c5c07edd92d8` under `.source/legacy-controller`,
+and runs its original replay and loader-map audit there. Its controller subtree
+is `15c27125c163a50e1d41d7e9b15194ea03680488`. The unchanged replay wrapper
+fetches Reader `491e06131a8e9dc39c7b7dbb9e4b3e7fc128b3a7` at its canonical
+workspace path and requires the complete source file set, every source byte,
+789,504-byte output and SHA-256
+`18c95f4264dfff2b21af13b0f0366327be896c75a0ae2d4fc1c9b0a220424da6`.
+This Drivers producer was verified by [CI run 38773322694, build job
+116554493237](https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/38773322694/job/116554493237),
+whose controller replay and loader-map steps both passed. The independent
+source-inventory parity job in that run failed; its assertions are unchanged.
+
+The SDK6 controller producer is separately recorded at Drivers
+`0fc8268f694d0c633ac7934efbcb465ef7188f04`, controller subtree
+`3d0b45084bdfe9f7b7b54b7dc8cb238d8ba17383`. Its pinned IDF, esp-usb, GCC15,
+private ABI2 cohort and qualification procedure are documented in
+[native USB producer qualification](drivers/usb-controller-native-idf61.md).
+The active native source intentionally fails the historical full-file-set gate;
+it must not be overlaid into the legacy replay. A compiler-free contract test
+checks the pinned checkout, unchanged replay/audit scripts, a positive legacy
+overlay, and rejection of extra, missing or changed source:
+
+```sh
+HISTORICAL_CONTROLLER_SOURCE=/path/to/exact/legacy/checkout \
+  python3 -m unittest discover -s test/parity -p test_usb_controller_release_parity.py -v
+```
+
+CI supplies that explicit checkout before running the contract tests. Without
+the environment variable, synthetic source-contract tests run and the three
+checkout integration tests are skipped. Historical output is collected under
+`dist/usb-controller-esp32s3` only after the legacy build and audit succeed.
+
 ## Verification
 
 ```sh

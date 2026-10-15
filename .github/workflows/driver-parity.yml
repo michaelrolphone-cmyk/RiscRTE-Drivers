@@ -306,8 +306,30 @@ jobs:
             python "scripts/build_${driver}.py" --require-byte-parity
           done
       - run: python scripts/build_i2c_esp32s3_v2.py --require-byte-parity
-      - run: python scripts/build_usb_controller_release_parity.py --require-byte-parity
-      - run: python scripts/verify_usb_controller_loader_map.py dist/usb-controller-esp32s3/driver.elf
+      - name: Check out the verified historical USB controller producer
+        uses: actions/checkout@v4
+        with:
+          repository: michaelrolphone-cmyk/RiscRTE-Drivers
+          ref: 179979b94cc5a1d4787c0ad99515c5c07edd92d8
+          path: .source/legacy-controller
+          persist-credentials: false
+          sparse-checkout: |
+            Drivers/usb_controller_esp32s3
+            scripts
+      - name: Verify immutable controller sources and wrong-source rejection
+        env:
+          HISTORICAL_CONTROLLER_SOURCE: .source/legacy-controller
+        run: python -m unittest discover -s test/parity -p test_usb_controller_release_parity.py -v
+      - name: Require historical USB controller release bytes
+        working-directory: .source/legacy-controller
+        run: python scripts/build_usb_controller_release_parity.py --require-byte-parity
+      - name: Audit the historical USB controller loader map
+        working-directory: .source/legacy-controller
+        run: python scripts/verify_usb_controller_loader_map.py dist/usb-controller-esp32s3/driver.elf
+      - name: Collect historical controller proof without changing producer inputs
+        run: |
+          test ! -e dist/usb-controller-esp32s3
+          cp -a .source/legacy-controller/dist/usb-controller-esp32s3 dist/usb-controller-esp32s3
       - uses: actions/upload-artifact@v4
         with:
           name: historical-release-parity
