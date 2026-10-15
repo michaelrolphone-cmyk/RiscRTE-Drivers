@@ -1,5 +1,8 @@
 # usb-controller-esp32s3
 
+The separately pinned, unreleased native SDK candidate is documented in
+[Native USB producer qualification](usb-controller-native-idf61.md).
+
 ## Identity and scope
 
 `usb-controller-esp32s3` is the ESP32-S3 physical USB controller provider. Current upstream source and release metadata are version **0.1.19**, driver ABI **2**, architecture **xtensa-esp32s3**, executable `driver.elf`. It requires `board.power.vbus@1` and provides `usb.controller@1`.

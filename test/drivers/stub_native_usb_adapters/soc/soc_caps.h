@@ -1,0 +1,3 @@
+#pragma once
+#define SOC_USB_FSLS_PHY_NUM 1
+#define SOC_CACHE_INTERNAL_MEM_VIA_L1CACHE 0

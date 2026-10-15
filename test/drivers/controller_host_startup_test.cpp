@@ -6,6 +6,12 @@
 #include <cstring>
 #include <initializer_list>
 
+#define ESP_IDF_VERSION_VAL(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
+#ifndef TEST_IDF_VERSION
+#define TEST_IDF_VERSION ESP_IDF_VERSION_VAL(4, 4, 7)
+#endif
+#define ESP_IDF_VERSION TEST_IDF_VERSION
+
 // IDF boundary fakes. The implementation under test is the production header.
 using esp_err_t = int;
 using TickType_t = unsigned;
@@ -20,7 +26,13 @@ struct usb_phy_config_t {
     int controller, target, otg_mode, otg_speed;
     void *gpio_conf;
 };
-struct usb_host_config_t { bool skip_phy_setup; int intr_flags; };
+struct usb_host_config_t {
+    bool skip_phy_setup;
+    int intr_flags;
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0)
+    unsigned peripheral_map;
+#endif
+};
 struct usb_host_client_event_msg_t {};
 using EventCallback = void (*)(const usb_host_client_event_msg_t *, void *);
 struct usb_host_client_config_t {
@@ -90,7 +102,16 @@ static esp_err_t usb_phy_action(usb_phy_handle_t handle, int action) {
 static esp_err_t usb_host_install(const usb_host_config_t *config) {
     assert(disconnected && phy && !installed && config->skip_phy_setup);
     assert(config->intr_flags == ESP_INTR_FLAG_LOWMED);
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0)
+    assert(config->peripheral_map == 1);
+#endif
     return operation(3);
+}
+// Exercise the production startup ordering; register-level adapter semantics
+// are checked separately by native_usb_adapter_test.cpp for both SDK cohorts.
+static esp_err_t risc_usb_phy_connection(usb_phy_handle_t handle, bool allow) {
+    return usb_phy_action(handle, allow ? USB_PHY_ACTION_HOST_ALLOW_CONN
+                                       : USB_PHY_ACTION_HOST_FORCE_DISCONN);
 }
 static esp_err_t usb_host_client_register(const usb_host_client_config_t *config,
                                          usb_host_client_handle_t *out) {

@@ -9,12 +9,22 @@
 #include <usb/usb_host.h>
 #include <esp_intr_alloc.h>
 #include <esp_private/usb_phy.h>
+#include "NativePhyGate.h"
+#if ESP_IDF_VERSION == ESP_IDF_VERSION_VAL(6, 1, 0)
+#include "NativeUsbLifecycle.h"
+#endif
 #include <soc/rtc_cntl_struct.h>
 #include <soc/usb_dwc_struct.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <cstring>
 #include <cstdint>
+#include <cstddef>
+#if ESP_IDF_VERSION == ESP_IDF_VERSION_VAL(6, 1, 0)
+// GCC15 may fold a USB_DWC+0x400 literal. The native link gives that exact
+// official host-register address a private SHN_ABS witness for loader audit.
+static_assert(offsetof(usb_dwc_dev_t, hcfg_reg) == 0x400, "S3 DWC host window changed");
+#endif
 #include <cstdio>
 
 namespace {
@@ -404,6 +414,15 @@ int32_t bulk_write(void *ctx, uint64_t id, uint8_t ep, const uint8_t *src,
 }
 
 bool quiesce_host() {
+#if ESP_IDF_VERSION == ESP_IDF_VERSION_VAL(6, 1, 0)
+    // Cleanup may be pending even when host installation never returned a handle.
+    // Do not pump/re-deregister resources already consumed by partial teardown.
+    if (risc_usb_cleanup_pending()) {
+        if (risc_usb_retry_cleanup() != ESP_OK) return false;
+        installed = false;
+        noClientsObserved = false;
+    }
+#endif
     if (inFlight && !drain_bulk(false)) return false;
     /* A discovery/event fault blocks new work, not verified cleanup. We may
      * release VBUS only after claims, DMA, devices, callbacks and IDF host
@@ -536,7 +555,11 @@ bool quiesce_host() {
 bool quiesce(void *) {
     role.stop();
     // Repeated graph cleanup may already have released the chip's I2C claim.
-    if (running || installed || phy || phyRouteCaptured || client || transfer || powerLease) {
+    if (running || installed || phy || phyRouteCaptured || client || transfer || powerLease
+#if ESP_IDF_VERSION == ESP_IDF_VERSION_VAL(6, 1, 0)
+        || risc_usb_cleanup_pending()
+#endif
+    ) {
         if (!quiesce_host()) return false;
     }
     return !power || power->quiesce(power->context);
@@ -604,7 +627,7 @@ struct RolePort {
         return external_supported() && extension->external_host_valid(power->context,powerLease);
     }
     bool disconnect_power_loss() const {
-        return phy && usb_phy_action(phy,USB_PHY_ACTION_HOST_FORCE_DISCONN)==ESP_OK;
+        return phy && risc_usb_phy_connection(phy, false)==ESP_OK;
     }
     bool idle_probe_required() const {
         return (powerMonitor->flags & RISC_USB_POWER_IDLE_PROBE_REQUIRED) != 0;

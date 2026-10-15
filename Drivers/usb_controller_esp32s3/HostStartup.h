@@ -15,13 +15,16 @@ bool start_host_controller(bool (*acquire)(void *, uint32_t, uint64_t *) = nullp
     phyConfig.otg_speed = USB_PHY_SPEED_UNDEFINED;
     esp_err_t rc = usb_new_phy(&phyConfig, &phy);
     if (rc != ESP_OK) return start_failure("phy-create", rc);
-    rc = usb_phy_action(phy, USB_PHY_ACTION_HOST_FORCE_DISCONN);
+    rc = risc_usb_phy_connection(phy, false);
     if (rc != ESP_OK) return start_failure("phy-hold-disconnected", rc);
     std::printf("USBCTRL stage=phy-held-disconnected\n");
 
     usb_host_config_t config = {};
     // The ELF owns the PHY across host install/uninstall, including failures.
     config.skip_phy_setup = true;
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0)
+    config.peripheral_map = 1u; // ESP32-S3 has only OTG port 0.
+#endif
     // IDF's C-callable non-shared default permits levels 1, 2 and 3.
     // Do not share the USB source with another owner to bypass contention.
     config.intr_flags = ESP_INTR_FLAG_LOWMED;
@@ -62,7 +65,7 @@ bool start_host_controller(bool (*acquire)(void *, uint32_t, uint64_t *) = nullp
         return false;
     }
     std::printf("USBCTRL stage=vbus-acquired-after-host-ready\n");
-    rc = usb_phy_action(phy, USB_PHY_ACTION_HOST_ALLOW_CONN);
+    rc = risc_usb_phy_connection(phy, true);
     if (rc != ESP_OK) return start_failure("phy-allow-connection", rc);
     std::printf("USBCTRL stage=phy-connection-enabled\n");
     return true;
