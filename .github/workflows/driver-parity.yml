@@ -2,7 +2,7 @@ name: Driver parity and build
 
 on:
   push:
-    branches: [main]
+    branches: [main, work/native-idf-6.1]
   pull_request:
   schedule:
     - cron: "17 * * * *"
