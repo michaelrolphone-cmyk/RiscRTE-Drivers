@@ -7,6 +7,9 @@ import subprocess
 from pathlib import Path
 
 from normalize_xtensa_relocations import normalize
+from native_driver_toolchain import compiler, parity_requested, is_unified
+
+REQUIRE_BYTE_PARITY = parity_requested()
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "Drivers/usb_mass_storage"
@@ -29,20 +32,15 @@ required = {
 if manifest != required:
     raise SystemExit("usb-mass-storage manifest mismatch")
 
-cc = os.environ.get("NATIVE_DRIVER_CC") or shutil.which("xtensa-esp32s3-elf-gcc")
-if not cc:
-    cc = str(
-        Path.home()
-        / ".platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"
-    )
-if not Path(cc).is_file():
-    raise SystemExit(f"missing Xtensa compiler: {cc}")
+cc = compiler()
 
 OUT.mkdir(parents=True, exist_ok=True)
 elf = OUT / "driver.elf"
 subprocess.run(
     [
         cc,
+        # GCC15 loop recognition otherwise adds a new strlen firmware import.
+        *(["-fno-tree-loop-distribute-patterns"] if is_unified(cc) else []),
         "-std=c11",
         "-Os",
         "-fPIC",
@@ -84,7 +82,7 @@ imports = {
     for line in symbols.splitlines()
     if len((fields := line.split())) >= 8 and fields[6] == "UND"
 }
-if imports != {"memcpy", "memset"}:
+if not imports <= {"memcpy", "memset"}:
     raise SystemExit(f"unexpected imports: {sorted(imports)}")
 
 data = elf.read_bytes()
@@ -112,5 +110,5 @@ print(
     f"built usb-mass-storage v{manifest['version']} {len(data)} bytes "
     f"{digest} byte_parity={byte_parity}"
 )
-if not byte_parity:
+if REQUIRE_BYTE_PARITY and not byte_parity:
     raise SystemExit("usb-mass-storage canonical release byte parity failed")

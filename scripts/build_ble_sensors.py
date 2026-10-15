@@ -3,16 +3,17 @@
 import hashlib,json,os,shutil,subprocess
 from pathlib import Path
 from normalize_xtensa_relocations import normalize
+from native_driver_toolchain import compiler
 ROOT=Path(__file__).resolve().parents[1]
 PACKAGES={'ble-sensors':'ble_sensors','ble-telemetry':'ble_telemetry','telemetry-battery':'telemetry_battery'}
 def build():
- cc=os.environ.get('NATIVE_DRIVER_CC') or shutil.which('xtensa-esp32s3-elf-gcc') or str(Path.home()/'.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc')
+ cc=compiler()
  flags=['-std=c11','-Os','-fPIC','-ffunction-sections','-fdata-sections','-fvisibility=hidden','-mtext-section-literals','-mlongcalls','-ffreestanding','-fno-builtin','-Wall','-Wextra','-Werror','-Wno-misleading-indentation']
  for identity,folder in PACKAGES.items():
   source=ROOT/'Drivers'/folder;out=ROOT/'dist'/identity;out.mkdir(parents=True,exist_ok=True)
   mapping=out/'exports.map';mapping.write_text('{ global: t5_driver_get; local: *; };\n')
   elf=out/'driver.elf'
-  subprocess.run([cc,*flags,'-I'+str(ROOT/'sdk/driver'),'-shared','-nostdlib','-nostartfiles','-Wl,--no-relax','-Wl,--hash-style=sysv','-Wl,--gc-sections','-Wl,--exclude-libs,ALL','-Wl,--version-script='+str(mapping),str(source/'driver.c'),'-lgcc','-o',str(elf)],check=True)
+  subprocess.run([cc, *flags,'-I'+str(ROOT/'sdk/driver'),'-shared','-nostdlib','-nostartfiles','-Wl,--no-relax','-Wl,--hash-style=sysv','-Wl,--gc-sections','-Wl,--exclude-libs,ALL','-Wl,--version-script='+str(mapping),str(source/'driver.c'),'-lgcc','-o',str(elf)],check=True)
   normalize(elf)
   symbols=subprocess.check_output([cc.removesuffix('gcc')+'nm','-D',str(elf)],text=True)
   imports={p.split()[-1] for p in symbols.splitlines() if ' U ' in ' '+p}

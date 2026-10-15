@@ -2,7 +2,8 @@
 """Build device-independent compatibility providers, one artifact per capability."""
 import argparse,hashlib,json,os,subprocess,sys
 from pathlib import Path
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--watch-sdk',required=True,type=Path);p.add_argument('--cc',required=True);p.add_argument('--validator',type=Path,required=True);p.add_argument('--output',type=Path);a=p.parse_args()
+from native_driver_toolchain import compiler
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--watch-sdk',required=True,type=Path);p.add_argument('--cc');p.add_argument('--validator',type=Path,required=True);p.add_argument('--output',type=Path);a=p.parse_args();a.cc=compiler(a.cc)
 r=Path(__file__).resolve().parents[1];w=a.watch_sdk.resolve();out=(a.output or r/'dist/legacy-power').resolve();out.mkdir(parents=True,exist_ok=True)
 sys.path.insert(0,str(w/'scripts'));from normalize_xtensa_relocations import normalize
 from compact_current_elf import compact

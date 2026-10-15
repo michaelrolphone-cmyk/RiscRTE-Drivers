@@ -17,8 +17,7 @@ jobs:
         with: {python-version: '3.11'}
       - run: bash test/run_s3_radio_iq_test.sh
       - run: SANITIZE=1 bash test/run_s3_radio_iq_test.sh
-      - run: python -m pip install platformio==6.1.19
-      - run: pio pkg install --global --tool 'espressif/toolchain-xtensa-esp32s3@8.4.0+2021r2-patch5'
+      - run: bash scripts/install_native_driver_toolchain.sh
       - run: python scripts/build_s3_radio_iq_v1.py
       - uses: actions/upload-artifact@v4
         with:

@@ -2,6 +2,7 @@
 import hashlib, json, os, shutil, subprocess
 from pathlib import Path
 from normalize_xtensa_relocations import normalize
+from native_driver_toolchain import compiler
 ROOT=Path(__file__).resolve().parents[1]
 SRC=ROOT/"Drivers/usb_xinput_gamepad"
 OUT=ROOT/"dist/usb-xinput-gamepad"
@@ -10,11 +11,9 @@ CANONICAL_SHA256="e2cee3355937d7815fb5685598cd2411c7d508bb36424f00636ec7495f654c
 manifest=json.loads((SRC/"manifest.json").read_text())
 required={"type":"driver","id":"usb-xinput-gamepad","version":"0.1.3","driver_abi":2,"architecture":"xtensa-esp32s3","file_name":"driver.elf","requires":[{"capability":"usb.host","api":1},{"capability":"platform.clock","api":1}],"provides":[{"capability":"usb.xinput.gamepad","api":1}],"status":"experimental-unpublished"}
 if manifest!=required: raise SystemExit("usb-xinput-gamepad manifest mismatch")
-cc=os.environ.get("NATIVE_DRIVER_CC") or shutil.which("xtensa-esp32s3-elf-gcc")
-if not cc: cc=str(Path.home()/".platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc")
-if not Path(cc).is_file(): raise SystemExit(f"missing Xtensa compiler: {cc}")
+cc = compiler()
 OUT.mkdir(parents=True,exist_ok=True); elf=OUT/"driver.elf"
-subprocess.run([cc,"-std=c11","-Os","-fPIC","-mtext-section-literals","-mlongcalls","-fvisibility=hidden","-nostdlib","-nostartfiles","-shared","-I"+str(ROOT/"sdk/driver"),"-Wl,--hash-style=sysv","-Wl,--exclude-libs,ALL",str(SRC/"driver.c"),"-lgcc","-o",str(elf)],check=True)
+subprocess.run([cc, "-std=c11","-Os","-fPIC","-mtext-section-literals","-mlongcalls","-fvisibility=hidden","-nostdlib","-nostartfiles","-shared","-I"+str(ROOT/"sdk/driver"),"-Wl,--hash-style=sysv","-Wl,--exclude-libs,ALL",str(SRC/"driver.c"),"-lgcc","-o",str(elf)],check=True)
 normalize(elf)
 readelf=str(Path(cc).with_name(Path(cc).name.replace("gcc","readelf")))
 symbols=subprocess.check_output([readelf,"--dyn-syms","--wide",str(elf)],text=True)

@@ -41,8 +41,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.11"}
-      - run: python -m pip install platformio==6.1.19
-      - run: pio pkg install -e toolchain
+      - run: bash scripts/install_native_driver_toolchain.sh
+      - run: NATIVE_DRIVER_INTEGRATION=1 python -m unittest discover -s test -p test_native_driver_toolchain.py -v
+      - name: Test native PIC uint64 division helper
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all scripts/xtensa_support/unsigned_division.c test/native_unsigned_division_test.c -o /tmp/driver-unsigned-division-test
+          /tmp/driver-unsigned-division-test
+      - name: Test frozen ordinary clock time32 consumer
+        run: |
+          cc -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -I sdk/compat/elf-time32 -I sdk/driver -Dclock_gettime=risc_test_clock_gettime -Dusleep=risc_test_usleep Drivers/platform_clock_v1/driver.c test/native_time32_test.c -o /tmp/driver-time32-test
+          /tmp/driver-time32-test
       - run: python scripts/build_platform_clock_v1.py
       - name: Test i2c-esp32s3-v2 mutex queueing, drain, claims and restart
         run: |
@@ -51,7 +59,6 @@ jobs:
             Drivers/i2c_esp32s3_v2/driver.c test/drivers/i2c_esp32s3_v2_test.c \
             -o /tmp/i2c-esp32s3-v2-test
           /tmp/i2c-esp32s3-v2-test
-      - run: python scripts/build_i2c_esp32s3_v2.py --require-byte-parity
       - run: python scripts/build_gt911_touch.py
       - run: python scripts/build_gps_nmea.py
       - name: Test usb-cdc-acm descriptor and protocol provider
@@ -179,7 +186,7 @@ jobs:
             Drivers/display_epd_video/driver.c test/drivers/display_epd_video_test.c \
             -o /tmp/display-epd-video-test
           /tmp/display-epd-video-test
-      - name: Build display-epd-video and require released byte parity
+      - name: Build display-epd-video with native GCC15
         run: python scripts/build_display_epd_video.py
       - name: Test usb-xinput-gamepad discovery, state, retry, hotplug and shutdown
         run: |
@@ -187,8 +194,6 @@ jobs:
             test/drivers/usb_xinput_gamepad_test.c -o /tmp/usb-xinput-gamepad-test
           /tmp/usb-xinput-gamepad-test
       - run: python scripts/build_usb_xinput_gamepad.py
-      - run: python scripts/build_usb_controller_release_parity.py --require-byte-parity
-      - run: python scripts/verify_usb_controller_loader_map.py dist/usb-controller-esp32s3/driver.elf
       - name: Test program-msp target gating, FRAM RMW, verify and cleanup
         run: |
           cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared -I sdk/driver Drivers/program_msp/driver.c -o /tmp/program-msp.so
@@ -200,10 +205,6 @@ jobs:
         with:
           name: platform-clock-v1
           path: dist/platform-clock-v1
-      - uses: actions/upload-artifact@v4
-        with:
-          name: i2c-esp32s3-v2
-          path: dist/i2c-esp32s3-v2
       - uses: actions/upload-artifact@v4
         with:
           name: gt911-touch
@@ -278,10 +279,6 @@ jobs:
           path: dist/usb-xinput-gamepad
       - uses: actions/upload-artifact@v4
         with:
-          name: usb-controller-esp32s3
-          path: dist/usb-controller-esp32s3
-      - uses: actions/upload-artifact@v4
-        with:
           name: program-msp
           path: dist/program-msp
       - uses: actions/upload-artifact@v4
@@ -292,3 +289,35 @@ jobs:
         with:
           name: display-epd-video
           path: dist/display-epd-video
+
+  historical-release-parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: python -m pip install platformio==6.1.19
+      - run: pio pkg install -e toolchain
+      - name: Require historical GCC8 generic release bytes
+        run: |
+          export NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"
+          for driver in board_power_t5s3_v2 t5s3_usb_power_profile usb_mass_storage usb_msp usb_hid_gamepad usb_ui_navigation program_msp display_epd_video; do
+            python "scripts/build_${driver}.py" --require-byte-parity
+          done
+      - run: python scripts/build_i2c_esp32s3_v2.py --require-byte-parity
+      - run: python scripts/build_usb_controller_release_parity.py --require-byte-parity
+      - run: python scripts/verify_usb_controller_loader_map.py dist/usb-controller-esp32s3/driver.elf
+      - uses: actions/upload-artifact@v4
+        with:
+          name: historical-release-parity
+          path: |
+            dist/board-power-t5s3-v2/
+            dist/t5s3-usb-power-profile/
+            dist/usb-mass-storage/
+            dist/usb-msp/
+            dist/usb-hid-gamepad/
+            dist/usb-ui-navigation/
+            dist/program-msp/
+            dist/display-epd-video/
+            dist/i2c-esp32s3-v2/
+            dist/usb-controller-esp32s3/

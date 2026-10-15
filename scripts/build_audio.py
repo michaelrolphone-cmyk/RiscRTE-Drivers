@@ -2,10 +2,11 @@
 """Build hardware-independent PCM adapters against the deployed audio ABI."""
 import argparse,hashlib,json,subprocess,sys
 from pathlib import Path
+from native_driver_toolchain import compiler
 p=argparse.ArgumentParser(description=__doc__)
-p.add_argument('--watch',type=Path,required=True);p.add_argument('--cc',required=True)
+p.add_argument('--watch',type=Path,required=True);p.add_argument('--cc')
 p.add_argument('--validator',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
-a=p.parse_args();root=Path(__file__).resolve().parents[1];watch=a.watch.resolve();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
+a=p.parse_args();a.cc=compiler(a.cc);root=Path(__file__).resolve().parents[1];watch=a.watch.resolve();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
 sys.path.insert(0,str(watch/'scripts'))
 from compact_current_elf import compact
 from normalize_xtensa_relocations import normalize

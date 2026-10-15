@@ -15,26 +15,12 @@ SDK = ROOT / "sdk/driver"
 OUT = ROOT / "dist/xteink-x4-pro"
 sys.path.insert(0, str(ROOT / "scripts"))
 from normalize_xtensa_relocations import normalize
+from native_driver_toolchain import compiler
 
 DRIVERS = [
     "x4pro_gpio", "x4pro_i2c", "x4pro_panel", "x4pro_gt911",
     "x4pro_buttons", "x4pro_frontlight", "x4pro_battery", "x4pro_sd",
 ]
-
-
-def compiler():
-    env = os.environ.get("NATIVE_DRIVER_CC")
-    if env and Path(env).is_file():
-        return env
-    found = shutil.which("xtensa-esp32s3-elf-gcc")
-    if found:
-        return found
-    fallback = Path("/tmp/xtensa/xtensa-esp32s3-elf/bin/xtensa-esp32s3-elf-gcc")
-    if fallback.is_file():
-        return str(fallback)
-    core = Path(os.environ.get("PLATFORMIO_CORE_DIR", Path.home() / ".platformio"))
-    return str(core / "packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc")
-
 
 def build_one(cc, name):
     source = BOARD / name
@@ -77,7 +63,7 @@ def build_one(cc, name):
 
 
 def main():
-    cc = compiler()
+    cc = compiler(legacy_fallbacks=(Path("/tmp/xtensa/xtensa-esp32s3-elf/bin/xtensa-esp32s3-elf-gcc"),))
     if not Path(cc).is_file():
         raise SystemExit("missing Xtensa compiler: " + cc)
     built = [build_one(cc, name) for name in DRIVERS]

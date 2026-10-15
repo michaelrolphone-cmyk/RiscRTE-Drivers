@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the released EPD display.output provider and verify canonical bytes."""
+"""Build the released EPD display.output provider and optionally verify canonical bytes."""
 import hashlib
 import json
 import os
@@ -8,6 +8,7 @@ import shutil
 import subprocess
 
 from normalize_xtensa_relocations import normalize
+from native_driver_toolchain import compiler, parity_requested
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "Drivers/display_epd_video"
@@ -16,7 +17,7 @@ CANONICAL_SIZE = 5852
 CANONICAL_SHA256 = "7691d63e729d69aad3486a58bf913ddafff5af3cb156a3bcaed59270dcb71f7a"
 
 
-def build(cc=None):
+def build(cc=None, require_byte_parity=False):
     manifest = json.loads((SOURCE / "manifest.json").read_text())
     required = {
         "type": "driver", "id": "display-epd-video", "version": "0.1.3",
@@ -28,12 +29,7 @@ def build(cc=None):
     if any(manifest.get(key) != value for key, value in required.items()):
         raise ValueError("Invalid EPD display provider manifest")
 
-    cc = cc or os.environ.get("NATIVE_DRIVER_CC") or shutil.which("xtensa-esp32s3-elf-gcc")
-    if not cc:
-        core = Path(os.environ.get("PLATFORMIO_CORE_DIR", Path.home() / ".platformio"))
-        cc = str(core / "packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc")
-    if not Path(cc).is_file():
-        raise SystemExit(f"missing Xtensa compiler: {cc}")
+    cc = compiler(cc)
 
     OUTPUT.mkdir(parents=True, exist_ok=True)
     elf = OUTPUT / "driver.elf"
@@ -69,13 +65,15 @@ def build(cc=None):
             or int.from_bytes(payload[18:20], "little") != 94):
         raise ValueError("Invalid Xtensa display provider ELF")
     digest = hashlib.sha256(payload).hexdigest()
-    if len(payload) != CANONICAL_SIZE or digest != CANONICAL_SHA256:
+    byte_parity = len(payload) == CANONICAL_SIZE and digest == CANONICAL_SHA256
+    if require_byte_parity and not byte_parity:
         raise ValueError(f"canonical byte parity mismatch: got {len(payload)} {digest}")
-    manifest.update(size_bytes=len(payload), sha256=digest, byte_parity=True)
+    manifest.update(size_bytes=len(payload), sha256=digest, canonical_size_bytes=CANONICAL_SIZE,
+                    canonical_sha256=CANONICAL_SHA256, byte_parity=byte_parity)
     (OUTPUT / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
-    print(f"display-epd-video {len(payload)} bytes {digest} byte_parity=true")
+    print(f"display-epd-video {len(payload)} bytes {digest} byte_parity={byte_parity}")
     return elf
 
 
 if __name__ == "__main__":
-    build()
+    build(require_byte_parity=parity_requested())

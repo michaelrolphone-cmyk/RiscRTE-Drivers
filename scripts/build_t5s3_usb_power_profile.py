@@ -5,6 +5,9 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
+from native_driver_toolchain import compiler, parity_requested
+
+REQUIRE_BYTE_PARITY = parity_requested()
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "Drivers/t5s3_usb_power_profile"
@@ -28,11 +31,7 @@ required = {
 if manifest != required:
     raise SystemExit("t5s3-usb-power-profile manifest mismatch")
 
-cc = os.environ.get("NATIVE_DRIVER_CC") or shutil.which("xtensa-esp32s3-elf-gcc")
-if not cc:
-    cc = str(Path.home() / ".platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc")
-if not Path(cc).is_file():
-    raise SystemExit(f"missing Xtensa compiler: {cc}")
+cc = compiler()
 
 OUT.mkdir(parents=True, exist_ok=True)
 elf = OUT / "driver.elf"
@@ -71,5 +70,5 @@ meta.update(
 )
 (OUT / "manifest.json").write_text(json.dumps(meta, indent=2) + "\n")
 print(f"built {manifest['id']} v{manifest['version']} {len(data)} bytes {digest} byte_parity={byte_parity}")
-if not byte_parity:
+if REQUIRE_BYTE_PARITY and not byte_parity:
     raise SystemExit("t5s3-usb-power-profile canonical release byte parity failed")

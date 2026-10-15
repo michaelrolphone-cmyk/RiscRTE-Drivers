@@ -6,6 +6,7 @@ import shutil
 import subprocess
 from pathlib import Path
 from normalize_xtensa_relocations import normalize
+from native_driver_toolchain import compiler, native_support_sources
 
 ROOT=Path(__file__).resolve().parents[1]
 SRC=ROOT/"Drivers/s3_radio_iq_v1"
@@ -16,21 +17,17 @@ if manifest['id'] != 's3-radio-iq-v1' or manifest['version'] != '0.2.0' or manif
     {'capability':'platform.radio.iq.resource','api':1}]:
     raise SystemExit("guarded IQ manifest/requirements differ")
 
-cc=os.environ.get("NATIVE_DRIVER_CC") or shutil.which("xtensa-esp32s3-elf-gcc")
-if not cc:
-    cc=str(Path.home()/".platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc")
-if not Path(cc).is_file():
-    raise SystemExit(f"missing Xtensa compiler: {cc}")
+cc = compiler()
 
 OUT.mkdir(parents=True,exist_ok=True)
 elf=OUT/"driver.elf"
 subprocess.run([
-    cc,"-std=c11","-Os","-fPIC","-Wall","-Wextra","-Werror",
+    cc, "-std=c11","-Os","-fPIC","-Wall","-Wextra","-Werror",
     "-mtext-section-literals","-mlongcalls","-fvisibility=hidden",
     "-ffreestanding","-fno-builtin","-nostdlib","-nostartfiles","-shared",
     "-I"+str(ROOT/"sdk/driver"),"-I"+str(SRC),
     "-Wl,--no-relax","-Wl,--hash-style=sysv","-Wl,--exclude-libs,ALL",
-    str(SRC/"driver.c"),"-lgcc","-o",str(elf)
+    str(SRC/"driver.c"),*native_support_sources(cc),"-lgcc","-o",str(elf)
 ],check=True)
 normalize(elf)
 

@@ -3,6 +3,7 @@
 import argparse,hashlib,json,os,shutil,subprocess
 from pathlib import Path
 from normalize_xtensa_relocations import normalize
+from native_driver_toolchain import compiler
 ROOT=Path(__file__).resolve().parents[1]
 VENDOR=ROOT/'vendor/nimble'
 SOURCE=ROOT/'Drivers/ble_hid'
@@ -27,7 +28,7 @@ def inputs():
 def build(host=False,sanitize=False):
     include,src,pin=inputs();out=ROOT/('build/ble-hid-san' if sanitize else 'build/ble-hid-host') if host else ROOT/'dist/ble-hid'
     out.mkdir(parents=True,exist_ok=True)
-    cc=os.environ.get('CC','cc') if host else os.environ.get('NATIVE_DRIVER_CC') or shutil.which('xtensa-esp32s3-elf-gcc') or str(Path.home()/'.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc')
+    cc=os.environ.get('CC','cc') if host else compiler()
     flags=['-std=c11','-Os','-fPIC','-ffunction-sections','-fdata-sections','-fvisibility=hidden','-D_DEFAULT_SOURCE','-Dmalloc=hid_malloc','-Dcalloc=hid_calloc','-Drealloc=hid_realloc','-Dfree=hid_free']
     if host:flags+=['-DHID_HOST_TEST']
     else:flags+=['-mtext-section-literals','-mlongcalls','-ffreestanding','-fno-builtin']

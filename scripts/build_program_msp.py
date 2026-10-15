@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 import hashlib, json, os, shutil, subprocess
 from pathlib import Path
+from native_driver_toolchain import compiler, parity_requested
+
+REQUIRE_BYTE_PARITY = parity_requested()
 
 ROOT=Path(__file__).resolve().parents[1]
 SRC=ROOT/"Drivers/program_msp"
@@ -16,12 +19,10 @@ required={
  "status":"experimental-unpublished"
 }
 if manifest!=required: raise SystemExit("program-msp manifest mismatch")
-cc=os.environ.get("NATIVE_DRIVER_CC") or shutil.which("xtensa-esp32s3-elf-gcc")
-if not cc: cc=str(Path.home()/".platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc")
-if not Path(cc).is_file(): raise SystemExit(f"missing Xtensa compiler: {cc}")
+cc = compiler()
 OUT.mkdir(parents=True,exist_ok=True)
 elf=OUT/"driver.elf"
-subprocess.run([cc,"-std=c11","-Os","-fPIC","-mtext-section-literals","-mlongcalls",
+subprocess.run([cc, "-std=c11","-Os","-fPIC","-mtext-section-literals","-mlongcalls",
  "-fvisibility=hidden","-nostdlib","-nostartfiles","-shared",
  "-I"+str(ROOT/"sdk/driver"),"-Wl,--hash-style=sysv","-Wl,--exclude-libs,ALL",
  str(SRC/"driver.c"),"-lgcc","-o",str(elf)],check=True)
@@ -36,9 +37,10 @@ data=elf.read_bytes()
 if not 52<=len(data)<=256*1024 or data[:7]!=b"\x7fELF\x01\x01\x01" or int.from_bytes(data[16:18],"little")!=3 or int.from_bytes(data[18:20],"little")!=94:
     raise SystemExit("invalid Xtensa shared driver")
 digest=hashlib.sha256(data).hexdigest()
-if len(data)!=CANONICAL_SIZE or digest!=CANONICAL_SHA256:
+byte_parity = len(data)==CANONICAL_SIZE and digest==CANONICAL_SHA256
+if REQUIRE_BYTE_PARITY and not byte_parity:
     raise SystemExit(f"canonical byte parity mismatch: got {len(data)} {digest}, expected {CANONICAL_SIZE} {CANONICAL_SHA256}")
 meta=dict(manifest)
-meta.update(size_bytes=len(data),sha256=digest,byte_parity=True)
+meta.update(size_bytes=len(data),sha256=digest,canonical_size_bytes=CANONICAL_SIZE,canonical_sha256=CANONICAL_SHA256,byte_parity=byte_parity)
 (OUT/"manifest.json").write_text(json.dumps(meta,indent=2)+"\n")
-print(f"built program-msp v{manifest['version']} {len(data)} bytes {digest} byte_parity=true")
+print(f"built program-msp v{manifest['version']} {len(data)} bytes {digest} byte_parity={byte_parity}")

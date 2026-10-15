@@ -54,7 +54,7 @@ commands, negative tests, provenance artifacts and exact scope limits.
 
 ## Build and test model
 
-Current driver builds use the Xtensa ESP32-S3 GCC toolchain provisioned through PlatformIO. Individual build scripts validate the package identity and driver-specific output, including exported symbols and ELF architecture where implemented. CI runs parity/documentation checks separately from compilation so inventory drift cannot be hidden by a successful compiler invocation.
+Generic driver builds prefer the native ESP-IDF 6.1 GCC 15.2.0 toolchain, with explicit compiler overrides and legacy ESP32-S3/PlatformIO compatibility. They do not require Arduino. Historical release replay remains separately pinned to its original environment. See [native compiler selection, ordinary time32 ABI, and parity modes](docs/NATIVE_DRIVER_TOOLCHAIN.md). Individual builders validate package identity, exports, imports and ELF architecture where implemented; CI keeps source/documentation parity, native builds and historical byte replay separate.
 
 Published-byte parity is recorded only where it has actually been demonstrated. Source-only drivers have no published artifact to compare against.
 

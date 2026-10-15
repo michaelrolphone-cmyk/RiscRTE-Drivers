@@ -2,6 +2,7 @@
 import hashlib, json, os, shutil, subprocess
 from pathlib import Path
 from normalize_xtensa_relocations import normalize
+from native_driver_toolchain import compiler
 ROOT=Path(__file__).resolve().parents[1]
 SRC=ROOT/"Drivers/usb_cp210x_v2"
 OUT=ROOT/"dist/usb-cp210x-v2"
@@ -14,12 +15,10 @@ required={"type":"driver","id":"usb-cp210x-v2","version":"0.1.0","driver_abi":2,
 "provides":[{"capability":"serial.port","api":1}],
 "status":"experimental-unpublished"}
 if manifest!=required: raise SystemExit("usb-cp210x-v2 manifest mismatch")
-cc=os.environ.get("NATIVE_DRIVER_CC") or shutil.which("xtensa-esp32s3-elf-gcc")
-if not cc: cc=str(Path.home()/".platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc")
-if not Path(cc).is_file(): raise SystemExit(f"missing Xtensa compiler: {cc}")
+cc = compiler()
 OUT.mkdir(parents=True,exist_ok=True)
 elf=OUT/"driver.elf"
-subprocess.run([cc,"-std=c11","-Os","-fPIC","-mtext-section-literals","-mlongcalls",
+subprocess.run([cc, "-std=c11","-Os","-fPIC","-mtext-section-literals","-mlongcalls",
 "-fvisibility=hidden","-nostdlib","-nostartfiles","-shared","-I"+str(ROOT/"sdk/driver"),
 "-Wl,--hash-style=sysv","-Wl,--exclude-libs,ALL",str(SRC/"driver.c"),"-lgcc","-o",str(elf)],check=True)
 normalize(elf)
