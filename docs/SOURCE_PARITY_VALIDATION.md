@@ -70,11 +70,27 @@ future synchronization requires re-inspecting the actually merged source.
 
 ## Shared source and original experimental drivers
 
-The exact upstream `Drivers/common` directory contains shared include fragments,
-not an installable package. The scanner inspects that pinned tree and excludes it
-only while `manifest.json` is absent. A manifest appearing there is an error;
-all failed reads still fail, and every other directory still requires its real
-manifest. This does not suppress generic 404s or skip malformed driver packages.
+The scanner explicitly classifies these exact upstream support directories as
+non-package sources:
+
+- `Drivers/common`: shared include fragments.
+- `Drivers/storage_fatfs`: FatFs and volume implementation compiled into the
+  independent T5 SPI-SD and X4 SD providers.
+- `Drivers/x4pro_board`: pin, protocol and register headers used by the X4
+  providers; the register helpers are also used by T5 frontlight.
+
+The scanner inspects each pinned tree and excludes it only while `manifest.json`
+is absent. A manifest appearing there is an error. Truncated or failed tree reads
+still fail, and every other directory still requires its real manifest. Names
+that merely resemble these paths are not excluded. This does not suppress
+generic 404s or skip malformed driver packages.
+
+The latter two libraries arrived in Reader history on October 2–3, before the
+SDK 6.1 migration. Promoting that inherited source exposed them to the moving
+master scanner. This classification lets the scan finish; it does not refresh
+inventory/source-tree baselines or change version, inventory, actual-byte, mode,
+original-driver or native USB-controller drift checks. The genuine differences
+remain errors, and this repair does not claim whole-inventory parity.
 
 `original_drivers` explicitly records local experimental packages without a
 Reader source ancestor. Their IDs/versions/status and complete local source-tree

@@ -12,7 +12,12 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 SHA = re.compile(r"[0-9a-f]{40}\Z")
-SHARED_SOURCE_DIRS = frozenset({"Drivers/common"})
+# Exact upstream support libraries, never inferred from a missing manifest.
+# storage_fatfs is compiled into T5/X4 SD providers; x4pro_board supplies their
+# shared board/register headers. Each pinned tree must still lack a manifest.
+SHARED_SOURCE_DIRS = frozenset({
+    "Drivers/common", "Drivers/storage_fatfs", "Drivers/x4pro_board",
+})
 VERSION = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+\Z")
 
 
@@ -93,7 +98,7 @@ class Source:
         result = []
         for row in rows:
             if row['path'] in SHARED_SOURCE_DIRS:
-                # This exact documented include directory is not a package.
+                # This exact documented support directory is not a package.
                 # Inspect the resolved tree; never suppress a failed read/404.
                 if self.reader:
                     names = [line.split('\t', 1)[1] for line in self.git('ls-tree', row['sha']).splitlines()]
