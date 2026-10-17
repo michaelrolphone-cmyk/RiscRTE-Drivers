@@ -1,0 +1,44 @@
+name: BLE serial central
+on:
+  push:
+    branches: [feat/ble-serial-client]
+    paths: ['Drivers/ble_serial/**', 'sdk/driver/RiscBluetoothSerialV1.h', 'scripts/build_ble_serial.py', 'scripts/test_ble_serial.py', 'test/ble_serial_protocol_test.py', '.github/workflows/ble-serial.yml']
+  pull_request:
+    paths: ['Drivers/ble_serial/**', 'sdk/driver/RiscBluetoothSerialV1.h', 'scripts/build_ble_serial.py', 'scripts/test_ble_serial.py', 'test/ble_serial_protocol_test.py', '.github/workflows/ble-serial.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  serial:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test actual NimBLE central normally and under sanitizers
+        run: |
+          set -euo pipefail
+          python -m pip install cryptography==46.0.3
+          mkdir -p build/evidence
+          python scripts/test_ble_serial.py 2>&1 | tee build/evidence/protocol.log
+          python scripts/test_ble_serial.py --sanitize 2>&1 | tee build/evidence/protocol-sanitized.log
+      - name: Compile ESP32-S3 provider
+        run: |
+          set -euo pipefail
+          python -m pip install platformio==6.1.19
+          pio pkg install --global --tool 'espressif/toolchain-xtensa-esp32s3@8.4.0+2021r2-patch5'
+          python scripts/build_ble_serial.py | tee build/evidence/target.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ble-serial-010
+          path: |
+            dist/ble-serial/driver.elf
+            dist/ble-serial/manifest.json
+            dist/ble-serial/build.json
+            dist/ble-serial/NimBLE-*
+            build/evidence/
+          retention-days: 14
