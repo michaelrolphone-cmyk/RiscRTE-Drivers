@@ -1,0 +1,16 @@
+{
+  "repository": "https://github.com/michaelrolphone-cmyk/T5S3-Reader",
+  "commit": "45cf61ac013fb618e8d7fed63217a35350484d52",
+  "source_path": "Drivers/storage_fatfs",
+  "import_sha256": {
+    "sd_protocol.h": "1590b7009fde866a0b944c8ecb2d613de90961a811440d8215886ff58860dd5d",
+    "volume.c": "a4bd26ab41e9b8295853ef3b728e368c4d3d52aa22a75eb25d61f210cda06ac6",
+    "fatfs/diskio.h": "901d6670aeea2c4fcc6e1c2f38866e142069627a95c9b023eb7a4bf991e47a04",
+    "fatfs/ff.h": "7bddebd3db5ced9f78d925ac9817bb4b6fc33709aa3800b408895805fffe5eee",
+    "fatfs/LICENSE.txt": "b896e32fb2cdb3fc8b3b6fd854706fca4ac55619fbb6d5eb2429cb05ee338966",
+    "fatfs/ff.c": "8da38bea076a2016aaeed63a849aa5a9f880e89d15895143eda6f4ead1fd4e9b",
+    "fatfs/README.md": "71f25ff5d78cbb7a5fe2bafd3f4545e5e80f70a283cf69892d49bde403b31ceb",
+    "fatfs/ffunicode.c": "6cd4dc4a664386ebd108e56d367582c35f005fc20381486366b5d77ac58119bd",
+    "fatfs/ffconf.h": "760941150f5ed2e0c466db3816e1bfdc86d444fe714445f5e124f95bc9324395"
+  }
+}
