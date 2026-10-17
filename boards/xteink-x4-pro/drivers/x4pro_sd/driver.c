@@ -5,6 +5,7 @@
 #include "RiscPlatformClockV1.h"
 #include "RiscStorageVolumeV1.h"
 #include "x4pro_pins.h"
+#include "x4pro_proto.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -43,25 +44,13 @@ static bool dat_bit(bool *bit) {
     *bit = level;
     return true;
 }
-static uint8_t crc7(const uint8_t *data, size_t length) {
-    uint8_t crc = 0;
-    for (size_t i = 0; i < length; ++i) {
-        crc ^= data[i];
-        for (int bit = 0; bit < 8; ++bit)
-            crc = (crc & 0x80u) ? (uint8_t)((crc << 1) ^ 0x12) : (uint8_t)(crc << 1);
-    }
-    return crc >> 1;
-}
 static bool command(uint8_t index, uint32_t arg, uint8_t *response, size_t length) {
-    uint8_t raw[5] = { (uint8_t)(0x40u | index), (uint8_t)(arg >> 24), (uint8_t)(arg >> 16),
-                       (uint8_t)(arg >> 8), (uint8_t)arg };
-    uint8_t crc = (uint8_t)((crc7(raw, 5) << 1) | 1u);
+    uint8_t frame[6];
+    x4pro_sd_command(index, arg, frame);
     for (int i = 0; i < 8; ++i) tick();
-    if (!cmd_bit(false)) return false;
-    if (!cmd_bit(index >= 40)) return false; /* host to card */
-    for (int bit = 5; bit >= 0; --bit) if (!cmd_bit((index >> bit) & 1)) return false;
-    for (int bit = 31; bit >= 0; --bit) if (!cmd_bit((arg >> bit) & 1)) return false;
-    for (int bit = 6; bit >= 0; --bit) if (!cmd_bit((crc >> bit) & 1)) return false;
+    for (size_t byte = 0; byte < sizeof(frame); ++byte)
+        for (int bit = 7; bit >= 0; --bit)
+            if (!cmd_bit((frame[byte] >> bit) & 1)) return false;
     (void)gpio_api->write(gpio_api->context, cmd, true);
     bool seen = false;
     for (int i = 0; i < 64 && !seen; ++i) {
@@ -115,16 +104,16 @@ static bool init_card(void) {
     if (!command(0, 0, response, 1)) { fail("CMD0 no response"); return false; }
     if (!command(8, 0x1AAu, response, 5)) { fail("CMD8 no response"); return false; }
     for (int i = 0; i < 200; ++i) {
-        if (!command(55, 0, response, 1) || !command(41, 0x40100000u, response, 1)) {
+        if (!command(55, 0, response, 1) || !command(41, 0x40100000u, response, 5)) {
             fail("ACMD41 failed");
             return false;
         }
-        if (response[0] & 0x80u) break;
+        if (response[1] & 0x80u) break;
         clock_api->sleep_ms(clock_api->context, 10);
         if (i == 199) { fail("card idle"); return false; }
     }
-    if (!command(2, 0, response, 5) || !command(3, 0, response, 2)) { fail("identify failed"); return false; }
-    rca = (uint16_t)((response[0] << 8) | response[1]);
+    if (!command(2, 0, response, 5) || !command(3, 0, response, 6)) { fail("identify failed"); return false; }
+    rca = (uint16_t)((response[1] << 8) | response[2]);
     if (!command(7, (uint32_t)rca << 16, response, 1) || !command(16, 512, response, 1)) {
         fail("select failed");
         return false;

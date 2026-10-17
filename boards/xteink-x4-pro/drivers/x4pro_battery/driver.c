@@ -4,6 +4,7 @@
 #include "RiscGpioBankV1.h"
 #include "RiscI2cBusV1.h"
 #include "x4pro_pins.h"
+#include "x4pro_proto.h"
 #include <stddef.h>
 
 static const risc_gpio_bank_api_v1 *gpio_api;
@@ -25,8 +26,7 @@ static bool read_sample(void *context, risc_battery_sample_v1 *out) {
     *out = (risc_battery_sample_v1){0, 255, 0};
     if (!read_reg(0x00, &version, 1) || !read_reg(0x04, &soc, 1) || !read_reg(0x02, cell, 2))
         return false;
-    uint16_t raw = (uint16_t)(((uint16_t)cell[0] << 8) | cell[1]) & 0x3fffu;
-    out->millivolts = (uint16_t)(((uint32_t)raw * 5u + 8u) >> 4);
+    out->millivolts = x4pro_cw2017_millivolts(cell[0], cell[1]);
     out->percent = soc <= 100u ? soc : 255u;
     if (version == 0) out->flags |= RISC_BATTERY_PROFILE_MISSING;
     bool charging = false;

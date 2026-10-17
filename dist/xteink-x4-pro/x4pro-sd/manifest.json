@@ -23,7 +23,7 @@
   ],
   "board": "xteink-x4-pro",
   "status": "derived-unverified-on-device",
-  "size_bytes": 8780,
-  "sha256": "9bae681b97449eb3b6e2f9d883b35e21721af9ca2196380a82bd77669866401f",
+  "size_bytes": 8700,
+  "sha256": "14016144c1585fe976b2edbc91f728cdfcd8e95674d15d6b91f951c7348e5c58",
   "byte_parity": false
 }
