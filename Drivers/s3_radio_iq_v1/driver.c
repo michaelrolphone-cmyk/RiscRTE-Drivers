@@ -131,6 +131,8 @@ static const uint8_t dc_index[4] = {1, 2, 1, 2};
 
 static bool running;
 static bool capturing;
+static bool stream_running;
+static bool stop_envelope(void *);
 static const risc_radio_iq_settings_v1 default_settings = RISC_RADIO_IQ_SETTINGS_DEFAULT;
 static risc_radio_iq_diagnostics_v1 diagnostic_state;
 static const risc_radio_iq_resource_v1 *resource;
@@ -494,7 +496,7 @@ static int copy_burst(uint32_t *pairs,uint32_t count,uint32_t control,
 
 static bool suspend_receiver(void *context) {
     (void)context;
-    return !capturing && release_receiver();
+    return !capturing && stop_envelope(context);
 }
 
 static int capture_result(int result) {
@@ -555,7 +557,7 @@ static int capture_with_settings(uint32_t *pairs,uint32_t count,uint32_t maximum
                                   risc_radio_iq_trace_v1 trace,void *trace_context) {
     /* A synchronous trace callback cannot start another capture or release the
      * outer capture's lease. Normal API consumers serialize their calls. */
-    if (capturing) {
+    if (capturing || stream_running) {
         if (pairs && count && count <= maximum) memset(pairs,0,count*sizeof(*pairs));
         if (format && format->struct_size >= sizeof(*format))
             *format = (risc_radio_iq_format_v1){.struct_size=sizeof(*format)};
@@ -633,7 +635,7 @@ static bool capabilities(void *context,risc_radio_iq_capabilities_v1 *out) {
 }
 static bool diagnostics(void *context, risc_radio_iq_diagnostics_v1 *out) {
     (void)context;
-    if (!out || out->struct_size < sizeof(*out)) return false;
+    if (stream_running || !out || out->struct_size < sizeof(*out)) return false;
     *out = diagnostic_state;
     return true;
 }
@@ -654,20 +656,97 @@ static bool start(const risc_provider_dependency_v1 *deps, size_t count) {
 }
 
 static void stop(void) {
-    if (capturing || !release_receiver()) return;
+    if (capturing || !stop_envelope(NULL)) return;
     running = false;
     resource = NULL;
 }
 
 static bool quiesce(void) {
-    if (capturing || !release_receiver()) return false;
+    if (capturing || !stop_envelope(NULL)) return false;
     running = false;
     return true;
 }
 
-static const risc_radio_iq_extended_api_v1 api = {
-    {{RISC_RADIO_IQ_API_V1, sizeof(risc_radio_iq_extended_api_v1), 0, capture_burst, suspend_receiver},
-      diagnostics, capture_burst_traced}, capabilities, capture_configured, capture_configured_traced
+#define IQ_ENVELOPE_RING 4096u
+static risc_radio_iq_envelope_v1 stream_ring[IQ_ENVELOPE_RING];
+static uint32_t stream_read,stream_write,stream_dropped,stream_sequence,stream_fft_sequence;
+static uint32_t stream_pairs[RISC_RADIO_IQ_MAX_PAIRS],stream_fft[RISC_RADIO_IQ_MAX_PAIRS];
+static uint32_t stream_fft_low,stream_fft_high;
+static int stream_error;
+static uint32_t stream_control,stream_rate;
+static bool stream_gap;
+static const risc_radio_iq_worker_resource_v1 *stream_worker;
+static float iq_magnitude(uint32_t pair){
+ int i=(int)(pair&1023u),q=(int)((pair>>10)&1023u);if(i&512)i-=1024;if(q&512)q-=1024;
+ float x=(float)(i*i+q*q);if(!x)return 0;uint32_t b;memcpy(&b,&x,4);b=(b>>1)+0x1fc00000u;float y;memcpy(&y,&b,4);for(unsigned n=0;n<4;n++)y=.5f*(y+x/y);return y/512.f;
+}
+static void envelope_tick(void*unused,uint64_t stamp){
+ (void)unused;
+ int rc=copy_burst(stream_pairs,RISC_RADIO_IQ_MAX_PAIRS,stream_control,0,0);
+ if(rc){__atomic_store_n(&stream_error,rc,__ATOMIC_RELEASE);stream_gap=true;__atomic_fetch_add(&stream_dropped,1u,__ATOMIC_RELAXED);return;}
+ uint64_t end=stream_worker->now_us(stream_worker->base.context);
+ uint32_t duration=RISC_RADIO_IQ_MAX_PAIRS*1000u/(stream_rate/1000u);
+ /* copy_burst returns the last committed coherent samples, so the timestamp
+  * is anchored to completion, never to display polling or queued timer ticks. */
+ if(end>=duration)stamp=end-duration;
+ float sum=0;for(unsigned i=0;i<RISC_RADIO_IQ_MAX_PAIRS;i++)sum+=iq_magnitude(stream_pairs[i]);
+ uint32_t seq=++stream_sequence;
+ uint32_t at=__atomic_load_n(&stream_write,__ATOMIC_RELAXED),read=__atomic_load_n(&stream_read,__ATOMIC_ACQUIRE);
+ if(at-read<IQ_ENVELOPE_RING){
+  stream_ring[at%IQ_ENVELOPE_RING]=(risc_radio_iq_envelope_v1){stamp,sum/RISC_RADIO_IQ_MAX_PAIRS,duration,seq,stream_gap?RISC_RADIO_IQ_ENVELOPE_GAP:0};
+  __atomic_store_n(&stream_write,at+1,__ATOMIC_RELEASE);stream_gap=false;
+ }else{__atomic_fetch_add(&stream_dropped,1u,__ATOMIC_RELAXED);stream_gap=true;}
+ uint32_t version=__atomic_load_n(&stream_fft_sequence,__ATOMIC_RELAXED);
+ __atomic_store_n(&stream_fft_sequence,version+1,__ATOMIC_RELEASE);
+ for(unsigned i=0;i<RISC_RADIO_IQ_MAX_PAIRS;i++)__atomic_store_n(&stream_fft[i],stream_pairs[i],__ATOMIC_RELAXED);
+ __atomic_store_n(&stream_fft_low,(uint32_t)stamp,__ATOMIC_RELAXED);__atomic_store_n(&stream_fft_high,(uint32_t)(stamp>>32),__ATOMIC_RELAXED);
+ __atomic_store_n(&stream_fft_sequence,version+2,__ATOMIC_RELEASE);
+ __atomic_store_n(&stream_error,0,__ATOMIC_RELEASE);
+}
+static bool stop_envelope(void*context){
+ (void)context;
+ if(stream_running){if(!stream_worker->stop(stream_worker->base.context,lease))return false;stream_running=false;}
+ return release_receiver();
+}
+static int start_envelope(void*context,const risc_radio_iq_settings_v1*requested,uint32_t interval,risc_radio_iq_format_v1*out){
+ (void)context;
+ if(!running)return RISC_RADIO_IQ_NOT_RUNNING;
+ if(capturing||stream_running)return RISC_RADIO_IQ_BUSY;
+ if(!requested||!out||out->struct_size<sizeof(*out)||interval<1000||interval>100000)return RISC_RADIO_IQ_BAD_ARGUMENT;
+ struct esp32s3_lo_plan plan;if(!valid_settings(requested,&plan))return RISC_RADIO_IQ_BAD_ARGUMENT;
+ if(resource->struct_size<sizeof(risc_radio_iq_worker_resource_v1))return RISC_RADIO_IQ_NOT_RUNNING;
+ stream_worker=(const risc_radio_iq_worker_resource_v1*)resource;
+ if(stream_worker->worker_abi!=RISC_RADIO_IQ_WORKER_ABI||!stream_worker->start||!stream_worker->stop||!stream_worker->now_us)return RISC_RADIO_IQ_NOT_RUNNING;
+ if(lease&&!release_receiver())return RISC_RADIO_IQ_CLEANUP_RETAINED;
+ if(!resource->claim(resource->context,&lease)){if(lease)restored=true;return lease?RISC_RADIO_IQ_CLEANUP_RETAINED:RISC_RADIO_IQ_BUSY;}
+ risc_radio_iq_format_v1 format={.struct_size=sizeof(format),.flags=RISC_RADIO_IQ_FLAG_COHERENT_BURST|RISC_RADIO_IQ_FLAG_NOMINAL_FREQUENCIES|RISC_RADIO_IQ_FLAG_UNCALIBRATED_AMPLITUDE,.center_hz=plan.lo_hz,.sample_rate_hz=requested->sample_rate_hz,.bandwidth_hz=requested->bandwidth_hz,.pair_count=256,.sample_format=RISC_RADIO_IQ_FORMAT_S10_I0_Q10,.component_bits=10,.component_full_scale=512,.lo_mode=plan.mode};
+ int rc=bring_up(requested,&plan,&format,0,0);
+ if(!rc){stream_control=dump_control(requested);stream_rate=requested->sample_rate_hz;stream_read=stream_write=stream_dropped=stream_sequence=stream_fft_sequence=0;stream_error=0;stream_gap=true;
+  stream_running=stream_worker->start(stream_worker->base.context,lease,interval,envelope_tick,0);if(!stream_running)rc=RISC_RADIO_IQ_NOT_RUNNING;
+ }
+ if(rc){if(!release_receiver())rc=RISC_RADIO_IQ_CLEANUP_RETAINED;return rc;}
+ *out=format;return RISC_RADIO_IQ_OK;
+}
+static int read_envelope(void*context,risc_radio_iq_envelope_v1*out,uint32_t capacity,uint32_t*count,uint32_t*dropped){
+ (void)context;if(count)*count=0;if(!out||!count||!dropped||!capacity||capacity>IQ_ENVELOPE_RING)return RISC_RADIO_IQ_BAD_ARGUMENT;
+ if(!stream_running)return RISC_RADIO_IQ_NOT_RUNNING;
+ uint32_t at=__atomic_load_n(&stream_read,__ATOMIC_RELAXED),end=__atomic_load_n(&stream_write,__ATOMIC_ACQUIRE),n=end-at;if(n>capacity)n=capacity;
+ for(unsigned i=0;i<n;i++)out[i]=stream_ring[(at+i)%IQ_ENVELOPE_RING];
+ __atomic_store_n(&stream_read,at+n,__ATOMIC_RELEASE);*count=n;*dropped=__atomic_load_n(&stream_dropped,__ATOMIC_ACQUIRE);
+ return n?RISC_RADIO_IQ_OK:__atomic_load_n(&stream_error,__ATOMIC_ACQUIRE);
+}
+static int latest_iq(void*context,uint32_t*out,uint32_t count,uint64_t*stamp){
+ (void)context;if(!out||!stamp||!count||count>RISC_RADIO_IQ_MAX_PAIRS)return RISC_RADIO_IQ_BAD_ARGUMENT;if(!stream_running)return RISC_RADIO_IQ_NOT_RUNNING;
+ for(unsigned retry=0;retry<3;retry++){uint32_t first=__atomic_load_n(&stream_fft_sequence,__ATOMIC_ACQUIRE);if(!first||(first&1))continue;
+  for(unsigned i=0;i<count;i++)out[i]=__atomic_load_n(&stream_fft[RISC_RADIO_IQ_MAX_PAIRS-count+i],__ATOMIC_RELAXED);
+  uint32_t lo=__atomic_load_n(&stream_fft_low,__ATOMIC_RELAXED),hi=__atomic_load_n(&stream_fft_high,__ATOMIC_RELAXED);
+  __atomic_thread_fence(__ATOMIC_ACQUIRE);if(first==__atomic_load_n(&stream_fft_sequence,__ATOMIC_ACQUIRE)){*stamp=((uint64_t)hi<<32)|lo;return RISC_RADIO_IQ_OK;}}
+ return RISC_RADIO_IQ_BUSY;
+}
+static const risc_radio_iq_temporal_api_v1 api = {
+    {{{RISC_RADIO_IQ_API_V1, sizeof(risc_radio_iq_temporal_api_v1), 0, capture_burst, suspend_receiver},
+      diagnostics, capture_burst_traced}, capabilities, capture_configured, capture_configured_traced},
+    RISC_RADIO_IQ_TEMPORAL_ABI,start_envelope,read_envelope,latest_iq,stop_envelope
 };
 
 static const risc_driver_v2 driver = {
