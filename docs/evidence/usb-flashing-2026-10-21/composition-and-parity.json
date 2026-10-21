@@ -1,0 +1,96 @@
+{
+  "kind": "offline-source-observation",
+  "drivers_base": "a7ae39994603c4545a3c014f09051ecfc12084d2",
+  "product": "6b7d1abe9b2dcc236f6086d07c0f619244c907cb",
+  "native_sources": {
+    "candidate_version": "0.1.123",
+    "feed_base_url": "https://github.com/michaelrolphone-cmyk/RiscRTE-XTEINK-X4-PRO/releases/download/test-native-provision-0.1.123/",
+    "publication_enabled": false,
+    "schema": 1,
+    "sources": {
+      "drivers": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "revision": "5890721073ebabd781d5d278e447c761947a5c58"
+      },
+      "image_helper": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-T-Watch-S3",
+        "revision": "74f7491dc470b92dfa41fce41bf0c500f3714a94"
+      },
+      "reader": {
+        "repository": "michaelrolphone-cmyk/T5S3-Reader",
+        "revision": "c98e4222048244b1e729869ed47aa99130025fd3"
+      },
+      "runtime": {
+        "repository": "michaelrolphone-cmyk/RiscRTE",
+        "revision": "6a3b3d46f5b2857eacc6e9863799dec1f466b036"
+      },
+      "system": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-System-Apps",
+        "revision": "0651a55513b0aa0dff1b6a9072303def08a97378"
+      },
+      "utilities": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Utilities",
+        "revision": "e80172353fcb9e6519ca9d9b2a4d43c69c1bc91d"
+      }
+    },
+    "time_server": "pool.ntp.org"
+  },
+  "historical_reader": "34d8e694d89a1e72d8854403d8592c289fae3ddc",
+  "source_manifest_version": "0.1.1",
+  "retained_release_inventory_entry": {
+    "id": "program-msp",
+    "version": "0.1.0",
+    "source_path": "Drivers/program_msp",
+    "migrated": true
+  },
+  "retained_baseline_tree": "fe046f4c538efbd003ddd176b4d4b44b5d3de281",
+  "actual_candidate_tree": "9737500af54250498a7b901d5162f6d8d5a166dc",
+  "baseline_native_elf_names": [
+    "alarm/driver.elf",
+    "alarms.elf",
+    "app_store.elf",
+    "battery-telem/driver.elf",
+    "battery.elf",
+    "battery/driver.elf",
+    "ble-serial/driver.elf",
+    "ble-telem/driver.elf",
+    "ble/driver.elf",
+    "board/driver.elf",
+    "broadcast/driver.elf",
+    "buttons/driver.elf",
+    "civil-clock-x4/driver.elf",
+    "contexts/driver.elf",
+    "default.elf",
+    "file_browser.elf",
+    "hid/driver.elf",
+    "i2c/driver.elf",
+    "installed-apps/driver.elf",
+    "iq/driver.elf",
+    "light/driver.elf",
+    "net-http-client/driver.elf",
+    "ota_update.elf",
+    "panel/driver.elf",
+    "power/driver.elf",
+    "rtc/driver.elf",
+    "sd/driver.elf",
+    "sensors/driver.elf",
+    "settings.elf",
+    "sharing-ble/driver.elf",
+    "sharing-entropy/driver.elf",
+    "sharing-tcp/driver.elf",
+    "springboard.elf",
+    "touch/driver.elf",
+    "ui-profile/driver.elf",
+    "ui-scene/driver.elf",
+    "ui-text/driver.elf",
+    "upd-app/driver.elf",
+    "upd-fw/driver.elf",
+    "usb-msc/driver.elf",
+    "usb_sd_transfer.elf",
+    "wifi/driver.elf",
+    "wifi_settings.elf"
+  ],
+  "historical_flashing_is_current_native_delivery": false,
+  "hardware_accessed": false,
+  "source_drift": "external-only"
+}

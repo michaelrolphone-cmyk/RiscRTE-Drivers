@@ -1,0 +1,18 @@
+ESP ROM protocol codec tests passed
+PASS: historical Reader ESP protocol
+ESP ROM semantic target-loss tests passed
+PASS: historical Reader ESP session
+ESP ROM provider fault-injection tests passed
+PASS: historical Reader ESP provider simulation
+ESP ROM invocation cancellation/teardown fault-injection tests passed
+PASS: historical Reader ESP execution-context fixture
+PASS: historical Reader firmware selection pagination
+MSP programmer target gating, FRAM RMW/write/verify and cleanup: PASS
+MSP-FET/eZ-FET discovery, HAL framing, JTAG, SBW, detach and quiescence: PASS
+ST-LINK V2/V2.1/V3 discovery, SWD, SWIM, framing and quiescence: PASS
+MSP programmer target gating, FRAM RMW/write/verify and cleanup: PASS
+PASS: Drivers a7ae399 program_msp fixture
+MSP-FET/eZ-FET discovery, HAL framing, JTAG, SBW, detach and quiescence: PASS
+PASS: Drivers a7ae399 usb_msp fixture
+ST-LINK V2/V2.1/V3 discovery, SWD, SWIM, framing and quiescence: PASS
+PASS: Drivers a7ae399 usb_stlink fixture
