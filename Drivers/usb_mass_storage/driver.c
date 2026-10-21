@@ -22,7 +22,7 @@
 #define FAT_MAX_LFN_UNITS 260u
 #define FAT_MAX_DIR_SCAN 8192u
 
-static const risc_usb_host_discovery_v1 *host;
+static const risc_usb_host_legacy_discovery_v1 *host;
 static uint64_t device_token;
 static uint64_t claim_token;
 static uint8_t interface_number;
@@ -1088,10 +1088,10 @@ static bool driver_start(const risc_provider_dependency_v1 *dependencies, size_t
         !text_equal(dependencies[0].capability_id, "usb.host") ||
         dependencies[0].api_version != RISC_USB_HOST_API_V1 || !dependencies[0].api)
         return false;
-    const risc_usb_host_discovery_v1 *candidate =
-        (const risc_usb_host_discovery_v1 *)dependencies[0].api;
+    const risc_usb_host_legacy_discovery_v1 *candidate =
+        (const risc_usb_host_legacy_discovery_v1 *)dependencies[0].api;
     if (candidate->host.api_version != RISC_USB_HOST_API_V1 ||
-        candidate->host.struct_size < sizeof(risc_usb_host_discovery_v1) ||
+        candidate->host.struct_size < sizeof(*candidate) ||
         !candidate->host.configuration || !candidate->host.claim || !candidate->host.release ||
         !candidate->host.control || !candidate->host.bulk_read || !candidate->host.bulk_write ||
         !candidate->poll || !candidate->devices) return false;
