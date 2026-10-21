@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "scope": "Bounded native CDC CI integration; not native controller target, physical USB, firmware, product or release acceptance",
+  "candidate_source": "df8b5175f57447ec15b41819f5b04bb5ba6a8600",
+  "tested_integration_commit": "d739fca7987b6e8b7868b927277e4600a1c6d28e",
+  "native_run": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/39651992594",
+  "native_jobs": [
+    {
+      "id": 119402422762,
+      "name": "native-cdc (0)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119402423149,
+      "name": "native-cdc (1)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119402422977,
+      "name": "xtensa-candidates",
+      "conclusion": "success"
+    }
+  ],
+  "target_outputs": [
+    {
+      "id": "usb-host-v2",
+      "version": "0.1.6-checked-cleanup.1",
+      "size_bytes": 9016,
+      "sha256": "2fbdea43493508ab3aa23fdcb9d918296e5c2247ac313c7aaf8b9cf0f31d6114"
+    },
+    {
+      "id": "usb-host-v2",
+      "version": "0.1.7",
+      "size_bytes": 9016,
+      "sha256": "2fbdea43493508ab3aa23fdcb9d918296e5c2247ac313c7aaf8b9cf0f31d6114"
+    },
+    {
+      "id": "usb-cdc-acm-v2",
+      "version": "0.1.1",
+      "size_bytes": 13268,
+      "sha256": "f7889c8fb75874dd9539bca20508a2f27b315a4554722e7659141037c4e6d56b"
+    }
+  ],
+  "target_artifact": {
+    "id": 12370097115,
+    "sha256": "fc5d4f0dcceeda2801f4480aa05011dcbabbc38ce0f6784ab9cc03cbccf1ab9b",
+    "downloaded_verified": true,
+    "checks": [
+      "ZIP SHA-256",
+      "manifest size/SHA-256",
+      "ELF32 little-endian ET_DYN Xtensa"
+    ]
+  },
+  "historical_run": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/39651992446",
+  "historical_job": 119402422125,
+  "historical_replay": {
+    "generic_producer": "a7ae39994603c4545a3c014f09051ecfc12084d2",
+    "controller_producer": "179979b94cc5a1d4787c0ad99515c5c07edd92d8",
+    "generic_byte_parity": "passed",
+    "i2c_byte_parity": "passed",
+    "controller_byte_parity": "passed",
+    "controller_loader_map": "passed",
+    "final_collection": "failed because root dist already contained tracked X4 artifacts; corrected to reject collisions per output directory"
+  },
+  "broader_build": "Reached stale mass-storage initializer after successful native candidate builds; corrected with designated fields. Independently detected XInput truncated-prefix fixture now uses deployed legacy prefix. Both corrected tests passed normally and ASan/UBSan.",
+  "upstream_parity": "Failed on existing upstream inventory/version/source drift. Baselines and checks are not changed or bypassed.",
+  "limits": [
+    "Leak detection disabled",
+    "No full native-controller compile database available",
+    "No Runtime/client composition rerun in this workflow",
+    "No hardware/electrical actions",
+    "No release, merge, version/pin/frozen-hash change"
+  ],
+  "final_revision_policy": "Re-run exact-head CI after fixture and collection corrections; report final head and terminal CI separately."
+}

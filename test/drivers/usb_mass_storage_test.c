@@ -185,9 +185,10 @@ int main(int argc, char **argv) {
         (const risc_storage_volume_api_v1*)driver->capability;
     assert(volume && volume->struct_size==sizeof(*volume));
     risc_usb_host_discovery_v1 h={
-        {1,sizeof(h),NULL,configuration,claim_interface,release_interface,
-         control,bulk_read,bulk_write},
-        poll_devices,devices
+        .host={1,sizeof(h),NULL,configuration,claim_interface,release_interface,
+               control,bulk_read,bulk_write},
+        .poll=poll_devices,
+        .devices=devices
     };
     risc_provider_dependency_v1 dep={"usb.host",1,&h.host};
     assert(!driver->start(NULL,0));

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Reject ownership/deadline/discovery regressions using actual class source."""
-import os, pathlib, shutil, subprocess, tempfile
+import hashlib, os, pathlib, shutil, subprocess, tempfile
 root=pathlib.Path(__file__).resolve().parents[1]
 original=(root/'Drivers/usb_cdc_native/driver.c').read_text()
 mutations={
@@ -26,7 +26,12 @@ with tempfile.TemporaryDirectory() as td:
 # Reproduce the review finding against the exact immutable prerequisite host.
 with tempfile.TemporaryDirectory() as td:
  d=pathlib.Path(td)
- baseline=subprocess.check_output(['git','-C',str(root),'show','b4334b76124f80d1252eb7dda9e903fd1b7b4d39:Drivers/usb_host_v2/driver.c'],text=True)
+ # The original b4334b7 checkpoint is preserved in the recovery bundle.
+ # Its published checked-cleanup equivalent has the identical Git blob below.
+ baseline_ref='ad943a4a514c910c777a427c8cad6d6841f48fd1:Drivers/usb_host_v2/driver.c'
+ raw=subprocess.check_output(['git','-C',str(root),'show',baseline_ref])
+ assert hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()=='ed93499c915ba86f2764d82df6f69ea219d32319', 'prerequisite host bytes changed'
+ baseline=raw.decode()
  (d/'host.c').write_text(baseline)
  subprocess.run(['cc',*flags,'-fPIC','-fvisibility=hidden','-shared','-I'+str(root/'sdk/driver'),str(d/'host.c'),'-o',str(d/'host.so')],check=True)
  subprocess.run(['cc',*flags,'-fPIC','-fvisibility=hidden','-shared','-I'+str(root/'sdk/driver'),str(root/'Drivers/usb_cdc_native/driver.c'),'-o',str(d/'cdc.so')],check=True)
