@@ -37,6 +37,7 @@ typedef struct {
     uint16_t sr;
     uint32_t pc;
     bool synced;
+    bool closing;
 } program_session;
 
 static const risc_msp_fet_api_v1 *msp;
@@ -215,7 +216,7 @@ static bool read_words(program_session *s, uint32_t address,
 
 static bool write_words(program_session *s, uint32_t address,
                         const uint8_t *data, size_t length) {
-    if (!s || !data || !length || (address & 1u) || (length & 1u) ||
+    if (!s || s->closing || !data || !length || (address & 1u) || (length & 1u) ||
         length > RISC_PROGRAM_MSP_MAX_CHUNK + 2u) return false;
     uint8_t request[8u + RISC_PROGRAM_MSP_MAX_CHUNK + 2u];
     put32(request, address);
@@ -237,7 +238,7 @@ static int32_t write_fram(void *context, uint64_t token, uint32_t address,
     (void)context;
     error_text[0] = 0;
     program_session *s = lookup(token);
-    if (!s || !data || !length || length > RISC_PROGRAM_MSP_MAX_CHUNK ||
+    if (!s || s->closing || !data || !length || length > RISC_PROGRAM_MSP_MAX_CHUNK ||
         address > 0x000fffffu || length > 0x00100000u - address) {
         set_error("Invalid MSP FRAM write request");
         return -1;
@@ -267,7 +268,7 @@ static int32_t verify_fram(void *context, uint64_t token, uint32_t address,
     (void)context;
     error_text[0] = 0;
     program_session *s = lookup(token);
-    if (!s || !data || !length || length > RISC_PROGRAM_MSP_MAX_CHUNK ||
+    if (!s || s->closing || !data || !length || length > RISC_PROGRAM_MSP_MAX_CHUNK ||
         address > 0x000fffffu || length > 0x00100000u - address) {
         set_error("Invalid MSP verify request");
         return -1;
@@ -292,13 +293,24 @@ static bool close_session(void *context, uint64_t token) {
 
     /* Assert POR again after programming, then release that reset context so
      * the target runs the newly written firmware instead of remaining halted. */
-    if (!sync_target(s) || !release_target(s)) return false;
+    if (!s->closing) {
+        if (!sync_target(s) || !release_target(s)) return false;
+        s->closing = true;
+    }
     if (!msp->close(msp->context, s->transport)) {
         set_error("MSP-FET did not quiesce");
         return false;
     }
     *s = (program_session){0};
     return true;
+}
+
+/* A failed open has no public token, but its transport can still be live.
+ * Retain it until close succeeds so quiesce cannot permit unsafe unload. */
+static void close_failed_open(program_session *slot, uint64_t transport) {
+    *slot = (program_session){0};
+    slot->transport = transport;
+    if (msp->close(msp->context, transport)) *slot = (program_session){0};
 }
 
 static uint64_t open_target(void *context, uint64_t requested_device,
@@ -341,7 +353,7 @@ static uint64_t open_target(void *context, uint64_t requested_device,
 
     program_session *slot = 0;
     for (size_t i = 0; i < PROGRAM_SESSIONS; ++i)
-        if (!sessions[i].token) { slot = &sessions[i]; break; }
+        if (!sessions[i].token && !sessions[i].transport) { slot = &sessions[i]; break; }
     if (!slot) {
         set_error("MSP programmer session limit reached");
         return 0;
@@ -374,7 +386,7 @@ static uint64_t open_target(void *context, uint64_t requested_device,
     const uint16_t protocol = version_length > 0 ?
         parse_protocol(version, (size_t)version_length) : 0u;
     if (!protocol) {
-        (void)msp->close(msp->context, transport);
+        close_failed_open(slot, transport);
         set_error("MSP-FET protocol version is unsupported");
         return 0;
     }
@@ -390,20 +402,20 @@ static uint64_t open_target(void *context, uint64_t requested_device,
     const int32_t id_length = execute(&candidate, MSP_FID_GET_JTAG_ID,
                                       0, 0, identity, sizeof(identity), 1000u);
     if (id_length < 1) {
-        (void)msp->close(msp->context, transport);
+        close_failed_open(slot, transport);
         set_error("Cannot identify MSP target");
         return 0;
     }
     const uint8_t jtag_id = identity[0];
     if (jtag_id != 0x91u && jtag_id != 0x95u && jtag_id != 0x99u) {
-        (void)msp->close(msp->context, transport);
+        close_failed_open(slot, transport);
         set_error("MSP target is not an XV2 device supported by the FRAM programmer");
         return 0;
     }
     candidate.jtag_id = jtag_id;
     if (!configure_target(&candidate) || !check_fuse(&candidate) ||
         !sync_target(&candidate)) {
-        (void)msp->close(msp->context, transport);
+        close_failed_open(slot, transport);
         return 0;
     }
 
@@ -446,9 +458,20 @@ static bool start(const risc_provider_dependency_v1 *deps, size_t count) {
 }
 
 static bool quiesce(void) {
-    for (size_t i = 0; i < PROGRAM_SESSIONS; ++i)
-        if (sessions[i].token) return false;
-    return true;
+    bool idle = true;
+    for (size_t i = 0; i < PROGRAM_SESSIONS; ++i) {
+        program_session *s = &sessions[i];
+        if (s->token) {
+            idle = false;
+        } else if (s->transport) {
+            /* At most one bounded close attempt per quarantined slot. */
+            if (msp && msp->close(msp->context, s->transport))
+                *s = (program_session){0};
+            else
+                idle = false;
+        }
+    }
+    return idle;
 }
 
 static void stop(void) {

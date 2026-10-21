@@ -13,6 +13,11 @@ static uint8_t last_open_mode;
 static uint8_t last_fid;
 static unsigned opens, closes, polls, syncs, releases_target, configures;
 static size_t probe_count = 1;
+static bool fail_close;
+static uint8_t fail_fid = 0xff;
+static uint64_t live_devices[64];
+static unsigned close_attempts[64];
+static uint64_t allowed_close;
 
 static bool poll_msp(void *ctx, size_t max_events) {
     (void)ctx;
@@ -42,9 +47,13 @@ static uint64_t open_msp(void *ctx, uint64_t device, uint8_t mode) {
     (void)ctx;
     assert(device == 7 || device == 8);
     assert(mode == RISC_MSP_FET_INTERFACE_SBW || mode == RISC_MSP_FET_INTERFACE_JTAG);
+    for (size_t i = 1; i <= opens; ++i)
+        if (live_devices[i] == device) return 0;
+    assert(opens + 1u < sizeof(live_devices) / sizeof(live_devices[0]));
     ++opens;
+    live_devices[opens] = device;
     last_open_mode = mode;
-    return 0x1234;
+    return 0x1234u + opens;
 }
 
 static bool set_interface(void *ctx, uint64_t session, uint8_t mode) {
@@ -62,8 +71,10 @@ static int32_t execute_msp(void *ctx, uint64_t session, uint8_t fid,
                            uint8_t *response, size_t response_capacity,
                            uint32_t timeout_ms) {
     (void)ctx;
-    assert(session == 0x1234 && timeout_ms > 0);
+    assert(session > 0x1234u && session <= 0x1234u + opens && timeout_ms > 0);
+    assert(live_devices[session - 0x1234u]);
     last_fid = fid;
+    if (fid == fail_fid) return -1;
     if (fid == 0x00) {
         assert(request && request_length == 1 && response && response_capacity >= 8);
         memset(response, 0, 8);
@@ -133,8 +144,13 @@ static int32_t execute_msp(void *ctx, uint64_t session, uint8_t fid,
 
 static bool close_msp(void *ctx, uint64_t session) {
     (void)ctx;
-    assert(session == 0x1234);
+    assert(session > 0x1234u && session <= 0x1234u + opens);
+    const size_t index = (size_t)(session - 0x1234u);
+    assert(live_devices[index]); /* Any duplicate close is a test failure. */
+    ++close_attempts[index];
     ++closes;
+    if (fail_close && session != allowed_close) return false;
+    live_devices[index] = 0;
     return true;
 }
 
@@ -198,8 +214,83 @@ int main(int argc, char **argv) {
     assert(!api->open(api->context, 7, RISC_PROGRAM_MSP_INTERFACE_JTAG, &target));
     assert(opens == 2 && closes == 2);
 
+    /* Each rejected-open path must retain an unclosed transport. */
+    const uint8_t failure_fids[] = {0x00, 0x0c, 0x07, 0x4c, 0x3a, 0xff};
+    for (size_t i = 0; i < sizeof(failure_fids); ++i) {
+        fail_fid = failure_fids[i];
+        jtag_id = fail_fid == 0xff ? 0x89 : 0x99;
+        fail_close = true;
+        unsigned before = closes;
+        assert(!api->open(api->context, 7, RISC_PROGRAM_MSP_INTERFACE_JTAG, &target));
+        assert(closes == before + 1);
+        assert(!target.probe_device && !target.jtag_id);
+        assert(!driver->quiesce());
+        assert(closes == before + 2);
+        driver->stop();
+        assert(!driver->start(&dep, 1)); /* stop must retain its dependency */
+        fail_close = false;
+        assert(driver->quiesce());
+        assert(closes == before + 4);
+    }
+
+    /* Distinct probe leases have independent close outcomes and retry ownership. */
+    fail_fid = 0x00;
+    fail_close = true;
+    probe_count = 2;
+    unsigned before_opens = opens;
+    assert(!api->open(api->context, 7, RISC_PROGRAM_MSP_INTERFACE_JTAG, &target));
+    const unsigned first = opens;
+    assert(!api->open(api->context, 8, RISC_PROGRAM_MSP_INTERFACE_JTAG, &target));
+    const unsigned second = opens;
+    assert(first != second && live_devices[first] == 7 && live_devices[second] == 8);
+    assert(close_attempts[first] == 1 && close_attempts[second] == 1);
+    assert(opens == before_opens + 2);
+    assert(!api->open(api->context, 7, RISC_PROGRAM_MSP_INTERFACE_JTAG, &target));
+    assert(opens == before_opens + 2);
+    assert(!driver->quiesce());
+    assert(close_attempts[first] == 2 && close_attempts[second] == 2);
+    driver->stop();
+    assert(!driver->start(&dep, 1));
+    assert(close_attempts[first] == 3 && close_attempts[second] == 3);
+
+    allowed_close = 0x1234u + first;
+    assert(!driver->quiesce());
+    assert(!live_devices[first] && live_devices[second] == 8);
+    assert(close_attempts[first] == 4 && close_attempts[second] == 4);
+    assert(!driver->quiesce());
+    assert(close_attempts[first] == 4 && close_attempts[second] == 5);
+    assert(!api->open(api->context, 7, RISC_PROGRAM_MSP_INTERFACE_JTAG, &target));
+    const unsigned reused = opens;
+    assert(reused != first && reused != second);
+    assert(live_devices[reused] == 7 && live_devices[second] == 8);
+    fail_close = false;
+    assert(driver->quiesce());
+    assert(!live_devices[reused] && !live_devices[second]);
+    const unsigned closed_count = closes;
+    assert(driver->quiesce());
+    driver->stop();
+    assert(closes == closed_count); /* A released lease is never closed twice. */
+    assert(driver->start(&dep, 1));
+
+    /* Recovery/restart never revives an old public token. */
+    fail_fid = 0xff;
+    jtag_id = 0x99;
+    assert(api->write(api->context, session, 0x1000, bytes, sizeof(bytes)) == -1);
+    uint64_t recovered = api->open(api->context, 7, RISC_PROGRAM_MSP_INTERFACE_JTAG, &target);
+    assert(recovered && recovered != session);
+    assert(api->close(api->context, recovered));
+    assert(!api->close(api->context, recovered));
+    assert(driver->quiesce());
+    driver->stop();
+    assert(driver->start(&dep, 1));
+    uint64_t restarted = api->open(api->context, 7, RISC_PROGRAM_MSP_INTERFACE_JTAG, &target);
+    assert(restarted && restarted != recovered);
+    assert(!api->close(api->context, recovered));
+    assert(live_devices[opens] == 7);
+    assert(api->close(api->context, restarted));
+    assert(driver->quiesce());
     driver->stop();
     assert(dlclose(lib) == 0);
-    puts("MSP programmer target gating, FRAM RMW/write/verify and cleanup: PASS");
+    puts("MSP programmer target gating, FRAM RMW/write/verify, failed-open quarantine and cleanup: PASS");
     return 0;
 }

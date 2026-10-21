@@ -211,3 +211,7 @@ Canonical byte parity is therefore a build failure condition for this migrated d
 ## Established limitations
 
 The implementation is an MSP430FR/XV2 FRAM programmer, not a general MSP430 flash algorithm. Only JTAG IDs 0x91, 0x95, and 0x99 are accepted. Public write/verify calls are bounded to 128 bytes and the first 1 MiB address space. Physical probe/target validation is not established by the host fixture; the repository records only the behavior demonstrated by source, ABI, tests, and canonical package metadata.
+
+Local checked-cleanup candidate retains failed-open transports and latches a
+successfully completed target-close phase while physical transport closure is
+retried. See [qualification and remaining target-detach boundary](../USB_MSP_CHECKED_CONSUMER_2026-10-21.md).
