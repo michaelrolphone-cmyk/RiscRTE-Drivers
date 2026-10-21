@@ -1,0 +1,23 @@
+{
+  "key": "t042",
+  "repo": "michaelrolphone-cmyk/RiscRTE-Drivers",
+  "branch": "tasker/t042-nearby-provider-qualification",
+  "base": "tasker/t061-battery-provider-local",
+  "local": "a66670d605fc88a3e562e48ceeb4021fb9a6a5f5",
+  "parent": "ba28f9bdfbe84d23de36350189cc2ec89fea1677",
+  "tree": "6eec6a06b8d2873f77edcdbabe914bc4e09afea4",
+  "remote_source": "50d233c82a75dab153da295bd224ecca7043d7d0",
+  "changed_paths": [
+    "test/ble_sensor_capability_test.c",
+    "test/run_ble_sensor_test.sh"
+  ],
+  "source_tree_identical": true,
+  "original_commit_restoration": "The incremental original-source.bundle needs its original parent. For stacked checkpoints, restore the parent checkpoint bundle first. The GitHub source commit has the exact original tree but different commit metadata.",
+  "publication_scope": "Existing source and historical software evidence only; no new tests, target build, merge, tag, firmware release, deployment, or hardware acceptance is claimed.",
+  "historical_reports": "Reports and logs are preserved from before publication; local-only/unpublished statements describe that earlier observation. This source lock supersedes only their publication state.",
+  "archive_included_files": null,
+  "archive_omitted_files": null,
+  "archive_included_files_count": 10,
+  "archive_sha256": "91f0db535601bb530db18eb7a72dc34b21ba836f08e8fe3d3fd2a2f689b4fdd6",
+  "archive_bytes": 14753
+}
