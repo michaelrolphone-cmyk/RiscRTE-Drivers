@@ -1,0 +1,1 @@
+missing Xtensa compiler; activate ESP-IDF 6.1 (xtensa-esp-elf-gcc), set NATIVE_DRIVER_CC, or install the legacy ESP32-S3 toolchain

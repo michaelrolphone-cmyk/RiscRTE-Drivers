@@ -172,14 +172,11 @@ jobs:
             -o /tmp/board-power-t5s3-v2-test
           /tmp/board-power-t5s3-v2-test
       - run: python scripts/build_board_power_t5s3_v2.py
-      - name: Test usb-msp MSP-FET/eZ-FET discovery, HAL framing and lifecycle
+      - name: Test checked MSP consumer composition and legacy ABI
         run: |
-          cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
-            -I sdk/driver Drivers/usb_msp/driver.c -o /tmp/usb-msp.so
-          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
-            test/drivers/usb_msp_test.c -ldl -o /tmp/usb-msp-test
-          /tmp/usb-msp-test /tmp/usb-msp.so
-      - run: python scripts/build_usb_msp.py
+          bash test/run_usb_msp_checked_consumer_test.sh
+          python test/usb_msp_checked_mutation_test.py
+      - run: python scripts/build_usb_msp_checked_consumer.py
       - name: Test display-epd-video surface, frame and teardown contract
         run: |
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
@@ -199,7 +196,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared -I sdk/driver Drivers/program_msp/driver.c -o /tmp/program-msp.so
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver test/drivers/program_msp_test.c -ldl -o /tmp/program-msp-test
           /tmp/program-msp-test /tmp/program-msp.so
-      - run: python scripts/build_program_msp.py
+      - run: python scripts/build_program_msp_checked_consumer.py
       - run: python scripts/build_t5s3_usb_power_profile.py
       - uses: actions/upload-artifact@v4
         with:
@@ -271,16 +268,16 @@ jobs:
           path: dist/board-power-t5s3-v2
       - uses: actions/upload-artifact@v4
         with:
-          name: usb-msp
-          path: dist/usb-msp
+          name: usb-msp-checked-consumer
+          path: dist/usb-msp-checked-consumer
       - uses: actions/upload-artifact@v4
         with:
           name: usb-xinput-gamepad
           path: dist/usb-xinput-gamepad
       - uses: actions/upload-artifact@v4
         with:
-          name: program-msp
-          path: dist/program-msp
+          name: program-msp-checked-consumer
+          path: dist/program-msp-checked-consumer
       - uses: actions/upload-artifact@v4
         with:
           name: t5s3-usb-power-profile
@@ -302,9 +299,22 @@ jobs:
       - name: Require historical GCC8 generic release bytes
         run: |
           export NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"
-          for driver in board_power_t5s3_v2 t5s3_usb_power_profile usb_mass_storage usb_msp usb_hid_gamepad usb_ui_navigation program_msp display_epd_video; do
+          for driver in board_power_t5s3_v2 t5s3_usb_power_profile usb_mass_storage usb_hid_gamepad usb_ui_navigation display_epd_video; do
             python "scripts/build_${driver}.py" --require-byte-parity
           done
+      - name: Check out immutable historical MSP producers
+        uses: actions/checkout@v4
+        with:
+          repository: michaelrolphone-cmyk/RiscRTE-Drivers
+          ref: a7ae39994603c4545a3c014f09051ecfc12084d2
+          path: .source/legacy-msp
+          persist-credentials: false
+      - name: Require unchanged historical MSP release bytes
+        working-directory: .source/legacy-msp
+        run: |
+          export NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"
+          python scripts/build_usb_msp.py --require-byte-parity
+          python scripts/build_program_msp.py --require-byte-parity
       - run: python scripts/build_i2c_esp32s3_v2.py --require-byte-parity
       - name: Check out the verified historical USB controller producer
         uses: actions/checkout@v4
@@ -337,10 +347,10 @@ jobs:
             dist/board-power-t5s3-v2/
             dist/t5s3-usb-power-profile/
             dist/usb-mass-storage/
-            dist/usb-msp/
+            .source/legacy-msp/dist/usb-msp/
             dist/usb-hid-gamepad/
             dist/usb-ui-navigation/
-            dist/program-msp/
+            .source/legacy-msp/dist/program-msp/
             dist/display-epd-video/
             dist/i2c-esp32s3-v2/
             dist/usb-controller-esp32s3/

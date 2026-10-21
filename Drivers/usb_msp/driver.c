@@ -59,6 +59,8 @@ typedef struct {
     uint16_t protocol;
     uint8_t rx_buf[FRAME_MAX];
     size_t rx_len;
+    bool closing;
+    uint8_t legacy_release_requested;
 } session_slot;
 
 typedef struct {
@@ -104,6 +106,47 @@ static session_slot *session_for(uint64_t token) {
     for (size_t i = 0; i < RISC_MSP_FET_MAX_PROBES; ++i)
         if (sessions[i].token == token) return &sessions[i];
     return 0;
+}
+
+/* Negotiate suffixes by their last byte, not the newest complete table size. */
+static bool has_checked_release(void) {
+    return host && host->host.struct_size >=
+        offsetof(risc_usb_host_discovery_v1, release_checked) +
+        sizeof(host->release_checked) && host->release_checked;
+}
+
+static bool release_one(uint64_t claim, session_slot *s, uint8_t bit) {
+    if (!claim) return true;
+    if (has_checked_release())
+        return host->release_checked(host->host.context, claim);
+    /* Legacy void release provides no receipt. Request it once, but keep the
+     * exact session, claims and dependency pinned: absence is not proof. */
+    if (!(s->legacy_release_requested & bit)) {
+        host->host.release(host->host.context, claim);
+        s->legacy_release_requested |= bit;
+    }
+    return false;
+}
+
+static bool release_session(session_slot *s) {
+    if (s->data_claim && s->data_claim == s->control_claim) {
+        if (release_one(s->data_claim, s, 1u))
+            s->data_claim = s->control_claim = 0;
+    } else {
+        if (release_one(s->data_claim, s, 1u)) s->data_claim = 0;
+        if (release_one(s->control_claim, s, 2u)) s->control_claim = 0;
+    }
+    const bool released = !s->data_claim && !s->control_claim;
+    /* A returned public token is a caller-owned close receipt, even after
+     * physical release. Only close(token) may consume it. Failed opens have
+     * no public caller and can be reclaimed as soon as release is proven. */
+    if (released && !s->token) *s = (session_slot){0};
+    return released;
+}
+
+static void reject_open(session_slot *s) {
+    s->closing = true;
+    (void)release_session(s);
 }
 
 static bool parse_debug_cdc(const uint8_t *data, size_t length, probe_slot *out) {
@@ -220,13 +263,9 @@ static bool poll_probes(void *context, size_t max_events) {
     for (size_t i = 0; i < RISC_MSP_FET_MAX_PROBES; ++i) {
         if (probes[i].device && !present(devices, count, probes[i].device))
             probes[i] = (probe_slot){0};
-        if (sessions[i].token && !present(devices, count, sessions[i].device)) {
-            if (sessions[i].data_claim)
-                host->host.release(host->host.context, sessions[i].data_claim);
-            if (sessions[i].control_claim &&
-                sessions[i].control_claim != sessions[i].data_claim)
-                host->host.release(host->host.context, sessions[i].control_claim);
-            sessions[i] = (session_slot){0};
+        if (sessions[i].device && !present(devices, count, sessions[i].device)) {
+            sessions[i].closing = true; /* Revoke use; do not erase custody. */
+            (void)release_session(&sessions[i]);
         }
     }
     for (size_t i = 0; i < RISC_USB_HOST_MAX_DEVICES; ++i)
@@ -519,7 +558,8 @@ static int32_t execute_api(void *context, uint64_t token, uint8_t function_id,
                            uint8_t *response, size_t response_capacity,
                            uint32_t timeout_ms) {
     (void)context;
-    return execute_internal(session_for(token), function_id, request,
+    session_slot *s = session_for(token);
+    return execute_internal(s && !s->closing ? s : 0, function_id, request,
                             request_length, response, response_capacity,
                             timeout_ms);
 }
@@ -560,7 +600,7 @@ static bool start_target(session_slot *s, uint8_t mode) {
 static bool set_interface_api(void *context, uint64_t token, uint8_t mode) {
     (void)context;
     session_slot *s = session_for(token);
-    if (!s || (mode != RISC_MSP_FET_INTERFACE_JTAG &&
+    if (!s || s->closing || (mode != RISC_MSP_FET_INTERFACE_JTAG &&
                mode != RISC_MSP_FET_INTERFACE_SBW))
         return false;
     if (s->interface_mode == mode) return true;
@@ -568,7 +608,18 @@ static bool set_interface_api(void *context, uint64_t token, uint8_t mode) {
     return start_target(s, mode);
 }
 
-static bool configure_debug_cdc(const probe_slot *probe) {
+static int32_t control_session(session_slot *s, uint8_t request,
+                               uint8_t *payload, uint16_t length) {
+    if (host->host.struct_size >=
+            offsetof(risc_usb_host_discovery_v1, control_claim) +
+            sizeof(host->control_claim) && host->control_claim)
+        return host->control_claim(host->host.context, s->control_claim,
+            CDC_REQUEST_OUT, request, 0u, s->control_iface, payload, length, 1000u);
+    return host->host.control(host->host.context, s->device,
+        CDC_REQUEST_OUT, request, 0u, s->control_iface, payload, length, 1000u);
+}
+
+static bool configure_debug_cdc(session_slot *s) {
     uint8_t coding[7] = {
         (uint8_t)(MSP_FET_BAUD & 0xffu),
         (uint8_t)((MSP_FET_BAUD >> 8) & 0xffu),
@@ -576,13 +627,9 @@ static bool configure_debug_cdc(const probe_slot *probe) {
         (uint8_t)((MSP_FET_BAUD >> 24) & 0xffu),
         0u, 0u, 8u
     };
-    if (host->host.control(host->host.context, probe->device, CDC_REQUEST_OUT,
-                           CDC_SET_LINE_CODING, 0u, probe->control_iface,
-                           coding, sizeof(coding), 1000u) != (int32_t)sizeof(coding))
-        return false;
-    return host->host.control(host->host.context, probe->device, CDC_REQUEST_OUT,
-                              CDC_SET_CONTROL_LINE_STATE, 0u,
-                              probe->control_iface, 0, 0, 1000u) == 0;
+    if (control_session(s, CDC_SET_LINE_CODING, coding, sizeof(coding)) !=
+        (int32_t)sizeof(coding)) return false;
+    return control_session(s, CDC_SET_CONTROL_LINE_STATE, 0, 0) == 0;
 }
 
 static uint64_t open_probe(void *context, uint64_t device, uint8_t mode) {
@@ -599,43 +646,38 @@ static uint64_t open_probe(void *context, uint64_t device, uint8_t mode) {
 
     session_slot *slot = 0;
     for (size_t i = 0; i < RISC_MSP_FET_MAX_PROBES; ++i)
-        if (!sessions[i].token) { slot = &sessions[i]; break; }
+        if (!sessions[i].device) { slot = &sessions[i]; break; }
     if (!slot) return 0;
 
-    uint64_t control_claim = 0, data_claim = 0;
+    *slot = (session_slot){
+        .device = device, .control_iface = probe->control_iface,
+        .data_iface = probe->data_iface, .rx_ep = probe->rx_ep, .tx_ep = probe->tx_ep
+    };
     if (!host->host.claim(host->host.context, device, probe->control_iface,
-                          0u, &control_claim) || !control_claim)
+                          0u, &slot->control_claim) || !slot->control_claim) {
+        reject_open(slot);
         return 0;
+    }
     if (probe->data_iface == probe->control_iface) {
-        data_claim = control_claim;
+        slot->data_claim = slot->control_claim;
     } else if (!host->host.claim(host->host.context, device, probe->data_iface,
-                                 probe->data_alt, &data_claim) || !data_claim) {
-        host->host.release(host->host.context, control_claim);
+                                 probe->data_alt, &slot->data_claim) || !slot->data_claim) {
+        reject_open(slot);
         return 0;
     }
 
-    if (!configure_debug_cdc(probe)) {
-        if (data_claim != control_claim)
-            host->host.release(host->host.context, data_claim);
-        host->host.release(host->host.context, control_claim);
+    if (!configure_debug_cdc(slot)) {
+        reject_open(slot);
         return 0;
     }
 
     for (size_t i = 0; i < 4u; ++i) {
         uint8_t discard[64];
-        const int32_t n = host->host.bulk_read(host->host.context, data_claim,
+        const int32_t n = host->host.bulk_read(host->host.context, slot->data_claim,
                                                probe->rx_ep, discard,
                                                sizeof(discard), 10u);
         if (n <= 0) break;
     }
-
-    uint64_t token = ++serial;
-    if (!token) token = ++serial;
-    *slot = (session_slot){
-        token, device, control_claim, data_claim,
-        probe->control_iface, probe->data_iface, probe->rx_ep, probe->tx_ep,
-        0u, RISC_MSP_FET_INTERFACE_NONE, 0u, {0}, 0u
-    };
 
     uint8_t version[64] = {0};
     const uint8_t version_request = 0u;
@@ -650,24 +692,22 @@ static uint64_t open_probe(void *context, uint64_t device, uint8_t mode) {
         execute_internal(slot, map_version(slot->protocol, HAL_FID_RESET_STATIC_GLOBAL_VARS),
                          0, 0, ignored, sizeof(ignored), 1000u) < 0 ||
         !start_target(slot, mode)) {
-        if (slot->data_claim != slot->control_claim)
-            host->host.release(host->host.context, slot->data_claim);
-        host->host.release(host->host.context, slot->control_claim);
-        *slot = (session_slot){0};
+        reject_open(slot);
         return 0;
     }
-    return token;
+    slot->token = ++serial;
+    return slot->token;
 }
 
 static bool close_probe(void *context, uint64_t token) {
     (void)context;
     session_slot *s = session_for(token);
     if (!s) return false;
-    if (!stop_target(s) || !communication_reset(s)) return false;
-
-    if (s->data_claim != s->control_claim)
-        host->host.release(host->host.context, s->data_claim);
-    host->host.release(host->host.context, s->control_claim);
+    if (!s->closing) {
+        if (!stop_target(s) || !communication_reset(s)) return false;
+        s->closing = true;
+    }
+    if (!release_session(s)) return false;
     *s = (session_slot){0};
     return true;
 }
@@ -689,7 +729,7 @@ static bool start(const risc_provider_dependency_v1 *deps, size_t count) {
     }
 
     if (!usb || usb->host.api_version != RISC_USB_HOST_API_V1 ||
-        usb->host.struct_size < sizeof(*usb) ||
+        usb->host.struct_size < sizeof(risc_usb_host_legacy_discovery_v1) ||
         !usb->host.configuration || !usb->host.claim || !usb->host.release ||
         !usb->host.control || !usb->host.bulk_read || !usb->host.bulk_write ||
         !usb->poll || !usb->devices ||
@@ -703,9 +743,12 @@ static bool start(const risc_provider_dependency_v1 *deps, size_t count) {
 }
 
 static bool quiesce(void) {
-    for (size_t i = 0; i < RISC_MSP_FET_MAX_PROBES; ++i)
-        if (sessions[i].token) return false;
-    return true;
+    bool ready = true;
+    for (size_t i = 0; i < RISC_MSP_FET_MAX_PROBES; ++i) {
+        if (sessions[i].closing) (void)release_session(&sessions[i]);
+        if (sessions[i].device) ready = false;
+    }
+    return ready;
 }
 
 static void stop(void) {
