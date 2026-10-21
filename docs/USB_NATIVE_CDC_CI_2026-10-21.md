@@ -26,6 +26,15 @@ original tests, recovery archive, accepted artifacts, versions or SDK pins.
   `179979b94cc5a1d4787c0ad99515c5c07edd92d8`. All frozen hashes and byte-parity
   assertions are unchanged. Historical replay is not native CDC acceptance.
 
+The first exact-head run (`d739fca7987b6e8b7868b927277e4600a1c6d28e`,
+Actions run `39651992594`) passed both native modes and all three Xtensa package
+builds. The broader build exposed two stale consumer fixtures after the host
+SDK grew: mass-storage's positional initializer lacked optional suffix slots;
+XInput's truncated-prefix negative control used the enlarged discovery type.
+This integration uses designated fields (remaining suffix slots stay zero) and
+the explicit deployed discovery-prefix type. No assertion is removed, warning
+is suppressed, or production behavior changed.
+
 ## Explicit limits
 
 The dedicated target job covers Xtensa host/CDC packages only. Full native
