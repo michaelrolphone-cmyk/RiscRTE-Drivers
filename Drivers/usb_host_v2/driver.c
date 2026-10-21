@@ -271,19 +271,19 @@ static bool claim_interface(void *ctx, uint64_t token, uint8_t iface,
     if (empty == RISC_USB_HOST_MAX_CLAIMS ||
         !endpoints(d->physical, iface, alt, &in, &out_mask, &intr)) return false;
     const risc_usb_controller_api_v1 *base = &controller->controller;
-    uint64_t physical = 0;
-    if (!base->claim(base->context, d->physical, iface, alt, &physical) ||
-        !physical) return false;
+    /* Reserve an identity before acquiring physical custody. A controller
+     * returning false with a nonzero output still transferred cleanup custody:
+     * expose the exact closing host token to checked callers, while legacy
+     * callers that ignore failed output leave a quiesce-owned orphan. */
     uint64_t assigned = next_token();
-    if (!assigned) {
-        claims[empty] = (claim_slot){UINT64_MAX, physical, token,
-                                      iface, alt, in, out_mask, intr, true, false};
-        return false;
-    }
+    if (!assigned) return false;
+    uint64_t physical = 0;
+    const bool opened = base->claim(base->context, d->physical, iface, alt, &physical);
+    if (!physical) return false;
     claims[empty] = (claim_slot){assigned, physical, token,
-                                  iface, alt, in, out_mask, intr, false, false};
+                                  iface, alt, in, out_mask, intr, !opened, false};
     *out = assigned;
-    return true;
+    return opened;
 }
 /* The old void release remains at its original ABI offset for old consumers.
  * New class ELFs call checked release and retain their session on failure.

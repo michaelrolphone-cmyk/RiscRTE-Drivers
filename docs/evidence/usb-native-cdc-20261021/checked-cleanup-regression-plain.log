@@ -1,0 +1,64 @@
+USB host ELF discovery/generation, bulk and interrupt claim gates: PASS
+USB host checked release, quarantine, retry and detach: PASS
+USB host claim-scoped controls and verified fault cleanup: PASS
+USB host ELF snapshot: atomic capacity, transient descriptor, detach, stale generation and fault recovery PASS
+USB host ELF discovery/generation, bulk and interrupt claim gates: PASS
+USB controller staged claim release and retry: PASS
+test_sha256=1e2f87ee295038462fffbe974467098cbf63d5a51b5a6e68c9661bc4d69782e3
+controller_sha256=ed04b2fcc5485a8d9650ecc4ed4fb694f9fbe6417226def70134ab59b1440cce
+Drivers/usb_host_v2/driver.c sha256=bf8b3a47ad3f8a71df32c894da7a72c26505637eb6734670aa8a455bddee2d10
+Drivers/usb_controller_esp32s3/PendingInterrupt.h sha256=c4eab811cff1593d234a0a68ed6cbe241f509736d7ea0a3bcb853a65e73e89d0
+Drivers/usb_controller_esp32s3/ClaimReleasePolicy.h sha256=2e79b945be47c2a8370c3bf8dfeafda3973e4c5dcc41432b7b1450ec678d12ea
+actual_body_sha256=6e6f56dbc9806be14188d4c23572a60e6115656770172fc34deb89ccbc97a8d4
+PASS actual host/controller: bounded timeout, delayed halt/callback, errors, EP0, read/write, detach, checked retry, failed physical close
+test_sha256=1e2f87ee295038462fffbe974467098cbf63d5a51b5a6e68c9661bc4d69782e3
+controller_sha256=ed04b2fcc5485a8d9650ecc4ed4fb694f9fbe6417226def70134ab59b1440cce
+Drivers/usb_host_v2/driver.c sha256=bf8b3a47ad3f8a71df32c894da7a72c26505637eb6734670aa8a455bddee2d10
+Drivers/usb_controller_esp32s3/PendingInterrupt.h sha256=c4eab811cff1593d234a0a68ed6cbe241f509736d7ea0a3bcb853a65e73e89d0
+Drivers/usb_controller_esp32s3/ClaimReleasePolicy.h sha256=2e79b945be47c2a8370c3bf8dfeafda3973e4c5dcc41432b7b1450ec678d12ea
+actual_body_sha256=4a7c00edcf8e9fa50ac22ec5c4b44fb33e3f23ff3b69035b0b794d5d39193115
+test: /tmp/usb-checked-2aq81ho8/test.cpp:302: int main(int, char**): Assertion `ticks==1&&inFlight&&bulkDrain.active&&!releaseCalls' failed.
+REJECTED negative control: timeout-overrun
+test_sha256=1e2f87ee295038462fffbe974467098cbf63d5a51b5a6e68c9661bc4d69782e3
+controller_sha256=ed04b2fcc5485a8d9650ecc4ed4fb694f9fbe6417226def70134ab59b1440cce
+Drivers/usb_host_v2/driver.c sha256=bf8b3a47ad3f8a71df32c894da7a72c26505637eb6734670aa8a455bddee2d10
+Drivers/usb_controller_esp32s3/PendingInterrupt.h sha256=c4eab811cff1593d234a0a68ed6cbe241f509736d7ea0a3bcb853a65e73e89d0
+Drivers/usb_controller_esp32s3/ClaimReleasePolicy.h sha256=2e79b945be47c2a8370c3bf8dfeafda3973e4c5dcc41432b7b1450ec678d12ea
+actual_body_sha256=8c82056ec85c15789c2596628fc9bc550446d8cafc00e035ee6b9b6280a72294
+test: /tmp/usb-checked-jesj70j4/test.cpp:304: int main(int, char**): Assertion `ticks==1&&claims[0].token==17&&!releaseCalls&&!flushCalls' failed.
+REJECTED negative control: halt-skip
+test_sha256=1e2f87ee295038462fffbe974467098cbf63d5a51b5a6e68c9661bc4d69782e3
+controller_sha256=ed04b2fcc5485a8d9650ecc4ed4fb694f9fbe6417226def70134ab59b1440cce
+Drivers/usb_host_v2/driver.c sha256=bf8b3a47ad3f8a71df32c894da7a72c26505637eb6734670aa8a455bddee2d10
+Drivers/usb_controller_esp32s3/PendingInterrupt.h sha256=c4eab811cff1593d234a0a68ed6cbe241f509736d7ea0a3bcb853a65e73e89d0
+Drivers/usb_controller_esp32s3/ClaimReleasePolicy.h sha256=2e79b945be47c2a8370c3bf8dfeafda3973e4c5dcc41432b7b1450ec678d12ea
+actual_body_sha256=d399bc7ad4ae435a56955e7aa0474d463d8d84b7ff24f338054b25bc3454ec97
+test: /tmp/usb-checked-ab3irrfm/test.cpp:318: int main(int, char**): Assertion `!release_interface(nullptr,17)' failed.
+REJECTED negative control: claim-forget
+PASS actual discovery: descriptor/open failure retains exact handle until checked close; exhaustion acquires nothing
+transformed HCD: delayed/missing IRQ, races, invalidation, retry, callback ownership and legacy wait passed
+transformed USBH: try-lock, bulk/interrupt lookup, EP0 enumeration exclusion and daemon-free dequeue passed
+bounded endpoint adapter: pinned source anchors and duplicate-transform rejection passed
+PASS actual private host clones: try-lock, pending callback, release failure, close failure retains open record, retry
+native USB source transformations: PASS
+baseline_commit=a7ae39994603c4545a3c014f09051ecfc12084d2
+source=/workspace/scratch/c744abbbbd60/usb-native-cdc/RiscRTE-Drivers/Drivers/usb_controller_esp32s3/driver_base.cpp
+source_sha256=93102583176e7a7e5f7db108aa0d49e90bec3e589d988eefe22e4ca264d7801b
+extracted_function_sha256=f212829c65208aca6a5ccb6a9c1c80e505eb56e6bd93678be1a54216424c516e
+USBCTRL cleanup-failed stage=bulk-callback ep=81
+USBCTRL failure=bulk-timeout-undrained
+OBSERVED bulk wait: requested=1 fake-ms, elapsed=501 fake-ms, DMA retained
+USBCTRL cleanup-failed stage=bulk-callback ep=81
+OBSERVED checked physical release: elapsed=500 fake-ms, claim=17 retained; no caller budget parameter
+USBCTRL stage=bulk-drained ep=81 resume=0
+CONTROL callback delivered: elapsed=3 fake-ms, claim released only after DMA return
+CONTROL endpoint-zero timeout retains in-flight transfer; no bulk-drain substitution
+PASS: exact-source prerequisite reproduced; NOT a native integration or hardware pass
+OBSERVED successful-release: MSP quiescent/old-close=false; physical claims released; old-close remains false after host cleanup
+OBSERVED failed-release: MSP quiescent/old-close=false; physical claims initially retained; old-close remains false after host cleanup
+native USB PHY/DMA adapters: PASS
+legacy USB PHY adapter: PASS
+native USB HCD/hub lifecycle: PASS (retention, retry, ordering, stop failure)
+native USB IRQ lifecycle: PASS (both cores, ownership, failures, retries, double-free)
+native USB host lifecycle: PASS
+PASS checked cleanup qualification, SANITIZE=0; not a target build or full callback timing pass

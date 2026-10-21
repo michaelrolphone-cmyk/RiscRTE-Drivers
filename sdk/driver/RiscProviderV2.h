@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "RiscStreamProviderV1.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -34,6 +35,26 @@ typedef struct {
     bool (*quiesce)(void);
 } risc_driver_v2;
 
+/* Optional descriptor suffix. Existing risc_driver_v2 layouts stay unchanged.
+ * Set driver.struct_size to sizeof(risc_driver_streams_v2). bind_streams runs
+ * before start and may retain the host table through stop. A provider using
+ * this extension MUST implement quiesce. Stream authority is revoked before
+ * quiesce, including failed activation; teardown must tolerate CLOSED/DENIED.
+ * Only the loader grants consumer access separately through capability policy.
+ */
+typedef struct {
+    risc_driver_v2 driver;
+    bool (*last_error)(char *destination, size_t capacity);
+    bool (*bind_streams)(const risc_stream_provider_v1 *host);
+} risc_driver_streams_v2;
+
+/* Optional cooperative work suffix. Invoked on the serialized provider-owner
+ * task, outside stream/graph locks. Each call must honor budget_ms and return;
+ * no nested graph lifecycle calls. No callback runs after revocation starts. */
+typedef struct {
+    risc_driver_streams_v2 streams;
+    void (*poll)(uint32_t budget_ms);
+} risc_driver_poll_v2;
 /* Optional append-only diagnostic extension. The base layout remains unchanged
  * for existing binaries and source initializers. Set base.struct_size to the
  * full extended size. Runtime copies this text BEFORE quiesce/stop/unmapping.
@@ -43,6 +64,22 @@ typedef struct {
     risc_driver_v2 base;
     bool (*last_error)(char *destination, size_t capacity);
 } risc_driver_diagnostics_v2;
+
+/* Optional synchronous service, separate from cooperative poll. Runtime calls
+ * at explicit owner safe points outside graph/stream callbacks. One call has
+ * a total deadline <=1000 ms; check it before each bounded I/O operation. An
+ * already in-flight bounded operation may finish after the deadline. Never
+ * recurse into lifecycle, retain caller pointers, or continue after revocation.
+ * No pending work must return without hardware/storage I/O. This tagged suffix
+ * cannot be confused with the unrelated stream-session extension. */
+#define RISC_DRIVER_SERVICE_TAG_V1 UINT32_C(0x53525631)
+#define RISC_DRIVER_SERVICE_VERSION_V1 1u
+#define RISC_DRIVER_SERVICE_MAX_MS 1000u
+typedef struct {
+    risc_driver_poll_v2 poll;
+    uint32_t extension_tag, extension_version;
+    void (*service)(uint32_t budget_ms);
+} risc_driver_service_v2;
 
 /* Minimum accepted ABI-v2 struct ends before the optional quiesce pointer. */
 #define RISC_DRIVER_V2_BASE_SIZE offsetof(risc_driver_v2, quiesce)
