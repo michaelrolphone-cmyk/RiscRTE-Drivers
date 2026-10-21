@@ -348,8 +348,11 @@ jobs:
         run: python scripts/verify_usb_controller_loader_map.py dist/usb-controller-esp32s3/driver.elf
       - name: Collect historical controller proof without changing producer inputs
         run: |
-          test ! -e dist
-          cp -a .source/legacy-generic/dist dist
+          # Keep tracked dist provenance intact; never overwrite an output.
+          for driver in board-power-t5s3-v2 t5s3-usb-power-profile usb-mass-storage usb-msp usb-hid-gamepad usb-ui-navigation program-msp display-epd-video i2c-esp32s3-v2; do
+            test ! -e "dist/$driver"
+            cp -a ".source/legacy-generic/dist/$driver" "dist/$driver"
+          done
           test ! -e dist/usb-controller-esp32s3
           cp -a .source/legacy-controller/dist/usb-controller-esp32s3 dist/usb-controller-esp32s3
       - uses: actions/upload-artifact@v4
