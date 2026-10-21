@@ -80,7 +80,25 @@ int main(void) {
     assert(two->has_battery&&two->battery==17&&!two->name[0]);
     /* Multiple battery readings carry metric/value, not their source IDs or
      * labels. This test deliberately does not select one as a user's Watch. */
+    /* Duplicate service-data fields must not silently choose either sample.
+     * Exercise valid, encrypted and malformed payloads in both orders. */
+    const uint8_t duplicate[][14]={
+        {6,0x16,0xd2,0xfc,0x40,1,40,6,0x16,0xd2,0xfc,0x40,1,80},
+        {6,0x16,0xd2,0xfc,0x40,1,40,6,0x16,0xd2,0xfc,0x41,1,80},
+        {6,0x16,0xd2,0xfc,0x41,1,40,6,0x16,0xd2,0xfc,0x40,1,80},
+        {6,0x16,0xd2,0xfc,0x40,1,40,6,0x16,0xd2,0xfc,0x40,1,101},
+        {6,0x16,0xd2,0xfc,0x40,1,101,6,0x16,0xd2,0xfc,0x40,1,80}
+    };
+    for(unsigned i=0;i<sizeof(duplicate)/sizeof(duplicate[0]);i++) {
+        receive(&scan,2,1,duplicate[i],sizeof(duplicate[i]),900+i);
+        assert(scan.devices[1].measurement_invalid&&!scan.devices[1].has_battery);
+        assert(!scan.devices[1].has_temperature&&!scan.devices[1].has_humidity);
+        assert(scan.devices[1].reading_count==0&&scan.devices[1].measurement_seen==900+i);
+    }
+    /* A subsequent unambiguous sample is still accepted. */
+    length=encode(RISC_TELEMETRY_BATTERY_PERCENT,61,ad);receive(&scan,2,1,ad,length,910);
+    assert(!scan.devices[1].measurement_invalid&&scan.devices[1].has_battery&&scan.devices[1].battery==61);
     assert(ble_expired(&scan,16000)&&scan.phase==BLE_COMPLETE);
-    puts("Telemetry-to-sensor round trip: all 101 percentages, observed identity, stale measurement, absent/invalid/encrypted data and multiple battery fields passed");
+    puts("Telemetry-to-sensor round trip: all 101 percentages, observed identity, stale measurement, absent/invalid/encrypted data and multiple battery fields/duplicate service-data rejection passed");
     return 0;
 }

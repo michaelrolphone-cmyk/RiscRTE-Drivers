@@ -72,11 +72,20 @@ static bool ble_ad_valid(const uint8_t*p,size_t n){
  return true;
 }
 static void ble_ad(ble_device*d,const uint8_t*p,size_t n){
+ bool bthome_seen=false;
  for(size_t i=0;i<n;){unsigned size=p[i++];if(!size)break;unsigned type=p[i++];size--;const uint8_t*v=p+i;i+=size;
   if(type==8||type==9){size_t count=size<31?size:31;for(size_t j=0;j<count;j++)d->name[j]=(v[j]>=32&&v[j]<=126)?(char)v[j]:'?';d->name[count]=0;}
   if(type==2||type==3)for(unsigned j=0;j<size;j+=2)ble_service(d,ble_u16(v+j));
   if(type==0xff){d->company=ble_u16(v);d->has_company=true;}
-  if(type==0x16){uint16_t uuid=ble_u16(v);ble_service(d,uuid);if(uuid==0xfcd2)ble_bthome(d,v+2,size-2);}
+  if(type==0x16){uint16_t uuid=ble_u16(v);ble_service(d,uuid);if(uuid==0xfcd2){
+   if(!bthome_seen){ble_bthome(d,v+2,size-2);bthome_seen=true;}
+   else {
+    /* Multiple BTHome service-data fields are one ambiguous advertisement,
+     * never a last-field-wins reading. Preserve presence, invalidate sample. */
+    d->measurement_invalid=true;d->has_battery=d->has_temperature=d->has_humidity=false;
+    d->reading_count=0;memset(d->readings,0,sizeof(d->readings));
+   }
+  }}
  }
 }
 /* Validate every report before mutating the table, including multi-report
