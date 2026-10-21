@@ -118,3 +118,10 @@ separate from pending physical/host-OS qualification.
 - [telemetry-battery](docs/drivers/telemetry-battery.md) 0.1.0 adapts the generic battery capability without board-specific access.
 
 These are experimental software-tested packages, not installed or hardware-qualified firmware. They preserve the existing HID stack and controller ownership. Open advertising requires informed caller opt-in; encrypted/GATT-only sensors remain outside this increment.
+
+## Local USB checked-cleanup candidate
+
+[Checked cleanup qualification](docs/USB_CHECKED_CLEANUP_2026-10-21.md) records
+separately versioned host/controller source, exact native SDK adaptations,
+normal/sanitized regressions and remaining native-target/consumer work. It does
+not replace accepted artifacts or qualify serial delivery or X4 hardware.

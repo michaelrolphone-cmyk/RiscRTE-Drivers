@@ -1,7 +1,7 @@
 {
   "type": "driver",
   "id": "usb-controller-esp32s3",
-  "version": "0.1.19",
+  "version": "0.1.26-checked-cleanup.1",
   "driver_abi": 2,
   "architecture": "xtensa-esp32s3",
   "file_name": "driver.elf",
@@ -17,5 +17,5 @@
       "api": 1
     }
   ],
-  "status": "experimental-hardware-port-not-yet-linkable"
+  "status": "experimental-local-checked-cleanup"
 }
