@@ -1,5 +1,10 @@
 # usb-host-v2
 
+Local source candidate: the separately versioned checked-cleanup work is documented in
+[USB checked cleanup qualification](../USB_CHECKED_CLEANUP_2026-10-21.md).
+The historical release/replay evidence below is preserved and does not qualify
+that unpublished native candidate.
+
 ## Purpose and package identity
 
 `usb-host-v2` v0.1.3 is the ABI-v2 `usb.host@1` provider between USB class drivers and the physical `usb.controller@1` provider. It is built for `xtensa-esp32s3`, requires `usb.controller@1`, and provides `usb.host@1`. The source manifest status is `experimental-unpublished`; the inspected upstream release index nevertheless publishes tag `driver-usb-host-v2-v0.1.3`.

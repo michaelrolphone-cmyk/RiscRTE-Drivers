@@ -13,7 +13,8 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "Drivers/usb_controller_esp32s3/driver_base.cpp"
-raw = SOURCE.read_bytes()
+baseline = os.environ.get("USB_BASELINE_COMMIT", "a7ae39994603c4545a3c014f09051ecfc12084d2")
+raw = subprocess.check_output(["git", "-C", str(ROOT), "show", baseline + ":Drivers/usb_controller_esp32s3/driver_base.cpp"])
 source = raw.decode()
 
 
@@ -110,6 +111,7 @@ int main() {
     std::puts("PASS: exact-source prerequisite reproduced; NOT a native integration or hardware pass");
 }
 '''
+print("baseline_commit=" + baseline, flush=True)
 print("source=" + str(SOURCE), flush=True)
 print("source_sha256=" + hashlib.sha256(raw).hexdigest(), flush=True)
 print("extracted_function_sha256=" + hashlib.sha256(functions.encode()).hexdigest(), flush=True)

@@ -1,15 +1,21 @@
 #include "RiscUsbInterruptV1.h"
 #include "RiscUsbDiscoveryDiagnosticsV1.h"
 
-/* The USB host is an independently installed ELF. The runtime sees usb.host
- * as an opaque capability; the physical controller owns transfers and VBUS.
- * All calls are serialized on the provider executor. */
-typedef struct { uint64_t token, physical; bool present; } device_slot;
+/* USB-SPECIFIC CODE LIVES IN THIS ELF, never in the compiled core. This host
+ * layer owns enumeration publication, device generations, interface arbitration
+ * and class transfer authorization. It requires a separate physical-controller
+ * ELF implementing usb.controller@1; the controller must own IDF/OTG, VBUS,
+ * event workers, DMA, callbacks and the real hardware. Calls are serialized
+ * by the provider executor; no cross-thread protection is implied. */
+typedef struct {
+    uint64_t token, physical;
+    bool present;
+} device_slot;
 typedef struct {
     uint64_t token, physical_claim, device_token;
     uint8_t interface_number, alternate;
     uint16_t bulk_in, bulk_out, interrupt_in;
-    bool closing;
+    bool closing, checked_custody;
 } claim_slot;
 static const risc_usb_controller_interrupt_v1 *controller;
 static device_slot devices[RISC_USB_HOST_MAX_DEVICES];
@@ -53,31 +59,42 @@ static bool start(const risc_provider_dependency_v1 *deps, size_t count) {
         (const risc_usb_controller_interrupt_v1 *)deps[0].api;
     const risc_usb_controller_api_v1 *base = &api->controller;
     if (base->api_version != RISC_USB_CONTROLLER_API_V1 ||
-        base->struct_size < sizeof(*api) || !base->next_event ||
+        base->struct_size < sizeof(*base) || !base->next_event ||
         !base->configuration || !base->claim || !base->release ||
         !base->control || !base->bulk_read || !base->bulk_write ||
-        !base->quiesce || !api->interrupt_read) return false;
+        !base->quiesce) return false;
     controller = api;
     return true;
 }
 static bool quiesce(void) {
     if (!controller) return true;
-    const risc_usb_controller_api_v1 *base = &controller->controller;
     for (size_t i = 0; i < RISC_USB_HOST_MAX_CLAIMS; ++i) {
         claim_slot *c = &claims[i];
         if (!c->token) continue;
-        if (!c->closing || !base->release(base->context, c->physical_claim))
-            return false; /* Keep failed claims and dependency mapped. */
+        if (!c->closing) return false;
+        if (c->physical_claim) {
+            if (!controller->controller.release(controller->controller.context,
+                                                  c->physical_claim)) return false;
+            c->physical_claim = 0;
+        }
+        /* A checked caller still owns its queues after a failed close. Keep
+         * the terminal receipt and dependency mapped until that caller retries;
+         * graph cleanup must not consume its only proof of physical closure. */
+        if (c->checked_custody) return false;
         *c = (claim_slot){0};
     }
-    return !event_fault && base->quiesce(base->context);
+    /* A lost/invalid discovery event stops new I/O, but must not strand VBUS
+     * forever if the hardware-owning controller independently proves all
+     * callbacks, interfaces and DMA are quiescent. Failure still pins both. */
+    return controller->controller.quiesce(controller->controller.context);
 }
 static void stop(void) {
     if (!quiesce()) return;
     for (size_t i = 0; i < RISC_USB_HOST_MAX_DEVICES; ++i)
         devices[i] = (device_slot){0};
     controller = 0;
-    /* Never reuse device/claim tokens across provider restart. */
+    event_fault = false; /* Only after physical quiescence, never on a retry. */
+    /* sequence intentionally persists across stop/start of this ELF image. */
 }
 static bool poll_devices(void *ctx, size_t max_events, size_t *processed) {
     (void)ctx;
@@ -118,7 +135,8 @@ static bool poll_devices(void *ctx, size_t max_events, size_t *processed) {
                 event_fault = true; return false;
             }
             devices[found].present = false;
-            /* Claims remain pinned until their class closes them. */
+            /* Old tokens and transfers now fail closed. The class releases
+             * its claims, and the controller drains physical transactions. */
         }
     }
     return true;
@@ -152,6 +170,38 @@ static bool configuration(void *ctx, uint64_t token, uint8_t *bytes,
         return false;
     size_t total = (size_t)bytes[2] | ((size_t)bytes[3] << 8);
     return total == *length;
+}
+/* This operation belongs to the host ELF. Firmware consumers receive opaque
+ * generation identities and presentation metadata, never USB descriptor data
+ * or an event-poll loop. Keep presence independent from identification so a
+ * temporary descriptor error cannot invent an unplug or revoke a live claim. */
+static bool snapshot(void *ctx, risc_usb_device_identity_v1 *out, size_t *count) {
+    if (!count) return false;
+    size_t processed = 0;
+    if (!poll_devices(ctx, 16, &processed)) return false;
+    size_t actual = 0;
+    for (size_t i = 0; i < RISC_USB_HOST_MAX_DEVICES; ++i)
+        if (devices[i].present) ++actual;
+    if (*count < actual || (actual && !out)) {
+        *count = actual;
+        return false;
+    }
+    size_t n = 0;
+    for (size_t i = 0; i < RISC_USB_HOST_MAX_DEVICES; ++i) {
+        if (!devices[i].present) continue;
+        risc_usb_device_identity_v1 entry = {0};
+        entry.token = devices[i].token;
+        size_t length = sizeof(descriptor);
+        uint16_t vid = 0, pid = 0;
+        if (configuration(ctx, entry.token, descriptor, &length, &vid, &pid)) {
+            entry.vid = vid;
+            entry.pid = pid;
+            entry.identified = 1;
+        }
+        out[n++] = entry;
+    }
+    *count = n;
+    return true;
 }
 static bool endpoints(uint64_t physical, uint8_t iface, uint8_t alt,
                       uint16_t *bulk_in, uint16_t *bulk_out,
@@ -227,26 +277,44 @@ static bool claim_interface(void *ctx, uint64_t token, uint8_t iface,
     uint64_t assigned = next_token();
     if (!assigned) {
         claims[empty] = (claim_slot){UINT64_MAX, physical, token,
-                                      iface, alt, in, out_mask, intr, true};
+                                      iface, alt, in, out_mask, intr, true, false};
         return false;
     }
     claims[empty] = (claim_slot){assigned, physical, token,
-                                  iface, alt, in, out_mask, intr, false};
+                                  iface, alt, in, out_mask, intr, false, false};
     *out = assigned;
     return true;
 }
-static void release_claim(void *ctx, uint64_t token) {
+/* The old void release remains at its original ABI offset for old consumers.
+ * New class ELFs call checked release and retain their session on failure.
+ * A closing claim cannot authorize any further data I/O but can be retried
+ * with the SAME token, even after device detach or a lost event. */
+static bool release_internal(void *ctx, uint64_t token, bool checked) {
     (void)ctx;
-    if (!controller || !token) return;
-    const risc_usb_controller_api_v1 *base = &controller->controller;
+    if (!controller || !token) return false;
     for (size_t i = 0; i < RISC_USB_HOST_MAX_CLAIMS; ++i) {
         claim_slot *c = &claims[i];
-        if (c->token != token || c->closing) continue;
+        if (c->token != token) continue;
         c->closing = true;
-        if (base->release(base->context, c->physical_claim)) *c = (claim_slot){0};
-        return;
+        c->checked_custody |= checked;
+        if (c->physical_claim) {
+            if (!controller->controller.release(controller->controller.context, c->physical_claim))
+                return false;
+            c->physical_claim = 0;
+        }
+        if (c->checked_custody && !checked) return false;
+        *c = (claim_slot){0};
+        return true;
     }
+    return false;
 }
+static bool release_checked(void *ctx, uint64_t token) {
+    return release_internal(ctx, token, true);
+}
+static void release_claim(void *ctx, uint64_t token) {
+    (void)release_internal(ctx, token, false);
+}
+/* Published device-token control compatibility; new classes use exact claims. */
 static int32_t control(void *ctx, uint64_t token, uint8_t type,
                        uint8_t request, uint16_t value, uint16_t index,
                        uint8_t *payload, uint16_t length, uint32_t timeout) {
@@ -267,6 +335,30 @@ static int32_t control(void *ctx, uint64_t token, uint8_t type,
     const risc_usb_controller_api_v1 *base = &controller->controller;
     int32_t n = base->control(base->context, d->physical, type, request,
                               value, index, payload, length, timeout);
+    return n >= 0 && n <= length ? n : -1;
+}
+static int32_t control_claim(void *ctx, uint64_t token, uint8_t type,
+                             uint8_t request, uint16_t value, uint16_t index,
+                             uint8_t *payload, uint16_t length, uint32_t timeout) {
+    (void)ctx;
+    claim_slot *c = claim_for(token);
+    if (!c || !device_for(c->device_token) || !timeout ||
+        length > RISC_USB_CONFIG_LIMIT || (length && !payload)) return -1;
+    const uint8_t recipient = type & 0x1fu;
+    if (recipient == 1u) {
+        if (index > 255u || (uint8_t)index != c->interface_number) return -1;
+    } else if (recipient == 0u) {
+        /* Device-wide commands require exclusive ownership on that device.
+         * A second class's claim (including a closing one) denies access. */
+        for (size_t i = 0; i < RISC_USB_HOST_MAX_CLAIMS; ++i)
+            if (claims[i].token && claims[i].token != token &&
+                claims[i].device_token == c->device_token) return -1;
+    } else return -1;
+    device_slot *d = device_for(c->device_token);
+    if (!d) return -1;
+    int32_t n = controller->controller.control(controller->controller.context, d->physical, type,
+                                    request, value, index, payload,
+                                    length, timeout);
     return n >= 0 && n <= length ? n : -1;
 }
 static int32_t bulk_read(void *ctx, uint64_t token, uint8_t endpoint,
@@ -299,7 +391,8 @@ static int32_t interrupt_read(void *ctx, uint64_t token, uint8_t endpoint,
                               uint8_t *dst, size_t capacity, uint32_t timeout) {
     (void)ctx;
     claim_slot *c = claim_for(token);
-    if (!c || !device_for(c->device_token) || !dst || !capacity ||
+    if (!c || controller->controller.struct_size < sizeof(*controller) ||
+        !controller->interrupt_read || !device_for(c->device_token) || !dst || !capacity ||
         capacity > 64 || !timeout || timeout > 100 ||
         !(endpoint & 0x80u) || (endpoint & 0x70u) ||
         !(c->interrupt_in & (uint16_t)(1u << (endpoint & 15u)))) return -1;
@@ -316,16 +409,17 @@ static bool diagnostic(void *ctx, char *out, size_t capacity) {
         (const risc_usb_controller_diagnostics_v1 *)controller;
     return extended->diagnostic && extended->diagnostic(controller->controller.context, out, capacity);
 }
-static const risc_usb_host_diagnostics_v1 interface = {
-    {{{RISC_USB_HOST_API_V1, sizeof(risc_usb_host_diagnostics_v1), 0,
+static const risc_usb_host_snapshot_v1 interface = {
+    {{RISC_USB_HOST_API_V1, sizeof(risc_usb_host_snapshot_v1), 0,
       configuration, claim_interface, release_claim, control,
-      bulk_read, bulk_write}, poll_devices, list_devices},
-    interrupt_read}, diagnostic
+      bulk_read, bulk_write},
+     poll_devices, list_devices, interrupt_read, diagnostic, release_checked, control_claim},
+    snapshot
 };
 static const risc_driver_v2 driver = {
     RISC_PROVIDER_DRIVER_ABI_V2, sizeof(risc_driver_v2),
     "usb-host-v2", "usb.host", RISC_USB_HOST_API_V1,
-    &interface.base.discovery.host, start, stop, quiesce
+    &interface.discovery.host, start, stop, quiesce
 };
 __attribute__((visibility("default")))
 const risc_driver_v2 *t5_driver_get(uint32_t abi) {

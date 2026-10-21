@@ -1,0 +1,9 @@
+USB host ELF discovery/generation, bulk and interrupt claim gates: PASS
+USB host checked release, quarantine, retry and detach: PASS
+USB host claim-scoped controls and verified fault cleanup: PASS
+USB host ELF snapshot: atomic capacity, transient descriptor, detach, stale generation and fault recovery PASS
+USB host ELF discovery/generation, bulk and interrupt claim gates: PASS
+/workspace/scratch/c744abbbbd60/usb-checked-cleanup/RiscRTE-Drivers/test/drivers/usb_controller_claim_release_test.cpp:1:10: fatal error: ClaimReleasePolicy.h: No such file or directory
+    1 | #include "ClaimReleasePolicy.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
