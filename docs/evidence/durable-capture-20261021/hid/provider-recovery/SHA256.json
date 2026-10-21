@@ -1,0 +1,42 @@
+[
+  {
+    "path": "docs/evidence/durable-capture-20261021/hid/provider-recovery/fresh-normal-tests.log",
+    "sha256": "58fc944b8114a589f4c244e74df323f38561b95ffb8f0b5138ed3648e25bb6ac",
+    "bytes": 326
+  },
+  {
+    "path": "docs/evidence/durable-capture-20261021/hid/provider-recovery/fresh-asan-ubsan.log",
+    "sha256": "a6df8d5a0c669a5c7723ab4c4b34bd972958334269ae6d837a5dc98c0f62fa3c",
+    "bytes": 354
+  },
+  {
+    "path": "docs/evidence/durable-capture-20261021/hid/provider-recovery/custody-checks.json",
+    "sha256": "f555e9275e5d6ec5f19be8fef779dccf3c6647e0ad27d9a17517a088770516fa",
+    "bytes": 2507
+  },
+  {
+    "path": "docs/evidence/durable-capture-20261021/hid/provider-recovery/source-custody.json",
+    "sha256": "6082324000b9d0e8289146f583a38668bc49a0885223d12462edcf5efe0e6a55",
+    "bytes": 4520
+  },
+  {
+    "path": "docs/evidence/durable-capture-20261021/hid/provider-recovery/current-RiscProviderV2.h",
+    "sha256": "358ac93f86a3e228c2a9c9cfca0b758571db43453bce1e4c5e38402096064ea0",
+    "bytes": 2246
+  },
+  {
+    "path": "docs/evidence/durable-capture-20261021/hid/provider-recovery/recovered-RiscProviderV2.h",
+    "sha256": "2935d83493a411e19ee98b8c7e805b86f4adf98c6bde66fd031df7cc379bdc17",
+    "bytes": 3302
+  },
+  {
+    "path": "docs/evidence/durable-capture-20261021/hid/provider-recovery/RECOVERY_REPORT.md",
+    "sha256": "633b83af77831e033dd122111661d38a157edb46374b0a375336afa6f8b0004b",
+    "bytes": 9104
+  },
+  {
+    "path": "docs/evidence/durable-capture-20261021/hid/provider-recovery/write_hid_qualification_evidence.py",
+    "sha256": "6f96bd949ee86f5d35b87d3b177bb96dba3d90f15f5bf4bca30fed00cadb3a8f",
+    "bytes": 3880
+  }
+]

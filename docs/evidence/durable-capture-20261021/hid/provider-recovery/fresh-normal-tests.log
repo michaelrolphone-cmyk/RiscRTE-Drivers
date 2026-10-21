@@ -1,0 +1,5 @@
+observed_at=2026-10-21T13:36:12Z
+cc (Debian 14.2.0-19) 14.2.0
+command=bash test/run_usb_hid_mouse_test.sh
+USB mouse production parser, copied events, recovery, bounds and terminal retention: PASS (91 cooperative yields)
+USB mouse + actual raw HID ELF: empty/read/detach/scan lifecycle and lower-host quarantine boundary: PASS
