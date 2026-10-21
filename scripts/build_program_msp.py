@@ -12,7 +12,7 @@ CANONICAL_SIZE=9128
 CANONICAL_SHA256="19b0999f41e45522e877097addf3cfd55651b2fd00ae925fa6084b769b66527f"
 manifest=json.loads((SRC/"manifest.json").read_text())
 required={
- "type":"driver","id":"program-msp","version":"0.1.0","driver_abi":2,
+ "type":"driver","id":"program-msp","version":"0.1.1","driver_abi":2,
  "architecture":"xtensa-esp32s3","file_name":"driver.elf",
  "requires":[{"capability":"debug.vendor.msp","api":1}],
  "provides":[{"capability":"program.msp","api":1}],
@@ -41,6 +41,6 @@ byte_parity = len(data)==CANONICAL_SIZE and digest==CANONICAL_SHA256
 if REQUIRE_BYTE_PARITY and not byte_parity:
     raise SystemExit(f"canonical byte parity mismatch: got {len(data)} {digest}, expected {CANONICAL_SIZE} {CANONICAL_SHA256}")
 meta=dict(manifest)
-meta.update(size_bytes=len(data),sha256=digest,canonical_size_bytes=CANONICAL_SIZE,canonical_sha256=CANONICAL_SHA256,byte_parity=byte_parity)
+meta.update(size_bytes=len(data),sha256=digest,canonical_version="0.1.0",canonical_size_bytes=CANONICAL_SIZE,canonical_sha256=CANONICAL_SHA256,byte_parity=byte_parity)
 (OUT/"manifest.json").write_text(json.dumps(meta,indent=2)+"\n")
 print(f"built program-msp v{manifest['version']} {len(data)} bytes {digest} byte_parity={byte_parity}")

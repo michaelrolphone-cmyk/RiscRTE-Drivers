@@ -302,9 +302,24 @@ jobs:
       - name: Require historical GCC8 generic release bytes
         run: |
           export NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"
-          for driver in board_power_t5s3_v2 t5s3_usb_power_profile usb_mass_storage usb_msp usb_hid_gamepad usb_ui_navigation program_msp display_epd_video; do
+          for driver in board_power_t5s3_v2 t5s3_usb_power_profile usb_mass_storage usb_msp usb_hid_gamepad usb_ui_navigation display_epd_video; do
             python "scripts/build_${driver}.py" --require-byte-parity
           done
+      - name: Check out the immutable program-msp 0.1.0 producer
+        uses: actions/checkout@v4
+        with:
+          repository: michaelrolphone-cmyk/RiscRTE-Drivers
+          ref: a7ae39994603c4545a3c014f09051ecfc12084d2
+          path: .source/legacy-program-msp
+          persist-credentials: false
+          sparse-checkout: |
+            Drivers/program_msp
+            sdk/driver
+            scripts
+      - name: Replay program-msp 0.1.0 without overwriting the 0.1.1 candidate
+        run: |
+          export NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"
+          python .source/legacy-program-msp/scripts/build_program_msp.py --require-byte-parity
       - run: python scripts/build_i2c_esp32s3_v2.py --require-byte-parity
       - name: Check out the verified historical USB controller producer
         uses: actions/checkout@v4
