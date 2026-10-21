@@ -118,7 +118,11 @@ jobs:
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
             test/drivers/usb_host_v2_test.c -ldl -o /tmp/usb-host-v2-test
           /tmp/usb-host-v2-test /tmp/usb-host-v2.so
-      - run: python scripts/build_usb_host_v2.py
+      - name: Build the preserved checked host and isolated native CDC candidates
+        run: |
+          python scripts/build_usb_host_checked_cleanup.py
+          python scripts/build_usb_host_native_stream.py
+          python scripts/build_usb_cdc_native.py
       - name: Test usb-mass-storage BOT, FAT16 browse/write/delete and hotplug
         run: |
           cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
@@ -239,8 +243,15 @@ jobs:
           path: dist/usb-hid
       - uses: actions/upload-artifact@v4
         with:
-          name: usb-host-v2
-          path: dist/usb-host-v2
+          name: usb-host-checked-cleanup
+          path: dist/usb-host-v2-checked-cleanup
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-native-stream-host-and-cdc
+          path: |
+            dist/usb-host-v2-native-stream/
+            dist/usb-cdc-acm-v2-native-stream/
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
           name: usb-mass-storage
@@ -294,18 +305,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Check out immutable historical generic producer inputs
+        uses: actions/checkout@v4
+        with:
+          repository: michaelrolphone-cmyk/RiscRTE-Drivers
+          ref: a7ae39994603c4545a3c014f09051ecfc12084d2
+          path: .source/legacy-generic
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with: {python-version: "3.11"}
       - run: python -m pip install platformio==6.1.19
       - name: Install the exact historical S3 compiler only
         run: pio pkg install --global --tool 'espressif/toolchain-xtensa-esp32s3@8.4.0+2021r2-patch5'
       - name: Require historical GCC8 generic release bytes
+        working-directory: .source/legacy-generic
         run: |
           export NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"
           for driver in board_power_t5s3_v2 t5s3_usb_power_profile usb_mass_storage usb_msp usb_hid_gamepad usb_ui_navigation program_msp display_epd_video; do
             python "scripts/build_${driver}.py" --require-byte-parity
           done
       - run: python scripts/build_i2c_esp32s3_v2.py --require-byte-parity
+        working-directory: .source/legacy-generic
       - name: Check out the verified historical USB controller producer
         uses: actions/checkout@v4
         with:
@@ -328,6 +348,8 @@ jobs:
         run: python scripts/verify_usb_controller_loader_map.py dist/usb-controller-esp32s3/driver.elf
       - name: Collect historical controller proof without changing producer inputs
         run: |
+          test ! -e dist
+          cp -a .source/legacy-generic/dist dist
           test ! -e dist/usb-controller-esp32s3
           cp -a .source/legacy-controller/dist/usb-controller-esp32s3 dist/usb-controller-esp32s3
       - uses: actions/upload-artifact@v4

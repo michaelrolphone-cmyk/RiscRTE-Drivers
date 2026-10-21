@@ -1,0 +1,88 @@
+name: Native CDC bounded qualification
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-cdc:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        sanitize: ['0', '1']
+    env:
+      SANITIZE: ${{ matrix.sanitize }}
+      ASAN_OPTIONS: detect_leaks=0:abort_on_error=1
+      UBSAN_OPTIONS: halt_on_error=1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - uses: actions/checkout@v4
+        with:
+          repository: espressif/esp-usb
+          ref: 0f6820940f9e8075c0cc1483d9c2f5e89cc5b97a
+          path: .source/esp-usb
+          persist-credentials: false
+      - name: Qualify native CDC and exact prerequisite negative controls
+        run: |
+          mkdir -p dist/usb-native-ci
+          bash test/run_usb_cdc_native_test.sh 2>&1 | tee dist/usb-native-ci/cdc.log
+      - name: Qualify checked custody and pinned native source adapters
+        run: bash test/run_usb_checked_cleanup_test.sh .source/esp-usb 2>&1 | tee dist/usb-native-ci/checked-cleanup.log
+      - name: Record immutable source inputs and qualification limits
+        if: always()
+        run: |
+          mkdir -p dist/usb-native-ci
+          git rev-parse HEAD > dist/usb-native-ci/HEAD.txt
+          git -C .source/esp-usb rev-parse HEAD > dist/usb-native-ci/esp-usb.txt
+          git diff --exit-code
+          printf '%s\n' 'Host-executed source tests only. No controller target ELF, physical USB, measured timing, release replay or product acceptance.' > dist/usb-native-ci/SCOPE.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-cdc-sanitize-${{ matrix.sanitize }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: dist/usb-native-ci/
+          if-no-files-found: error
+
+  xtensa-candidates:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: bash scripts/install_native_driver_toolchain.sh
+      - name: Build separate checked host and native host/CDC packages
+        run: |
+          mkdir -p dist/usb-native-ci
+          set -o pipefail
+          {
+            python scripts/build_usb_host_checked_cleanup.py
+            python scripts/build_usb_host_native_stream.py
+            python scripts/build_usb_cdc_native.py
+          } 2>&1 | tee dist/usb-native-ci/xtensa.log
+          git rev-parse HEAD > dist/usb-native-ci/HEAD.txt
+          git diff --exit-code
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-cdc-xtensa-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            dist/usb-native-ci/
+            dist/usb-host-v2-checked-cleanup/
+            dist/usb-host-v2-native-stream/
+            dist/usb-cdc-acm-v2-native-stream/
+          if-no-files-found: error
