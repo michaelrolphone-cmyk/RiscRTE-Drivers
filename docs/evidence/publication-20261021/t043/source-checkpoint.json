@@ -1,0 +1,22 @@
+{
+  "key": "t043",
+  "repo": "michaelrolphone-cmyk/RiscRTE-Drivers",
+  "branch": "tasker/t043-telemetry-qualification-local",
+  "base": "main",
+  "local": "7eebf43382df16f1927aef27b12487cb2fda422d",
+  "parent": "a7ae39994603c4545a3c014f09051ecfc12084d2",
+  "tree": "2416bd0f22d2967ddba8c9a78a4764194dc5094a",
+  "remote_source": "64821048de7616edda67d46f0499c298d6e062c4",
+  "changed_paths": [
+    "test/ble_telemetry_test.c"
+  ],
+  "source_tree_identical": true,
+  "original_commit_restoration": "The incremental original-source.bundle needs its original parent. For stacked checkpoints, restore the parent checkpoint bundle first. The GitHub source commit has the exact original tree but different commit metadata.",
+  "publication_scope": "Existing source and historical software evidence only; no new tests, target build, merge, tag, firmware release, deployment, or hardware acceptance is claimed.",
+  "historical_reports": "Reports and logs are preserved from before publication; local-only/unpublished statements describe that earlier observation. This source lock supersedes only their publication state.",
+  "archive_included_files": null,
+  "archive_omitted_files": null,
+  "archive_included_files_count": 19,
+  "archive_sha256": "b65d9809f2c0677228c0f9a5108aa910738d3fc020733b5cc16a2e9cbdb3c22d",
+  "archive_bytes": 12835
+}
