@@ -2,6 +2,9 @@
 #include <assert.h>
 #include <stdio.h>
 static uint64_t now=100;static unsigned claims,releases,sends,source_reads;
+static unsigned source_cookie,selected_only_id;
+static bool reverse_catalog,missing_temperature;
+static int32_t temperature=-100;
 static bool claimed,claim_failure,close_failure,drop_ack,send_failure,restore_failure,oversize,bad_entropy,bad_value,missing_value,catalog_failure,changed_metric,duplicate_id,too_many;
 static uint8_t queued[260],advertised[31];static size_t queued_size;static uint8_t advertised_length;static bool rf;
 static uint64_t clock_now(void*c){(void)c;return now;}
@@ -21,13 +24,15 @@ static int32_t hnext(void*c,uint64_t t,uint8_t*kind,uint8_t*p,size_t cap,size_t*
 static portable_bluetooth_host_v1 h={{1,sizeof(h),NULL,NULL,NULL,NULL,NULL},hclaim,hsend,hnext,hrelease};
 static risc_platform_clock_api_v1 k={1,sizeof(k),NULL,clock_now,NULL};
 static int32_t source_enum(void*c,uint32_t i,risc_telemetry_field_v1*out){
- (void)c;if(catalog_failure)return -1;
+ assert(c==&source_cookie);if(catalog_failure)return -1;
  if(too_many){*out=(risc_telemetry_field_v1){i+1,RISC_TELEMETRY_BATTERY_PERCENT,"Excess"};return 1;}
  static const risc_telemetry_field_v1 fields[]={{91,RISC_TELEMETRY_TEMPERATURE_CENTIC,"Ambient"},{7,RISC_TELEMETRY_BATTERY_PERCENT,"Fuel"},{30,RISC_TELEMETRY_HUMIDITY_CENTIPERCENT,"Humidity"}};
- if(i>=3)return 0;*out=fields[i];if(changed_metric&&i==0)out->metric=999;if(duplicate_id&&i==1)out->id=91;return 1;
+ if(missing_temperature){if(i>=2)return 0;i++;}
+ else{if(i>=3)return 0;if(reverse_catalog)i=2-i;}
+ *out=fields[i];if(changed_metric&&i==0)out->metric=999;if(duplicate_id&&i==1)out->id=91;return 1;
 }
-static int32_t source_read(void*c,uint32_t id,int32_t*out){(void)c;source_reads++;if(missing_value)return 0;if(id==91)*out=-100;else if(id==7)*out=bad_value?255:73;else if(id==30)*out=5055;else return -1;return 1;}
-static risc_telemetry_v1 src={1,sizeof(src),NULL,source_enum,source_read};
+static int32_t source_read(void*c,uint32_t id,int32_t*out){assert(c==&source_cookie);assert(!selected_only_id||id==selected_only_id);source_reads++;if(missing_value)return 0;if(id==91)*out=temperature;else if(id==7)*out=bad_value?255:73;else if(id==30)*out=5055;else return -1;return 1;}
+static risc_telemetry_v1 src={1,sizeof(src),&source_cookie,source_enum,source_read};
 static risc_provider_dependency_v1 deps[]={{"bluetooth.hci",1,&h},{"platform.clock",1,&k},{"sensor.telemetry",1,&src}};
 static const risc_bluetooth_telemetry_v1 *telemetry;static uint64_t t;
 static const uint32_t ids[]={91,7,30};
@@ -66,6 +71,27 @@ int main(void){
  assert(telemetry->publish(NULL,ids,3,true,&t));now=UINT64_MAX;assert(!telemetry->poll(NULL,t,1)&&!claimed);assert(telemetry->close(NULL,t));
  now=1000;assert(telemetry->publish(NULL,ids,3,true,&t));now+=2000;assert(!telemetry->poll(NULL,t,1)&&!rf&&!claimed);assert(telemetry->close(NULL,t));
  now=1000;assert(telemetry->publish(NULL,ids,3,true,&t));for(unsigned i=0;i<5;i++)assert(telemetry->poll(NULL,t,1));assert(!rf);now+=2000;assert(!telemetry->poll(NULL,t,1)&&!rf&&!claimed);assert(telemetry->close(NULL,t));
+ /* A caller selects a stable source ID, not an enumeration index or all fields.
+  * The source rejects any unselected read, including one whose value is later
+  * discarded. Non-null source context must reach both capability callbacks. */
+ now=1000;selected_only_id=91;unsigned before=source_reads;
+ assert(telemetry->publish(NULL,(uint32_t[]){91},1,true,&t));
+ assert(source_reads==before+1);
+ for(unsigned i=0;i<6;i++)assert(telemetry->poll(NULL,t,1));
+ const uint8_t temperature_only[]={2,1,6,7,0x16,0xd2,0xfc,0x40,2,0x9c,0xff};
+ assert(rf&&source_reads==before+2&&advertised_length==sizeof(temperature_only));
+ assert(!memcmp(advertised,temperature_only,sizeof(temperature_only)));
+ reverse_catalog=true;temperature=0;now+=5000;
+ for(unsigned i=0;i<3;i++)assert(telemetry->poll(NULL,t,1));
+ const uint8_t zero_temperature[]={2,1,6,7,0x16,0xd2,0xfc,0x40,2,0,0};
+ assert(rf&&current().updates==2&&source_reads==before+4);
+ assert(advertised_length==sizeof(zero_temperature)&&!memcmp(advertised,zero_temperature,sizeof(zero_temperature)));
+ missing_value=true;value=123;
+ assert(telemetry->read(NULL,91,&value)==0&&value==123);missing_value=false;
+ missing_temperature=true;before=source_reads;now+=5000;
+ assert(!telemetry->poll(NULL,t,1)&&!rf&&!claimed&&source_reads==before);
+ assert(current().state==RISC_BLE_TELEMETRY_FAULT&&telemetry->close(NULL,t));
+ selected_only_id=0;reverse_catalog=missing_temperature=false;temperature=-100;
  assert(d->quiesce());d->stop();assert(telemetry->enumerate(NULL,0,&f)==-1);
- puts("Telemetry provider: explicit IDs/public consent, capability-only source, exact advertising bytes, random address, refresh and failure custody passed");
+ puts("Telemetry provider: explicit IDs/public consent, non-null capability context, strict subset reads, reordered/disappearing fields, exact advertising bytes, random address, refresh and failure custody passed");
 }
