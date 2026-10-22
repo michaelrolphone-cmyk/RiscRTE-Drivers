@@ -1,0 +1,42 @@
+cc (Debian 14.2.0-19) 14.2.0
+drivers=a7ae39994603c4545a3c014f09051ecfc12084d2 reader=34d8e694d89a1e72d8854403d8592c289fae3ddc mode=plain
+CDC v2 ELF host-capability I/O, validation, cleanup and stale-handle tests: PASS
+CHECK 01 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/drivers-usb_cdc_v2-test
+CH34x ELF VID/PID, protocol, framing, transfers and quiescence: PASS
+CHECK 02 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/drivers-usb_ch34x_v2-test
+CP210x ELF vendor control, bulk, stale token and quiescence: PASS
+CHECK 03 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/drivers-usb_cp210x_v2-test
+FTDI ELF IDs, divisors, line control, RX status stripping, buffering and quiescence: PASS
+CHECK 04 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/drivers-usb_ftdi-test
+CDC claim-scoped control, inventory, release retry, I/O and stale token: PASS
+CHECK 05 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/reader-usb_cdc_v2-test
+CH34x ELF inventory, protocol, scoped control, orphan recovery: PASS
+CHECK 06 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/reader-usb_ch34x_v2-test
+CP210x probe, claim-scoped control, release/detach recovery: PASS
+CHECK 07 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/reader-usb_cp210x_v2-test
+FTDI ELF IDs, divisors, line control, RX status stripping, buffering and quiescence: PASS
+CHECK 08 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/reader-usb_ftdi-test
+USB CDC ACM descriptor/protocol provider: PASS
+CHECK 09 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/cdc-protocol
+CHECK 10 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/serial_monitor_test
+CHECK 11 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/serial_monitor_no_device_test
+CHECK 12 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/serial_monitor_baud_test
+CHECK 13 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/monitor-launch
+Provider-originated serial inventory, failure, detach and reconnect: PASS
+CHECK 14 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/serial_provider_devices
+Bounded serial provider resolver, context-end quarantine and generation tests passed
+CHECK 15 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/serial_provider_registry
+Structured semantic serial provider diagnostics and recovery tests passed
+CHECK 16 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/serial_structured_diagnostic
+Serial partial-acquisition quarantine and reconnect tests passed
+CHECK 17 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/serial_failed_acquire
+Installed serial session exact-generation lifecycle: PASS
+CHECK 18 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/installed-session
+Installed serial bridge binds exact provider and fail-closes uncertainty: PASS
+CHECK 19 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/installed-bridge
+usb-cdc-acm-v2: rejected by real inventory, zero devices, no stream endpoints PASS
+usb-ch34x-v2: rejected by real inventory, zero devices, no stream endpoints PASS
+usb-cp210x-v2: rejected by real inventory, zero devices, no stream endpoints PASS
+usb-ftdi: rejected by real inventory, zero devices, no stream endpoints PASS
+CHECK 20 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/qualified-plain/legacy-inventory
+20 host checks passed. No target build, physical USB, power operation or full-product pass.

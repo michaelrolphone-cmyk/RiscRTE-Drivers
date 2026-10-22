@@ -1,0 +1,6396 @@
+{
+  "schema": 1,
+  "scope": "USB source consolidation only; no merge, release or physical/product acceptance",
+  "base": "a7ae39994603c4545a3c014f09051ecfc12084d2",
+  "original_prs": [
+    {
+      "pr": 28,
+      "head": "926263096f50b8cb23ddddcdd479531744ccff13"
+    },
+    {
+      "pr": 29,
+      "head": "df23ff5c3c8ed9a226715cbf60e033a21b1b89c4"
+    },
+    {
+      "pr": 30,
+      "head": "45383908e9fff5ad72808459c7938e27652d55ff"
+    },
+    {
+      "pr": 31,
+      "head": "cc732179cca1b9fbaf6b0a03941124e179e96905"
+    },
+    {
+      "pr": 32,
+      "head": "ad943a4a514c910c777a427c8cad6d6841f48fd1"
+    },
+    {
+      "pr": 33,
+      "head": "763fe4cae2c1359d69d18a20fe4e6860301ab50a"
+    },
+    {
+      "pr": 34,
+      "head": "df8b5175f57447ec15b41819f5b04bb5ba6a8600"
+    },
+    {
+      "pr": 39,
+      "head": "05abdee8311c5846087580fdf9a6d2e500a85061"
+    },
+    {
+      "pr": 40,
+      "head": "90e7a8faae1a6678a24c92c32f95032b2fbe1e24"
+    },
+    {
+      "pr": 41,
+      "head": "501e22b5bc41d39fee6b15346a25a87ab7ad5df3"
+    },
+    {
+      "pr": 42,
+      "head": "c8b04cd3c15c01df533c3be9ae97fb0dcb809cf9"
+    }
+  ],
+  "source_union_paths": 199,
+  "path_identity": [
+    {
+      "path": ".github/workflows/driver-parity.yml",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "402432cc7dae75d56ebad17df0c1eb6eceed626f"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "402432cc7dae75d56ebad17df0c1eb6eceed626f"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "6314307ab2c3dd015217a059a7998260f782d80d"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "6f7f7fe9e175154de1bcc2b3547dbbb66822ab47"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "6f7f7fe9e175154de1bcc2b3547dbbb66822ab47"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "4f323b77fbeef314b18ce3d626ec6a5ae6c5562b"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "6f7f7fe9e175154de1bcc2b3547dbbb66822ab47"
+        }
+      ],
+      "consolidated_blob": "fb63c40de073ef91f4e468d8dc88d0d293bc9d5b",
+      "mode": "100644",
+      "exact_original_prs": [],
+      "resolution": "PR41 exact-head candidate/historical lanes plus PR42 native host/CDC build/upload lanes; historical MSP and original PR28 HID fixtures added."
+    },
+    {
+      "path": ".github/workflows/usb-hid-checked-cleanup.yml",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "6843d0f2fe22e4b872d5975c34001296203004e1"
+        }
+      ],
+      "consolidated_blob": "6843d0f2fe22e4b872d5975c34001296203004e1",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": ".github/workflows/usb-native-cdc.yml",
+      "original_sources": [
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "633fccfaca01e4635ef0d76e3a08466ca2ec2927"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "633fccfaca01e4635ef0d76e3a08466ca2ec2927"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "633fccfaca01e4635ef0d76e3a08466ca2ec2927"
+        }
+      ],
+      "consolidated_blob": "633fccfaca01e4635ef0d76e3a08466ca2ec2927",
+      "mode": "100644",
+      "exact_original_prs": [
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": ".github/workflows/usb-native-controller.yml",
+      "original_sources": [
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "73ba8386d5d2311e050d01998ec2f9c20b043586"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "73ba8386d5d2311e050d01998ec2f9c20b043586"
+        }
+      ],
+      "consolidated_blob": "73ba8386d5d2311e050d01998ec2f9c20b043586",
+      "mode": "100644",
+      "exact_original_prs": [
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "Drivers/program_msp/driver.c",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "2a746a286746f717a44155b376354e63e728bc43"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "2a746a286746f717a44155b376354e63e728bc43"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "2c17e60fe577d7639ae77cd0eb1d3ae1f1c2efec"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "2c17e60fe577d7639ae77cd0eb1d3ae1f1c2efec"
+        }
+      ],
+      "consolidated_blob": "2c17e60fe577d7639ae77cd0eb1d3ae1f1c2efec",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "PR41 quarantine plus completed-target-close latch."
+    },
+    {
+      "path": "Drivers/program_msp/manifest.json",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "ac7e9f255ed82b5c02a0de060ba0507defbcd75a"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "ac7e9f255ed82b5c02a0de060ba0507defbcd75a"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "7e724ad7a6a25ef6682e9ddb51628ac9d4644895"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "7e724ad7a6a25ef6682e9ddb51628ac9d4644895"
+        }
+      ],
+      "consolidated_blob": "7e724ad7a6a25ef6682e9ddb51628ac9d4644895",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "PR41 numeric 0.1.2 candidate supersedes earlier 0.1.1 without accepted-byte replacement."
+    },
+    {
+      "path": "Drivers/usb_cdc_native/Descriptors.inc",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "271a89cb0a6e56927d4e9ce566ec7169f94304a2"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "271a89cb0a6e56927d4e9ce566ec7169f94304a2"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "271a89cb0a6e56927d4e9ce566ec7169f94304a2"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "271a89cb0a6e56927d4e9ce566ec7169f94304a2"
+        }
+      ],
+      "consolidated_blob": "271a89cb0a6e56927d4e9ce566ec7169f94304a2",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "Drivers/usb_cdc_native/driver.c",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "dc9d2d975e670774776d94c5c8ba283084db6cf7"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "dc9d2d975e670774776d94c5c8ba283084db6cf7"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "dc9d2d975e670774776d94c5c8ba283084db6cf7"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "dc9d2d975e670774776d94c5c8ba283084db6cf7"
+        }
+      ],
+      "consolidated_blob": "dc9d2d975e670774776d94c5c8ba283084db6cf7",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "Drivers/usb_cdc_native/manifest.json",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "72d504e1114559a76df8a161dca04729e6fd82d0"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "72d504e1114559a76df8a161dca04729e6fd82d0"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "72d504e1114559a76df8a161dca04729e6fd82d0"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "72d504e1114559a76df8a161dca04729e6fd82d0"
+        }
+      ],
+      "consolidated_blob": "72d504e1114559a76df8a161dca04729e6fd82d0",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "Drivers/usb_controller_esp32s3/ClaimReleasePolicy.h",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "53ea000c31c9830689fa3ca3ab8d2c1fc6023ee8"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "53ea000c31c9830689fa3ca3ab8d2c1fc6023ee8"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "53ea000c31c9830689fa3ca3ab8d2c1fc6023ee8"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "53ea000c31c9830689fa3ca3ab8d2c1fc6023ee8"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "53ea000c31c9830689fa3ca3ab8d2c1fc6023ee8"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "53ea000c31c9830689fa3ca3ab8d2c1fc6023ee8"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "53ea000c31c9830689fa3ca3ab8d2c1fc6023ee8"
+        }
+      ],
+      "consolidated_blob": "53ea000c31c9830689fa3ca3ab8d2c1fc6023ee8",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "Drivers/usb_controller_esp32s3/NativeBoundedEndpoint.h",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "64e85a6d1b04bfd651163031eeaaef232d63af6d"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "64e85a6d1b04bfd651163031eeaaef232d63af6d"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "64e85a6d1b04bfd651163031eeaaef232d63af6d"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "64e85a6d1b04bfd651163031eeaaef232d63af6d"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "64e85a6d1b04bfd651163031eeaaef232d63af6d"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "64e85a6d1b04bfd651163031eeaaef232d63af6d"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "64e85a6d1b04bfd651163031eeaaef232d63af6d"
+        }
+      ],
+      "consolidated_blob": "64e85a6d1b04bfd651163031eeaaef232d63af6d",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "Drivers/usb_controller_esp32s3/NativeBoundedEndpointHcd.inc",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "cfa2aaa90d0f68bd5dd6604fb9ceb989f9650f76"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "cfa2aaa90d0f68bd5dd6604fb9ceb989f9650f76"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "cfa2aaa90d0f68bd5dd6604fb9ceb989f9650f76"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "cfa2aaa90d0f68bd5dd6604fb9ceb989f9650f76"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "cfa2aaa90d0f68bd5dd6604fb9ceb989f9650f76"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "cfa2aaa90d0f68bd5dd6604fb9ceb989f9650f76"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "cfa2aaa90d0f68bd5dd6604fb9ceb989f9650f76"
+        }
+      ],
+      "consolidated_blob": "cfa2aaa90d0f68bd5dd6604fb9ceb989f9650f76",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "Drivers/usb_controller_esp32s3/NativeBoundedEndpointUsbh.inc",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "b7af5507341a2af962a2070c210fae5d0dd5f0bb"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "b7af5507341a2af962a2070c210fae5d0dd5f0bb"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "b7af5507341a2af962a2070c210fae5d0dd5f0bb"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "b7af5507341a2af962a2070c210fae5d0dd5f0bb"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "b7af5507341a2af962a2070c210fae5d0dd5f0bb"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "b7af5507341a2af962a2070c210fae5d0dd5f0bb"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "b7af5507341a2af962a2070c210fae5d0dd5f0bb"
+        }
+      ],
+      "consolidated_blob": "b7af5507341a2af962a2070c210fae5d0dd5f0bb",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "Drivers/usb_controller_esp32s3/NativeBoundedHost.h",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "2b3e45db064f9b910c4265d9262e6463c1ff8a54"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "2b3e45db064f9b910c4265d9262e6463c1ff8a54"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "2b3e45db064f9b910c4265d9262e6463c1ff8a54"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "2b3e45db064f9b910c4265d9262e6463c1ff8a54"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "2b3e45db064f9b910c4265d9262e6463c1ff8a54"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "2b3e45db064f9b910c4265d9262e6463c1ff8a54"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "2b3e45db064f9b910c4265d9262e6463c1ff8a54"
+        }
+      ],
+      "consolidated_blob": "2b3e45db064f9b910c4265d9262e6463c1ff8a54",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "Drivers/usb_controller_esp32s3/PendingInterrupt.h",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "4ea31c1b5e58ded3d9cb14706088c5bec1fbd201"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "4ea31c1b5e58ded3d9cb14706088c5bec1fbd201"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "4ea31c1b5e58ded3d9cb14706088c5bec1fbd201"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "4ea31c1b5e58ded3d9cb14706088c5bec1fbd201"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "4ea31c1b5e58ded3d9cb14706088c5bec1fbd201"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "4ea31c1b5e58ded3d9cb14706088c5bec1fbd201"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "4ea31c1b5e58ded3d9cb14706088c5bec1fbd201"
+        }
+      ],
+      "consolidated_blob": "4ea31c1b5e58ded3d9cb14706088c5bec1fbd201",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "Drivers/usb_controller_esp32s3/driver.cpp",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "aeccbf941aa6e6f70e9b7f7e024c436e5919033d"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "aeccbf941aa6e6f70e9b7f7e024c436e5919033d"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "aeccbf941aa6e6f70e9b7f7e024c436e5919033d"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "aeccbf941aa6e6f70e9b7f7e024c436e5919033d"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "aeccbf941aa6e6f70e9b7f7e024c436e5919033d"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "aeccbf941aa6e6f70e9b7f7e024c436e5919033d"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "aeccbf941aa6e6f70e9b7f7e024c436e5919033d"
+        }
+      ],
+      "consolidated_blob": "aeccbf941aa6e6f70e9b7f7e024c436e5919033d",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "Drivers/usb_controller_esp32s3/driver_base.cpp",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "8552a99f91e0f4aeafb5cbe1e1383d6335c9e4e5"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "8552a99f91e0f4aeafb5cbe1e1383d6335c9e4e5"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "8552a99f91e0f4aeafb5cbe1e1383d6335c9e4e5"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "8552a99f91e0f4aeafb5cbe1e1383d6335c9e4e5"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "8552a99f91e0f4aeafb5cbe1e1383d6335c9e4e5"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "8552a99f91e0f4aeafb5cbe1e1383d6335c9e4e5"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "8552a99f91e0f4aeafb5cbe1e1383d6335c9e4e5"
+        }
+      ],
+      "consolidated_blob": "8552a99f91e0f4aeafb5cbe1e1383d6335c9e4e5",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "Drivers/usb_controller_esp32s3/manifest.json",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "f9c54e1f4a4454a7cab36371d99e62f04a9972d3"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "f9c54e1f4a4454a7cab36371d99e62f04a9972d3"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "f9c54e1f4a4454a7cab36371d99e62f04a9972d3"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "f9c54e1f4a4454a7cab36371d99e62f04a9972d3"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "f9c54e1f4a4454a7cab36371d99e62f04a9972d3"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "f9c54e1f4a4454a7cab36371d99e62f04a9972d3"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "f9c54e1f4a4454a7cab36371d99e62f04a9972d3"
+        }
+      ],
+      "consolidated_blob": "f9c54e1f4a4454a7cab36371d99e62f04a9972d3",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "Drivers/usb_host_v2/driver.c",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "ed93499c915ba86f2764d82df6f69ea219d32319"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "ed93499c915ba86f2764d82df6f69ea219d32319"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "9bb24e8173eb657e4d670f914cac52e0abd22720"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "9bb24e8173eb657e4d670f914cac52e0abd22720"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "9bb24e8173eb657e4d670f914cac52e0abd22720"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "ed93499c915ba86f2764d82df6f69ea219d32319"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "9bb24e8173eb657e4d670f914cac52e0abd22720"
+        }
+      ],
+      "consolidated_blob": "9bb24e8173eb657e4d670f914cac52e0abd22720",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "PR42 false/nonzero acquisition-custody implementation."
+    },
+    {
+      "path": "Drivers/usb_host_v2/manifest.json",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "e27ff6712123fa5b59bfd1a349068441375c2038"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "e27ff6712123fa5b59bfd1a349068441375c2038"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "e27ff6712123fa5b59bfd1a349068441375c2038"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "e27ff6712123fa5b59bfd1a349068441375c2038"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "e27ff6712123fa5b59bfd1a349068441375c2038"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "e27ff6712123fa5b59bfd1a349068441375c2038"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "e27ff6712123fa5b59bfd1a349068441375c2038"
+        }
+      ],
+      "consolidated_blob": "e27ff6712123fa5b59bfd1a349068441375c2038",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "Drivers/usb_mass_storage/driver.c",
+      "original_sources": [
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "de2b70a15cf8fb136533d41348a21dc87aa6ab67"
+        }
+      ],
+      "consolidated_blob": "de2b70a15cf8fb136533d41348a21dc87aa6ab67",
+      "mode": "100644",
+      "exact_original_prs": [
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "Drivers/usb_mass_storage/manifest.json",
+      "original_sources": [
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "223e5f8ae143e3eabe78f525e4bf79155512f8bd"
+        }
+      ],
+      "consolidated_blob": "223e5f8ae143e3eabe78f525e4bf79155512f8bd",
+      "mode": "100644",
+      "exact_original_prs": [
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "Drivers/usb_msp/driver.c",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "fc0d95cb3dd749ba71b695fa49ea3e084bbb1d3a"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "fc0d95cb3dd749ba71b695fa49ea3e084bbb1d3a"
+        }
+      ],
+      "consolidated_blob": "fc0d95cb3dd749ba71b695fa49ea3e084bbb1d3a",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "Drivers/usb_msp/manifest.json",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "89e349601c084d5b91e3a26e0f79604e861c7560"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "89e349601c084d5b91e3a26e0f79604e861c7560"
+        }
+      ],
+      "consolidated_blob": "89e349601c084d5b91e3a26e0f79604e861c7560",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "README.md",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "850f2a6555e961d01712e418c0daea65b83d5238"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "850f2a6555e961d01712e418c0daea65b83d5238"
+        },
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "1206a1517acd6035a7516307d02a527ba355c799"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "1206a1517acd6035a7516307d02a527ba355c799"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "1206a1517acd6035a7516307d02a527ba355c799"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "1206a1517acd6035a7516307d02a527ba355c799"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "1206a1517acd6035a7516307d02a527ba355c799"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "1206a1517acd6035a7516307d02a527ba355c799"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "1206a1517acd6035a7516307d02a527ba355c799"
+        }
+      ],
+      "consolidated_blob": "e230b9f60a22ce70ed24052bbe786976ab3f7106",
+      "mode": "100644",
+      "exact_original_prs": [],
+      "resolution": "Combined programmer-divergence disclosure and checked-cleanup section."
+    },
+    {
+      "path": "candidates/usb-hid-checked-cleanup/driver.c",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "50af49d0d61774a5663628bc8277d3ddd5a03b3c"
+        }
+      ],
+      "consolidated_blob": "50af49d0d61774a5663628bc8277d3ddd5a03b3c",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "candidates/usb-hid-checked-cleanup/manifest.json",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "6d6a079e0e2b0091d32b66f05a884c3788fccad1"
+        }
+      ],
+      "consolidated_blob": "6d6a079e0e2b0091d32b66f05a884c3788fccad1",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "candidates/usb-native-stream/usb-controller-esp32s3.json",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "123278b23f8fbf4f3fe14d45b0613c4956bdf20d"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "123278b23f8fbf4f3fe14d45b0613c4956bdf20d"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "123278b23f8fbf4f3fe14d45b0613c4956bdf20d"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "123278b23f8fbf4f3fe14d45b0613c4956bdf20d"
+        }
+      ],
+      "consolidated_blob": "123278b23f8fbf4f3fe14d45b0613c4956bdf20d",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "candidates/usb-native-stream/usb-host-v2.json",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "eedc09a647d9ebcebe2d25dd8f53f36cad4f3665"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "eedc09a647d9ebcebe2d25dd8f53f36cad4f3665"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "eedc09a647d9ebcebe2d25dd8f53f36cad4f3665"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "eedc09a647d9ebcebe2d25dd8f53f36cad4f3665"
+        }
+      ],
+      "consolidated_blob": "eedc09a647d9ebcebe2d25dd8f53f36cad4f3665",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/USB_CHECKED_CLEANUP_2026-10-21.md",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "6b2e0836191c9c116d74afba2a3fe0eb4d3c9ecd"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "6b2e0836191c9c116d74afba2a3fe0eb4d3c9ecd"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "6b2e0836191c9c116d74afba2a3fe0eb4d3c9ecd"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "6b2e0836191c9c116d74afba2a3fe0eb4d3c9ecd"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "6b2e0836191c9c116d74afba2a3fe0eb4d3c9ecd"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "6b2e0836191c9c116d74afba2a3fe0eb4d3c9ecd"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "6b2e0836191c9c116d74afba2a3fe0eb4d3c9ecd"
+        }
+      ],
+      "consolidated_blob": "6b2e0836191c9c116d74afba2a3fe0eb4d3c9ecd",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/USB_FLASHING_QUALIFICATION_2026-10-21.md",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "9617c90fc8b07a421ca3ab5ca374ff61b09dd9b8"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "9617c90fc8b07a421ca3ab5ca374ff61b09dd9b8"
+        }
+      ],
+      "consolidated_blob": "9617c90fc8b07a421ca3ab5ca374ff61b09dd9b8",
+      "mode": "100644",
+      "exact_original_prs": [
+        30,
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/USB_HID_CHECKED_CLEANUP.md",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "f8a3eb474d5b7bac56e9a003fd3891a1859b680f"
+        }
+      ],
+      "consolidated_blob": "f8a3eb474d5b7bac56e9a003fd3891a1859b680f",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/USB_HID_HOST_QUALIFICATION_2026-10-21.md",
+      "original_sources": [
+        {
+          "pr": 28,
+          "mode": "100644",
+          "blob": "cfdd75290b415b681a48de9930231e0c98136562"
+        }
+      ],
+      "consolidated_blob": "cfdd75290b415b681a48de9930231e0c98136562",
+      "mode": "100644",
+      "exact_original_prs": [
+        28
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/USB_MSP_CHECKED_CONSUMER_2026-10-21.md",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "a20bfd26f1aa1f0f0223a3f0f7324a9cb0dec459"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "a20bfd26f1aa1f0f0223a3f0f7324a9cb0dec459"
+        }
+      ],
+      "consolidated_blob": "a20bfd26f1aa1f0f0223a3f0f7324a9cb0dec459",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/USB_MSP_DETACH_CONTRACT_2026-10-21.md",
+      "original_sources": [
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "7d23056fdac7e7131dca41b9572d8046ae5e11d2"
+        }
+      ],
+      "consolidated_blob": "7d23056fdac7e7131dca41b9572d8046ae5e11d2",
+      "mode": "100644",
+      "exact_original_prs": [
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/USB_MSP_NUMERIC_CANDIDATES_2026-10-21.md",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "9c704380bb3405296ff7241bf5672359e2fee705"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "9c704380bb3405296ff7241bf5672359e2fee705"
+        }
+      ],
+      "consolidated_blob": "9c704380bb3405296ff7241bf5672359e2fee705",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/USB_NATIVE_CDC_2026-10-21.md",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "d0e4b1623ea2618fdfa53bfd3e203f74866ca42e"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "d0e4b1623ea2618fdfa53bfd3e203f74866ca42e"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "d0e4b1623ea2618fdfa53bfd3e203f74866ca42e"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "d0e4b1623ea2618fdfa53bfd3e203f74866ca42e"
+        }
+      ],
+      "consolidated_blob": "d0e4b1623ea2618fdfa53bfd3e203f74866ca42e",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/USB_NATIVE_CDC_CI_2026-10-21.md",
+      "original_sources": [
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "8ff5b549aae0b97babe0b696eaeff382c3c2c1f5"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "8ff5b549aae0b97babe0b696eaeff382c3c2c1f5"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "8ff5b549aae0b97babe0b696eaeff382c3c2c1f5"
+        }
+      ],
+      "consolidated_blob": "8ff5b549aae0b97babe0b696eaeff382c3c2c1f5",
+      "mode": "100644",
+      "exact_original_prs": [
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/USB_SERIAL_MONITOR_QUALIFICATION_2026-10-21.md",
+      "original_sources": [
+        {
+          "pr": 29,
+          "mode": "100644",
+          "blob": "aa4e6982c4b9591fb9be6875bac2b031665564ba"
+        },
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "aa4e6982c4b9591fb9be6875bac2b031665564ba"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "aa4e6982c4b9591fb9be6875bac2b031665564ba"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "aa4e6982c4b9591fb9be6875bac2b031665564ba"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "aa4e6982c4b9591fb9be6875bac2b031665564ba"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "aa4e6982c4b9591fb9be6875bac2b031665564ba"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "aa4e6982c4b9591fb9be6875bac2b031665564ba"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "aa4e6982c4b9591fb9be6875bac2b031665564ba"
+        }
+      ],
+      "consolidated_blob": "aa4e6982c4b9591fb9be6875bac2b031665564ba",
+      "mode": "100644",
+      "exact_original_prs": [
+        29,
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/drivers/program-msp.md",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "043c479a22fb736ee2f10785bd465814c30cae0a"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "043c479a22fb736ee2f10785bd465814c30cae0a"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "8b5828b33e2b210379725dc7dea9d6f4cfecaadf"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "8b5828b33e2b210379725dc7dea9d6f4cfecaadf"
+        }
+      ],
+      "consolidated_blob": "19ebfae12c9e167b87a62af8b88a56486bee00e5",
+      "mode": "100644",
+      "exact_original_prs": [],
+      "resolution": "Retained PR31 historical divergence narrative with current 0.1.2 candidate and separate replay route."
+    },
+    {
+      "path": "docs/drivers/usb-controller-esp32s3.md",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "433bc2b6c748d8932fbdd95919e19e03e32e65a2"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "433bc2b6c748d8932fbdd95919e19e03e32e65a2"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "433bc2b6c748d8932fbdd95919e19e03e32e65a2"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "433bc2b6c748d8932fbdd95919e19e03e32e65a2"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "433bc2b6c748d8932fbdd95919e19e03e32e65a2"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "433bc2b6c748d8932fbdd95919e19e03e32e65a2"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "433bc2b6c748d8932fbdd95919e19e03e32e65a2"
+        }
+      ],
+      "consolidated_blob": "433bc2b6c748d8932fbdd95919e19e03e32e65a2",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/drivers/usb-host-v2.md",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "c686a3c6e9223c3f60843441bb5e4b9efb384886"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "c686a3c6e9223c3f60843441bb5e4b9efb384886"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "c686a3c6e9223c3f60843441bb5e4b9efb384886"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "c686a3c6e9223c3f60843441bb5e4b9efb384886"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "c686a3c6e9223c3f60843441bb5e4b9efb384886"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "c686a3c6e9223c3f60843441bb5e4b9efb384886"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "c686a3c6e9223c3f60843441bb5e4b9efb384886"
+        }
+      ],
+      "consolidated_blob": "c686a3c6e9223c3f60843441bb5e4b9efb384886",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/drivers/usb-msp.md",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "befbfbe2f432e705ace901b48e5866236dc6c75f"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "befbfbe2f432e705ace901b48e5866236dc6c75f"
+        }
+      ],
+      "consolidated_blob": "befbfbe2f432e705ace901b48e5866236dc6c75f",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/durable-capture-20261021/cdc/README.md",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "3e57de118db97ebb19ce5cb76b38feb96981539c"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "3e57de118db97ebb19ce5cb76b38feb96981539c"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "3e57de118db97ebb19ce5cb76b38feb96981539c"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "3e57de118db97ebb19ce5cb76b38feb96981539c"
+        }
+      ],
+      "consolidated_blob": "3e57de118db97ebb19ce5cb76b38feb96981539c",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/durable-capture-20261021/cdc/cdc-source-and-evidence.tar.gz",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "e974c8aefef33bb391f77e32d08e4600039e2fc1"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "e974c8aefef33bb391f77e32d08e4600039e2fc1"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "e974c8aefef33bb391f77e32d08e4600039e2fc1"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "e974c8aefef33bb391f77e32d08e4600039e2fc1"
+        }
+      ],
+      "consolidated_blob": "e974c8aefef33bb391f77e32d08e4600039e2fc1",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/durable-capture-20261021/checked/README.md",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "25d5e90a1b3c327f4330c88a0d3f44e26681c7ad"
+        }
+      ],
+      "consolidated_blob": "25d5e90a1b3c327f4330c88a0d3f44e26681c7ad",
+      "mode": "100644",
+      "exact_original_prs": [
+        32
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/durable-capture-20261021/checked/checked-source-and-evidence.tar.gz",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "eb2e6e8367f517ffe8b47b14e60a3f7a1466ec41"
+        }
+      ],
+      "consolidated_blob": "eb2e6e8367f517ffe8b47b14e60a3f7a1466ec41",
+      "mode": "100644",
+      "exact_original_prs": [
+        32
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/durable-capture-20261021/detach/README.md",
+      "original_sources": [
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "5ffb3e37c39840cc465ba56631e97539d506e5c2"
+        }
+      ],
+      "consolidated_blob": "5ffb3e37c39840cc465ba56631e97539d506e5c2",
+      "mode": "100644",
+      "exact_original_prs": [
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/durable-capture-20261021/detach/detach-source-and-evidence.tar.gz",
+      "original_sources": [
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "5fd4aa3bf678820d7dc80d8845c42c6e1dec85ac"
+        }
+      ],
+      "consolidated_blob": "5fd4aa3bf678820d7dc80d8845c42c6e1dec85ac",
+      "mode": "100644",
+      "exact_original_prs": [
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/durable-capture-20261021/flashing/README.md",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "648f7bffa267e6c67ffae505a1bd3a662f6fcecc"
+        }
+      ],
+      "consolidated_blob": "648f7bffa267e6c67ffae505a1bd3a662f6fcecc",
+      "mode": "100644",
+      "exact_original_prs": [
+        30
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/durable-capture-20261021/flashing/flashing-source-and-evidence.tar.gz",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "222e728e87a24ff9447123bdf909ec34fcbf5b5f"
+        }
+      ],
+      "consolidated_blob": "222e728e87a24ff9447123bdf909ec34fcbf5b5f",
+      "mode": "100644",
+      "exact_original_prs": [
+        30
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/durable-capture-20261021/hid/README.md",
+      "original_sources": [
+        {
+          "pr": 28,
+          "mode": "100644",
+          "blob": "0491d8fd82d0574f082c6b7c87ff2596f57b33a6"
+        }
+      ],
+      "consolidated_blob": "0491d8fd82d0574f082c6b7c87ff2596f57b33a6",
+      "mode": "100644",
+      "exact_original_prs": [
+        28
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/durable-capture-20261021/hid/hid-source-and-evidence.tar.gz",
+      "original_sources": [
+        {
+          "pr": 28,
+          "mode": "100644",
+          "blob": "b1d8e75455e287667deaaae0046efffbb2e1448d"
+        }
+      ],
+      "consolidated_blob": "b1d8e75455e287667deaaae0046efffbb2e1448d",
+      "mode": "100644",
+      "exact_original_prs": [
+        28
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/durable-capture-20261021/msp/README.md",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "eea60173293f58c141ee731b7d28c4af6da8a4fc"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "eea60173293f58c141ee731b7d28c4af6da8a4fc"
+        }
+      ],
+      "consolidated_blob": "eea60173293f58c141ee731b7d28c4af6da8a4fc",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/durable-capture-20261021/msp/msp-source-and-evidence.tar.gz",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "4d5256a50a0731819ef1fbb9a314e2f4fc887cc1"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "4d5256a50a0731819ef1fbb9a314e2f4fc887cc1"
+        }
+      ],
+      "consolidated_blob": "4d5256a50a0731819ef1fbb9a314e2f4fc887cc1",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/durable-capture-20261021/serial/README.md",
+      "original_sources": [
+        {
+          "pr": 29,
+          "mode": "100644",
+          "blob": "dc809e978ac752c7a8c1ecacfcf0489ddec0aa82"
+        }
+      ],
+      "consolidated_blob": "dc809e978ac752c7a8c1ecacfcf0489ddec0aa82",
+      "mode": "100644",
+      "exact_original_prs": [
+        29
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/durable-capture-20261021/serial/serial-source-and-evidence.tar.gz",
+      "original_sources": [
+        {
+          "pr": 29,
+          "mode": "100644",
+          "blob": "00505c66635629f19f5dcd7c13642d00e5bff569"
+        }
+      ],
+      "consolidated_blob": "00505c66635629f19f5dcd7c13642d00e5bff569",
+      "mode": "100644",
+      "exact_original_prs": [
+        29
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/native-cdc-ci-20261021/initial-qualification.json",
+      "original_sources": [
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "5e8a0d4bb38507dc55aa12d245c58be75d1472cd"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "5e8a0d4bb38507dc55aa12d245c58be75d1472cd"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "5e8a0d4bb38507dc55aa12d245c58be75d1472cd"
+        }
+      ],
+      "consolidated_blob": "5e8a0d4bb38507dc55aa12d245c58be75d1472cd",
+      "mode": "100644",
+      "exact_original_prs": [
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-checked-cleanup-20261021/plain.log",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "6021bfe144b3a611e3c4d1d95768bc77edeec6c8"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "6021bfe144b3a611e3c4d1d95768bc77edeec6c8"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "6021bfe144b3a611e3c4d1d95768bc77edeec6c8"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "6021bfe144b3a611e3c4d1d95768bc77edeec6c8"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "6021bfe144b3a611e3c4d1d95768bc77edeec6c8"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "6021bfe144b3a611e3c4d1d95768bc77edeec6c8"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "6021bfe144b3a611e3c4d1d95768bc77edeec6c8"
+        }
+      ],
+      "consolidated_blob": "6021bfe144b3a611e3c4d1d95768bc77edeec6c8",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-checked-cleanup-20261021/runner-draft-missing-include.log",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "af61a72614eabb43976671a9e46abdcda725c092"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "af61a72614eabb43976671a9e46abdcda725c092"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "af61a72614eabb43976671a9e46abdcda725c092"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "af61a72614eabb43976671a9e46abdcda725c092"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "af61a72614eabb43976671a9e46abdcda725c092"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "af61a72614eabb43976671a9e46abdcda725c092"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "af61a72614eabb43976671a9e46abdcda725c092"
+        }
+      ],
+      "consolidated_blob": "af61a72614eabb43976671a9e46abdcda725c092",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-checked-cleanup-20261021/sanitized.log",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "c2f9d749a886f5a2659e6e484ab583300c65fc2a"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "c2f9d749a886f5a2659e6e484ab583300c65fc2a"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "c2f9d749a886f5a2659e6e484ab583300c65fc2a"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "c2f9d749a886f5a2659e6e484ab583300c65fc2a"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "c2f9d749a886f5a2659e6e484ab583300c65fc2a"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "c2f9d749a886f5a2659e6e484ab583300c65fc2a"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "c2f9d749a886f5a2659e6e484ab583300c65fc2a"
+        }
+      ],
+      "consolidated_blob": "c2f9d749a886f5a2659e6e484ab583300c65fc2a",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-checked-cleanup-20261021/serial-regression-plain.log",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "081435074a186ffe0f4379cc317e22de7e413755"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "081435074a186ffe0f4379cc317e22de7e413755"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "081435074a186ffe0f4379cc317e22de7e413755"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "081435074a186ffe0f4379cc317e22de7e413755"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "081435074a186ffe0f4379cc317e22de7e413755"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "081435074a186ffe0f4379cc317e22de7e413755"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "081435074a186ffe0f4379cc317e22de7e413755"
+        }
+      ],
+      "consolidated_blob": "081435074a186ffe0f4379cc317e22de7e413755",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-checked-cleanup-20261021/serial-regression-sanitized.log",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "63bfe0c1ebe9f8b8ea2a489bd91ea120813e5084"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "63bfe0c1ebe9f8b8ea2a489bd91ea120813e5084"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "63bfe0c1ebe9f8b8ea2a489bd91ea120813e5084"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "63bfe0c1ebe9f8b8ea2a489bd91ea120813e5084"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "63bfe0c1ebe9f8b8ea2a489bd91ea120813e5084"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "63bfe0c1ebe9f8b8ea2a489bd91ea120813e5084"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "63bfe0c1ebe9f8b8ea2a489bd91ea120813e5084"
+        }
+      ],
+      "consolidated_blob": "63bfe0c1ebe9f8b8ea2a489bd91ea120813e5084",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-checked-cleanup-20261021/source-lock.json",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "690e091b13fda81b46faa528fedea726142b25a6"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "690e091b13fda81b46faa528fedea726142b25a6"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "690e091b13fda81b46faa528fedea726142b25a6"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "690e091b13fda81b46faa528fedea726142b25a6"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "690e091b13fda81b46faa528fedea726142b25a6"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "690e091b13fda81b46faa528fedea726142b25a6"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "690e091b13fda81b46faa528fedea726142b25a6"
+        }
+      ],
+      "consolidated_blob": "690e091b13fda81b46faa528fedea726142b25a6",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-flashing-2026-10-21/baseline.log",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "e277c9d9e9fea146c3c9bbb34e26c5f4d375143a"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "e277c9d9e9fea146c3c9bbb34e26c5f4d375143a"
+        }
+      ],
+      "consolidated_blob": "e277c9d9e9fea146c3c9bbb34e26c5f4d375143a",
+      "mode": "100644",
+      "exact_original_prs": [
+        30,
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-flashing-2026-10-21/cleanup-repro.log",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "2c4dbc2234155e939de941848bb5ae738d57572c"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "2c4dbc2234155e939de941848bb5ae738d57572c"
+        }
+      ],
+      "consolidated_blob": "2c4dbc2234155e939de941848bb5ae738d57572c",
+      "mode": "100644",
+      "exact_original_prs": [
+        30,
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-flashing-2026-10-21/composition-and-parity.json",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "635c389156273aebde6e1fb13867151dc3c1d98b"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "635c389156273aebde6e1fb13867151dc3c1d98b"
+        }
+      ],
+      "consolidated_blob": "635c389156273aebde6e1fb13867151dc3c1d98b",
+      "mode": "100644",
+      "exact_original_prs": [
+        30,
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-flashing-2026-10-21/detach-observation.log",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "c630dd0f0ea7891cc61e636e40f861288c215663"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "c630dd0f0ea7891cc61e636e40f861288c215663"
+        }
+      ],
+      "consolidated_blob": "c630dd0f0ea7891cc61e636e40f861288c215663",
+      "mode": "100644",
+      "exact_original_prs": [
+        30,
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-flashing-2026-10-21/final-normal.log",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "c14b91c3869f87f38ddd87776f25b7e5f1e8238e"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "c14b91c3869f87f38ddd87776f25b7e5f1e8238e"
+        }
+      ],
+      "consolidated_blob": "c14b91c3869f87f38ddd87776f25b7e5f1e8238e",
+      "mode": "100644",
+      "exact_original_prs": [
+        30,
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-flashing-2026-10-21/final-sanitized.log",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "c14b91c3869f87f38ddd87776f25b7e5f1e8238e"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "c14b91c3869f87f38ddd87776f25b7e5f1e8238e"
+        }
+      ],
+      "consolidated_blob": "c14b91c3869f87f38ddd87776f25b7e5f1e8238e",
+      "mode": "100644",
+      "exact_original_prs": [
+        30,
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-flashing-2026-10-21/host-tools.txt",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "780e07ce25c5cb71d45becbd8f2d45c77ed470aa"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "780e07ce25c5cb71d45becbd8f2d45c77ed470aa"
+        }
+      ],
+      "consolidated_blob": "780e07ce25c5cb71d45becbd8f2d45c77ed470aa",
+      "mode": "100644",
+      "exact_original_prs": [
+        30,
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-flashing-2026-10-21/parity-unit-tests.log",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "f5ddc11538425661c528c191367f5080acfa03a7"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "f5ddc11538425661c528c191367f5080acfa03a7"
+        }
+      ],
+      "consolidated_blob": "f5ddc11538425661c528c191367f5080acfa03a7",
+      "mode": "100644",
+      "exact_original_prs": [
+        30,
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-flashing-2026-10-21/program_msp_cleanup_repro.c",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "9e6205e5a80be68ea722826cd011e167e52d2f8f"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "9e6205e5a80be68ea722826cd011e167e52d2f8f"
+        }
+      ],
+      "consolidated_blob": "9e6205e5a80be68ea722826cd011e167e52d2f8f",
+      "mode": "100644",
+      "exact_original_prs": [
+        30,
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-flashing-2026-10-21/repair-tests.log",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "61ad4a4a3ddf213e8e26c0f675112b4edb7b1d85"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "61ad4a4a3ddf213e8e26c0f675112b4edb7b1d85"
+        }
+      ],
+      "consolidated_blob": "61ad4a4a3ddf213e8e26c0f675112b4edb7b1d85",
+      "mode": "100644",
+      "exact_original_prs": [
+        30,
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-flashing-2026-10-21/target-build.log",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "18d7b43e363d0a010eef2ecf2e0022ef9db0b8f2"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "18d7b43e363d0a010eef2ecf2e0022ef9db0b8f2"
+        }
+      ],
+      "consolidated_blob": "18d7b43e363d0a010eef2ecf2e0022ef9db0b8f2",
+      "mode": "100644",
+      "exact_original_prs": [
+        30,
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-flashing-2026-10-21/toolchain-unit-tests.log",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "a190c091c38e55305c2da797531fedfd264b5d30"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "a190c091c38e55305c2da797531fedfd264b5d30"
+        }
+      ],
+      "consolidated_blob": "a190c091c38e55305c2da797531fedfd264b5d30",
+      "mode": "100644",
+      "exact_original_prs": [
+        30,
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-flashing-2026-10-21/usb_msp_detach_close_observation.c",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "e68219baff5a467e9eafc3cc4f250c23171bb33d"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "e68219baff5a467e9eafc3cc4f250c23171bb33d"
+        }
+      ],
+      "consolidated_blob": "e68219baff5a467e9eafc3cc4f250c23171bb33d",
+      "mode": "100644",
+      "exact_original_prs": [
+        30,
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-hid-host-20261021/asan-ubsan.log",
+      "original_sources": [
+        {
+          "pr": 28,
+          "mode": "100644",
+          "blob": "2302121339f85b430ebf2963ab4dd9814445ef5d"
+        }
+      ],
+      "consolidated_blob": "2302121339f85b430ebf2963ab4dd9814445ef5d",
+      "mode": "100644",
+      "exact_original_prs": [
+        28
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-hid-host-20261021/independent-plain.log",
+      "original_sources": [
+        {
+          "pr": 28,
+          "mode": "100644",
+          "blob": "09a3cf4c936ab4ddd323883b5d01707f151ea3a7"
+        }
+      ],
+      "consolidated_blob": "09a3cf4c936ab4ddd323883b5d01707f151ea3a7",
+      "mode": "100644",
+      "exact_original_prs": [
+        28
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-hid-host-20261021/independent-sanitized.log",
+      "original_sources": [
+        {
+          "pr": 28,
+          "mode": "100644",
+          "blob": "f498eae6b4f33e15b42540d4f5d607e8f041404d"
+        }
+      ],
+      "consolidated_blob": "f498eae6b4f33e15b42540d4f5d607e8f041404d",
+      "mode": "100644",
+      "exact_original_prs": [
+        28
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-hid-host-20261021/lsan-environment-failure.log",
+      "original_sources": [
+        {
+          "pr": 28,
+          "mode": "100644",
+          "blob": "b44ef6b2c0870132224eae5590813be82a476490"
+        }
+      ],
+      "consolidated_blob": "b44ef6b2c0870132224eae5590813be82a476490",
+      "mode": "100644",
+      "exact_original_prs": [
+        28
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-hid-host-20261021/plain.log",
+      "original_sources": [
+        {
+          "pr": 28,
+          "mode": "100644",
+          "blob": "8476189ef9d8418adbd53abd5b5362ea61fdb6db"
+        }
+      ],
+      "consolidated_blob": "8476189ef9d8418adbd53abd5b5362ea61fdb6db",
+      "mode": "100644",
+      "exact_original_prs": [
+        28
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-hid-host-20261021/source-composition.json",
+      "original_sources": [
+        {
+          "pr": 28,
+          "mode": "100644",
+          "blob": "334678372512cd2bd6662b21c150301f7cf70332"
+        }
+      ],
+      "consolidated_blob": "334678372512cd2bd6662b21c150301f7cf70332",
+      "mode": "100644",
+      "exact_original_prs": [
+        28
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-msp-checked-consumer-20261021/host-prerequisite-normal.log",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "124681ab47249a0c02813661073c9106021c4db4"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "124681ab47249a0c02813661073c9106021c4db4"
+        }
+      ],
+      "consolidated_blob": "124681ab47249a0c02813661073c9106021c4db4",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-msp-checked-consumer-20261021/host-prerequisite-sanitized.log",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "4ba4549c64a9a0fc9bd76df086a939b60ab681c0"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "4ba4549c64a9a0fc9bd76df086a939b60ab681c0"
+        }
+      ],
+      "consolidated_blob": "4ba4549c64a9a0fc9bd76df086a939b60ab681c0",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-msp-checked-consumer-20261021/normal.log",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "0c70a06ef8af6d25d53abe8602ef69551adfb378"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "0c70a06ef8af6d25d53abe8602ef69551adfb378"
+        }
+      ],
+      "consolidated_blob": "0c70a06ef8af6d25d53abe8602ef69551adfb378",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-msp-checked-consumer-20261021/program-msp-target-build.log",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "18d7b43e363d0a010eef2ecf2e0022ef9db0b8f2"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "18d7b43e363d0a010eef2ecf2e0022ef9db0b8f2"
+        }
+      ],
+      "consolidated_blob": "18d7b43e363d0a010eef2ecf2e0022ef9db0b8f2",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-msp-checked-consumer-20261021/sanitized.log",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "9538f6ebcc48f029b4499f1bb1964a21eba3856d"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "9538f6ebcc48f029b4499f1bb1964a21eba3856d"
+        }
+      ],
+      "consolidated_blob": "9538f6ebcc48f029b4499f1bb1964a21eba3856d",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-msp-checked-consumer-20261021/source-lock.json",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "89482d100f9a83d3fb703a49c2e4a44f02d67f60"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "89482d100f9a83d3fb703a49c2e4a44f02d67f60"
+        }
+      ],
+      "consolidated_blob": "89482d100f9a83d3fb703a49c2e4a44f02d67f60",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-msp-checked-consumer-20261021/usb-msp-target-build.log",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "18d7b43e363d0a010eef2ecf2e0022ef9db0b8f2"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "18d7b43e363d0a010eef2ecf2e0022ef9db0b8f2"
+        }
+      ],
+      "consolidated_blob": "18d7b43e363d0a010eef2ecf2e0022ef9db0b8f2",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-msp-detach-contract-2026-10-21/normal.log",
+      "original_sources": [
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "f630232ea02b2cd97ec8d8ffc97b216b0d1d7806"
+        }
+      ],
+      "consolidated_blob": "f630232ea02b2cd97ec8d8ffc97b216b0d1d7806",
+      "mode": "100644",
+      "exact_original_prs": [
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-msp-detach-contract-2026-10-21/sanitized.log",
+      "original_sources": [
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "f630232ea02b2cd97ec8d8ffc97b216b0d1d7806"
+        }
+      ],
+      "consolidated_blob": "f630232ea02b2cd97ec8d8ffc97b216b0d1d7806",
+      "mode": "100644",
+      "exact_original_prs": [
+        31
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-msp-numeric-versions-20261021/inventory-and-overlay-lock.json",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "0a390bef1464fc60c95f9f39b2e11b5d241620f9"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "0a390bef1464fc60c95f9f39b2e11b5d241620f9"
+        }
+      ],
+      "consolidated_blob": "0a390bef1464fc60c95f9f39b2e11b5d241620f9",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-msp-numeric-versions-20261021/parser-normal.log",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "ef564f96e96c5e30c8b8eb7601d161d939097908"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "ef564f96e96c5e30c8b8eb7601d161d939097908"
+        }
+      ],
+      "consolidated_blob": "ef564f96e96c5e30c8b8eb7601d161d939097908",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-msp-numeric-versions-20261021/parser-sanitized.log",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "ef564f96e96c5e30c8b8eb7601d161d939097908"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "ef564f96e96c5e30c8b8eb7601d161d939097908"
+        }
+      ],
+      "consolidated_blob": "ef564f96e96c5e30c8b8eb7601d161d939097908",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-msp-numeric-versions-20261021/regression.log",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "04f7924a7678e71e87ba32d113302f7415a24ac0"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "04f7924a7678e71e87ba32d113302f7415a24ac0"
+        }
+      ],
+      "consolidated_blob": "04f7924a7678e71e87ba32d113302f7415a24ac0",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-msp-numeric-versions-20261021/source-lock.json",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "127a626eae5972dd2bb44ce9c288cb4912716f3b"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "127a626eae5972dd2bb44ce9c288cb4912716f3b"
+        }
+      ],
+      "consolidated_blob": "127a626eae5972dd2bb44ce9c288cb4912716f3b",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-native-cdc-20261021/candidate-versions.log",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "2642aa25e34e4913950a25862f42ff018051f577"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "2642aa25e34e4913950a25862f42ff018051f577"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "2642aa25e34e4913950a25862f42ff018051f577"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "2642aa25e34e4913950a25862f42ff018051f577"
+        }
+      ],
+      "consolidated_blob": "2642aa25e34e4913950a25862f42ff018051f577",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-native-cdc-20261021/checked-cleanup-regression-plain.log",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "0ae6ea16360dc216cec48ce18ba131ffd2d5e394"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "0ae6ea16360dc216cec48ce18ba131ffd2d5e394"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "0ae6ea16360dc216cec48ce18ba131ffd2d5e394"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "0ae6ea16360dc216cec48ce18ba131ffd2d5e394"
+        }
+      ],
+      "consolidated_blob": "0ae6ea16360dc216cec48ce18ba131ffd2d5e394",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-native-cdc-20261021/checked-cleanup-regression-sanitized.log",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "cc50631ee8d1199eb026daee2dc74d7ee7fec897"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "cc50631ee8d1199eb026daee2dc74d7ee7fec897"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "cc50631ee8d1199eb026daee2dc74d7ee7fec897"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "cc50631ee8d1199eb026daee2dc74d7ee7fec897"
+        }
+      ],
+      "consolidated_blob": "cc50631ee8d1199eb026daee2dc74d7ee7fec897",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-native-cdc-20261021/controller-builder-help.log",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "24101f9ff43915b9e35d2f2376e7535764cac7ae"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "24101f9ff43915b9e35d2f2376e7535764cac7ae"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "24101f9ff43915b9e35d2f2376e7535764cac7ae"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "24101f9ff43915b9e35d2f2376e7535764cac7ae"
+        }
+      ],
+      "consolidated_blob": "24101f9ff43915b9e35d2f2376e7535764cac7ae",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-native-cdc-20261021/host-target-build-blocked.log",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "193ca5e69d1dd65d310793fe87e7814f0959da06"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "193ca5e69d1dd65d310793fe87e7814f0959da06"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "193ca5e69d1dd65d310793fe87e7814f0959da06"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "193ca5e69d1dd65d310793fe87e7814f0959da06"
+        }
+      ],
+      "consolidated_blob": "193ca5e69d1dd65d310793fe87e7814f0959da06",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-native-cdc-20261021/native-plain.log",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "1102e7e61dd8150ef68c3e7a90d4865f73b5bbd4"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "1102e7e61dd8150ef68c3e7a90d4865f73b5bbd4"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "1102e7e61dd8150ef68c3e7a90d4865f73b5bbd4"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "1102e7e61dd8150ef68c3e7a90d4865f73b5bbd4"
+        }
+      ],
+      "consolidated_blob": "1102e7e61dd8150ef68c3e7a90d4865f73b5bbd4",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-native-cdc-20261021/native-sanitized.log",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "1102e7e61dd8150ef68c3e7a90d4865f73b5bbd4"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "1102e7e61dd8150ef68c3e7a90d4865f73b5bbd4"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "1102e7e61dd8150ef68c3e7a90d4865f73b5bbd4"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "1102e7e61dd8150ef68c3e7a90d4865f73b5bbd4"
+        }
+      ],
+      "consolidated_blob": "1102e7e61dd8150ef68c3e7a90d4865f73b5bbd4",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-native-cdc-20261021/remote-version-check.json",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "f71a730698176f9f02415e2b06f61bf7a09c9615"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "f71a730698176f9f02415e2b06f61bf7a09c9615"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "f71a730698176f9f02415e2b06f61bf7a09c9615"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "f71a730698176f9f02415e2b06f61bf7a09c9615"
+        }
+      ],
+      "consolidated_blob": "f71a730698176f9f02415e2b06f61bf7a09c9615",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-native-cdc-20261021/runtime-manifest-parser-source-lock.json",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "21daf6c91a0726e964d080ea74a49fd2c57051ef"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "21daf6c91a0726e964d080ea74a49fd2c57051ef"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "21daf6c91a0726e964d080ea74a49fd2c57051ef"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "21daf6c91a0726e964d080ea74a49fd2c57051ef"
+        }
+      ],
+      "consolidated_blob": "21daf6c91a0726e964d080ea74a49fd2c57051ef",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-native-cdc-20261021/runtime-manifest-parser.log",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "fec00dd3bd157634da9705a5ae907823d54f0983"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "fec00dd3bd157634da9705a5ae907823d54f0983"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "fec00dd3bd157634da9705a5ae907823d54f0983"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "fec00dd3bd157634da9705a5ae907823d54f0983"
+        }
+      ],
+      "consolidated_blob": "fec00dd3bd157634da9705a5ae907823d54f0983",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-native-cdc-20261021/runtime-plain.log",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "000e03cd3658d7e72068e7330ba1ce4f521974bc"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "000e03cd3658d7e72068e7330ba1ce4f521974bc"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "000e03cd3658d7e72068e7330ba1ce4f521974bc"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "000e03cd3658d7e72068e7330ba1ce4f521974bc"
+        }
+      ],
+      "consolidated_blob": "000e03cd3658d7e72068e7330ba1ce4f521974bc",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-native-cdc-20261021/runtime-sanitized.log",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "000e03cd3658d7e72068e7330ba1ce4f521974bc"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "000e03cd3658d7e72068e7330ba1ce4f521974bc"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "000e03cd3658d7e72068e7330ba1ce4f521974bc"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "000e03cd3658d7e72068e7330ba1ce4f521974bc"
+        }
+      ],
+      "consolidated_blob": "000e03cd3658d7e72068e7330ba1ce4f521974bc",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-native-cdc-20261021/source-lock.json",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "ad2e11b19e480aff229d6c40ab979669e16dfc2d"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "ad2e11b19e480aff229d6c40ab979669e16dfc2d"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "ad2e11b19e480aff229d6c40ab979669e16dfc2d"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "ad2e11b19e480aff229d6c40ab979669e16dfc2d"
+        }
+      ],
+      "consolidated_blob": "ad2e11b19e480aff229d6c40ab979669e16dfc2d",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-native-cdc-20261021/target-build-blocked.log",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "a1f622f3d8f6e390e24df65acb9ec025ca2190af"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "a1f622f3d8f6e390e24df65acb9ec025ca2190af"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "a1f622f3d8f6e390e24df65acb9ec025ca2190af"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "a1f622f3d8f6e390e24df65acb9ec025ca2190af"
+        }
+      ],
+      "consolidated_blob": "a1f622f3d8f6e390e24df65acb9ec025ca2190af",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-serial-monitor-20261021/final-plain.log",
+      "original_sources": [
+        {
+          "pr": 29,
+          "mode": "100644",
+          "blob": "65b706bfa3ec787723ce1c782e6c18639e6e2f67"
+        },
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "65b706bfa3ec787723ce1c782e6c18639e6e2f67"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "65b706bfa3ec787723ce1c782e6c18639e6e2f67"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "65b706bfa3ec787723ce1c782e6c18639e6e2f67"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "65b706bfa3ec787723ce1c782e6c18639e6e2f67"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "65b706bfa3ec787723ce1c782e6c18639e6e2f67"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "65b706bfa3ec787723ce1c782e6c18639e6e2f67"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "65b706bfa3ec787723ce1c782e6c18639e6e2f67"
+        }
+      ],
+      "consolidated_blob": "65b706bfa3ec787723ce1c782e6c18639e6e2f67",
+      "mode": "100644",
+      "exact_original_prs": [
+        29,
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-serial-monitor-20261021/final-sanitized.log",
+      "original_sources": [
+        {
+          "pr": 29,
+          "mode": "100644",
+          "blob": "e3785673d15a11635954646e5e7316b830f09be8"
+        },
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "e3785673d15a11635954646e5e7316b830f09be8"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "e3785673d15a11635954646e5e7316b830f09be8"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "e3785673d15a11635954646e5e7316b830f09be8"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "e3785673d15a11635954646e5e7316b830f09be8"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "e3785673d15a11635954646e5e7316b830f09be8"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "e3785673d15a11635954646e5e7316b830f09be8"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "e3785673d15a11635954646e5e7316b830f09be8"
+        }
+      ],
+      "consolidated_blob": "e3785673d15a11635954646e5e7316b830f09be8",
+      "mode": "100644",
+      "exact_original_prs": [
+        29,
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-serial-monitor-20261021/legacy_inventory_probe.cpp",
+      "original_sources": [
+        {
+          "pr": 29,
+          "mode": "100644",
+          "blob": "820588a798b60e459102a483c1526741a1b18587"
+        },
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "820588a798b60e459102a483c1526741a1b18587"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "820588a798b60e459102a483c1526741a1b18587"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "820588a798b60e459102a483c1526741a1b18587"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "820588a798b60e459102a483c1526741a1b18587"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "820588a798b60e459102a483c1526741a1b18587"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "820588a798b60e459102a483c1526741a1b18587"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "820588a798b60e459102a483c1526741a1b18587"
+        }
+      ],
+      "consolidated_blob": "820588a798b60e459102a483c1526741a1b18587",
+      "mode": "100644",
+      "exact_original_prs": [
+        29,
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-serial-monitor-20261021/native-deadline-plain.log",
+      "original_sources": [
+        {
+          "pr": 29,
+          "mode": "100644",
+          "blob": "80b10b6245a31693097f49d45693087e3527231b"
+        },
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "80b10b6245a31693097f49d45693087e3527231b"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "80b10b6245a31693097f49d45693087e3527231b"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "80b10b6245a31693097f49d45693087e3527231b"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "80b10b6245a31693097f49d45693087e3527231b"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "80b10b6245a31693097f49d45693087e3527231b"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "80b10b6245a31693097f49d45693087e3527231b"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "80b10b6245a31693097f49d45693087e3527231b"
+        }
+      ],
+      "consolidated_blob": "80b10b6245a31693097f49d45693087e3527231b",
+      "mode": "100644",
+      "exact_original_prs": [
+        29,
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-serial-monitor-20261021/native-deadline-sanitized.log",
+      "original_sources": [
+        {
+          "pr": 29,
+          "mode": "100644",
+          "blob": "cb7e6a01a19878448b2ca8e09cd8b157b3048a0d"
+        },
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "cb7e6a01a19878448b2ca8e09cd8b157b3048a0d"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "cb7e6a01a19878448b2ca8e09cd8b157b3048a0d"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "cb7e6a01a19878448b2ca8e09cd8b157b3048a0d"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "cb7e6a01a19878448b2ca8e09cd8b157b3048a0d"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "cb7e6a01a19878448b2ca8e09cd8b157b3048a0d"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "cb7e6a01a19878448b2ca8e09cd8b157b3048a0d"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "cb7e6a01a19878448b2ca8e09cd8b157b3048a0d"
+        }
+      ],
+      "consolidated_blob": "cb7e6a01a19878448b2ca8e09cd8b157b3048a0d",
+      "mode": "100644",
+      "exact_original_prs": [
+        29,
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-serial-monitor-20261021/pinned-serial-baseline.log",
+      "original_sources": [
+        {
+          "pr": 29,
+          "mode": "100644",
+          "blob": "34c45448a5f021eea413cca486fa997427224482"
+        },
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "34c45448a5f021eea413cca486fa997427224482"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "34c45448a5f021eea413cca486fa997427224482"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "34c45448a5f021eea413cca486fa997427224482"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "34c45448a5f021eea413cca486fa997427224482"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "34c45448a5f021eea413cca486fa997427224482"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "34c45448a5f021eea413cca486fa997427224482"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "34c45448a5f021eea413cca486fa997427224482"
+        }
+      ],
+      "consolidated_blob": "34c45448a5f021eea413cca486fa997427224482",
+      "mode": "100644",
+      "exact_original_prs": [
+        29,
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-serial-monitor-20261021/pinned-serial-replay.log",
+      "original_sources": [
+        {
+          "pr": 29,
+          "mode": "100644",
+          "blob": "2247d4fc4502dcc12391979290c3da27a78e4236"
+        },
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "2247d4fc4502dcc12391979290c3da27a78e4236"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "2247d4fc4502dcc12391979290c3da27a78e4236"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "2247d4fc4502dcc12391979290c3da27a78e4236"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "2247d4fc4502dcc12391979290c3da27a78e4236"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "2247d4fc4502dcc12391979290c3da27a78e4236"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "2247d4fc4502dcc12391979290c3da27a78e4236"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "2247d4fc4502dcc12391979290c3da27a78e4236"
+        }
+      ],
+      "consolidated_blob": "2247d4fc4502dcc12391979290c3da27a78e4236",
+      "mode": "100644",
+      "exact_original_prs": [
+        29,
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-serial-monitor-20261021/qualified-plain.log",
+      "original_sources": [
+        {
+          "pr": 29,
+          "mode": "100644",
+          "blob": "3d1a9e48199dd4a2a0c26b7a3921b818df3fa056"
+        },
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "3d1a9e48199dd4a2a0c26b7a3921b818df3fa056"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "3d1a9e48199dd4a2a0c26b7a3921b818df3fa056"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "3d1a9e48199dd4a2a0c26b7a3921b818df3fa056"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "3d1a9e48199dd4a2a0c26b7a3921b818df3fa056"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "3d1a9e48199dd4a2a0c26b7a3921b818df3fa056"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "3d1a9e48199dd4a2a0c26b7a3921b818df3fa056"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "3d1a9e48199dd4a2a0c26b7a3921b818df3fa056"
+        }
+      ],
+      "consolidated_blob": "3d1a9e48199dd4a2a0c26b7a3921b818df3fa056",
+      "mode": "100644",
+      "exact_original_prs": [
+        29,
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-serial-monitor-20261021/qualified-sanitized.log",
+      "original_sources": [
+        {
+          "pr": 29,
+          "mode": "100644",
+          "blob": "0eab8535b68ada4f29b2518611b71e24d3c2fa8d"
+        },
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "0eab8535b68ada4f29b2518611b71e24d3c2fa8d"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "0eab8535b68ada4f29b2518611b71e24d3c2fa8d"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "0eab8535b68ada4f29b2518611b71e24d3c2fa8d"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "0eab8535b68ada4f29b2518611b71e24d3c2fa8d"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "0eab8535b68ada4f29b2518611b71e24d3c2fa8d"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "0eab8535b68ada4f29b2518611b71e24d3c2fa8d"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "0eab8535b68ada4f29b2518611b71e24d3c2fa8d"
+        }
+      ],
+      "consolidated_blob": "0eab8535b68ada4f29b2518611b71e24d3c2fa8d",
+      "mode": "100644",
+      "exact_original_prs": [
+        29,
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/evidence/usb-serial-monitor-20261021/source-composition.json",
+      "original_sources": [
+        {
+          "pr": 29,
+          "mode": "100644",
+          "blob": "37ab482e6dd20cb3e3933566f30a30cdf83216d0"
+        },
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "37ab482e6dd20cb3e3933566f30a30cdf83216d0"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "37ab482e6dd20cb3e3933566f30a30cdf83216d0"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "37ab482e6dd20cb3e3933566f30a30cdf83216d0"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "37ab482e6dd20cb3e3933566f30a30cdf83216d0"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "37ab482e6dd20cb3e3933566f30a30cdf83216d0"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "37ab482e6dd20cb3e3933566f30a30cdf83216d0"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "37ab482e6dd20cb3e3933566f30a30cdf83216d0"
+        }
+      ],
+      "consolidated_blob": "37ab482e6dd20cb3e3933566f30a30cdf83216d0",
+      "mode": "100644",
+      "exact_original_prs": [
+        29,
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/usb-hid-checked-source-lock.json",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "0add1526d60eb433e76de348af62334595183f58"
+        }
+      ],
+      "consolidated_blob": "0add1526d60eb433e76de348af62334595183f58",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "docs/usb-hid-version-check.json",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "2ae257363a2008d4edb6e6e3d2faf82b0a64cfb5"
+        }
+      ],
+      "consolidated_blob": "2ae257363a2008d4edb6e6e3d2faf82b0a64cfb5",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "scripts/build_program_msp.py",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "4e18fc9a9e5d5175e5a1c5dc4cd1e6fcbc92ce7f"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "4e18fc9a9e5d5175e5a1c5dc4cd1e6fcbc92ce7f"
+        }
+      ],
+      "consolidated_blob": "30c3968bd45c9e588a59894ee45b7e119458dd74",
+      "mode": "100644",
+      "exact_original_prs": [],
+      "resolution": "Exact main historical producer retained as PR41 requires. PR31 0.1.1 builder remains in original commit, superseded by isolated 0.1.2 candidate route."
+    },
+    {
+      "path": "scripts/build_program_msp_checked_consumer.py",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "fe0c6c1402d03289df4b58f896c81058b81ec23e"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "fe0c6c1402d03289df4b58f896c81058b81ec23e"
+        }
+      ],
+      "consolidated_blob": "fe0c6c1402d03289df4b58f896c81058b81ec23e",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "scripts/build_usb_cdc_native.py",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "bffc67567d58530523795efad0f17ff566af33fc"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "bffc67567d58530523795efad0f17ff566af33fc"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "bffc67567d58530523795efad0f17ff566af33fc"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "bffc67567d58530523795efad0f17ff566af33fc"
+        }
+      ],
+      "consolidated_blob": "bffc67567d58530523795efad0f17ff566af33fc",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "scripts/build_usb_controller_checked_cleanup_idf61.py",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "5894fd5f48709368423f742543058f23148d7bf8"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "5894fd5f48709368423f742543058f23148d7bf8"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "5894fd5f48709368423f742543058f23148d7bf8"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "5894fd5f48709368423f742543058f23148d7bf8"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "5894fd5f48709368423f742543058f23148d7bf8"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "5894fd5f48709368423f742543058f23148d7bf8"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "5894fd5f48709368423f742543058f23148d7bf8"
+        }
+      ],
+      "consolidated_blob": "5894fd5f48709368423f742543058f23148d7bf8",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "scripts/build_usb_controller_native_stream_idf61.py",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "dad282eb3b09c82c0de225d5c6b293c4da0cb49c"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "dad282eb3b09c82c0de225d5c6b293c4da0cb49c"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "dad282eb3b09c82c0de225d5c6b293c4da0cb49c"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "dad282eb3b09c82c0de225d5c6b293c4da0cb49c"
+        }
+      ],
+      "consolidated_blob": "dad282eb3b09c82c0de225d5c6b293c4da0cb49c",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "scripts/build_usb_hid_checked_cleanup.py",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "7ee185d3e86a86f39c13f39ea7215e6f1dc3bdfe"
+        }
+      ],
+      "consolidated_blob": "7ee185d3e86a86f39c13f39ea7215e6f1dc3bdfe",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "scripts/build_usb_host_checked_cleanup.py",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "85c2a6204456d02a109401f14ed5b8b53ab2b52f"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "85c2a6204456d02a109401f14ed5b8b53ab2b52f"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "85c2a6204456d02a109401f14ed5b8b53ab2b52f"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "85c2a6204456d02a109401f14ed5b8b53ab2b52f"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "85c2a6204456d02a109401f14ed5b8b53ab2b52f"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "85c2a6204456d02a109401f14ed5b8b53ab2b52f"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "85c2a6204456d02a109401f14ed5b8b53ab2b52f"
+        }
+      ],
+      "consolidated_blob": "85c2a6204456d02a109401f14ed5b8b53ab2b52f",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "scripts/build_usb_host_native_stream.py",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "52e15a3e71bdaf5302c8541b51ee149ffa9c91dd"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "52e15a3e71bdaf5302c8541b51ee149ffa9c91dd"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "52e15a3e71bdaf5302c8541b51ee149ffa9c91dd"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "52e15a3e71bdaf5302c8541b51ee149ffa9c91dd"
+        }
+      ],
+      "consolidated_blob": "52e15a3e71bdaf5302c8541b51ee149ffa9c91dd",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "scripts/build_usb_mass_storage_legacy_prefix.py",
+      "original_sources": [
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "2a24aae1afb12bfd9c66f46121a5f2c5bc74d4e4"
+        }
+      ],
+      "consolidated_blob": "2a24aae1afb12bfd9c66f46121a5f2c5bc74d4e4",
+      "mode": "100644",
+      "exact_original_prs": [
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "scripts/build_usb_msp_checked_consumer.py",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "68ccc0f4f5498fb350f39a1023f9983d32a60ddc"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "68ccc0f4f5498fb350f39a1023f9983d32a60ddc"
+        }
+      ],
+      "consolidated_blob": "68ccc0f4f5498fb350f39a1023f9983d32a60ddc",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "scripts/native_usb_bounded_endpoints.py",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "694217e81cc2b69f4dc40600b1d12c9b57db769b"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "694217e81cc2b69f4dc40600b1d12c9b57db769b"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "694217e81cc2b69f4dc40600b1d12c9b57db769b"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "694217e81cc2b69f4dc40600b1d12c9b57db769b"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "694217e81cc2b69f4dc40600b1d12c9b57db769b"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "694217e81cc2b69f4dc40600b1d12c9b57db769b"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "694217e81cc2b69f4dc40600b1d12c9b57db769b"
+        }
+      ],
+      "consolidated_blob": "694217e81cc2b69f4dc40600b1d12c9b57db769b",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "scripts/native_usb_bounded_host.py",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "03f0fbbaa193f1a488a572e5e84d008e24cdc4a2"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "03f0fbbaa193f1a488a572e5e84d008e24cdc4a2"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "03f0fbbaa193f1a488a572e5e84d008e24cdc4a2"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "03f0fbbaa193f1a488a572e5e84d008e24cdc4a2"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "03f0fbbaa193f1a488a572e5e84d008e24cdc4a2"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "03f0fbbaa193f1a488a572e5e84d008e24cdc4a2"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "03f0fbbaa193f1a488a572e5e84d008e24cdc4a2"
+        }
+      ],
+      "consolidated_blob": "03f0fbbaa193f1a488a572e5e84d008e24cdc4a2",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "scripts/native_usb_idf61_sources.py",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "39e7a75b33185b74511649b7c82c5aeee7ddca25"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "39e7a75b33185b74511649b7c82c5aeee7ddca25"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "39e7a75b33185b74511649b7c82c5aeee7ddca25"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "39e7a75b33185b74511649b7c82c5aeee7ddca25"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "39e7a75b33185b74511649b7c82c5aeee7ddca25"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "39e7a75b33185b74511649b7c82c5aeee7ddca25"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "39e7a75b33185b74511649b7c82c5aeee7ddca25"
+        }
+      ],
+      "consolidated_blob": "39e7a75b33185b74511649b7c82c5aeee7ddca25",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "scripts/verify_usb_hid_preservation.py",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "72647f8e5ca42d4b3813c9eb4889bb7a07ca1036"
+        }
+      ],
+      "consolidated_blob": "72647f8e5ca42d4b3813c9eb4889bb7a07ca1036",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "sdk/driver/RiscProviderV2.h",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "28dda87545c111c612d87f30337c1db2fe7da0e5"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "28dda87545c111c612d87f30337c1db2fe7da0e5"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "28dda87545c111c612d87f30337c1db2fe7da0e5"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "28dda87545c111c612d87f30337c1db2fe7da0e5"
+        }
+      ],
+      "consolidated_blob": "28dda87545c111c612d87f30337c1db2fe7da0e5",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "sdk/driver/RiscSerialPortV1.h",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "16b59c5db0242f06de166e4bf572e2ca34739e7e"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "16b59c5db0242f06de166e4bf572e2ca34739e7e"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "16b59c5db0242f06de166e4bf572e2ca34739e7e"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "16b59c5db0242f06de166e4bf572e2ca34739e7e"
+        }
+      ],
+      "consolidated_blob": "16b59c5db0242f06de166e4bf572e2ca34739e7e",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "sdk/driver/RiscSerialStreamSessionV1.h",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "9fb56fb19ecbc7d22ef807d569de04654575fa49"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "9fb56fb19ecbc7d22ef807d569de04654575fa49"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "9fb56fb19ecbc7d22ef807d569de04654575fa49"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "9fb56fb19ecbc7d22ef807d569de04654575fa49"
+        }
+      ],
+      "consolidated_blob": "9fb56fb19ecbc7d22ef807d569de04654575fa49",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "sdk/driver/RiscStreamProviderV1.h",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "04f61f2271ea356a1c6bd778767a9f099772ba01"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "04f61f2271ea356a1c6bd778767a9f099772ba01"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "04f61f2271ea356a1c6bd778767a9f099772ba01"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "04f61f2271ea356a1c6bd778767a9f099772ba01"
+        }
+      ],
+      "consolidated_blob": "04f61f2271ea356a1c6bd778767a9f099772ba01",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "sdk/driver/RiscStreamResultV1.h",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "4bdf0f5789afe40c55ead97ec3d2ccf9b630efb1"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "4bdf0f5789afe40c55ead97ec3d2ccf9b630efb1"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "4bdf0f5789afe40c55ead97ec3d2ccf9b630efb1"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "4bdf0f5789afe40c55ead97ec3d2ccf9b630efb1"
+        }
+      ],
+      "consolidated_blob": "4bdf0f5789afe40c55ead97ec3d2ccf9b630efb1",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "sdk/driver/RiscStreamSessionProviderV1.h",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "09c382c4440e2827351e7e271248e4e9da94f598"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "09c382c4440e2827351e7e271248e4e9da94f598"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "09c382c4440e2827351e7e271248e4e9da94f598"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "09c382c4440e2827351e7e271248e4e9da94f598"
+        }
+      ],
+      "consolidated_blob": "09c382c4440e2827351e7e271248e4e9da94f598",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "sdk/driver/RiscUsbControllerV1.h",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "7b2ecba98cd431484296327c1d8d701cad431aea"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "7b2ecba98cd431484296327c1d8d701cad431aea"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "7b2ecba98cd431484296327c1d8d701cad431aea"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "7b2ecba98cd431484296327c1d8d701cad431aea"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "7b2ecba98cd431484296327c1d8d701cad431aea"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "7b2ecba98cd431484296327c1d8d701cad431aea"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "7b2ecba98cd431484296327c1d8d701cad431aea"
+        }
+      ],
+      "consolidated_blob": "7b2ecba98cd431484296327c1d8d701cad431aea",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "sdk/driver/RiscUsbInterruptV1.h",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "0c46bcae5f9bb970af95e0bf33dba0fe30958c87"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "0c46bcae5f9bb970af95e0bf33dba0fe30958c87"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "0c46bcae5f9bb970af95e0bf33dba0fe30958c87"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "0c46bcae5f9bb970af95e0bf33dba0fe30958c87"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "0c46bcae5f9bb970af95e0bf33dba0fe30958c87"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "0c46bcae5f9bb970af95e0bf33dba0fe30958c87"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "0c46bcae5f9bb970af95e0bf33dba0fe30958c87"
+        }
+      ],
+      "consolidated_blob": "0c46bcae5f9bb970af95e0bf33dba0fe30958c87",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/drivers/program_msp_test.c",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "e6dcfcb7152e8c677a92016f442db04eb9a18999"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "e6dcfcb7152e8c677a92016f442db04eb9a18999"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "e6dcfcb7152e8c677a92016f442db04eb9a18999"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "e6dcfcb7152e8c677a92016f442db04eb9a18999"
+        }
+      ],
+      "consolidated_blob": "e6dcfcb7152e8c677a92016f442db04eb9a18999",
+      "mode": "100644",
+      "exact_original_prs": [
+        30,
+        31,
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/drivers/usb_cdc_native_legacy_client.c",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "09c61983778ecbaff490abe81610bd0561d50734"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "09c61983778ecbaff490abe81610bd0561d50734"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "09c61983778ecbaff490abe81610bd0561d50734"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "09c61983778ecbaff490abe81610bd0561d50734"
+        }
+      ],
+      "consolidated_blob": "09c61983778ecbaff490abe81610bd0561d50734",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/drivers/usb_cdc_native_test.c",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "bebca496a340a51947c27ecda55dd63c4de06844"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "bebca496a340a51947c27ecda55dd63c4de06844"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "bebca496a340a51947c27ecda55dd63c4de06844"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "bebca496a340a51947c27ecda55dd63c4de06844"
+        }
+      ],
+      "consolidated_blob": "bebca496a340a51947c27ecda55dd63c4de06844",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/drivers/usb_cdc_runtime_test.cpp",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "698a426abbbe959e6a7c17d16024dcb89c2bec28"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "698a426abbbe959e6a7c17d16024dcb89c2bec28"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "698a426abbbe959e6a7c17d16024dcb89c2bec28"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "698a426abbbe959e6a7c17d16024dcb89c2bec28"
+        }
+      ],
+      "consolidated_blob": "698a426abbbe959e6a7c17d16024dcb89c2bec28",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/drivers/usb_controller_claim_release_test.cpp",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "10de2a8099d384095e057c034c8c7e90009f738b"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "10de2a8099d384095e057c034c8c7e90009f738b"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "10de2a8099d384095e057c034c8c7e90009f738b"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "10de2a8099d384095e057c034c8c7e90009f738b"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "10de2a8099d384095e057c034c8c7e90009f738b"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "10de2a8099d384095e057c034c8c7e90009f738b"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "10de2a8099d384095e057c034c8c7e90009f738b"
+        }
+      ],
+      "consolidated_blob": "10de2a8099d384095e057c034c8c7e90009f738b",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/drivers/usb_host_checked_release_test.c",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "65bb3916f5ff33699b08a4dda96527da4ee08abf"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "65bb3916f5ff33699b08a4dda96527da4ee08abf"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "65bb3916f5ff33699b08a4dda96527da4ee08abf"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "65bb3916f5ff33699b08a4dda96527da4ee08abf"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "65bb3916f5ff33699b08a4dda96527da4ee08abf"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "65bb3916f5ff33699b08a4dda96527da4ee08abf"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "65bb3916f5ff33699b08a4dda96527da4ee08abf"
+        }
+      ],
+      "consolidated_blob": "65bb3916f5ff33699b08a4dda96527da4ee08abf",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/drivers/usb_host_control_claim_test.c",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "21c2cbcad3261dbb901fa17ab00608bce6a3c22a"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "21c2cbcad3261dbb901fa17ab00608bce6a3c22a"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "21c2cbcad3261dbb901fa17ab00608bce6a3c22a"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "21c2cbcad3261dbb901fa17ab00608bce6a3c22a"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "21c2cbcad3261dbb901fa17ab00608bce6a3c22a"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "21c2cbcad3261dbb901fa17ab00608bce6a3c22a"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "21c2cbcad3261dbb901fa17ab00608bce6a3c22a"
+        }
+      ],
+      "consolidated_blob": "21c2cbcad3261dbb901fa17ab00608bce6a3c22a",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/drivers/usb_host_snapshot_test.c",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "6bc54ddbcaa354e9605d2e40eb573a11200e9013"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "6bc54ddbcaa354e9605d2e40eb573a11200e9013"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "6bc54ddbcaa354e9605d2e40eb573a11200e9013"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "6bc54ddbcaa354e9605d2e40eb573a11200e9013"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "6bc54ddbcaa354e9605d2e40eb573a11200e9013"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "6bc54ddbcaa354e9605d2e40eb573a11200e9013"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "6bc54ddbcaa354e9605d2e40eb573a11200e9013"
+        }
+      ],
+      "consolidated_blob": "6bc54ddbcaa354e9605d2e40eb573a11200e9013",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/drivers/usb_mass_storage_test.c",
+      "original_sources": [
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "994d51cb984fff07bd853d7c982aafa70becef02"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "994d51cb984fff07bd853d7c982aafa70becef02"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "11f662f2fe3f2336d842a6df8a66a4c970e09bcd"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "994d51cb984fff07bd853d7c982aafa70becef02"
+        }
+      ],
+      "consolidated_blob": "11f662f2fe3f2336d842a6df8a66a4c970e09bcd",
+      "mode": "100644",
+      "exact_original_prs": [
+        41
+      ],
+      "resolution": "PR41 strict legacy-prefix and callback rejection coverage."
+    },
+    {
+      "path": "test/drivers/usb_msp_checked_consumer_test.c",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "c4d5dcc90a7a2a02ec5880e05e55bab1c32dca2f"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "c4d5dcc90a7a2a02ec5880e05e55bab1c32dca2f"
+        }
+      ],
+      "consolidated_blob": "c4d5dcc90a7a2a02ec5880e05e55bab1c32dca2f",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/drivers/usb_msp_detach_contract_test.c",
+      "original_sources": [
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "175c3e9e32499dbf78bdeef18be7cd35f61627c1"
+        },
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "175c3e9e32499dbf78bdeef18be7cd35f61627c1"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "175c3e9e32499dbf78bdeef18be7cd35f61627c1"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "175c3e9e32499dbf78bdeef18be7cd35f61627c1"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "175c3e9e32499dbf78bdeef18be7cd35f61627c1"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "175c3e9e32499dbf78bdeef18be7cd35f61627c1"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "175c3e9e32499dbf78bdeef18be7cd35f61627c1"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "175c3e9e32499dbf78bdeef18be7cd35f61627c1"
+        }
+      ],
+      "consolidated_blob": "175c3e9e32499dbf78bdeef18be7cd35f61627c1",
+      "mode": "100644",
+      "exact_original_prs": [
+        31,
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/drivers/usb_msp_legacy_contract_test.c",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "adcc7abe988a4808dc58ee122b8994a70b73e90d"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "adcc7abe988a4808dc58ee122b8994a70b73e90d"
+        }
+      ],
+      "consolidated_blob": "adcc7abe988a4808dc58ee122b8994a70b73e90d",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/drivers/usb_xinput_gamepad_test.c",
+      "original_sources": [
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "3e58fec83889dc464f3bbf43ea39f7c096e278a4"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "3e58fec83889dc464f3bbf43ea39f7c096e278a4"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "3e58fec83889dc464f3bbf43ea39f7c096e278a4"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "3e58fec83889dc464f3bbf43ea39f7c096e278a4"
+        }
+      ],
+      "consolidated_blob": "3e58fec83889dc464f3bbf43ea39f7c096e278a4",
+      "mode": "100644",
+      "exact_original_prs": [
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/fixtures/cdc_runtime_app.c",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "e8cd572fca76c8b99e8340a2123737b5d636afa6"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "e8cd572fca76c8b99e8340a2123737b5d636afa6"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "e8cd572fca76c8b99e8340a2123737b5d636afa6"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "e8cd572fca76c8b99e8340a2123737b5d636afa6"
+        }
+      ],
+      "consolidated_blob": "e8cd572fca76c8b99e8340a2123737b5d636afa6",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/fixtures/cdc_runtime_controller.c",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "6bf7a0b9849d63c7629624fc5071ff28b2c237b5"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "6bf7a0b9849d63c7629624fc5071ff28b2c237b5"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "6bf7a0b9849d63c7629624fc5071ff28b2c237b5"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "6bf7a0b9849d63c7629624fc5071ff28b2c237b5"
+        }
+      ],
+      "consolidated_blob": "6bf7a0b9849d63c7629624fc5071ff28b2c237b5",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/lock_usb_native_cdc_sources.py",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "2f4998ecd38779cd65c5884e6d3355e6540b88ff"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "2f4998ecd38779cd65c5884e6d3355e6540b88ff"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "2f4998ecd38779cd65c5884e6d3355e6540b88ff"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "2f4998ecd38779cd65c5884e6d3355e6540b88ff"
+        }
+      ],
+      "consolidated_blob": "2f4998ecd38779cd65c5884e6d3355e6540b88ff",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/msp_numeric_manifest_test.cpp",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "4fa0ff33c1eecd200cf7fa290e8c03f69918e306"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "4fa0ff33c1eecd200cf7fa290e8c03f69918e306"
+        }
+      ],
+      "consolidated_blob": "4fa0ff33c1eecd200cf7fa290e8c03f69918e306",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/parity/test_program_msp_replay.py",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100644",
+          "blob": "4a52c46dcf064f06343ba5c922dcd9e31e1eabf4"
+        },
+        {
+          "pr": 31,
+          "mode": "100644",
+          "blob": "4a52c46dcf064f06343ba5c922dcd9e31e1eabf4"
+        }
+      ],
+      "consolidated_blob": "63da847d6129973d621367c80f3612846d9d8a02",
+      "mode": "100644",
+      "exact_original_prs": [],
+      "resolution": "Both PR31 tests retained; assertions follow current 0.1.2 candidate and unchanged 0.1.0 historical routes. Canonical size/digest and strict-parity guard checks retained."
+    },
+    {
+      "path": "test/raw_hid_checked_cleanup/README.md",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "9cff110fb878e50908b8fadd5ccfda2b3ac7b36f"
+        }
+      ],
+      "consolidated_blob": "9cff110fb878e50908b8fadd5ccfda2b3ac7b36f",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/raw_hid_checked_cleanup/composition_test.c",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "b64eedcf92759b07d6f539aa0252ccadd3db2aed"
+        }
+      ],
+      "consolidated_blob": "b64eedcf92759b07d6f539aa0252ccadd3db2aed",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/raw_hid_checked_cleanup/pinned_reader/Drivers/usb_hid_mouse/Descriptor.h",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "cbdb608d866975249f2037ae9aaed9e9e9bcf595"
+        }
+      ],
+      "consolidated_blob": "cbdb608d866975249f2037ae9aaed9e9e9bcf595",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/raw_hid_checked_cleanup/pinned_reader/Drivers/usb_hid_mouse/driver.c",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "d8ec90bbb061b2b43e9bcb30a8a81316e9050eff"
+        }
+      ],
+      "consolidated_blob": "d8ec90bbb061b2b43e9bcb30a8a81316e9050eff",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/raw_hid_checked_cleanup/pinned_reader/SOURCE.json",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "2be5dc524ca9f15ebf3f8ce3debc8ca9bdf7db5a"
+        }
+      ],
+      "consolidated_blob": "2be5dc524ca9f15ebf3f8ce3debc8ca9bdf7db5a",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/raw_hid_checked_cleanup/pinned_reader/sdk/driver/RiscPlatformClockV1.h",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "33a5b27dcea7e30698d0177ad5db065166082194"
+        }
+      ],
+      "consolidated_blob": "33a5b27dcea7e30698d0177ad5db065166082194",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/raw_hid_checked_cleanup/pinned_reader/sdk/driver/RiscProviderV2.h",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "1e491a6887cf20a3dda1fa42748711bbe921330b"
+        }
+      ],
+      "consolidated_blob": "1e491a6887cf20a3dda1fa42748711bbe921330b",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/raw_hid_checked_cleanup/pinned_reader/sdk/driver/RiscSerialPortV1.h",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "16b59c5db0242f06de166e4bf572e2ca34739e7e"
+        }
+      ],
+      "consolidated_blob": "16b59c5db0242f06de166e4bf572e2ca34739e7e",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/raw_hid_checked_cleanup/pinned_reader/sdk/driver/RiscStreamProviderV1.h",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "04f61f2271ea356a1c6bd778767a9f099772ba01"
+        }
+      ],
+      "consolidated_blob": "04f61f2271ea356a1c6bd778767a9f099772ba01",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/raw_hid_checked_cleanup/pinned_reader/sdk/driver/RiscUsbControllerV1.h",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "7b2ecba98cd431484296327c1d8d701cad431aea"
+        }
+      ],
+      "consolidated_blob": "7b2ecba98cd431484296327c1d8d701cad431aea",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/raw_hid_checked_cleanup/pinned_reader/sdk/driver/RiscUsbHidV1.h",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "47913ebeda94dcc4138173be45eafe9315191e91"
+        }
+      ],
+      "consolidated_blob": "47913ebeda94dcc4138173be45eafe9315191e91",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/raw_hid_checked_cleanup/pinned_reader/sdk/driver/RiscUsbInterruptV1.h",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "0c46bcae5f9bb970af95e0bf33dba0fe30958c87"
+        }
+      ],
+      "consolidated_blob": "0c46bcae5f9bb970af95e0bf33dba0fe30958c87",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/raw_hid_checked_cleanup/pinned_reader/sdk/driver/RiscUsbMouseV1.h",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "3daf083790098344db14c91c9aa7f7acf6795dfe"
+        }
+      ],
+      "consolidated_blob": "3daf083790098344db14c91c9aa7f7acf6795dfe",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/raw_hid_checked_cleanup/pinned_reader/sdk/driver/RiscUsbProviderV1.h",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "1b01570c3292600738d59211b812daf4b5c8221a"
+        }
+      ],
+      "consolidated_blob": "1b01570c3292600738d59211b812daf4b5c8221a",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/raw_hid_checked_cleanup/run.py",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "d5c88413364c556c0f004c347821e778ebedf99e"
+        }
+      ],
+      "consolidated_blob": "d5c88413364c556c0f004c347821e778ebedf99e",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/raw_hid_checked_cleanup/run.sh",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "20cd6405c20c28b18779832a03801cdc9dd2c89f"
+        }
+      ],
+      "consolidated_blob": "20cd6405c20c28b18779832a03801cdc9dd2c89f",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/raw_hid_checked_cleanup/verify_pins.py",
+      "original_sources": [
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "fcd4ea9d96e19d58bbf737e7fe5a289dfc8e94ea"
+        }
+      ],
+      "consolidated_blob": "fcd4ea9d96e19d58bbf737e7fe5a289dfc8e94ea",
+      "mode": "100644",
+      "exact_original_prs": [
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/run_msp_numeric_manifest_test.sh",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "609d1316253cd2d40160077dc8e9fdcbc0359e61"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "609d1316253cd2d40160077dc8e9fdcbc0359e61"
+        }
+      ],
+      "consolidated_blob": "609d1316253cd2d40160077dc8e9fdcbc0359e61",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/run_program_msp_test.sh",
+      "original_sources": [
+        {
+          "pr": 30,
+          "mode": "100755",
+          "blob": "5000e9e1bf30d56cd174cb40ff4da02343b8e6b4"
+        },
+        {
+          "pr": 31,
+          "mode": "100755",
+          "blob": "5000e9e1bf30d56cd174cb40ff4da02343b8e6b4"
+        },
+        {
+          "pr": 33,
+          "mode": "100755",
+          "blob": "5000e9e1bf30d56cd174cb40ff4da02343b8e6b4"
+        },
+        {
+          "pr": 41,
+          "mode": "100755",
+          "blob": "5000e9e1bf30d56cd174cb40ff4da02343b8e6b4"
+        }
+      ],
+      "consolidated_blob": "5000e9e1bf30d56cd174cb40ff4da02343b8e6b4",
+      "mode": "100755",
+      "exact_original_prs": [
+        30,
+        31,
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/run_usb_cdc_native_test.sh",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "473800f425a0b875f47c4ca735b102ec431e16eb"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "473800f425a0b875f47c4ca735b102ec431e16eb"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "473800f425a0b875f47c4ca735b102ec431e16eb"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "473800f425a0b875f47c4ca735b102ec431e16eb"
+        }
+      ],
+      "consolidated_blob": "473800f425a0b875f47c4ca735b102ec431e16eb",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/run_usb_cdc_runtime_test.sh",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "057f576864371d2accd1643616f6bf2552084da3"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "057f576864371d2accd1643616f6bf2552084da3"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "057f576864371d2accd1643616f6bf2552084da3"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "057f576864371d2accd1643616f6bf2552084da3"
+        }
+      ],
+      "consolidated_blob": "057f576864371d2accd1643616f6bf2552084da3",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/run_usb_checked_cleanup_test.sh",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100755",
+          "blob": "dae23eb8396b47c7f2ff6454ba06af0b7edaa102"
+        },
+        {
+          "pr": 33,
+          "mode": "100755",
+          "blob": "dae23eb8396b47c7f2ff6454ba06af0b7edaa102"
+        },
+        {
+          "pr": 34,
+          "mode": "100755",
+          "blob": "dae23eb8396b47c7f2ff6454ba06af0b7edaa102"
+        },
+        {
+          "pr": 39,
+          "mode": "100755",
+          "blob": "dae23eb8396b47c7f2ff6454ba06af0b7edaa102"
+        },
+        {
+          "pr": 40,
+          "mode": "100755",
+          "blob": "dae23eb8396b47c7f2ff6454ba06af0b7edaa102"
+        },
+        {
+          "pr": 41,
+          "mode": "100755",
+          "blob": "dae23eb8396b47c7f2ff6454ba06af0b7edaa102"
+        },
+        {
+          "pr": 42,
+          "mode": "100755",
+          "blob": "dae23eb8396b47c7f2ff6454ba06af0b7edaa102"
+        }
+      ],
+      "consolidated_blob": "dae23eb8396b47c7f2ff6454ba06af0b7edaa102",
+      "mode": "100755",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/run_usb_hid_host_qualification.sh",
+      "original_sources": [
+        {
+          "pr": 28,
+          "mode": "100755",
+          "blob": "a1997e161c9f5137d8b4ceb5751c8a4f6756081f"
+        }
+      ],
+      "consolidated_blob": "a1997e161c9f5137d8b4ceb5751c8a4f6756081f",
+      "mode": "100755",
+      "exact_original_prs": [
+        28
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/run_usb_msp_checked_consumer_test.sh",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "945e049c92fe45385ab6892c6ebfde023950673f"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "945e049c92fe45385ab6892c6ebfde023950673f"
+        }
+      ],
+      "consolidated_blob": "945e049c92fe45385ab6892c6ebfde023950673f",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/run_usb_msp_detach_contract_test.sh",
+      "original_sources": [
+        {
+          "pr": 31,
+          "mode": "100755",
+          "blob": "8a99db1b06166148d0197a4bb6df50babad0a865"
+        },
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "8a99db1b06166148d0197a4bb6df50babad0a865"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "21d37dcddd016d1ff6d6db29da24edc3db27a206"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "8a99db1b06166148d0197a4bb6df50babad0a865"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "8a99db1b06166148d0197a4bb6df50babad0a865"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "8a99db1b06166148d0197a4bb6df50babad0a865"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "21d37dcddd016d1ff6d6db29da24edc3db27a206"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "8a99db1b06166148d0197a4bb6df50babad0a865"
+        }
+      ],
+      "consolidated_blob": "21d37dcddd016d1ff6d6db29da24edc3db27a206",
+      "mode": "100755",
+      "exact_original_prs": [],
+      "resolution": "PR41 pinned historical counterexample content and PR31 executable mode."
+    },
+    {
+      "path": "test/run_usb_serial_source_qualification.sh",
+      "original_sources": [
+        {
+          "pr": 29,
+          "mode": "100755",
+          "blob": "7b19d0a4f31fc7ecacb49b7a0773c027b5ab845b"
+        },
+        {
+          "pr": 32,
+          "mode": "100755",
+          "blob": "7b19d0a4f31fc7ecacb49b7a0773c027b5ab845b"
+        },
+        {
+          "pr": 33,
+          "mode": "100755",
+          "blob": "7b19d0a4f31fc7ecacb49b7a0773c027b5ab845b"
+        },
+        {
+          "pr": 34,
+          "mode": "100755",
+          "blob": "7b19d0a4f31fc7ecacb49b7a0773c027b5ab845b"
+        },
+        {
+          "pr": 39,
+          "mode": "100755",
+          "blob": "7b19d0a4f31fc7ecacb49b7a0773c027b5ab845b"
+        },
+        {
+          "pr": 40,
+          "mode": "100755",
+          "blob": "7b19d0a4f31fc7ecacb49b7a0773c027b5ab845b"
+        },
+        {
+          "pr": 41,
+          "mode": "100755",
+          "blob": "7b19d0a4f31fc7ecacb49b7a0773c027b5ab845b"
+        },
+        {
+          "pr": 42,
+          "mode": "100755",
+          "blob": "7b19d0a4f31fc7ecacb49b7a0773c027b5ab845b"
+        }
+      ],
+      "consolidated_blob": "7b19d0a4f31fc7ecacb49b7a0773c027b5ab845b",
+      "mode": "100755",
+      "exact_original_prs": [
+        29,
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/test_msp_checked_candidate_routes.py",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "de232fed9b453b93eb093bb36b68e164ab4b855f"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "de232fed9b453b93eb093bb36b68e164ab4b855f"
+        }
+      ],
+      "consolidated_blob": "de232fed9b453b93eb093bb36b68e164ab4b855f",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/test_native_driver_toolchain.py",
+      "original_sources": [
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "63bd3c4c36f1ecdb85960e9b8530c9a7fa2473b2"
+        }
+      ],
+      "consolidated_blob": "63bd3c4c36f1ecdb85960e9b8530c9a7fa2473b2",
+      "mode": "100644",
+      "exact_original_prs": [
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/usb_cdc_native_negative_test.py",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "0dbc6a1be3314ad28e0820e754269fcfd9e0ace2"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "6f0d53b308918bc6edd28bd18dd7fc789778575f"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "6f0d53b308918bc6edd28bd18dd7fc789778575f"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "6f0d53b308918bc6edd28bd18dd7fc789778575f"
+        }
+      ],
+      "consolidated_blob": "6f0d53b308918bc6edd28bd18dd7fc789778575f",
+      "mode": "100644",
+      "exact_original_prs": [
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/usb_checked_cleanup_integration.py",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "335b262e153cee8ccf0854dd93fc55962173bafb"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "335b262e153cee8ccf0854dd93fc55962173bafb"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "335b262e153cee8ccf0854dd93fc55962173bafb"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "335b262e153cee8ccf0854dd93fc55962173bafb"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "335b262e153cee8ccf0854dd93fc55962173bafb"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "335b262e153cee8ccf0854dd93fc55962173bafb"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "335b262e153cee8ccf0854dd93fc55962173bafb"
+        }
+      ],
+      "consolidated_blob": "335b262e153cee8ccf0854dd93fc55962173bafb",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/usb_controller_open_custody_test.py",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "9a7e31e674e6361dfb68f9a99e68709569d40135"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "9a7e31e674e6361dfb68f9a99e68709569d40135"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "9a7e31e674e6361dfb68f9a99e68709569d40135"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "9a7e31e674e6361dfb68f9a99e68709569d40135"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "9a7e31e674e6361dfb68f9a99e68709569d40135"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "9a7e31e674e6361dfb68f9a99e68709569d40135"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "9a7e31e674e6361dfb68f9a99e68709569d40135"
+        }
+      ],
+      "consolidated_blob": "9a7e31e674e6361dfb68f9a99e68709569d40135",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/usb_msp_checked_mutation_test.py",
+      "original_sources": [
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "4b0bc18bcb2174a9df8b8cdda729eb7d4fe0482c"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "4b0bc18bcb2174a9df8b8cdda729eb7d4fe0482c"
+        }
+      ],
+      "consolidated_blob": "4b0bc18bcb2174a9df8b8cdda729eb7d4fe0482c",
+      "mode": "100644",
+      "exact_original_prs": [
+        33,
+        41
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/usb_native_bounded_endpoint_test.py",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "76a5f098636e6762c337a262b6431a2b8ed0e2b2"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "76a5f098636e6762c337a262b6431a2b8ed0e2b2"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "76a5f098636e6762c337a262b6431a2b8ed0e2b2"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "76a5f098636e6762c337a262b6431a2b8ed0e2b2"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "76a5f098636e6762c337a262b6431a2b8ed0e2b2"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "76a5f098636e6762c337a262b6431a2b8ed0e2b2"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "76a5f098636e6762c337a262b6431a2b8ed0e2b2"
+        }
+      ],
+      "consolidated_blob": "76a5f098636e6762c337a262b6431a2b8ed0e2b2",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/usb_native_bounded_host_test.py",
+      "original_sources": [
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "168662b3b862ae9eae628a49820cf2382015ef36"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "168662b3b862ae9eae628a49820cf2382015ef36"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "168662b3b862ae9eae628a49820cf2382015ef36"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "168662b3b862ae9eae628a49820cf2382015ef36"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "168662b3b862ae9eae628a49820cf2382015ef36"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "168662b3b862ae9eae628a49820cf2382015ef36"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "168662b3b862ae9eae628a49820cf2382015ef36"
+        }
+      ],
+      "consolidated_blob": "168662b3b862ae9eae628a49820cf2382015ef36",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/usb_native_candidate_versions_test.py",
+      "original_sources": [
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "4cc50436028be1148736fab5e3c51cd0c3a33891"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "4cc50436028be1148736fab5e3c51cd0c3a33891"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "4cc50436028be1148736fab5e3c51cd0c3a33891"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "4cc50436028be1148736fab5e3c51cd0c3a33891"
+        }
+      ],
+      "consolidated_blob": "4cc50436028be1148736fab5e3c51cd0c3a33891",
+      "mode": "100644",
+      "exact_original_prs": [
+        34,
+        39,
+        40,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    },
+    {
+      "path": "test/usb_serial_native_deadline_probe.py",
+      "original_sources": [
+        {
+          "pr": 29,
+          "mode": "100644",
+          "blob": "57081ed2d08c2e482eeaf02f9fcae98987463a4f"
+        },
+        {
+          "pr": 32,
+          "mode": "100644",
+          "blob": "b9b85e8f5b4ae03880aad1b4f24645eaa8edcea5"
+        },
+        {
+          "pr": 33,
+          "mode": "100644",
+          "blob": "b9b85e8f5b4ae03880aad1b4f24645eaa8edcea5"
+        },
+        {
+          "pr": 34,
+          "mode": "100644",
+          "blob": "b9b85e8f5b4ae03880aad1b4f24645eaa8edcea5"
+        },
+        {
+          "pr": 39,
+          "mode": "100644",
+          "blob": "b9b85e8f5b4ae03880aad1b4f24645eaa8edcea5"
+        },
+        {
+          "pr": 40,
+          "mode": "100644",
+          "blob": "b9b85e8f5b4ae03880aad1b4f24645eaa8edcea5"
+        },
+        {
+          "pr": 41,
+          "mode": "100644",
+          "blob": "b9b85e8f5b4ae03880aad1b4f24645eaa8edcea5"
+        },
+        {
+          "pr": 42,
+          "mode": "100644",
+          "blob": "b9b85e8f5b4ae03880aad1b4f24645eaa8edcea5"
+        }
+      ],
+      "consolidated_blob": "b9b85e8f5b4ae03880aad1b4f24645eaa8edcea5",
+      "mode": "100644",
+      "exact_original_prs": [
+        32,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42
+      ],
+      "resolution": "Exact captured blob and mode preserved."
+    }
+  ],
+  "frozen_paths_unchanged": [
+    "dist",
+    "release",
+    "manifest"
+  ],
+  "pr40_snapshot": {
+    "commit": "90e7a8faae1a6678a24c92c32f95032b2fbe1e24",
+    "files": 620,
+    "unchanged_in_consolidated_tree": 606,
+    "approved_overlap_paths": [
+      ".github/workflows/driver-parity.yml",
+      "Drivers/program_msp/driver.c",
+      "Drivers/program_msp/manifest.json",
+      "Drivers/usb_mass_storage/driver.c",
+      "Drivers/usb_mass_storage/manifest.json",
+      "Drivers/usb_msp/driver.c",
+      "Drivers/usb_msp/manifest.json",
+      "README.md",
+      "docs/drivers/program-msp.md",
+      "docs/drivers/usb-msp.md",
+      "test/drivers/program_msp_test.c",
+      "test/drivers/usb_mass_storage_test.c",
+      "test/run_usb_msp_detach_contract_test.sh",
+      "test/test_native_driver_toolchain.py"
+    ],
+    "original_snapshot_preserved": true
+  },
+  "inherited_source_release_parity_discrepancies": 63
+}

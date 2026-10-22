@@ -1,0 +1,26 @@
+ASan/UBSan enabled; LeakSanitizer excluded because this executor is ptraced.
+cc (Debian 14.2.0-19) 14.2.0
+drivers=a7ae39994603c4545a3c014f09051ecfc12084d2 reader=34d8e694d89a1e72d8854403d8592c289fae3ddc mode=sanitized
+CDC v2 ELF host-capability I/O, validation, cleanup and stale-handle tests: PASS
+CHECK 01 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/final-sanitized/drivers-usb_cdc_v2-test
+CH34x ELF VID/PID, protocol, framing, transfers and quiescence: PASS
+CHECK 02 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/final-sanitized/drivers-usb_ch34x_v2-test
+CP210x ELF vendor control, bulk, stale token and quiescence: PASS
+CHECK 03 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/final-sanitized/drivers-usb_cp210x_v2-test
+FTDI ELF IDs, divisors, line control, RX status stripping, buffering and quiescence: PASS
+CHECK 04 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/final-sanitized/drivers-usb_ftdi-test
+CDC claim-scoped control, inventory, release retry, I/O and stale token: PASS
+CHECK 05 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/final-sanitized/reader-usb_cdc_v2-test
+CH34x ELF inventory, protocol, scoped control, orphan recovery: PASS
+CHECK 06 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/final-sanitized/reader-usb_ch34x_v2-test
+CP210x probe, claim-scoped control, release/detach recovery: PASS
+CHECK 07 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/final-sanitized/reader-usb_cp210x_v2-test
+FTDI ELF IDs, divisors, line control, RX status stripping, buffering and quiescence: PASS
+CHECK 08 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/final-sanitized/reader-usb_ftdi-test
+USB CDC ACM descriptor/protocol provider: PASS
+CHECK 09 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/final-sanitized/cdc-protocol
+CHECK 10 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/final-sanitized/serial_monitor_test
+CHECK 11 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/final-sanitized/serial_monitor_no_device_test
+CHECK 12 PASS: /workspace/scratch/c744abbbbd60/usb-serial-monitor/build/final-sanitized/serial_monitor_baud_test
+monitor-launch: /workspace/scratch/c744abbbbd60/usb-serial-monitor/T5S3-Reader/test/native_apps/serial_monitor_launch_contract_test.c:25: main: Assertion `source' failed.
+usb-serial-monitor/RiscRTE-Drivers/test/run_usb_serial_source_qualification.sh: line 22:   292 Aborted                 "$@"

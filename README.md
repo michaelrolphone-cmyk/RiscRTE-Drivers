@@ -86,7 +86,7 @@ Current upstream power/USB release synchronization has staged versions `board-po
 - [board-power-t5s3-v2](docs/drivers/board-power-t5s3-v2.md) — BQ25896 `board.power.vbus@1` provider, upstream release 0.1.6; exact source/ABI/test bytes and canonical 12,660-byte target are synchronized, including the opt-in externally powered host lease. Destination CI/canonical replay is pending before this release is marked migrated.
 - [usb-msp](docs/drivers/usb-msp.md) — TI MSP-FET/eZ-FET `debug.vendor.msp@1` transport, version 0.1.1; CI run `36378453595` passed the exact upstream fixture and reproduced the canonical 14,116-byte ELF byte-for-byte.
 - [platform-clock-v1](docs/drivers/platform-clock-v1.md) — generic `platform.clock@1` monotonic-time and sleep provider, version 0.1.0.
-- [program-msp](docs/drivers/program-msp.md) — MSP430FR/XV2 FRAM programming provider above `debug.vendor.msp@1`, version 0.1.0; CI run `36447591163` reproduced the canonical 9,128-byte ELF byte-for-byte.
+- [program-msp](docs/drivers/program-msp.md) — MSP430FR/XV2 FRAM programming provider above `debug.vendor.msp@1`, version 0.1.0; CI run `36447591163` reproduced the canonical 9,128-byte ELF byte-for-byte. The earlier 0.1.1 failed-open quarantine remains preserved in the current 0.1.2 checked-consumer candidate; see [original software qualification and remaining gaps](docs/USB_FLASHING_QUALIFICATION_2026-10-21.md) and [checked-consumer qualification](docs/USB_MSP_CHECKED_CONSUMER_2026-10-21.md).
 - [t5s3-usb-power-profile](docs/drivers/t5s3-usb-power-profile.md) — immutable T5S3 `board.power.bq25896.profile@1` provider, upstream release 0.1.1; exact source and external-host profile suffix are synchronized with a fail-closed 2,360-byte canonical build target. Destination CI is pending before this release is marked migrated.
 - [usb-controller-esp32s3](docs/drivers/usb-controller-esp32s3.md) — ESP32-S3 `usb.controller@1` provider, upstream release 0.1.19; exact source/tests and externally powered host role switching are synchronized with canonical 789,504-byte replay metadata. Destination host tests/replay/loader audit are pending before this release is marked migrated.
 
@@ -118,3 +118,10 @@ separate from pending physical/host-OS qualification.
 - [telemetry-battery](docs/drivers/telemetry-battery.md) 0.1.0 adapts the generic battery capability without board-specific access.
 
 These are experimental software-tested packages, not installed or hardware-qualified firmware. They preserve the existing HID stack and controller ownership. Open advertising requires informed caller opt-in; encrypted/GATT-only sensors remain outside this increment.
+
+## Local USB checked-cleanup candidate
+
+[Checked cleanup qualification](docs/USB_CHECKED_CLEANUP_2026-10-21.md) records
+separately versioned host/controller source, exact native SDK adaptations,
+normal/sanitized regressions and remaining native-target/consumer work. It does
+not replace accepted artifacts or qualify serial delivery or X4 hardware.

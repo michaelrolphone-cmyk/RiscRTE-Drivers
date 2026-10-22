@@ -1,0 +1,24 @@
+PASS actual host + MSP + program-MSP: checked custody, detach, retries, receipts, generation and capacity; fake controller/probe only
+PASS conservative boundary: detach before target-close completion retains programmer/dependency; no reset success inferred
+PASS MSP size negotiation and custody: prefix
+PASS MSP size negotiation and custody: truncated-release
+PASS MSP size negotiation and custody: null-release
+PASS MSP size negotiation and custody: release-only
+PASS MSP size negotiation and custody: truncated-control
+PASS MSP size negotiation and custody: full
+PASS actual host + MSP + program-MSP: checked custody, detach, retries, receipts, generation and capacity; fake controller/probe only
+PASS conservative boundary: detach before target-close completion retains programmer/dependency; no reset success inferred
+PASS MSP size negotiation and custody: prefix
+PASS MSP size negotiation and custody: truncated-release
+PASS MSP size negotiation and custody: null-release
+PASS MSP size negotiation and custody: release-only
+PASS MSP size negotiation and custody: truncated-control
+PASS MSP size negotiation and custody: full
+test_candidate_identities_and_paths (test_msp_checked_candidate_routes.CandidateRoutes.test_candidate_identities_and_paths) ... ok
+test_historical_builders_and_accepted_bytes_unchanged (test_msp_checked_candidate_routes.CandidateRoutes.test_historical_builders_and_accepted_bytes_unchanged) ... ok
+test_workflow_separates_current_from_historical (test_msp_checked_candidate_routes.CandidateRoutes.test_workflow_separates_current_from_historical) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.028s
+
+OK

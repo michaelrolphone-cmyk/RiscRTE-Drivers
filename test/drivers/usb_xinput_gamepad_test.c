@@ -153,7 +153,8 @@ int main(void) {
     const risc_usb_gamepad_api_v1 *input = driver->capability;
     assert(!driver->start(0, 0));
     assert(!driver->start(dependencies + 1, 1)); // Missing clock dependency.
-    fake_host.discovery.host.struct_size = sizeof(risc_usb_host_discovery_v1);
+    // Only the deployed discovery prefix is present, without interrupt_read.
+    fake_host.discovery.host.struct_size = sizeof(risc_usb_host_legacy_discovery_v1);
     assert(!driver->start(dependencies, 2));
     fake_host.discovery.host.struct_size = sizeof(fake_host);
     fake_clock.monotonic_ms = 0;

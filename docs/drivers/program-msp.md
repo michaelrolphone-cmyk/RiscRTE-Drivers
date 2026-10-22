@@ -1,5 +1,74 @@
 # program-msp
 
+## Current 0.1.2 checked-consumer candidate
+
+The current `Drivers/program_msp` source and manifest are the separately versioned
+0.1.2 checked-consumer candidate from PR41. It retains the earlier failed-open
+transport quarantine and additionally latches a successful target-close phase
+while physical transport closure is retried. Its isolated build route is
+`scripts/build_program_msp_checked_consumer.py`, with output under
+`dist/program-msp-checked-consumer`. It does not claim canonical byte parity.
+See [checked-consumer qualification and remaining target-detach boundary](../USB_MSP_CHECKED_CONSUMER_2026-10-21.md).
+
+The original `scripts/build_program_msp.py` remains byte-identical to main and is
+used only with the immutable 0.1.0 producer in `.source/legacy-msp` for historical
+replay. It is not the current candidate build route. No accepted byte, source pin,
+release inventory, or historical failure has been refreshed.
+
+## Earlier 0.1.1 cleanup qualification (retained history)
+
+The following records the original PR30/31 source and qualification at that time.
+Its 0.1.1 build-route and transport-gap statements are historical, not claims about
+the subsequently qualified 0.1.2 checked consumer. Original evidence remains
+unchanged; the negative detach fixture still runs against pinned `a7ae399` sources.
+
+### Local 0.1.1 cleanup candidate
+
+Source version 0.1.1 is an unpublished correction to failed target acquisition.
+The 0.1.0 release identity, 9,128-byte canonical ELF hash and upstream baseline
+below remain historical evidence, not output to overwrite or a claim of 0.1.1
+parity. No product pin or release inventory is changed by this local candidate.
+
+The transport API explicitly retains its session when `close` fails. Previously,
+all four cleanup sites after a rejected `open` discarded that transport and
+`quiesce` could incorrectly return true. The provider now quarantines failed-open
+transports in its existing two fixed session slots without publishing a target
+handle. Allocation excludes quarantined slots. Each `quiesce` invocation retries
+at most one transport `close` per quarantined slot and returns false while a live
+public session or failed close remains. `stop` retains the dependency until
+quiescence succeeds. It performs no new target programming or reset sequence.
+
+The regression fixture covers protocol, identity, unsupported-target,
+configuration, fuse and synchronization rejections with failed transport close;
+retry and stop behavior; two-slot exhaustion; recovery; and stale-token rejection.
+The pre-correction source fails its quarantine assertion; the corrected source
+passes normal and AddressSanitizer/UndefinedBehaviorSanitizer host checks.
+These are simulated provider calls, not MSP target or X4 hardware acceptance.
+Recovery coverage applies only when the retained transport's `close` later
+succeeds. It does not establish full hotplug recovery: the current `usb_msp`
+provider clears detached session records during `poll`, then `close` rejects
+those old tokens forever. Its own host fixture reproduces false close after
+transport quiescence. A programmer quarantine holding such a token remains
+fail-closed, and normal public-session cleanup also cannot recover through that
+transport API. The transport blob `a64cf0e2748e83897be96fcaabf2559e27c36463`
+is unchanged at inspected Reader `9c8783d6f20659a514bfaeb3847a77c7213dc4f6`
+and `34d8e694d89a1e72d8854403d8592c289fae3ddc`, Drivers `a7ae399` and X4's
+Drivers pin `5890721`. Resolving retired-token/claim ownership is separate work;
+this correction neither treats failed close as success nor redesigns that ABI.
+
+The build manifest guard expects 0.1.1. Canonical metadata is explicitly labeled
+0.1.0; strict historical byte replay remains separate and is not claimed for this
+modified source. Full source parity intentionally reports this external candidate
+as different from the retained upstream baseline. Reconcile version/source custody
+and perform target build qualification before any publication.
+The historical CI replay selects immutable Drivers commit
+`a7ae39994603c4545a3c014f09051ecfc12084d2` in a separate checkout/output tree;
+it does not compare the corrected 0.1.1 producer to the accepted 0.1.0 bytes.
+The native build continues to use current source. Neither compiler route has
+been executed locally because this qualification environment has no Xtensa
+compiler. LeakSanitizer is also unavailable under this environment's ptrace;
+AddressSanitizer/UndefinedBehaviorSanitizer ran with leak detection disabled.
+
 ## Purpose and scope
 
 `program-msp` is the ABI-v2 target-programming provider layered above the vendor-neutral runtime dependency `debug.vendor.msp@1`. It implements the first `program.msp@1` API for MSP430FR/XV2 devices reached through an MSP-FET or eZ-FET transport provider. Its source explicitly limits programming to addressed FRAM writes; classic MSP flash programming is not implemented.
@@ -34,7 +103,7 @@ The migration carries:
 - `test/drivers/program_msp_test.c`
 - `scripts/build_program_msp.py`
 
-The source, manifest, ABI headers, and host behavioral fixture are exact upstream content. The destination build script reproduces the upstream standalone Xtensa compile/link command and verifies the published ELF bytes.
+The original 0.1.0 source, manifest, ABI headers, and host behavioral fixture were exact upstream content; the local 0.1.1 changes above are an explicit divergence. The destination build script reproduces the upstream standalone Xtensa compile/link command and verifies the published ELF bytes.
 
 ## Exported provider descriptor and dependency binding
 
@@ -73,7 +142,7 @@ A device value of zero means “select the only discovered probe.” If more tha
 
 The public programming API accepts AUTO, JTAG, and SBW. AUTO tries SBW first and then JTAG. An explicit JTAG or SBW request tries only that mode. Values above SBW are rejected.
 
-The implementation has two fixed `program_session` slots; no dynamic allocation is used. If both slots have nonzero tokens, opening another target fails.
+The implementation has two fixed `program_session` slots; no dynamic allocation is used. If both slots have public tokens or quarantined failed-open transports, opening another target fails.
 
 ## MSP-FET protocol negotiation
 
@@ -168,7 +237,7 @@ A failure before that point retains the session token, so `quiesce` continues to
 
 ## Lifecycle and quiescence
 
-`quiesce` returns false whenever either of the two session slots has a nonzero token. It returns true only when no programming sessions remain.
+`quiesce` returns false whenever either slot has a nonzero public token. It also attempts one transport close for each quarantined failed-open slot and returns false if either retry fails. It returns true only when no public sessions or retained failed-open transports remain.
 
 `stop` does nothing while quiescence fails. When there are no sessions, it clears the MSP dependency pointer and the shared error buffer.
 
@@ -202,11 +271,11 @@ The migrated upstream fixture builds the provider as a host shared object and su
 
 The fixture models the MSP-FET dependency and a 256-byte memory window. It does not prove behavior against a physical MSP-FET/eZ-FET or an actual MSP430FR target.
 
-## Standalone Xtensa build and canonical parity
+## Historical standalone Xtensa build and canonical parity
 
-`scripts/build_program_msp.py` reproduces the upstream standalone compile/link command with the ESP32-S3 Xtensa toolchain. It checks the exact manifest, requires `t5_driver_get` as the only exported function, requires the only unresolved runtime imports to be `memcmp`, `memcpy`, and `memset`, verifies a 32-bit little-endian Xtensa shared ELF, and requires exact equality with the published 9,128-byte canonical ELF SHA-256 `19b0999f41e45522e877097addf3cfd55651b2fd00ae925fa6084b769b66527f`.
+`scripts/build_program_msp.py` reproduces the upstream standalone compile/link command with the ESP32-S3 Xtensa toolchain. It checks the exact manifest, requires `t5_driver_get` as the only exported function, requires the only unresolved runtime imports to be `memcmp`, `memcpy`, and `memset`, verifies a 32-bit little-endian Xtensa shared ELF, and records comparison with the historical 0.1.0 9,128-byte canonical ELF SHA-256 `19b0999f41e45522e877097addf3cfd55651b2fd00ae925fa6084b769b66527f`.
 
-Canonical byte parity is therefore a build failure condition for this migrated driver rather than a documentation-only observation.
+Strict `--require-byte-parity` replay fails for bytes differing from 0.1.0. Native build mode records `byte_parity=false` for a changed candidate rather than reinterpreting it as the accepted historical artifact.
 
 ## Established limitations
 

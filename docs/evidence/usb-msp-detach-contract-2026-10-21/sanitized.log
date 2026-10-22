@@ -1,0 +1,2 @@
+OBSERVED successful-release: MSP quiescent/old-close=false; physical claims released; old-close remains false after host cleanup
+OBSERVED failed-release: MSP quiescent/old-close=false; physical claims initially retained; old-close remains false after host cleanup

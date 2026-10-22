@@ -16,6 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with: {python-version: "3.11"}
       - name: Test source drift and immutable snapshot validation
@@ -39,6 +43,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with: {python-version: "3.11"}
       - run: bash scripts/install_native_driver_toolchain.sh
@@ -118,7 +126,11 @@ jobs:
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
             test/drivers/usb_host_v2_test.c -ldl -o /tmp/usb-host-v2-test
           /tmp/usb-host-v2-test /tmp/usb-host-v2.so
-      - run: python scripts/build_usb_host_v2.py
+      - name: Build the preserved checked host and isolated native CDC candidates
+        run: |
+          python scripts/build_usb_host_checked_cleanup.py
+          python scripts/build_usb_host_native_stream.py
+          python scripts/build_usb_cdc_native.py
       - name: Test usb-mass-storage BOT, FAT16 browse/write/delete and hotplug
         run: |
           cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
@@ -126,7 +138,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
             test/drivers/usb_mass_storage_test.c -ldl -o /tmp/usb-mass-storage-test
           /tmp/usb-mass-storage-test /tmp/usb-mass-storage.so
-      - run: python scripts/build_usb_mass_storage.py
+      - run: python scripts/build_usb_mass_storage_legacy_prefix.py
       - name: Test usb-hid-gamepad descriptor parsing, state and lifecycle
         run: |
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
@@ -172,14 +184,11 @@ jobs:
             -o /tmp/board-power-t5s3-v2-test
           /tmp/board-power-t5s3-v2-test
       - run: python scripts/build_board_power_t5s3_v2.py
-      - name: Test usb-msp MSP-FET/eZ-FET discovery, HAL framing and lifecycle
+      - name: Test checked MSP consumer composition and legacy ABI
         run: |
-          cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
-            -I sdk/driver Drivers/usb_msp/driver.c -o /tmp/usb-msp.so
-          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
-            test/drivers/usb_msp_test.c -ldl -o /tmp/usb-msp-test
-          /tmp/usb-msp-test /tmp/usb-msp.so
-      - run: python scripts/build_usb_msp.py
+          bash test/run_usb_msp_checked_consumer_test.sh
+          python test/usb_msp_checked_mutation_test.py
+      - run: python scripts/build_usb_msp_checked_consumer.py
       - name: Test display-epd-video surface, frame and teardown contract
         run: |
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
@@ -199,7 +208,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared -I sdk/driver Drivers/program_msp/driver.c -o /tmp/program-msp.so
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver test/drivers/program_msp_test.c -ldl -o /tmp/program-msp-test
           /tmp/program-msp-test /tmp/program-msp.so
-      - run: python scripts/build_program_msp.py
+      - run: python scripts/build_program_msp_checked_consumer.py
       - run: python scripts/build_t5s3_usb_power_profile.py
       - uses: actions/upload-artifact@v4
         with:
@@ -239,12 +248,19 @@ jobs:
           path: dist/usb-hid
       - uses: actions/upload-artifact@v4
         with:
-          name: usb-host-v2
-          path: dist/usb-host-v2
+          name: usb-host-checked-cleanup
+          path: dist/usb-host-v2-checked-cleanup
       - uses: actions/upload-artifact@v4
         with:
-          name: usb-mass-storage
-          path: dist/usb-mass-storage
+          name: usb-native-stream-host-and-cdc
+          path: |
+            dist/usb-host-v2-native-stream/
+            dist/usb-cdc-acm-v2-native-stream/
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-mass-storage-legacy-prefix
+          path: dist/usb-mass-storage-legacy-prefix
       - uses: actions/upload-artifact@v4
         with:
           name: usb-hid-gamepad
@@ -271,16 +287,16 @@ jobs:
           path: dist/board-power-t5s3-v2
       - uses: actions/upload-artifact@v4
         with:
-          name: usb-msp
-          path: dist/usb-msp
+          name: usb-msp-checked-consumer
+          path: dist/usb-msp-checked-consumer
       - uses: actions/upload-artifact@v4
         with:
           name: usb-xinput-gamepad
           path: dist/usb-xinput-gamepad
       - uses: actions/upload-artifact@v4
         with:
-          name: program-msp
-          path: dist/program-msp
+          name: program-msp-checked-consumer
+          path: dist/program-msp-checked-consumer
       - uses: actions/upload-artifact@v4
         with:
           name: t5s3-usb-power-profile
@@ -290,22 +306,138 @@ jobs:
           name: display-epd-video
           path: dist/display-epd-video
 
+  msp-candidate-qualification:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sanitize: [0, 1]
+    env:
+      SANITIZE: ${{ matrix.sanitize }}
+      DRIVER_SOURCE: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check out actual pinned Runtime parser inputs
+        uses: actions/checkout@v4
+        with:
+          repository: michaelrolphone-cmyk/RiscRTE
+          ref: 6a3b3d46f5b2857eacc6e9863799dec1f466b036
+          path: .source/runtime
+          persist-credentials: false
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: python -m pip install PyYAML==6.0.3
+      - name: Record exact head and reject changed accepted-byte inventories
+        run: |
+          set -euo pipefail
+          mkdir -p qualification
+          test "$(git rev-parse HEAD)" = "$DRIVER_SOURCE"
+          printf '%s\n' "$DRIVER_SOURCE" > qualification/HEAD.txt
+          git diff --exit-code a7ae39994603c4545a3c014f09051ecfc12084d2 -- dist release manifest
+          python test/test_msp_checked_candidate_routes.py 2>&1 | tee qualification/candidate-routes.log
+      - name: Preserve original host HID and historical MSP fixtures
+        run: |
+          set -euo pipefail
+          mode=plain
+          if [[ "$SANITIZE" == 1 ]]; then mode=sanitized; fi
+          bash test/run_usb_hid_host_qualification.sh "$mode" "$RUNNER_TEMP/usb-hid-original" 2>&1 | tee qualification/original-hid.log
+          bash test/run_usb_msp_detach_contract_test.sh 2>&1 | tee qualification/historical-detach.log
+          bash test/run_usb_msp_historical_test.sh 2>&1 | tee qualification/historical-msp.log
+      - name: Qualify checked MSP composition, detach ordering and six host tables
+        run: |
+          set -euo pipefail
+          bash test/run_usb_msp_checked_consumer_test.sh 2>&1 | tee qualification/msp-composition.log
+          python test/usb_msp_checked_mutation_test.py 2>&1 | tee qualification/msp-mutations.log
+          bash test/run_program_msp_test.sh 2>&1 | tee qualification/program-msp.log
+      - name: Qualify mass-storage prefix and XInput legacy-tail boundaries
+        run: |
+          set -euo pipefail
+          flags=(-std=c11 -Wall -Wextra -Werror -I sdk/driver)
+          if [[ "$SANITIZE" == 1 ]]; then
+            flags+=(-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -g)
+          fi
+          cc "${flags[@]}" -fPIC -fvisibility=hidden -shared Drivers/usb_mass_storage/driver.c -o /tmp/mass-storage.so
+          cc "${flags[@]}" test/drivers/usb_mass_storage_test.c -ldl -o /tmp/mass-storage-test
+          /tmp/mass-storage-test /tmp/mass-storage.so 2>&1 | tee qualification/mass-storage.log
+          git show 763fe4cae2c1359d69d18a20fe4e6860301ab50a:Drivers/usb_mass_storage/driver.c > /tmp/original-mass-storage.c
+          cc "${flags[@]}" -fPIC -fvisibility=hidden -shared /tmp/original-mass-storage.c -o /tmp/original-mass-storage.so
+          python - <<'PYTHON' 2>&1 | tee qualification/mass-storage-negative.log
+          import resource, subprocess
+          resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+          result = subprocess.run(['/tmp/mass-storage-test', '/tmp/original-mass-storage.so'], capture_output=True, text=True)
+          assert result.returncode != 0, 'original prefix bug escaped'
+          assert 'Assertion' in result.stderr and 'driver->start(dep,1)' in result.stderr and 'failed' in result.stderr, result.stderr
+          print('REJECTED original PR33 prefix gate at expected assertion:', result.stderr.strip())
+          PYTHON
+          cc "${flags[@]}" test/drivers/usb_xinput_gamepad_test.c -o /tmp/xinput-test
+          /tmp/xinput-test 2>&1 | tee qualification/xinput.log
+      - name: Qualify numeric manifests with unchanged pinned Runtime parser
+        run: |
+          set -euo pipefail
+          bash test/run_msp_numeric_manifest_test.sh .source/runtime Drivers/usb_mass_storage/manifest.json 2>&1 | tee qualification/runtime-parser.log
+      - name: Record qualification evidence hashes
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p qualification
+          printf '%s\n' "Source-level candidate qualification only; no hardware, electrical, product admission, canonical byte replacement, merge or release." > qualification/SCOPE.txt
+          git status --porcelain --untracked-files=no > qualification/source-status.txt
+          test ! -s qualification/source-status.txt
+          (cd qualification && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: msp-qualification-${{ github.event.pull_request.head.sha || github.sha }}-sanitize-${{ matrix.sanitize }}
+          path: qualification/
+          if-no-files-found: error
+
   historical-release-parity:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check out immutable historical generic producer inputs
+        uses: actions/checkout@v4
+        with:
+          repository: michaelrolphone-cmyk/RiscRTE-Drivers
+          ref: a7ae39994603c4545a3c014f09051ecfc12084d2
+          path: .source/legacy-generic
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with: {python-version: "3.11"}
       - run: python -m pip install platformio==6.1.19
       - name: Install the exact historical S3 compiler only
         run: pio pkg install --global --tool 'espressif/toolchain-xtensa-esp32s3@8.4.0+2021r2-patch5'
       - name: Require historical GCC8 generic release bytes
+        working-directory: .source/legacy-generic
         run: |
           export NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"
-          for driver in board_power_t5s3_v2 t5s3_usb_power_profile usb_mass_storage usb_msp usb_hid_gamepad usb_ui_navigation program_msp display_epd_video; do
+          for driver in board_power_t5s3_v2 t5s3_usb_power_profile usb_mass_storage usb_hid_gamepad usb_ui_navigation display_epd_video; do
             python "scripts/build_${driver}.py" --require-byte-parity
           done
+      - name: Check out immutable historical MSP producers
+        uses: actions/checkout@v4
+        with:
+          repository: michaelrolphone-cmyk/RiscRTE-Drivers
+          ref: a7ae39994603c4545a3c014f09051ecfc12084d2
+          path: .source/legacy-msp
+          persist-credentials: false
+      - name: Require unchanged historical MSP release bytes
+        working-directory: .source/legacy-msp
+        run: |
+          export NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"
+          python scripts/build_usb_msp.py --require-byte-parity
+          python scripts/build_program_msp.py --require-byte-parity
       - run: python scripts/build_i2c_esp32s3_v2.py --require-byte-parity
+        working-directory: .source/legacy-generic
       - name: Check out the verified historical USB controller producer
         uses: actions/checkout@v4
         with:
@@ -326,13 +458,23 @@ jobs:
       - name: Audit the historical USB controller loader map
         working-directory: .source/legacy-controller
         run: python scripts/verify_usb_controller_loader_map.py dist/usb-controller-esp32s3/driver.elf
-      - name: Collect historical controller proof without changing producer inputs
+      - name: Collect historical proof without changing producer inputs
         run: |
+          # Reject any output collision instead of replacing tracked provenance.
+          for driver in board-power-t5s3-v2 t5s3-usb-power-profile usb-mass-storage usb-hid-gamepad usb-ui-navigation display-epd-video i2c-esp32s3-v2; do
+            test ! -e "dist/$driver"
+            cp -a ".source/legacy-generic/dist/$driver" "dist/$driver"
+          done
+          for driver in usb-msp program-msp; do
+            test ! -e "dist/$driver"
+            cp -a ".source/legacy-msp/dist/$driver" "dist/$driver"
+          done
           test ! -e dist/usb-controller-esp32s3
           cp -a .source/legacy-controller/dist/usb-controller-esp32s3 dist/usb-controller-esp32s3
       - uses: actions/upload-artifact@v4
         with:
           name: historical-release-parity
+          if-no-files-found: error
           path: |
             dist/board-power-t5s3-v2/
             dist/t5s3-usb-power-profile/

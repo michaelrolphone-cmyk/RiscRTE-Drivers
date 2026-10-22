@@ -1,0 +1,345 @@
+{
+  "repositories": {
+    "drivers_base": {
+      "commit": "a7ae39994603c4545a3c014f09051ecfc12084d2"
+    },
+    "qualification_parent": {
+      "commit": "0dd55680bf565edd8bcb30405d14d2f9b02cd956"
+    },
+    "native_reader": {
+      "commit": "c98e4222048244b1e729869ed47aa99130025fd3",
+      "tree": "a5ee3231bf2de0cea3d484765cd5aa639721a4a8",
+      "clean": true
+    },
+    "native_runtime": {
+      "commit": "6a3b3d46f5b2857eacc6e9863799dec1f466b036"
+    },
+    "esp_usb": {
+      "commit": "0f6820940f9e8075c0cc1483d9c2f5e89cc5b97a",
+      "tree": "fe8511cae3cc096a04a370706ca16f24296d7842",
+      "clean": true
+    }
+  },
+  "reader_historical_native_equality": {
+    "Drivers/usb_host_v2/driver.c": {
+      "equal": true,
+      "sha256": "e87717502bf21a7d17fc5eb576c01d359749f6a41c72f6731a69db9c8f0e066f"
+    },
+    "sdk/driver/RiscUsbControllerV1.h": {
+      "equal": true,
+      "sha256": "226f083493085ecdcaa21a7c3bf1c269640b7d1ebaa099e7217fb64124f1dbed"
+    },
+    "sdk/driver/RiscUsbInterruptV1.h": {
+      "equal": true,
+      "sha256": "bfdd4644feaf3f4dc5d06070f052104579d3fb902e27e707f27943d7bf22815e"
+    }
+  },
+  "idf_commit": "fff9895c82d744c7237be8847347bdd1b07c6643",
+  "compiler_distribution": "esp-15.2.0_20251204",
+  "candidate_files": {
+    "Drivers/usb_host_v2/driver.c": {
+      "bytes": 19638,
+      "sha256": "7728ce7fbd37aae22af93988b5e25a1ae8876f9086476daf90e2023040e76fd4"
+    },
+    "Drivers/usb_host_v2/manifest.json": {
+      "bytes": 386,
+      "sha256": "14bddcd02909c2c8aabaab679026063ab26b08f63872753b96d2fb6eed254364"
+    },
+    "Drivers/usb_controller_esp32s3/ClaimReleasePolicy.h": {
+      "bytes": 694,
+      "sha256": "2e79b945be47c2a8370c3bf8dfeafda3973e4c5dcc41432b7b1450ec678d12ea"
+    },
+    "Drivers/usb_controller_esp32s3/EnumerationDiagnostic.h": {
+      "bytes": 2532,
+      "sha256": "e28873e43cbdd0dbbed17bcbf644f91e4e641fee5b239d814f4d512b3a43f490"
+    },
+    "Drivers/usb_controller_esp32s3/HostStartup.h": {
+      "bytes": 4131,
+      "sha256": "00cec7e84eb3427190d39d8d2555b41294c9885b92e5c80776552d0b16881d84"
+    },
+    "Drivers/usb_controller_esp32s3/NativeBoundedEndpoint.h": {
+      "bytes": 1012,
+      "sha256": "97f620a2f12a0612a0b53d04a1c3bd13a0e692145924ea60ca3a567e77dca719"
+    },
+    "Drivers/usb_controller_esp32s3/NativeBoundedEndpointHcd.inc": {
+      "bytes": 2592,
+      "sha256": "b3b872343f715f7a107fe3c54930a183be8bad9eeb223107b7c2910f117736b6"
+    },
+    "Drivers/usb_controller_esp32s3/NativeBoundedEndpointUsbh.inc": {
+      "bytes": 2442,
+      "sha256": "dbfd203546136af9afa590eef58bb56f23c3e4848958b9056e3e61cd4e2ceba6"
+    },
+    "Drivers/usb_controller_esp32s3/NativeBoundedHost.h": {
+      "bytes": 549,
+      "sha256": "e670fb249a99cc46504743ca347da54b4e6cf5647d3907a6d7c06f0cdbb2cbbe"
+    },
+    "Drivers/usb_controller_esp32s3/NativeDmaAlignment.h": {
+      "bytes": 929,
+      "sha256": "e39702bbb6b188ea2fe9432298b65c275ae88551bccb6489c965b52d25371230"
+    },
+    "Drivers/usb_controller_esp32s3/NativeHcdLifecycle.inc": {
+      "bytes": 1908,
+      "sha256": "4b7dfcb15f9e1c0e97eb626581f36a02b959b91b546267e18c2cc49321f4f122"
+    },
+    "Drivers/usb_controller_esp32s3/NativeHostLifecycle.inc": {
+      "bytes": 4600,
+      "sha256": "63b93c0e756e4212b3dd5ae45b6d283ab89f650340b3003862d3a9b483f1439c"
+    },
+    "Drivers/usb_controller_esp32s3/NativeHubLifecycle.inc": {
+      "bytes": 2257,
+      "sha256": "ba649e30f874f249e9c51df3f423779fc270e76438ce60619b4b1ca61fd5ee76"
+    },
+    "Drivers/usb_controller_esp32s3/NativeIrqLifecycle.cpp": {
+      "bytes": 3153,
+      "sha256": "b2bf8f373d10cb87bc7148e442e8d2f7f7a538f69de40ee98fc6e5ec07c27a43"
+    },
+    "Drivers/usb_controller_esp32s3/NativeIrqLifecycle.h": {
+      "bytes": 1273,
+      "sha256": "cfcbf72121b5db22069c2778436c02e816c3f02503ec9a769bff119450e138f9"
+    },
+    "Drivers/usb_controller_esp32s3/NativePhyGate.h": {
+      "bytes": 1529,
+      "sha256": "e71ec31aa9d5136f1efb9491a8f27ead3a5da1f4791a992d88fecf70b8cf2083"
+    },
+    "Drivers/usb_controller_esp32s3/NativeUsbLifecycle.h": {
+      "bytes": 369,
+      "sha256": "5437defc20764ebda41d63938c0d6a93b77aed42fb089930fc36defb28939694"
+    },
+    "Drivers/usb_controller_esp32s3/PendingInterrupt.h": {
+      "bytes": 4988,
+      "sha256": "c4eab811cff1593d234a0a68ed6cbe241f509736d7ea0a3bcb853a65e73e89d0"
+    },
+    "Drivers/usb_controller_esp32s3/PhyRoute.h": {
+      "bytes": 692,
+      "sha256": "0373b9412c766fe4ac0dcd9d36f28b7828718e05cc1b00e99978def78f2d6a56"
+    },
+    "Drivers/usb_controller_esp32s3/RoleSwitch.h": {
+      "bytes": 7071,
+      "sha256": "8d0145317fa3d6c4d33e65a1efc742ede3ecca3fe825e3541309c965b5cfa8f6"
+    },
+    "Drivers/usb_controller_esp32s3/StartupDiagnostic.h": {
+      "bytes": 1377,
+      "sha256": "c2b3dfc0a005aadd0bca8b34e5de6c927292ac263434a6e57924515914cae68c"
+    },
+    "Drivers/usb_controller_esp32s3/driver.cpp": {
+      "bytes": 5412,
+      "sha256": "d3e52f4eff3b8b0f54d9023c1d39197c5ca761870cfd77e3af58b7f646a6ae92"
+    },
+    "Drivers/usb_controller_esp32s3/driver_base.cpp": {
+      "bytes": 31268,
+      "sha256": "ed04b2fcc5485a8d9650ecc4ed4fb694f9fbe6417226def70134ab59b1440cce"
+    },
+    "Drivers/usb_controller_esp32s3/exports.map": {
+      "bytes": 50,
+      "sha256": "24930856885793bf03ca7d744d4bfffbcb37682a6068a92e40ae5aa63d0cadc6"
+    },
+    "Drivers/usb_controller_esp32s3/idf61-imports.txt": {
+      "bytes": 695,
+      "sha256": "a21d1ca8d39b47b994068074f668ce7c71f8a8247711681ad4cf8bcfc9bf395e"
+    },
+    "Drivers/usb_controller_esp32s3/manifest.json": {
+      "bytes": 406,
+      "sha256": "87fc6746e3b64585161465bd49d9538960d67135c8a92714111998dcf56045c7"
+    },
+    "Drivers/usb_controller_esp32s3/phy_gpio.c": {
+      "bytes": 1431,
+      "sha256": "1b3bf386aadecd4f43e56763276c4feea88edc9db50f3fd1b5e2cc51762e7a22"
+    },
+    "sdk/driver/RiscAudioPcmV1.h": {
+      "bytes": 1343,
+      "sha256": "2a7c5417aa4453440e3b8112d664a93530aeb4d5567a3b2eb3c93f929a46d321"
+    },
+    "sdk/driver/RiscAudioV1.h": {
+      "bytes": 1007,
+      "sha256": "46c362397b6ce9754261a05a111b8c43aea32adccf83e1f3491cef5e895b607f"
+    },
+    "sdk/driver/RiscBatteryGaugeV1.h": {
+      "bytes": 654,
+      "sha256": "e63ec549baa5a263f325990320ff7cffb210c8149a1a3fb29e2e7f65f9a1c5bb"
+    },
+    "sdk/driver/RiscBluetoothHidV1.h": {
+      "bytes": 3278,
+      "sha256": "ccac0a0c70b6aa73233201c1289a6825b6976d8d6b1758e394995eed234bf1b7"
+    },
+    "sdk/driver/RiscBluetoothHostV1.h": {
+      "bytes": 1305,
+      "sha256": "d3846ce9597357772ad37739a1919e28a15790d9d2067be3060dabe976d27156"
+    },
+    "sdk/driver/RiscBluetoothSensorsV1.h": {
+      "bytes": 2026,
+      "sha256": "62f21be78604b6c32c47beb8317f1fea059653b407baa73a93ee23ce8d8d050e"
+    },
+    "sdk/driver/RiscBluetoothTelemetryV1.h": {
+      "bytes": 1702,
+      "sha256": "f98aaff4165ee3816846cfe9ba110e8bafce403342a870162eb1089a03d935a6"
+    },
+    "sdk/driver/RiscBoundKeyValueV1.h": {
+      "bytes": 2550,
+      "sha256": "0d77dffef1e6513cbf9b3cf38266f7c9ebcc25d000605838821241ba742cd672"
+    },
+    "sdk/driver/RiscBq25896ProfileV1.h": {
+      "bytes": 1764,
+      "sha256": "04e33c1b5a3385c2bedf275b85aa62a5dbfbec8cb38c2f3879ebb413e70a0c98"
+    },
+    "sdk/driver/RiscDisplayOutputV1.h": {
+      "bytes": 4478,
+      "sha256": "8111c8fb6d28542f3d2f5ae7ce7497891b1c89bd2488735c817542b955bdd726"
+    },
+    "sdk/driver/RiscDisplayPowerV1.h": {
+      "bytes": 1106,
+      "sha256": "4ba5303d82c1b9a97ba1abada14456f882e449331bc04bf9caa70ded23d1560b"
+    },
+    "sdk/driver/RiscFirmwareI2cCompatV1.h": {
+      "bytes": 778,
+      "sha256": "4abe4c6d4b83432bd76ca8fdbf9502dfbab25f5579ae0acd6de367cc133bb0ef"
+    },
+    "sdk/driver/RiscFrontlightV1.h": {
+      "bytes": 505,
+      "sha256": "202f9f4b5e00452d80f2bda836327a121e23437280f166bbf45c64764ba15d9d"
+    },
+    "sdk/driver/RiscGpioBankV1.h": {
+      "bytes": 857,
+      "sha256": "f508f8cdfe6e880c911982e2a27e54d8e0ec5d9d906bccf1e0aef0fd67b5fbbd"
+    },
+    "sdk/driver/RiscI2cBusV1.h": {
+      "bytes": 1836,
+      "sha256": "a6b769efbbf7f3837a6a348689b0aee84bf687ae8e18a31d0296f3bfa6ac2004"
+    },
+    "sdk/driver/RiscInputNavigationV1.h": {
+      "bytes": 1713,
+      "sha256": "2644754feb7238d066908658ac9d4fe25537d4d5e424a6aef1365fabea600a26"
+    },
+    "sdk/driver/RiscMspFetV1.h": {
+      "bytes": 2419,
+      "sha256": "883879ee0ce2ac3ff5df42eb549a856557132a4da5a1dfe22edff8ad8c4e015b"
+    },
+    "sdk/driver/RiscPlatformClockV1.h": {
+      "bytes": 592,
+      "sha256": "41a12f6529f38731ee874f8bc166e1cf89fe376a1448fe5a4dd4c9abac90e5e2"
+    },
+    "sdk/driver/RiscPowerKeyV1.h": {
+      "bytes": 634,
+      "sha256": "65acb08b7527a7597ea24a6adae6d70e7182413705b957cdb88e27e2a985e75f"
+    },
+    "sdk/driver/RiscPowerSleepV1.h": {
+      "bytes": 1542,
+      "sha256": "2ca96de4ddb76b511c2b9d23571a060e19efff3ebf793714324c5ac012c5179c"
+    },
+    "sdk/driver/RiscProgramMspV1.h": {
+      "bytes": 1672,
+      "sha256": "fd1a7c6ebdfdaeb951c3b82abf2baca6f84f4a4e533841c12d2eb81ff2e0166f"
+    },
+    "sdk/driver/RiscProviderV2.h": {
+      "bytes": 2246,
+      "sha256": "358ac93f86a3e228c2a9c9cfca0b758571db43453bce1e4c5e38402096064ea0"
+    },
+    "sdk/driver/RiscRadioIqResourceV1.h": {
+      "bytes": 635,
+      "sha256": "dd6a9684d5be6203846b5ee06f685ca3dae6835d1e3b95821c336a48b5fa3827"
+    },
+    "sdk/driver/RiscRadioIqV1.h": {
+      "bytes": 6404,
+      "sha256": "7b6e99c6a886b9445ffae7c3471c4f9867b8af9329924710203db5b99764bd2f"
+    },
+    "sdk/driver/RiscStlinkV1.h": {
+      "bytes": 2546,
+      "sha256": "1261bd3a8ed77646d03a686cb13b72461ca9ca040ef81d48329e92228461ed8d"
+    },
+    "sdk/driver/RiscStorageVolumeV1.h": {
+      "bytes": 2251,
+      "sha256": "96902eb6cca4356d44066798d0edb1260e32ae23721a401404450cdb191cd7e7"
+    },
+    "sdk/driver/RiscTelemetryV1.h": {
+      "bytes": 1107,
+      "sha256": "8ef64c586e8392c1d7521498c25cfdaccefd53242530e2dda9116e9cc12a5d48"
+    },
+    "sdk/driver/RiscTextInputV1.h": {
+      "bytes": 2094,
+      "sha256": "32f2a6cda3b7a4fef8487cc046ceb891261e483feafed32908cbd924112a1a77"
+    },
+    "sdk/driver/RiscTouchV1.h": {
+      "bytes": 2703,
+      "sha256": "fe18fab3ac20fda95747388f1428408b7795e5da3511c7a9fff07c16ddfd2c7d"
+    },
+    "sdk/driver/RiscUsbControllerV1.h": {
+      "bytes": 5032,
+      "sha256": "226f083493085ecdcaa21a7c3bf1c269640b7d1ebaa099e7217fb64124f1dbed"
+    },
+    "sdk/driver/RiscUsbDiscoveryDiagnosticsV1.h": {
+      "bytes": 672,
+      "sha256": "b0a2652e3724f5cb3003485397fae860a6f49a38092d5f30345573ec8931c4d7"
+    },
+    "sdk/driver/RiscUsbGamepadDiagnosticsV1.h": {
+      "bytes": 645,
+      "sha256": "b58df5e7618f8a0e3e58ae023fd034c96ff9f7d04b6c35080a4b6661a064ae0a"
+    },
+    "sdk/driver/RiscUsbHidV1.h": {
+      "bytes": 4383,
+      "sha256": "5b5549c4cb718dec55f2aca8bc93f401b2d5a703d30aaa1a78d1bcdd26755b5c"
+    },
+    "sdk/driver/RiscUsbInterruptV1.h": {
+      "bytes": 1235,
+      "sha256": "bfdd4644feaf3f4dc5d06070f052104579d3fb902e27e707f27943d7bf22815e"
+    },
+    "sdk/driver/RiscUsbProviderV1.h": {
+      "bytes": 2354,
+      "sha256": "77f67cf5db7ed3fd7c6e148807bc705b5f8443c90d401b546069d756eb997b9a"
+    },
+    "sdk/driver/RiscUsbVbusV1.h": {
+      "bytes": 3350,
+      "sha256": "27efb8b327d38c3ca6a97d5f2936094659f67d69e89b49afcba9fc4ee5db6a6a"
+    },
+    "sdk/driver/T5DriverApi.h": {
+      "bytes": 1387,
+      "sha256": "e0960f0b2e2579d7b7245734b593182841806c5eb7b7d67af4194ac8eb0c4b55"
+    },
+    "sdk/driver/T5GnssProvider.h": {
+      "bytes": 238,
+      "sha256": "f093ed0f5707b1cbe12caa5086f248e884fb5f69c7fbcf1f6f6a3ce911747116"
+    },
+    "sdk/driver/T5GpsApi.h": {
+      "bytes": 904,
+      "sha256": "a0550bc74574ba073a419d8a65ae73bd2697f531dc1b6d5172d6eab5ccea3262"
+    },
+    "sdk/driver/T5UsbClassDriver.h": {
+      "bytes": 1422,
+      "sha256": "64a6a3a8081509ce9ab8e15c15095578174d9d7afb4343672576b89b4f65300d"
+    },
+    "sdk/driver/T5VideoApi.h": {
+      "bytes": 3724,
+      "sha256": "7efa44432f7787ab6827c5e284f368ac4db7dcef274fcd8e0c062c0086c9d5db"
+    },
+    "scripts/native_usb_idf61_sources.py": {
+      "bytes": 6966,
+      "sha256": "69f42d270ec1b8f643ac6e6243a8072c462f77a40ca80b729aff023c8d5d10f9"
+    },
+    "scripts/native_usb_bounded_endpoints.py": {
+      "bytes": 6690,
+      "sha256": "dcb85a108c5f54bf717526fa7cfbd5f4f41d99a109df87ae77d2c31b4d09eec4"
+    },
+    "scripts/native_usb_bounded_host.py": {
+      "bytes": 2556,
+      "sha256": "b18ca65722951e7e1c7ba06eafe4d54465d08a5e52b134db088b04fc3fe3d3f7"
+    },
+    "scripts/build_usb_controller_checked_cleanup_idf61.py": {
+      "bytes": 16912,
+      "sha256": "ebf8a012cd547fe72fe88d0030a7e383b3b2388d1e98070707ae609d089947b8"
+    },
+    "scripts/build_usb_host_checked_cleanup.py": {
+      "bytes": 2642,
+      "sha256": "75e17816785f86c9ec97727acf87803a6a01a210832ccd36bee02551dfa4d04c"
+    }
+  },
+  "preserved_paths": [],
+  "runtime_contract": {
+    "path": "sdk/driver/RiscStreamSessionProviderV1.h",
+    "sha256": "fe463661530c43ae7d1dd8b9c8227fdc6a7e4380bca3f5c8a13287cb0db9e873",
+    "maximum_total_callback_budget_ms": 1000
+  },
+  "sdk_tick_macro": {
+    "idf_commit": "fff9895c82d744c7237be8847347bdd1b07c6643",
+    "projdefs_blob": "2ec338490583778cf0ebfdb221481b38191ae25d",
+    "freertosconfig_blob": "4634a2dec086b823e4994e2dad391ead7cc5180e",
+    "note": "Read-only independent review: at builder-asserted 1000Hz, <=1000ms does not overflow. Full SDK compilation not run."
+  }
+}
