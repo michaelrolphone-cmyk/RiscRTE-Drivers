@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build isolated passive-sensor, telemetry, and battery-adapter ABI-v2 ELFs."""
-import hashlib,json,os,shutil,subprocess
+import hashlib,json,os,re,shutil,subprocess
 from pathlib import Path
 from normalize_xtensa_relocations import normalize
 from native_driver_toolchain import compiler
@@ -22,7 +22,9 @@ def build():
   b=elf.read_bytes()
   if b[:7]!=b'\x7fELF\x01\x01\x01' or b[16:20]!=b'\x03\x00\x5e\x00':raise ValueError('Wrong ELF target')
   m=json.loads((source/'manifest.json').read_text())
-  if m['id']!=identity or m['version']!='0.1.0' or m['driver_abi']!=2:raise ValueError('Wrong manifest')
+  if m['id']!=identity or not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', m.get('version','')) or m['driver_abi']!=2:raise ValueError('Wrong manifest')
+  minimum=(0,1,1) if identity=='ble-sensors' else (0,1,0)
+  if tuple(map(int,m['version'].split('.')))<minimum:raise ValueError('Package version predates selected source behavior')
   record={'schema':1,'source_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'source_dirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),'compiler':subprocess.check_output([cc,'--version'],text=True).splitlines()[0],'size_bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'imports':sorted(imports),'exports':sorted(exports),'physical_verification':'not-performed'}
   (out/'manifest.json').write_text(json.dumps(m,indent=2)+'\n');(out/'build-record.json').write_text(json.dumps(record,indent=2)+'\n')
   for notice in source.glob('LICENSE*'):shutil.copyfile(notice,out/notice.name)
