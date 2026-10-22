@@ -150,6 +150,17 @@ def validate(root, inventory, trees, source, released, head, release):
     entries = unique(inventory['drivers'] + inventory.get('source_only_drivers', []), 'local')
     local_released = unique(inventory['drivers'], 'local released')
     errors, rows, paths = [], [], set()
+    local_paths = {}
+    # A missing upstream identity does not make a declared local package unknown.
+    # Register only valid, unique local paths; reconciliation below still fails
+    # for every missing upstream or recorded-tree entry.
+    for identity, entry in entries.items():
+        path = entry.get('source_path', '')
+        if not isinstance(path, str) or not re.fullmatch(r'Drivers/[A-Za-z0-9_-]+', path) or path in paths:
+            errors.append(f'invalid or duplicate source path: {identity}')
+            continue
+        paths.add(path)
+        local_paths[identity] = path
     origin = inventory['parity_source']
     if trees['source_repository'] != origin['repository']:
         errors.append('source-tree repository mismatch')
@@ -165,11 +176,9 @@ def validate(root, inventory, trees, source, released, head, release):
             errors.append(f'source inventory mismatch: {identity}')
             continue
         entry, upstream = entries[identity], source[identity]
-        path = entry.get('source_path', '')
-        if not isinstance(path, str) or not re.fullmatch(r'Drivers/[A-Za-z0-9_-]+', path) or path in paths:
-            errors.append(f'invalid or duplicate source path: {identity}')
+        if identity not in local_paths:
             continue
-        paths.add(path)
+        path = local_paths[identity]
         if path != upstream['source_path']:
             errors.append(f'source path mismatch: {identity}')
         if entry.get('source_version', entry['version']) != upstream['version']:
