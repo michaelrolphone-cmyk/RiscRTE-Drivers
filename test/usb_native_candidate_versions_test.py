@@ -8,6 +8,8 @@ old=['Drivers/usb_host_v2/manifest.json','Drivers/usb_controller_esp32s3/manifes
 source='#include "runtime/packages/PackageIdentity.h"\n#include <cassert>\nint main(){ RuntimePackages::Identity out;\n'
 for p,want in [(p,True) for p in paths]+[(p,False) for p in old]:
  m=json.loads((root/p).read_text())
+ if p==paths[0]:
+  assert m['id']=='usb-cdc-acm' and tuple(map(int,m['version'].split('.')))>(0,1,8)
  expr='RuntimePackages::makeIdentity(RuntimePackages::Kind::Driver,'+','.join(json.dumps(m[k]) for k in ['id','version','file_name'])+',false,&out)'
  source+='assert('+('' if want else '!')+expr+');\n'
 source+='}\n'
@@ -15,4 +17,4 @@ with tempfile.TemporaryDirectory() as d:
  d=pathlib.Path(d);(d/'test.cpp').write_text(source)
  subprocess.run(['c++','-std=c++17','-Wall','-Wextra','-Werror','-I'+str(runtime/'src'),str(d/'test.cpp'),'-o',str(d/'test')],check=True)
  subprocess.run([str(d/'test')],check=True)
-print('PASS actual Runtime package identity: CDC 0.1.1, host 0.1.7, controller 0.1.27 accepted; both preserved prerelease manifests rejected')
+print('PASS actual Runtime package identity: canonical CDC 0.1.9, host 0.1.7, controller 0.1.27 accepted; both preserved prerelease manifests rejected')

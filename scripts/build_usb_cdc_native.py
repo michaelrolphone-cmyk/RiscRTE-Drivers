@@ -1,24 +1,32 @@
 #!/usr/bin/env python3
 """Build a separate unpublished native CDC candidate, never replay/accepted bytes."""
-import hashlib, json, os, shutil, subprocess
+import hashlib, json, os, re, shutil, subprocess
 from pathlib import Path
 from normalize_xtensa_relocations import normalize
 from native_driver_toolchain import compiler
 
 ROOT=Path(__file__).resolve().parents[1]
 SRC=ROOT/"Drivers/usb_cdc_native"
-OUT=ROOT/"dist/usb-cdc-acm-v2-native-stream"
+OUT=ROOT/"dist/usb-cdc-acm-native-stream"
 CANONICAL_SIZE=None
 CANONICAL_SHA256=None
 manifest=json.loads((SRC/"manifest.json").read_text())
 required={
- "type":"driver","id":"usb-cdc-acm-v2","version":"0.1.1","driver_abi":2,
+ "type":"driver","id":"usb-cdc-acm","driver_abi":2,
  "architecture":"xtensa-esp32s3","file_name":"driver.elf",
  "requires":[{"capability":"usb.host","api":1},{"capability":"platform.clock","api":1}],
  "provides":[{"capability":"serial.port","api":1}],
  "status":"experimental-local-native-stream"
 }
-if manifest!=required: raise SystemExit("native CDC candidate manifest mismatch")
+# The functional ABI-2 implementation succeeds the canonical lineage, not a
+# second -v2 product. Reader source/release 9c8783d6/19bb3dcb publish 0.1.8.
+version=manifest.get("version", "")
+if not isinstance(version,str) or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+",version):
+    raise SystemExit("native CDC requires a numeric package version")
+if tuple(map(int,version.split("."))) <= (0,1,8):
+    raise SystemExit("native CDC must be newer than canonical published 0.1.8")
+if {k:v for k,v in manifest.items() if k!="version"}!=required:
+    raise SystemExit("native CDC candidate manifest mismatch")
 cc = compiler()
 OUT.mkdir(parents=True,exist_ok=True)
 elf=OUT/"driver.elf"
@@ -43,4 +51,4 @@ meta.update(size_bytes=len(data),sha256=digest,
             canonical_size_bytes=CANONICAL_SIZE,canonical_sha256=CANONICAL_SHA256,
             candidate_only=True, byte_parity=False)
 (OUT/"manifest.json").write_text(json.dumps(meta,indent=2)+"\n")
-print(f"built usb-cdc-acm-v2 v{manifest['version']} {len(data)} bytes {digest} byte_parity={meta['byte_parity']}")
+print(f"built usb-cdc-acm v{manifest['version']} {len(data)} bytes {digest} byte_parity={meta['byte_parity']}")

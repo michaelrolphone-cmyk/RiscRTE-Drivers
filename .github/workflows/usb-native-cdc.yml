@@ -84,5 +84,5 @@ jobs:
             dist/usb-native-ci/
             dist/usb-host-v2-checked-cleanup/
             dist/usb-host-v2-native-stream/
-            dist/usb-cdc-acm-v2-native-stream/
+            dist/usb-cdc-acm-native-stream/
           if-no-files-found: error

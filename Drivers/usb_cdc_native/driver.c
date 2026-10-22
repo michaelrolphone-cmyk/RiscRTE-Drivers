@@ -416,7 +416,7 @@ static const risc_serial_port_streams_v1 capability = {
 };
 static const risc_stream_session_provider_v1 adapter = {1, sizeof(adapter), open_session, call_session, close_session};
 static const risc_driver_stream_sessions_v2 driver = {
-    {{{2, sizeof(driver), "usb-cdc-acm-v2", "serial.port", 1, &capability, start, stop, quiesce}, 0, bind_streams}, poll_streams},
+    {{{2, sizeof(driver), "usb-cdc-acm", "serial.port", 1, &capability, start, stop, quiesce}, 0, bind_streams}, poll_streams},
     RISC_DRIVER_STREAM_SESSIONS_TAG_V1, RISC_DRIVER_STREAM_SESSIONS_VERSION_V1, &adapter
 };
 __attribute__((visibility("default")))

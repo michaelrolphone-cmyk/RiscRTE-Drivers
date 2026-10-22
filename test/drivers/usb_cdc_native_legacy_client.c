@@ -4,7 +4,7 @@
 #include <string.h>
 void legacy_client(const risc_driver_v2 *driver) {
     assert(driver->struct_size >= sizeof(*driver));
-    assert(!strcmp(driver->driver_id,"usb-cdc-acm-v2"));
+    assert(!strcmp(driver->driver_id,"usb-cdc-acm"));
     const risc_usb_cdc_api_v1 *api = driver->capability;
     assert(api->api_version == 1 && api->struct_size >= sizeof(*api));
     uint64_t token=api->open(17); assert(token);
