@@ -1,0 +1,23 @@
+{
+  "key": "t061-roundtrip",
+  "repo": "michaelrolphone-cmyk/RiscRTE-Drivers",
+  "branch": "tasker/t061-watch-battery",
+  "base": "main",
+  "local": "fe310f01a90a616ce05be02b677debdf3cfcd607",
+  "parent": "a7ae39994603c4545a3c014f09051ecfc12084d2",
+  "tree": "ac75332006ebb561369e73834631db432a55470a",
+  "remote_source": "dc52499d4839928040a68e406f19cb31321092b0",
+  "changed_paths": [
+    "test/ble_telemetry_sensor_roundtrip_test.c",
+    "test/run_ble_sensor_test.sh"
+  ],
+  "source_tree_identical": true,
+  "original_commit_restoration": "The incremental original-source.bundle needs its original parent. For stacked checkpoints, restore the parent checkpoint bundle first. The GitHub source commit has the exact original tree but different commit metadata.",
+  "publication_scope": "Existing source and historical software evidence only; no new tests, target build, merge, tag, firmware release, deployment, or hardware acceptance is claimed.",
+  "historical_reports": "Reports and logs are preserved from before publication; local-only/unpublished statements describe that earlier observation. This source lock supersedes only their publication state.",
+  "archive_included_files": null,
+  "archive_omitted_files": null,
+  "archive_included_files_count": 24,
+  "archive_sha256": "9746d33d0c9c20655a3cda946ec4fc554be0db4909458f60061b9f6a947b7f21",
+  "archive_bytes": 23365
+}
