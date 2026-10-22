@@ -6392,5 +6392,27 @@
     ],
     "original_snapshot_preserved": true
   },
-  "inherited_source_release_parity_discrepancies": 63
+  "inherited_source_release_parity_discrepancies": 66,
+  "inherited_parity_provenance": {
+    "comparison": "Exact set union; no new or removed diagnostics in consolidated source.",
+    "pr41": {
+      "run": 39687483812,
+      "artifact": 12386968236,
+      "count": 65,
+      "zip_sha256": "f31af83155110bab33f9caf4bb88e136e07de20cbcfefb6fffa87a7bb3891c77"
+    },
+    "pr42": {
+      "run": 39720750417,
+      "artifact": 12401021117,
+      "count": 63,
+      "zip_sha256": "d9b9402b697790adc0bdebc13ac7c043df335766153d163bd84b1a40a2b62dff"
+    },
+    "consolidated_source": {
+      "head": "3a632eba4d022c0353bbe1ac211af8b5a59aa20e",
+      "run": 39816451019,
+      "artifact": 12442272832,
+      "count": 66,
+      "zip_sha256": "0e479be6c83a38f2dce9d416b0e1517ce1f8ee7440c084d3b273cf867e1c607b"
+    }
+  }
 }
