@@ -6373,7 +6373,7 @@
   "pr40_snapshot": {
     "commit": "90e7a8faae1a6678a24c92c32f95032b2fbe1e24",
     "files": 620,
-    "unchanged_in_consolidated_tree": 606,
+    "unchanged_in_consolidated_tree": 604,
     "approved_overlap_paths": [
       ".github/workflows/driver-parity.yml",
       "Drivers/program_msp/driver.c",
@@ -6390,9 +6390,13 @@
       "test/run_usb_msp_detach_contract_test.sh",
       "test/test_native_driver_toolchain.py"
     ],
-    "original_snapshot_preserved": true
+    "original_snapshot_preserved": true,
+    "integration_repair_paths": [
+      "scripts/check_parity.py",
+      "test/parity/test_source_parity.py"
+    ]
   },
-  "inherited_source_release_parity_discrepancies": 66,
+  "inherited_source_release_parity_discrepancies": 65,
   "inherited_parity_provenance": {
     "comparison": "Exact set union; no new or removed diagnostics in consolidated source.",
     "pr41": {
@@ -6414,5 +6418,16 @@
       "count": 66,
       "zip_sha256": "0e479be6c83a38f2dce9d416b0e1517ce1f8ee7440c084d3b273cf867e1c607b"
     }
+  },
+  "pre_diagnostic_repair_discrepancies": 66,
+  "diagnostic_repair": {
+    "paths": [
+      "scripts/check_parity.py",
+      "test/parity/test_source_parity.py"
+    ],
+    "removed_false_diagnostic": "untracked local source directory: usb_cdc_v2",
+    "retained_failure": "source inventory mismatch: usb-cdc-acm-v2",
+    "behavior": "Validate and register declared local paths before upstream reconciliation. Missing upstream or recorded-tree entries, duplicate/unsafe paths and actual unknown directories still fail.",
+    "baseline_or_accepted_byte_changes": false
   }
 }
