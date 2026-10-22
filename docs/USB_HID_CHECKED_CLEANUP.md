@@ -1,11 +1,12 @@
 # Opt-in raw HID checked cleanup
 
-Status: source checkpoint, qualification pending. This is not product acceptance,
-a firmware release, or a ready-to-merge claim.
+Qualification status is recorded by exact-head workflow results and draft PR42.
+This source checkpoint alone is not product acceptance, a firmware release, or
+a ready-to-merge claim.
 
 ## Candidate and preserved baseline
 
-`Drivers/usb_hid_checked_cleanup` is the separately built `usb-hid` 0.1.3
+`candidates/usb-hid-checked-cleanup` is the separately built `usb-hid` 0.1.3
 candidate. Its only builder is `scripts/build_usb_hid_checked_cleanup.py`, writing
 `dist/usb-hid-checked-cleanup`. No default build, product selection, canonical
 inventory, or Runtime admission policy selects this candidate. The legacy
@@ -57,14 +58,26 @@ The pinned SDK cohort underlying PR40 remains Runtime
 `0f6820940f9e8075c0cc1483d9c2f5e89cc5b97a`, and GCC
 `esp-15.2.0_20251204`. No SDK or dependency lock is refreshed.
 
-## Pending qualification and explicit limits
+## Qualification source and explicit limits
 
-Strict C compilation and one local candidate Xtensa build are preparatory only.
-Published exact-head normal/sanitized custody and checked-host → raw-HID →
-unchanged-mouse tests, target artifact checks, and remote artifact verification
-remain pending at this checkpoint. Local-only work is not delivery evidence.
+The new exact-head workflow is `usb-hid-checked-cleanup.yml`. It verifies frozen
+source hashes, runs independent normal and ASan/UBSan host composition processes,
+builds only the isolated GCC15 target candidate, and replays unchanged legacy
+0.1.2 with the exact GCC8 compiler and canonical size/hash assertions. Read-only
+Reader fixture snapshots are test inputs, not a second installed mouse provider.
 
-The real host will be composed with a deterministic controller boundary; that
+The first durable unqualified checkpoint is
+`bd1983a87ec94beebe591e80c30c000a8ec6091b` in draft PR42. That checkpoint
+placed the candidate under `Drivers`, adding an untracked-directory parity
+error. The qualification source relocates only the new candidate to `candidates`
+so it does not alter the default inventory. Existing parity rules and all
+baselines stay intact; earlier failed CI remains preserved.
+
+Local normal/sanitized composition and candidate/legacy builds are preparatory
+only. Hosted exact-head results and downloaded artifact verification remain
+pending at this source checkpoint. Local-only work is not delivery evidence.
+
+The real host will be composed with deterministic controller and clock boundaries; that
 is not actual USB hardware, callback timing, or production Runtime composition.
 Existing Runtime already fences retained invocations. No new retention mechanism,
 polling scheduler, mouse-to-touch/UI policy, electrical adapter, trusted admission,

@@ -1,0 +1,61 @@
+{
+  "repository": "michaelrolphone-cmyk/T5S3-Reader",
+  "commit": "c334919a05d393b7b3a536fceb117cfbb573a4ef",
+  "files": [
+    {
+      "path": "Drivers/usb_hid_mouse/driver.c",
+      "git_blob": "d8ec90bbb061b2b43e9bcb30a8a81316e9050eff",
+      "url": "https://github.com/michaelrolphone-cmyk/T5S3-Reader/blob/c334919a05d393b7b3a536fceb117cfbb573a4ef/Drivers/usb_hid_mouse/driver.c"
+    },
+    {
+      "path": "Drivers/usb_hid_mouse/Descriptor.h",
+      "git_blob": "cbdb608d866975249f2037ae9aaed9e9e9bcf595",
+      "url": "https://github.com/michaelrolphone-cmyk/T5S3-Reader/blob/c334919a05d393b7b3a536fceb117cfbb573a4ef/Drivers/usb_hid_mouse/Descriptor.h"
+    },
+    {
+      "path": "sdk/driver/RiscUsbMouseV1.h",
+      "git_blob": "3daf083790098344db14c91c9aa7f7acf6795dfe",
+      "url": "https://github.com/michaelrolphone-cmyk/T5S3-Reader/blob/c334919a05d393b7b3a536fceb117cfbb573a4ef/sdk/driver/RiscUsbMouseV1.h"
+    },
+    {
+      "path": "sdk/driver/RiscPlatformClockV1.h",
+      "git_blob": "33a5b27dcea7e30698d0177ad5db065166082194",
+      "url": "https://github.com/michaelrolphone-cmyk/T5S3-Reader/blob/c334919a05d393b7b3a536fceb117cfbb573a4ef/sdk/driver/RiscPlatformClockV1.h"
+    },
+    {
+      "path": "sdk/driver/RiscUsbHidV1.h",
+      "git_blob": "47913ebeda94dcc4138173be45eafe9315191e91",
+      "url": "https://github.com/michaelrolphone-cmyk/T5S3-Reader/blob/c334919a05d393b7b3a536fceb117cfbb573a4ef/sdk/driver/RiscUsbHidV1.h"
+    },
+    {
+      "path": "sdk/driver/RiscUsbControllerV1.h",
+      "git_blob": "7b2ecba98cd431484296327c1d8d701cad431aea",
+      "url": "https://github.com/michaelrolphone-cmyk/T5S3-Reader/blob/c334919a05d393b7b3a536fceb117cfbb573a4ef/sdk/driver/RiscUsbControllerV1.h"
+    },
+    {
+      "path": "sdk/driver/RiscUsbProviderV1.h",
+      "git_blob": "1b01570c3292600738d59211b812daf4b5c8221a",
+      "url": "https://github.com/michaelrolphone-cmyk/T5S3-Reader/blob/c334919a05d393b7b3a536fceb117cfbb573a4ef/sdk/driver/RiscUsbProviderV1.h"
+    },
+    {
+      "path": "sdk/driver/RiscSerialPortV1.h",
+      "git_blob": "16b59c5db0242f06de166e4bf572e2ca34739e7e",
+      "url": "https://github.com/michaelrolphone-cmyk/T5S3-Reader/blob/c334919a05d393b7b3a536fceb117cfbb573a4ef/sdk/driver/RiscSerialPortV1.h"
+    },
+    {
+      "path": "sdk/driver/RiscProviderV2.h",
+      "git_blob": "1e491a6887cf20a3dda1fa42748711bbe921330b",
+      "url": "https://github.com/michaelrolphone-cmyk/T5S3-Reader/blob/c334919a05d393b7b3a536fceb117cfbb573a4ef/sdk/driver/RiscProviderV2.h"
+    },
+    {
+      "path": "sdk/driver/RiscStreamProviderV1.h",
+      "git_blob": "04f61f2271ea356a1c6bd778767a9f099772ba01",
+      "url": "https://github.com/michaelrolphone-cmyk/T5S3-Reader/blob/c334919a05d393b7b3a536fceb117cfbb573a4ef/sdk/driver/RiscStreamProviderV1.h"
+    },
+    {
+      "path": "sdk/driver/RiscUsbInterruptV1.h",
+      "git_blob": "0c46bcae5f9bb970af95e0bf33dba0fe30958c87",
+      "url": "https://github.com/michaelrolphone-cmyk/T5S3-Reader/blob/c334919a05d393b7b3a536fceb117cfbb573a4ef/sdk/driver/RiscUsbInterruptV1.h"
+    }
+  ]
+}

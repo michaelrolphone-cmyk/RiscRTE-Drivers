@@ -5,7 +5,7 @@ from normalize_xtensa_relocations import normalize
 from native_driver_toolchain import compiler
 
 ROOT=Path(__file__).resolve().parents[1]
-SRC=ROOT/"Drivers/usb_hid_checked_cleanup"
+SRC=ROOT/"candidates/usb-hid-checked-cleanup"
 OUT=ROOT/"dist/usb-hid-checked-cleanup"
 CANONICAL_SIZE=None
 CANONICAL_SHA256=None
@@ -30,6 +30,11 @@ exports={f[7] for line in symbols.splitlines() if len((f:=line.split()))>=8 and 
 if exports!={"t5_driver_get"}: raise SystemExit(f"unexpected exports: {sorted(exports)}")
 imports={f[7] for line in symbols.splitlines() if len((f:=line.split()))>=8 and f[6]=="UND"}
 if imports!={"memcpy","memset"}: raise SystemExit(f"unexpected imports: {sorted(imports)}")
+dynamic=subprocess.check_output([readelf,"--dynamic","--wide",str(elf)],text=True)
+if "TEXTREL" in dynamic: raise SystemExit("unexpected TEXTREL")
+(OUT/"dynamic.txt").write_text(dynamic)
+(OUT/"symbols.txt").write_text(symbols)
+(OUT/"compiler.txt").write_text(subprocess.check_output([cc,"--version"],text=True))
 data=elf.read_bytes()
 if not 52<=len(data)<=256*1024 or data[:7]!=b"\x7fELF\x01\x01\x01" or int.from_bytes(data[16:18],"little")!=3 or int.from_bytes(data[18:20],"little")!=94:
     raise SystemExit("invalid Xtensa shared driver")
