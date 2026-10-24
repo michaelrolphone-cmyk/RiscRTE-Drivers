@@ -21,6 +21,19 @@ def preserved_bytes(path, data):
     inventory['original_drivers'].pop()
     return (json.dumps(inventory, indent=2)+'\n').encode()
 
+def verify_preserved_board_roots(root, baseline):
+    """Keep historical board files/subtrees exact; allow new sibling roots."""
+    children = subprocess.check_output(
+        ['git', 'ls-tree', '-z', '--name-only', baseline + ':boards'],
+        cwd=root).split(b'\0')
+    for child in children:
+        if child:
+            # Literal paths also preserve names containing Git pathspec syntax.
+            # Keep raw bytes: Git names need not be UTF-8 or line-oriented.
+            # Compare the working tree, as the original prefix-wide diff did.
+            subprocess.run(['git', 'diff', '--exit-code', baseline, '--',
+                            b':(literal)boards/' + child], cwd=root, check=True)
+
 def main():
     lock = json.loads((ROOT / 'docs/usb-hid-checked-source-lock.json').read_text())
     for path, expected in lock['cohorts']['pr40']['files'].items():
@@ -29,6 +42,9 @@ def main():
             raise SystemExit('preserved source drift: ' + path)
     for prefix in ('Drivers/usb_hid', 'Drivers/usb_host_v2', 'sdk', 'manifest',
                    'candidates', 'boards', 'release'):
+        if prefix == 'boards':
+            verify_preserved_board_roots(ROOT, lock['cohorts']['pr40']['commit'])
+            continue
         subprocess.run(['git', 'diff', '--exit-code', lock['cohorts']['pr40']['commit'],
                         '--', prefix, ':(exclude)candidates/usb-hid-checked-cleanup',
                         ':(exclude)manifest/released-drivers.json'],
