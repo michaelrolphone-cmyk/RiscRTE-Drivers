@@ -338,7 +338,8 @@ jobs:
           mkdir -p qualification
           test "$(git rev-parse HEAD)" = "$DRIVER_SOURCE"
           printf '%s\n' "$DRIVER_SOURCE" > qualification/HEAD.txt
-          git diff --exit-code a7ae39994603c4545a3c014f09051ecfc12084d2 -- dist release manifest
+          git diff --exit-code a7ae39994603c4545a3c014f09051ecfc12084d2 -- dist release manifest ':(exclude)manifest/released-drivers.json'
+          # The next test requires exact baseline inventory plus one pinned CST9217 original entry.
           python test/test_msp_checked_candidate_routes.py 2>&1 | tee qualification/candidate-routes.log
       - name: Preserve original host HID and historical MSP fixtures
         run: |

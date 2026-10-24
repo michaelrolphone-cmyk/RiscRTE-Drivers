@@ -125,3 +125,9 @@ These are experimental software-tested packages, not installed or hardware-quali
 separately versioned host/controller source, exact native SDK adaptations,
 normal/sanitized regressions and remaining native-target/consumer work. It does
 not replace accepted artifacts or qualify serial delivery or X4 hardware.
+
+## Round-device source prerequisites
+
+- [cst9217-touch](docs/drivers/cst9217-touch.md): experimental raw-touch provider
+  for the 1.75C bring-up chain; host/target-build qualification is separate from
+  board provisioning and physical validation.

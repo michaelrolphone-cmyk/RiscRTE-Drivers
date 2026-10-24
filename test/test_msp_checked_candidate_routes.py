@@ -13,7 +13,10 @@ class CandidateRoutes(unittest.TestCase):
             path = f'scripts/build_{driver}.py'
             expected = subprocess.check_output(['git', '-C', str(ROOT), 'show', BASE+':'+path])
             self.assertEqual((ROOT/path).read_bytes(), expected)
-        self.assertEqual(subprocess.check_output(['git', '-C', str(ROOT), 'diff', BASE, '--', 'dist', 'release', 'manifest']), b'')
+        self.assertEqual(subprocess.check_output(['git', '-C', str(ROOT), 'diff', BASE, '--', 'dist', 'release', 'manifest', ':(exclude)manifest/released-drivers.json']), b'')
+        baseline = json.loads(subprocess.check_output(['git', '-C', str(ROOT), 'show', BASE+':manifest/released-drivers.json']))
+        baseline['original_drivers'].append({'id': 'cst9217-touch', 'version': '0.1.0', 'source_path': 'Drivers/cst9217_touch', 'source_tree_sha': '36e5a8d9bc1ffb420df89f4aa9a7ae478d129d96'})
+        self.assertEqual((ROOT/'manifest/released-drivers.json').read_text(), json.dumps(baseline, indent=2)+'\n')
     def test_candidate_identities_and_paths(self):
         for driver in ('usb_msp', 'program_msp'):
             manifest = json.loads((ROOT/f'Drivers/{driver}/manifest.json').read_text())
