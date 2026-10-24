@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # The resulting bytes must still match the unchanged PR40 SHA-256 lock.
 CST_ENTRY = {'id': 'cst9217-touch', 'version': '0.1.0',
              'source_path': 'Drivers/cst9217_touch',
-             'source_tree_sha': '36e5a8d9bc1ffb420df89f4aa9a7ae478d129d96'}
+             'source_tree_sha': 'cb0bf865118d842a08fb4d0ed6eab13bea9bacc4'}
 
 def preserved_bytes(path, data):
     if path != 'manifest/released-drivers.json':

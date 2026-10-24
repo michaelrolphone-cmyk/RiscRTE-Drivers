@@ -2,26 +2,39 @@
  * Controller defines WIDTH/HEIGHT/FORMAT/STRIDE/DC and hw_start/hw_row/hw_finish.
  * Single retained frame; accepted submit consumes the acquire lease. */
 #include "RiscDisplayOutputV1.h"
-#include <stdatomic.h>
+#include "RiscProviderSyncV1.h"
 #ifndef DISPLAY_SAFE_INSETS
 #define DISPLAY_SAFE_INSETS {0, 0, 0, 0}
 #endif
-static atomic_flag display_lock = ATOMIC_FLAG_INIT;
-static atomic_bool release_pending;
+/* Runtime serializes these provider calls on its owner task. Keep lock state
+ * in the scoped service, never CAS PSRAM-backed provider data. */
+static const risc_provider_sync_api_v1 *display_sync;
+static uint64_t display_lock;
+static bool release_pending, display_unlock_failed;
 static bool running, held, active, failed, closing;
 static uint64_t frame_serial, present_serial;
 static uint8_t present_state;
 static uint32_t next_row;
 static uint8_t pixels[STRIDE * HEIGHT] __attribute__((aligned(4)));
-static bool enter(void) {
-    if (atomic_flag_test_and_set_explicit(&display_lock, memory_order_acquire))
+static bool leave(void) {
+    if (!display_sync || !display_lock ||
+        !display_sync->unlock(display_sync->context, display_lock)) {
+        display_unlock_failed = true;
+        failed = closing = true;
         return false;
-    if (atomic_exchange(&release_pending, false))
-        held = false;
+    }
+    display_unlock_failed = false;
     return true;
 }
-static void leave(void) {
-    atomic_flag_clear_explicit(&display_lock, memory_order_release);
+static bool enter(void) {
+    if (!display_sync || !display_lock) return false;
+    if (display_unlock_failed && !leave()) return false;
+    if (!display_sync->try_lock(display_sync->context, display_lock)) return false;
+    if (release_pending) {
+        release_pending = false;
+        held = false;
+    }
+    return true;
 }
 static bool get_info(void *c, risc_display_info_v1 *out) {
     (void)c;
@@ -67,9 +80,13 @@ static bool acquire(void *c, uint32_t format, risc_display_surface_v1 *out) {
 }
 static void release(void *c, risc_display_frame_v1 frame) {
     (void)c;
-    /* API client serializes frame ownership. Poll never alters frame_serial. */
-    if (frame == frame_serial)
-        atomic_store(&release_pending, true);
+    /* Owner-only calls may reenter while a poll holds the guard. Record this
+     * bounded deferred release without attempting to reacquire the lock; no
+     * other task may access the provider's frame state. Poll never changes
+     * frame_serial. A stale or foreign-owner release cannot consume a lease. */
+    if (display_sync && display_sync->is_owner(display_sync->context) &&
+        frame && frame == frame_serial)
+        release_pending = true;
 }
 static bool submit(void *c, risc_display_frame_v1 frame, const risc_display_rect_v1 *damage,
                    size_t count, const risc_display_present_options_v1 *options,
@@ -183,30 +200,48 @@ static bool set_brightness(void *c, uint16_t level, uint16_t maximum) {
     return ok;
 }
 static bool quiesce(void) {
-    if (!enter())
-        return false;
+    if (!display_sync) return !display_lock && !running;
+    if (display_lock && !enter()) return false;
     closing = true;
     if (active) {
         active = false;
         present_state = RISC_DISPLAY_PRESENT_FAILED;
     }
     bool ok = !held && hw_stop();
-    if (ok)
-        running = false;
-    leave();
-    return ok;
+    if (ok) running = false;
+    if (display_lock) {
+        if (!leave() || !ok) return false;
+        if (!display_sync->destroy(display_sync->context, display_lock)) return false;
+        display_lock = 0;
+    } else if (!ok) return false;
+    display_sync = NULL;
+    display_unlock_failed = release_pending = false;
+    return true;
 }
 static void stop(void) {
     (void)quiesce();
 }
 static bool start(const risc_provider_dependency_v1 *d, size_t n) {
-    if (running || !hw_start(d, n))
-        return false;
+    if (running || display_sync || display_lock) return false;
+    const risc_provider_sync_api_v1 *selected =
+        tw_dep(d, n, RISC_PROVIDER_SYNC_CAPABILITY, sizeof(*selected));
+    if (!selected || !selected->is_owner || !selected->create ||
+        !selected->try_lock || !selected->unlock || !selected->destroy ||
+        !selected->is_owner(selected->context)) return false;
+    display_sync = selected;
     closing = failed = held = active = false;
-    atomic_store(&release_pending, false);
-    memset(pixels, 0, sizeof(pixels));
-    running = true;
-    return true;
+    release_pending = display_unlock_failed = false;
+    /* Even a false/nonzero creation result retains cleanup custody. Runtime
+     * calls quiesce after failed start and keeps the instance until it succeeds. */
+    if (!selected->create(selected->context, &display_lock) || !display_lock)
+        return false;
+    if (!enter()) return false;
+    bool ok = hw_start(d, n);
+    if (ok) {
+        memset(pixels, 0, sizeof(pixels));
+        running = true;
+    }
+    return leave() && ok;
 }
 #ifdef TWATCH_PANEL_POWER
 static bool panel_prepare_sleep(void *context);

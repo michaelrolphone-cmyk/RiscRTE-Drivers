@@ -140,5 +140,14 @@ one device-linked native ESP-IDF implementation. The
 466×466 geometry, its panel protocol, passive shared-DCDC1 observation and
 touch-only reset composition. These source-only components have dedicated host,
 sanitizer and GCC15 qualification; they are not published drivers or installable
-firmware. They do not change the historical driver inventory, accepted release
+firmware. They do not change historical released-driver records, accepted release
 bytes or the 2.06 product repository. The shared Watch application stays unchanged.
+
+## Badge scoped Home composition
+
+The [1.75C Badge Home graph](boards/waveshare-esp32-s3-touch-amoled-1.75c/home/README.md)
+selects four real reusable providers and the unchanged maintained Watch Home.
+It has a pinned native target/link route, actual Runtime admission and host
+activation qualification. This remains a software-qualified candidate, not a
+released combined flash image or physically verified firmware. The separate
+2.06 product and historical release bytes are untouched.

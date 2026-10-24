@@ -25,6 +25,10 @@
     {
       "capability": "platform.gpio",
       "api": 1
+    },
+    {
+      "capability": "platform.sync",
+      "api": 1
     }
   ],
   "provides": [

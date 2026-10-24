@@ -7,11 +7,27 @@
   "file_name": "driver.elf",
   "requires": [
     {
+      "capability": "hardware.device",
+      "api": 1
+    },
+    {
       "capability": "i2c.bus",
       "api": 1
     },
     {
+      "capability": "platform.gpio",
+      "api": 1
+    },
+    {
       "capability": "platform.clock",
+      "api": 1
+    },
+    {
+      "capability": "power.rail",
+      "api": 1
+    },
+    {
+      "capability": "platform.sync",
       "api": 1
     }
   ],
@@ -21,5 +37,15 @@
       "api": 1
     }
   ],
-  "status": "experimental-unpublished"
+  "status": "experimental-unpublished",
+  "hardware_compatibility": [
+    {
+      "compatible": "hynitron,cst9217",
+      "revisions": [
+        "unspecified"
+      ],
+      "config_type": "touch.i2c",
+      "config_version": 2
+    }
+  ]
 }

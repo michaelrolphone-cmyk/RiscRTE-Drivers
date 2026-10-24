@@ -1,20 +1,30 @@
 #!/usr/bin/env python3
-"""Exercise the unchanged facade implementation under independent build profiles."""
+"""Exercise the shared facade implementation under independent build profiles."""
 import argparse
 import os
 from pathlib import Path
 import subprocess
 import tempfile
+import sys
+import shutil
 
 ROOT = Path(__file__).resolve().parents[1]
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--watch', type=Path, required=True)
+p.add_argument('--runtime', type=Path, required=True)
 p.add_argument('--sanitize', action='store_true')
 a = p.parse_args()
 flags = ['-std=c11', '-Wall', '-Wextra', '-Werror', '-Wno-misleading-indentation', '-g']
 if a.sanitize:
     flags += ['-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-fno-omit-frame-pointer', '-no-pie']
-includes = ['-I' + str(x) for x in (ROOT / 'components/co5300/include', a.watch / 'sdk/driver', a.watch / 'sdk/app', a.watch / 'include')]
+sys.path.insert(0,str(ROOT/'scripts'))
+from cst9217_sdk import stage_sdk
+sdk_tmp=tempfile.TemporaryDirectory()
+sdk=Path(sdk_tmp.name)
+for directory in (a.watch/'sdk/driver',a.watch/'sdk/app'):
+    for header in directory.glob('*.h'):shutil.copy2(header,sdk/header.name)
+stage_sdk(ROOT,a.runtime,sdk)
+includes = ['-I' + str(x) for x in (ROOT / 'components/co5300/include', sdk, a.watch / 'include')]
 profiles = {
     'default': [],
     'badge': ['-include', str(ROOT / 'boards/waveshare-esp32-s3-touch-amoled-1.75c/display-profile.h'), '-DTEST_DISPLAY_RESET=1'],

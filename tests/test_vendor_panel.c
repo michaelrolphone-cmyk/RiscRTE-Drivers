@@ -8,6 +8,9 @@
 #include "RiscPowerRailV1.h"
 #include "provider_log_mock.h"
 #include <assert.h>
+#include "provider_sync_mock.h"
+static provider_sync_mock sync_model;
+static const risc_provider_sync_api_v1 sync_service=PROVIDER_SYNC_MOCK_API(sync_model);
 #include <stdio.h>
 static uint64_t now;static unsigned opened,closed,rows,levels;
 static bool open_ok=true,close_ok=true,row_ok=true,level_ok=true;
@@ -37,13 +40,18 @@ static risc_power_rail_api_v1 rail={1,sizeof(rail),NULL,rail_info,rail_write};
 int main(void){
  risc_hw_spi_display_v2 cfg={.base={.struct_size=sizeof(cfg),.reset=TEST_DISPLAY_RESET}};
  risc_hardware_device_v1 hw={.api_version=1,.struct_size=sizeof(hw),.instance_id=5,.compatible="chipone,co5300",.revision="unspecified",.config_type="display.spi",.config_version=2,.config_size=sizeof(cfg),.config=&cfg};
- risc_provider_dependency_v1 deps[]={{"hardware.device",1,&hw},{"platform.clock",1,&clock_api},{RISC_DISPLAY_BACKEND_CAPABILITY,1,&native},{"power.rail",1,&rail},{"platform.gpio",1,&reset_api}};
+ risc_provider_dependency_v1 deps[]={{"hardware.device",1,&hw},{"platform.clock",1,&clock_api},{RISC_DISPLAY_BACKEND_CAPABILITY,1,&native},{"power.rail",1,&rail},{"platform.gpio",1,&reset_api},{"platform.sync",1,&sync_service}};
+ assert(!start(deps,5)); assert(quiesce());
+ sync_model.foreign=true;assert(!start(deps,6));sync_model.foreign=false;
+ sync_model.fail_create=true;assert(!start(deps,6));assert(quiesce());sync_model.fail_create=false;
+ sync_model.zero_create=true;assert(!start(deps,6));assert(quiesce());sync_model.zero_create=false;
+ sync_model.retain_create=true;assert(!start(deps,6)&&sync_model.live);assert(quiesce()&&!sync_model.live);sync_model.retain_create=false;
  for(unsigned bad=0;bad<4;++bad){
   rail_enabled=bad!=0;rail_verified=bad!=1;rail_ok=bad!=2;rail_mv=bad==3?3200:3300;
-  assert(!start(deps,5)&&!opened&&!gpio_live&&!backend_live);assert(quiesce());
+  assert(!start(deps,6)&&!opened&&!gpio_live&&!backend_live);assert(quiesce());
  }
  rail_enabled=rail_verified=rail_ok=true;rail_mv=3300;
- assert(start(deps,5)&&opened==1&&backend_token==123);
+ assert(start(deps,6)&&opened==1&&backend_token==123);
  risc_display_info_v1 info; assert(api.base.get_info(NULL,&info));
  assert(info.width==RISC_CO5300_WIDTH && info.height==RISC_CO5300_HEIGHT);
  assert(info.safe_insets.top==RISC_CO5300_SAFE_TOP && info.safe_insets.right==RISC_CO5300_SAFE_RIGHT &&
@@ -88,8 +96,18 @@ int main(void){
  close_ok=false;assert(panel_prepare_deep_sleep(NULL)==RISC_DEEP_SLEEP_PLATFORM&&!gpio_live);close_ok=true;assert(panel_resume(NULL));
  close_ok=false;assert(!quiesce()&&backend_token==123&&running);
  close_ok=true;assert(quiesce()&&!backend_token&&!running);
- open_ok=false;assert(!start(deps,5)&&backend_token==123);assert(quiesce()&&!backend_token);
- open_ok=true;assert(start(deps,5));assert(panel_prepare_deep_sleep(NULL)==0);
+ assert(!sync_model.live);
+ assert(start(deps,6));
+ assert(api.base.acquire(NULL,FORMAT,&surface));
+ sync_model.foreign=true;api.base.release(NULL,surface.frame);sync_model.foreign=false;
+ assert(!quiesce()&&held);
+ assert(enter());api.base.release(NULL,surface.frame);assert(held);assert(leave());
+ sync_model.busy=true;assert(!quiesce()&&backend_token);sync_model.busy=false;
+ sync_model.fail_unlock=true;assert(!quiesce()&&sync_model.live&&sync_model.held);sync_model.fail_unlock=false;
+ sync_model.fail_destroy=true;assert(!quiesce()&&sync_model.live&&!sync_model.held);sync_model.fail_destroy=false;
+ assert(quiesce()&&!sync_model.live);
+ open_ok=false;assert(!start(deps,6)&&backend_token==123);assert(quiesce()&&!backend_token);
+ open_ok=true;assert(start(deps,6));assert(panel_prepare_deep_sleep(NULL)==0);
  release_ok=false;assert(panel_resume_status(NULL)==RISC_LIGHT_SLEEP_RETAINED&&reset_retained&&gpio_live);
  assert(panel_prepare_deep_sleep(NULL)==RISC_DEEP_SLEEP_RETAINED);assert(!quiesce());
  puts("Vendor display facade: full RGB565 frame, generic brightness, PMIC read-only and retained cleanup PASS");

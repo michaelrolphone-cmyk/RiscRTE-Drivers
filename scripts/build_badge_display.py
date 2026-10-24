@@ -39,6 +39,7 @@ def main():
     sys.path.insert(0, str(watch / 'scripts'))
     from normalize_xtensa_relocations import normalize
     from compact_current_elf import compact
+    from verify_psram_elf import verify as verify_psram
     validator = out / 'validate-elf'
     subprocess.run([os.environ.get('CC', 'cc'), '-std=c11', '-Wall', '-Wextra', '-Werror',
                     '-I' + str(runtime / 'test/native_apps/stubs'),
@@ -48,8 +49,12 @@ def main():
     common = ['-std=c11', '-Os', '-fPIC', '-mtext-section-literals', '-mlongcalls',
               '-fvisibility=hidden', '-ffreestanding', '-fno-builtin', '-Wall', '-Wextra',
               '-Werror', '-Wno-misleading-indentation', '-ffunction-sections', '-fdata-sections']
-    includes = ['-I' + str(x) for x in (ROOT / 'components/co5300/include', watch / 'sdk/driver',
-                                      watch / 'sdk/app', watch / 'include')]
+    from cst9217_sdk import stage_sdk
+    sdk=out/'provider-sdk';sdk.mkdir(exist_ok=True)
+    for directory in (watch/'sdk/driver',watch/'sdk/app'):
+        for header in directory.glob('*.h'):shutil.copy2(header,sdk/header.name)
+    stage_sdk(drivers,runtime,sdk)
+    includes = ['-I' + str(x) for x in (ROOT / 'components/co5300/include', sdk, watch / 'include')]
     records = {}
     for name, source in (('co5300_display', ROOT / 'components/co5300/facade/driver.c'),
                          ('dcdc1_observer', BOARD / 'supply/driver.c')):
@@ -69,6 +74,7 @@ def main():
                         '-Wl,--version-script=' + str(mapping), str(source), '-lgcc', '-o', str(elf)], check=True)
         normalize(elf)
         proof = compact(elf, a.cc, debug_path=out / 'debug' / (name + '.elf'))
+        psram=verify_psram(out/'debug'/(name+'.elf'),a.cc)
         subprocess.run([str(validator), str(elf)], check=True)
         symbols = subprocess.check_output([a.cc.removesuffix('gcc') + 'nm', '-D', str(elf)], text=True)
         imports = {line.split()[-1] for line in symbols.splitlines() if ' U ' in ' ' + line}
@@ -81,7 +87,7 @@ def main():
         assert raw[:7] == b'\x7fELF\x01\x01\x01' and raw[16:20] == b'\x03\x00\x5e\x00'
         records[name] = {'id': manifest['id'], 'version': manifest['version'],
                          'sha256': hashlib.sha256(raw).hexdigest(), 'bytes': len(raw),
-                         'imports': sorted(imports), 'loader_validated': True, 'compaction': proof}
+                         'imports': sorted(imports), 'loader_validated': True, 'compaction': proof, 'psram_safety': psram}
         print(name + ': selected Badge target ABI and actual Runtime loader validation PASS', flush=True)
     objects = []
     for name, source in (('prepare', drivers / 'boards/common/prepare.c'),

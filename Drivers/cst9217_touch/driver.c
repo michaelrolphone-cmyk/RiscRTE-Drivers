@@ -3,8 +3,10 @@
 #include "RiscPlatformClockV1.h"
 #include <stddef.h>
 #include <stdint.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/semphr.h>
+#include "GardenPlatformV1.h"
+#include "RiscTouchI2cV2.h"
+#include "RiscProviderSyncV1.h"
+#include "RiscPowerRailV1.h"
 
 /* Vendor CST9217 component 2.0.0 protocol: 16-bit big-endian register
  * selection, STOP, 2 ms settling, then a separate read. Never substitute
@@ -22,22 +24,34 @@ typedef struct {
     bool gap;
 } touch_subscriber;
 
-/* Public API calls can originate from a capture task and an app. The bus
- * mutex protects one transfer, not this complete status/read/ack/state cycle.
- * Lifecycle start/stop remains serialized by the grant-owning loader. */
-static SemaphoreHandle_t state_lock;
-static bool lock_state(void) {
-    TickType_t ticks = pdMS_TO_TICKS(CST9217_TIMEOUT_MS);
-    if (!ticks) ticks = 1;
-    return state_lock && xSemaphoreTake(state_lock, ticks) == pdTRUE;
-}
-static void unlock_state(void) { (void)xSemaphoreGive(state_lock); }
-
+/* Runtime owns this instance-scoped reentrancy guard. Ordinary device ELFs
+ * must not import privileged FreeRTOS symbols or CAS their PSRAM-backed BSS.
+ * Calls and lifecycle run on the Runtime owner task, not a capture task. */
+static const risc_provider_sync_api_v1 *sync_api;
+static uint64_t state_lock;
+static bool unlock_failed;
 static const risc_i2c_bus_api_v1 *bus;
 static const risc_platform_clock_api_v1 *clock_api;
-static uint64_t bus_claim;
+static const garden_gpio_v1 *gpio;
+static const risc_power_rail_api_v1 *rail;
+static const risc_hw_i2c_touch_v2 *hardware;
+static uint64_t bus_claim, reset_claim;
 static bool ready;
 static bool state_valid;
+static bool unlock_state(void) {
+    if (!sync_api || !state_lock || !sync_api->unlock(sync_api->context, state_lock)) {
+        unlock_failed = true;
+        ready = state_valid = false;
+        return false;
+    }
+    unlock_failed = false;
+    return true;
+}
+static bool lock_state(void) {
+    if (!sync_api || !state_lock) return false;
+    if (unlock_failed && !unlock_state()) return false;
+    return sync_api->try_lock(sync_api->context, state_lock);
+}
 static uint64_t sequence;
 static uint64_t subscription_serial;
 static uint16_t surface_width;
@@ -82,7 +96,7 @@ static bool probe(void) {
        !read_reg(0xd204u,project,4))return false;
     surface_width=(uint16_t)(resolution[0]|((uint16_t)resolution[1]<<8));
     surface_height=(uint16_t)(resolution[2]|((uint16_t)resolution[3]<<8));
-    return surface_width && surface_height && surface_width<=4096u && surface_height<=4096u;
+    return surface_width == hardware->base.width && surface_height == hardware->base.height;
 }
 
 static int find_contact(const risc_touch_contact_v1 *items, uint8_t count,
@@ -267,73 +281,129 @@ static bool snapshot_locked(void *context, risc_touch_snapshot_v1 *out) {
     return true;
 }
 
-static bool start(const risc_provider_dependency_v1 *dependencies,
-                  size_t dependency_count) {
-    if (state_lock || bus || clock_api || bus_claim || !dependencies || dependency_count != 2u)
-        return false;
-
-    const risc_i2c_bus_api_v1 *candidate_bus = NULL;
-    const risc_platform_clock_api_v1 *candidate_clock = NULL;
-    for (size_t i = 0; i < dependency_count; ++i) {
-        if (equal(dependencies[i].capability_id, "i2c.bus") &&
-            dependencies[i].api_version == RISC_I2C_BUS_API_V1)
-            candidate_bus = (const risc_i2c_bus_api_v1 *)dependencies[i].api;
-        else if (equal(dependencies[i].capability_id, "platform.clock") &&
-                 dependencies[i].api_version == RISC_PLATFORM_CLOCK_API_V1)
-            candidate_clock =
-                (const risc_platform_clock_api_v1 *)dependencies[i].api;
+/* Exact typed admission for the qualified source configuration. The loader
+ * scopes bus/GPIO tables to this hardware.device before calling start. There
+ * is no public table introspection API: do not invent or probe a global bus. */
+static const void *dependency(const risc_provider_dependency_v1 *deps, size_t count,
+                              const char *id, size_t minimum) {
+    const void *found = NULL;
+    for (size_t i = 0; i < count; ++i) {
+        if (!equal(deps[i].capability_id, id)) continue;
+        if (found || !deps[i].api || deps[i].api_version != 1) return NULL;
+        const uint32_t *header = deps[i].api;
+        if (header[0] != 1 || header[1] < minimum) return NULL;
+        found = deps[i].api;
     }
-    if (!candidate_bus || candidate_bus->api_version != RISC_I2C_BUS_API_V1 ||
-        candidate_bus->struct_size < sizeof(*candidate_bus) ||
-        !candidate_bus->claim_device || !candidate_bus->transact ||
-        !candidate_bus->release_device ||
-        !candidate_clock ||
-        candidate_clock->api_version != RISC_PLATFORM_CLOCK_API_V1 ||
-        candidate_clock->struct_size < sizeof(*candidate_clock) ||
-        !candidate_clock->monotonic_ms || !candidate_clock->sleep_ms)
-        return false;
-
-    state_lock = xSemaphoreCreateMutex();
-    if (!state_lock) return false;
-    bus = candidate_bus;
-    clock_api = candidate_clock;
-    uint64_t initial_timestamp = UINT64_MAX;
-    if (monotonic_ms() == UINT64_MAX ||
-        !probe() || (initial_timestamp = monotonic_ms()) == UINT64_MAX) {
-        if(bus_claim && !bus->release_device(bus->context,bus_claim))return false;
-        bus = NULL;
-        clock_api = NULL;
-        bus_claim = 0;
-        vSemaphoreDelete(state_lock);
-        state_lock = NULL;
-        return false;
-    }
-
-    ready = true;
-    state_valid = true;
-    sequence = 0;
-    /* Keep subscription generations monotonic across start/stop. */
-    contact_count = 0;
-    touch_buttons = 0;
-    snapshot_timestamp_ms = initial_timestamp;
-    for (uint8_t i = 0; i < RISC_TOUCH_MAX_CONTACTS; ++i)
-        contacts[i] = (risc_touch_contact_v1){0};
-    for (uint8_t i = 0; i < RISC_TOUCH_MAX_SUBSCRIBERS; ++i)
-        subscribers[i] = (touch_subscriber){0};
-    return true;
+    return found;
 }
-
+static bool admitted(const risc_hardware_device_v1 *device) {
+    if (!device || !device->instance_id || !equal(device->compatible, "hynitron,cst9217") ||
+        !equal(device->revision, "unspecified") || !equal(device->config_type, "touch.i2c") ||
+        device->config_version != 2 || device->config_size != sizeof(risc_hw_i2c_touch_v2) ||
+        !device->config) return false;
+    const risc_hw_i2c_touch_v2 *v = device->config;
+    const risc_hw_i2c_touch_v1 *c = &v->base;
+    const risc_hw_bus_v1 *b = &c->bus;
+    return c->struct_size == sizeof(*v) && b->struct_size == sizeof(*b) &&
+        b->kind == RISC_HW_BUS_I2C && b->instance_id == 101 && b->controller == 0 &&
+        b->frequency_hz == 400000 && !b->mode && !b->reserved[0] &&
+        !b->reserved[1] && !b->reserved[2] && b->sda == 15 && b->scl == 14 &&
+        b->sclk == -1 && b->mosi == -1 && b->miso == -1 &&
+        c->width == 466 && c->height == 466 && c->address == CST9217_ADDRESS &&
+        c->reset == 2 && !c->reset_active_high && c->reset_assert_ms == 10 &&
+        c->reset_recovery_ms == 50 && c->irq == 11 && !c->irq_active_high &&
+        !c->irq_pull_up && v->power == -1 && !v->power_active_high && !v->irq_output &&
+        !v->alternate_address && !v->reserved[0] && !v->reserved[1] && !v->reserved[2];
+}
+static bool reset_delay(uint32_t milliseconds) {
+    const uint64_t before = monotonic_ms();
+    if (before == UINT64_MAX) return false;
+    clock_api->sleep_ms(clock_api->context, milliseconds);
+    const uint64_t after = monotonic_ms();
+    return after != UINT64_MAX && after >= before && after - before >= milliseconds;
+}
+static bool reset_level(bool expected) {
+    bool actual = !expected;
+    return gpio->read(gpio->context, reset_claim, &actual) && actual == expected;
+}
+static bool prepare_reset(void) {
+    /* Observe the separately scoped supply. Never touch PMIC address 0x34 from
+     * the touch bus, gate CPU-shared DCDC1, or acquire native display GPIO1. */
+    risc_power_rail_info_v1 info = {.struct_size = sizeof(info)};
+    if (!rail->get_info(rail->context, &info) || !info.configuration_verified ||
+        !info.enabled || info.configured_millivolts != 3300) return false;
+    bool claimed = gpio->claim(gpio->context, (uint8_t)hardware->base.reset,
+                               true, false, false, &reset_claim);
+    /* False/nonzero is cleanup custody, never permission to use the claim. */
+    return claimed && reset_claim && reset_level(false) &&
+        reset_delay(hardware->base.reset_assert_ms) &&
+        gpio->write(gpio->context, reset_claim, true) && reset_level(true) &&
+        reset_delay(hardware->base.reset_recovery_ms);
+}
+static bool quiesce(void);
+static bool start(const risc_provider_dependency_v1 *deps, size_t count) {
+    if (sync_api || state_lock || bus || clock_api || gpio || rail || hardware ||
+        bus_claim || reset_claim || !deps || count != 6) return false;
+    const risc_hardware_device_v1 *selected = dependency(deps, count, "hardware.device", sizeof(*selected));
+    const risc_i2c_bus_api_v1 *selected_bus = dependency(deps, count, "i2c.bus", sizeof(*selected_bus));
+    const risc_platform_clock_api_v1 *selected_clock = dependency(deps, count, "platform.clock", sizeof(*selected_clock));
+    const garden_gpio_v1 *selected_gpio = dependency(deps, count, "platform.gpio",
+        offsetof(garden_gpio_v1, release) + sizeof(selected_gpio->release));
+    const risc_power_rail_api_v1 *selected_rail = dependency(deps, count, "power.rail", sizeof(*selected_rail));
+    const risc_provider_sync_api_v1 *selected_sync = dependency(deps, count, "platform.sync", sizeof(*selected_sync));
+    if (!admitted(selected) || !selected_bus || !selected_bus->claim_device ||
+        !selected_bus->transact || !selected_bus->release_device ||
+        !selected_clock || !selected_clock->monotonic_ms || !selected_clock->sleep_ms ||
+        !selected_gpio || !selected_gpio->claim || !selected_gpio->write ||
+        !selected_gpio->read || !selected_gpio->release ||
+        !selected_rail || !selected_rail->get_info ||
+        !selected_sync || !selected_sync->is_owner || !selected_sync->create ||
+        !selected_sync->try_lock || !selected_sync->unlock || !selected_sync->destroy)
+        return false;
+    if (!selected_sync->is_owner(selected_sync->context)) return false;
+    bus = selected_bus;
+    clock_api = selected_clock;
+    gpio = selected_gpio;
+    rail = selected_rail;
+    hardware = selected->config;
+    sync_api = selected_sync;
+    bool created = sync_api->create(sync_api->context, &state_lock);
+    if (!created || !state_lock || !lock_state()) {
+        (void)quiesce();
+        return false;
+    }
+    uint64_t initial_timestamp = UINT64_MAX;
+    bool success = monotonic_ms() != UINT64_MAX && prepare_reset() && probe() &&
+        (initial_timestamp = monotonic_ms()) != UINT64_MAX;
+    if (success) {
+        ready = state_valid = true;
+        sequence = 0;
+        /* Keep subscription generations monotonic across start/stop. */
+        contact_count = 0;
+        touch_buttons = 0;
+        snapshot_timestamp_ms = initial_timestamp;
+        for (uint8_t i = 0; i < RISC_TOUCH_MAX_CONTACTS; ++i)
+            contacts[i] = (risc_touch_contact_v1){0};
+        for (uint8_t i = 0; i < RISC_TOUCH_MAX_SUBSCRIBERS; ++i)
+            subscribers[i] = (touch_subscriber){0};
+    }
+    if (!unlock_state()) success = false;
+    if (!success) (void)quiesce();
+    return success;
+}
 static bool quiesce_locked(void) {
-    if (!bus && !clock_api && !bus_claim) return true;
     for (uint8_t i = 0; i < RISC_TOUCH_MAX_SUBSCRIBERS; ++i)
         if (subscribers[i].token) return false;
-    if (bus_claim && (!bus || !bus->release_device(bus->context, bus_claim)))
-        return false;
-    ready = false;
-    state_valid = false;
-    bus_claim = 0;
-    bus = NULL;
-    clock_api = NULL;
+    ready = state_valid = false;
+    if (bus_claim) {
+        if (!bus || !bus->release_device(bus->context, bus_claim)) return false;
+        bus_claim = 0;
+    }
+    /* Never surrender reset while any CST transfer ownership remains. */
+    if (reset_claim) {
+        if (!gpio || !gpio->release(gpio->context, reset_claim)) return false;
+        reset_claim = 0;
+    }
     contact_count = 0;
     touch_buttons = 0;
     surface_width = surface_height = 0;
@@ -371,18 +441,26 @@ static bool snapshot(void *context, risc_touch_snapshot_v1 *out) {
     return result;
 }
 static bool quiesce(void) {
-    if (!state_lock) return !bus && !clock_api && !bus_claim;
-    if (!lock_state()) return false;
-    const bool result = quiesce_locked();
-    unlock_state();
-    return result;
+    if (!sync_api) return !state_lock && !bus && !clock_api && !gpio && !rail &&
+        !hardware && !bus_claim && !reset_claim;
+    if (state_lock) {
+        if (!lock_state()) return false;
+        const bool result = quiesce_locked();
+        const bool unlocked = unlock_state();
+        if (!result || !unlocked) return false;
+        if (!sync_api->destroy(sync_api->context, state_lock)) return false;
+        state_lock = 0;
+    } else if (!quiesce_locked()) return false;
+    bus = NULL;
+    clock_api = NULL;
+    gpio = NULL;
+    rail = NULL;
+    hardware = NULL;
+    sync_api = NULL;
+    unlock_failed = false;
+    return true;
 }
-static void stop(void) {
-    if (!quiesce()) return;
-    /* The loader calls stop only after the last grant and API caller drained. */
-    if (state_lock) vSemaphoreDelete(state_lock);
-    state_lock = NULL;
-}
+static void stop(void) { (void)quiesce(); }
 
 static const risc_touch_api_v1 touch_api = {
     RISC_TOUCH_API_V1, sizeof(risc_touch_api_v1), NULL,

@@ -24,17 +24,44 @@ The BSP uses I2C SDA15/SCL14, touch reset2 and interrupt11.
 
 ## Contract and implementation
 
-The driver uses existing driver ABI 2 and input.touch.raw v1, with i2c.bus v1
-and platform.clock v1 dependencies. It adds no capability fields or board-name
-branches. The generic controller claims address 0x5a; power and reset must
-already be established by the future board provisioning/profile layer.
-No GPIO/reset owner or interrupt provider is introduced here. Polling is explicit.
+The driver uses existing driver ABI 2 and input.touch.raw v1. It requires
+hardware.device, the loader-scoped i2c.bus, platform.gpio, platform.clock,
+power.rail and platform.sync, all API 1. No public ABI is added.
+
+Before any service call or hardware I/O it requires exactly one of each
+dependency with valid table size/version and required callbacks. The typed
+hardware record must be `hynitron,cst9217`, revision `unspecified`, `touch.i2c`
+version 2 with the full v2 record. Admission is intentionally limited to the
+1.75C source configuration: bus101/controller0, SDA15/SCL14 at400kHz,
+466x466, address0x5a, active-low resetGPIO2 with10/50ms timing, active-low IRQ11
+without pull-up/output, no alternate address and no separately controlled
+power pin. Reserved bytes and unused SPI pins are checked. The v1 record is
+not reinterpreted as v2. This is configuration admission, not chip revision or
+physical wiring detection. The loader supplies the correctly scoped contexts;
+the public bus API does not expose an independent identity query.
+
+The provider checks its separately selected power.rail observer for verified,
+enabled3300mV. It never calls set_enabled, claims PMIC0x34 through the touch
+bus, or changes CPU-shared DCDC1. It then claims GPIO2 initially LOW, checks
+readback, waits at least10ms, writes/checks HIGH and waits at least50ms. Each
+wait checks the monotonic clock around the yielding sleep. This uses the
+existing generic GPIO owner contract, including initial-level staging before
+output enable, rather than a caller-only preparation adapter.
+
+CST itself retains the reset token until all subscriptions and touch transfers
+have drained and the touch bus claim has successfully released. A reset or
+probe failure uses the same checked cleanup. False/nonzero claims are retained
+for cleanup but never used for I/O. A failed bus release does not release reset;
+a failed GPIO release retains its token and all borrowed dependencies for retry.
+GPIO1 belongs separately to the native display. The older board preparation
+helper remains source evidence and must not run alongside this provider.
+Polling is explicit; IRQ11 is declared but not claimed or driven.
 
 Register selection is a two-byte big-endian write with STOP, followed by a
 2 ms yielding delay and a separate read. A combined repeated-START transfer
 is not equivalent. Startup mirrors the vendor's duplicated D101 mode command,
-10 ms delay, checkcode/resolution/project reads; it uses the reported nonzero
-dimensions (up to 4096), not a hardcoded 466. No undocumented chip signature
+10 ms delay, checkcode/resolution/project reads; the reported
+dimensions must agree with the admitted466x466 configuration. No undocumented chip signature
 is invented. Each transfer has a 20 ms budget. A poll services one report,
 bounded by two transfers and one 2 ms yield, even when a larger report budget
 is supplied.
@@ -49,7 +76,12 @@ Consumers see GAP and must resynchronize. Queue overflow also signals GAP,
 but leaves a successfully sampled snapshot available. Startup's empty contact
 snapshot is initialized state, not evidence that the physical screen was read.
 
-A mutex covers the entire select/delay/read sequence and provider state.
+Runtime's existing owner-task-only platform.sync guard covers the entire
+select/delay/read sequence and provider state. Calls from another task or
+reentrant calls fail without entering the operation. This is not a cross-thread
+capture-task mutex. The provider imports no privileged FreeRTOS operations and
+performs no compare-and-set against its PSRAM-backed BSS. Failed guard unlock or
+destroy also retains cleanup custody and dependencies.
 Failed cleanup retains the claim and dependencies for checked quiesce/stop
 retry; it never reports release success on failure. Live subscriptions prevent
 quiescence. Generation tokens remain monotonic across restart. Invalid clocks
@@ -59,21 +91,36 @@ attempt per poll and reports a gap without resetting a shared device or bus.
 
 ## Reproduction and limits
 
-Run bash test/run_cst9217_touch_test.sh for normal and ASan/UBSan host tests.
-The fake bus rejects combined transactions and checks timing, register shape,
-dimensions, bounds, transitions, fanout, queue overflow, corrupt reports,
-startup transfer failures, invalid final clock, reentrant access, stale tokens
-and retained-release custody. LeakSanitizer is disabled; this is not a leak test.
+Use Runtime `13eca114cb58469cf6004fafc3da84fbd9d29beb` for these commands:
 
-Run bash scripts/install_native_driver_toolchain.sh, use its reported PATH,
-then python scripts/build_cst9217_touch.py for the existing pinned native GCC15
-Xtensa toolchain. CI builds the exact PR head, checks manifest/ELF architecture
-and exported entry point, and preserves the candidate ELF plus derived manifest.
-These are build artifacts, not published or admitted firmware packages.
+- `bash test/run_cst9217_touch_test.sh RUNTIME_PATH` runs normal and ASan/UBSan
+  protocol/stream tests.
+- `python3 tests/test_badge_touch_composition.py --runtime RUNTIME_PATH`
+  runs production dependency/reset/start/stop composition. Add `--sanitize`
+  for ASan/UBSan; on ptrace-hosted systems use `ASAN_OPTIONS=detect_leaks=0`.
+- Install the existing pinned native toolchain, then run
+  `python3 scripts/build_cst9217_touch.py --runtime RUNTIME_PATH`.
 
-Remaining board integration: power/reset sequencing, concrete I2C/profile
-selection, CO5300 output provider with conservative safe insets, touch/display
-coordinate agreement, shared Watch boot provisioning and on-device validation.
-No board profile selects this provider yet. Electrical timing, actual controller
-revision, reset/recovery, orientation and real touch behavior remain unmeasured.
+The fake boundaries enforce the real service ABIs, owner guard, GPIO2 custody,
+no GPIO1 access, supply observation, STOP-separated transactions and timing.
+Coverage includes every typed config field, missing/duplicate/malformed service
+tables, reset/readback/delay failures, false/nonzero and true/zero claims, every
+probe transfer, mismatched dimensions, invalid clocks, active subscriptions,
+failed bus/GPIO/sync cleanup with retry, reentrancy, stream corruption, overflow,
+fanout and stale tokens. The production composition no longer relies on a
+caller-created stop-before-reset-finish wrapper. The independent historical
+board-preparation tests still cover the earlier helper's own contract.
+
+`scripts/cst9217_sdk.py` stages one temporary header root from existing files,
+using Drivers capability headers with the selected Runtime headers authoritative
+for shared names. This avoids duplicate definitions from quoted adjacent
+includes. It neither changes the shared SDK nor invents another ABI. CI checks
+out the exact Runtime revision, builds the actual PR source, rejects unexpected
+ELF imports/exports and preserves the candidate ELF and derived manifest.
+
+These are source/host/target-build results, not a published package, linked-device
+boot result or physical qualification. The separate Badge Home graph assembles
+the selected provider and existing Watch default. Electrical timing, physical
+controller revision, orientation and real touch behavior remain unmeasured.
+No reset/retry loop, unrelated sensor, external RTC or SD capability is added.
 User-reported Badge success is not RiscRTE validation.

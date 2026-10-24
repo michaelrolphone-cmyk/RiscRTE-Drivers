@@ -14,12 +14,19 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+      - name: Checkout exact scoped Runtime SDK
+        uses: actions/checkout@v4
+        with:
+          repository: michaelrolphone-cmyk/RiscRTE
+          ref: 13eca114cb58469cf6004fafc3da84fbd9d29beb
+          path: .ci/runtime
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with: {python-version: "3.11"}
       - name: Validate exact board profile and startup custody
         run: bash test/run_board_preparation_test.sh
       - name: Preserve existing CST9217 controller qualification
-        run: bash test/run_cst9217_touch_test.sh
+        run: bash test/run_cst9217_touch_test.sh .ci/runtime
       - name: Install existing pinned native GCC15 toolchain
         run: bash scripts/install_native_driver_toolchain.sh
       - name: Build integration archive, not firmware

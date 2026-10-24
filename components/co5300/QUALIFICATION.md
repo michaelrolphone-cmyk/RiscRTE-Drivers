@@ -1,4 +1,12 @@
-# Extracted component qualification, 2026-10-24
+# Historical extraction qualification, 2026-10-24
+
+This records the initial PR44 component baseline, not the current candidate.
+Its facade ELF hash below predates the scoped-sync correction and contains
+PSRAM-unsafe native CAS; do not use that artifact as qualified for PSRAM loading.
+The current [Badge Home qualification](../../boards/waveshare-esp32-s3-touch-amoled-1.75c/home/README.md)
+uses a rebuilt scoped-sync facade, real Runtime graph/activation and native link.
+Current builders emit fresh source-bound receipts; historical results below are
+retained for provenance and do not substitute for those receipts.
 
 These are local source/component results on the Drivers extraction based on
 `0a04382db4b6871a9e8298cbc964d4896e8b483a`. Hosted exact-head CI is a separate

@@ -28,14 +28,15 @@ There is no published artifact, release inventory entry or installed firmware.
 Compile the facade and native backend with the same selected profile. The
 existing Runtime admission check still verifies the actual selected hardware
 configuration before access. A build profile does not grant hardware authority.
-The eventual product must validate its complete graph and retain mapped code,
+The Badge Home composition validates its complete graph and retains mapped code,
 configuration and dependencies after failed quiescence.
 
 ## Reproduce
 
 `scripts/run_badge_display_ci.sh` is the exact component qualification recipe.
 It configures the pinned real ESP-IDF SDK through Runtime, tests facade/supply
-and real preparation/CST composition normally and with ASan/UBSan, compiles the
+and historical preparation plus production scoped CST separately, normally and
+with ASan/UBSan, compiles the
 native implementation for host and Xtensa, and validates both loadable ELFs with
 the real Runtime loader. The native matrix covers default, Badge and independent
 geometry with trace/probe combinations and retained timeout/failure cases.
@@ -48,10 +49,20 @@ no application code is copied or forked.
 
 Use `scripts/stage_co5300_native.py --help` for explicit device-build staging.
 The staging input accepts an optional profile path rather than a finite board
-list. Full board graph/startup, flash partition assembly and shared Watch
-provisioning remain product integration work. Hardware colors, orientation,
+list. The [Badge Home composition](../../boards/waveshare-esp32-s3-touch-amoled-1.75c/home/README.md)
+now supplies a real scoped graph and linked native target. Combined flash-image
+assembly/provisioning remains separate. Hardware colors, orientation,
 touch agreement, load voltage and sleep behavior remain unmeasured.
 
 See [qualification and explicit limits](QUALIFICATION.md) and
 [provenance and retained notices](PROVENANCE.md). No merge, release or device
 operation is performed by these scripts.
+
+## PSRAM-safe facade lifecycle
+
+The loadable facade now requires the existing Runtime `platform.sync@1`. Its
+owner-task guard lives in the Runtime, not in provider PSRAM. No inline S32C1I
+or private atomic/RTOS imports are permitted by the original-ELF disassembly
+gate. Deferred frame release remains generation-checked and owner-only. Failed
+start, backend close, guard unlock or guard destruction retains cleanup custody.
+The native backend and private geometry contract are unchanged.

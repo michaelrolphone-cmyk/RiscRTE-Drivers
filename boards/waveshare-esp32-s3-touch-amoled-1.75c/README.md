@@ -1,10 +1,11 @@
 # Waveshare ESP32-S3-Touch-AMOLED-1.75C board sources
 
-This package contains preparation and [shared-display integration](DISPLAY.md)
-for the aluminium round Badge port. It is not an installable RiscRTE image,
-Runtime board manifest or hardware qualification. The original preparation
-archive is not a loadable provider or a finished Runtime startup adapter. Do not rename
-`preparation.json` to `board.json` or add this archive to the driver inventory.
+This package contains preparation, [shared-display integration](DISPLAY.md),
+a [scoped Home boot graph](home/README.md) and [native target build](native/README.md)
+for the aluminium round Badge port. Software qualification is not physical
+qualification or a released/installable combined image. The original preparation
+archive remains an unselected historical helper. Do not rename `preparation.json`
+to `board.json` or add that archive to the driver inventory.
 The shared `RiscRTE-Watch` default application remains the only application owner.
 
 ## Verified source mapping
@@ -13,7 +14,8 @@ The shared `RiscRTE-Watch` default application remains the only application owne
 The-Badge `76172dfa`, Waveshare BSP 3.0.0 `010c5fb3`, CST9217 2.0.0
 `9daffb71`, and Espressif CO5300 2.2.0 `2d289eb1`.
 
-- 32 MiB flash and 8 MiB PSRAM are physical capacities, not a selected partition map.
+- 32 MiB flash and 8 MiB PSRAM are the specified capacities. The separate native
+  profile now selects a 3 MiB factory application and remaining-flash bootfs.
 - Shared I2C is controller 0, SDA15/SCL14, 400 kHz. CST9217 is address 0x5a.
 - CO5300 is 466x466, QSPI clock38, data4/5/6/7, CS12, reset1, column offset6.
 - CST reset2 and IRQ11 are separate from LCD reset1. The BSP's “shared reset”
@@ -31,11 +33,14 @@ The conservative proposed content rectangle uses 69-pixel insets, leaving
 measured visible bounds. Physical raster and touch coordinates stay 466x466;
 this data does not implement contour clipping or display output.
 
-## Startup boundary
+## Historical preparation helper (unselected)
 
 `boards/common/prepare.c` is a data-driven internal helper, not a new public ABI.
-A future admitted adapter supplies the exact scoped I2C bus and GPIO/clock
-callbacks. It checks AXP2101 identity and that DCDC1 is already enabled using
+A caller supplies the exact I2C bus and GPIO/clock callbacks. The production
+Home graph does not use this helper: the CST9217 provider only claims its
+controller address and owns its reset directly. Runtime scopes I2C by bus, not
+by a per-consumer address ACL. The historical helper checks AXP2101 identity
+and that DCDC1 is already enabled using
 only reads. It never configures or disables a PMIC rail, charging, cutoff,
 interrupt, or power key. An unexpected rail state fails rather than rewriting it.
 Upstream charge-policy and unused-rail changes are intentionally not copied.
@@ -67,25 +72,27 @@ LeakSanitizer is disabled, so no leak-check pass is claimed.
 Run `python scripts/build_board_preparation.py` with the repository's supported
 Xtensa compiler on PATH or `NATIVE_DRIVER_CC` set explicitly. It creates a PIC
 static archive and records object architecture, sizes, hashes and compiler.
-It does not create a `driver.elf` or claim Runtime ELF admission. Existing
-`bash test/run_cst9217_touch_test.sh` remains unchanged and is also run in CI.
+It does not create a `driver.elf` or claim Runtime ELF admission. The current
+CST9217 suite runs with `bash test/run_cst9217_touch_test.sh /path/to/runtime`;
+it now qualifies production scoped dependency/reset ownership.
 
-## Next technical integration, not hardware gates
+## Current composition and remaining qualification
 
-1. Bind the tested touch-only adapter and shared CO5300 component into the real
-   startup/provider graph. The adapter retains GPIO2 only; the native display
-   owns GPIO1. The original two-reset preparation must not run concurrently
-   with that composition. Stop consumers before cleanup and retain dependencies
-   on failure.
-2. Select the [tested 1.75C display profile and passive DCDC1 observer](DISPLAY.md)
-   in that graph. These sources now exist, but a full linked boot graph does not.
-   The 2.06 panel profile and separate ALDO2 rail remain incompatible.
-3. Compose the existing CST9217 provider and shared Watch default with admitted
-   providers, real onboard-flash storage/time policy, partitions and target image.
-   No app migration, contour extension, or unrelated parity repair is a blanket gate.
-4. Qualify the built candidate on hardware separately: boot, colors/damage,
-   orientation/touch, BOOT/PWR, storage, power and later sleep/current.
+`home/board.json` is the actual hardware graph, distinct from preparation data.
+The four loadable providers are scoped I2C, shared CO5300, CST9217 and the passive
+DCDC1 observer. PMIC metadata is not a fake battery provider. GPIO2 stays with
+CST9217 until checked teardown; GPIO1 remains under the existing display custody.
+The native target excludes both historical startup helpers.
 
-Existing Watch PR15 and Drivers PR44 source and accepted driver inventories are
-unchanged by this slice. The inherited PR44 source/release parity failure remains
-separate. Upstream Badge success does not qualify this RiscRTE port.
+Shared Watch PR15 remains unchanged. The default ELF is built once by its
+maintained `scripts/build.py` and copied byte for byte. Home receives display,
+touch, native realtime-control and provider-promotion. Other services are explicit
+optional declarations with no grants. Civil time starts UNSET; battery, sleep,
+radio and application persistence are unavailable, not simulated.
+
+See `home/README.md` for source/graph/provider/behavior evidence and the separate
+native link. No source result confirms physical boot, display orientation,
+touch mapping, measured rail voltage, BOOT/PWR, storage wear or later sleep/current.
+No merge, release, flashing or device control is part of this qualification.
+Historical accepted release bytes and the 2.06 product remain unchanged. The
+inherited PR44 source/release parity drift remains separate from this unit.

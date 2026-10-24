@@ -67,7 +67,7 @@
       "source": "drivers/panel_vendor/manifest.json",
       "source_git_blob": "5ef9f2e389783bba8aecf5f682112a371d6b00e7",
       "source_sha256": "766335aedc9074262e7864c7b51c1a69e78af20e339407500afae231a4600537",
-      "adaptation": "Independent experimental co5300-display 0.1.0; same capability contract."
+      "adaptation": "Experimental co5300-display 0.1.0 adds existing Runtime platform.sync@1 for PSRAM-safe scoped lifecycle; published baseline unchanged."
     },
     {
       "destination": "components/co5300/include/DriverHardware.h",
@@ -137,7 +137,7 @@
       "source": "include/common/display.h",
       "source_git_blob": "005c7a0835149f4cb1088ca087390dcb445a761b",
       "source_sha256": "092cf013913b8c864d645ac26b739509781f56b5e28ece51d1e776644c62bb60",
-      "adaptation": "Unchanged source bytes."
+      "adaptation": "Owner-task lifecycle uses Runtime platform.sync instead of PSRAM-unsafe C atomics; deferred frame release and retained cleanup remain explicit."
     },
     {
       "destination": "components/co5300/licenses/Apache-2.0.txt",

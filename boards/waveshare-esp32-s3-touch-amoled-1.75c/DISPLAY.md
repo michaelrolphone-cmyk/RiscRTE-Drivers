@@ -49,31 +49,37 @@ I2C claim and dependency references until a checked retry succeeds.
 - [Vendor DCDC1 voltage implementation](https://github.com/waveshareteam/ESP32-S3-Touch-AMOLED-1.75C/blob/4bfdc80eedbf95031e384610796bed15e0240312/examples/arduino/libraries/XPowersLib/src/XPowersAXP2101.tpp#L1396-L1432)
 - [Board schematic, VCC3V3 supply](https://files.waveshare.com/wiki/ESP32-S3-Touch-AMOLED-1.75C/ESP32-S3-Touch-AMOLED-1.75C-schematic.pdf#page=1)
 
-`touch-startup.c` composes the existing Drivers preparation helper/configuration,
-selecting only GPIO2 (10 ms assert, 50 ms recovery). Its retained GPIO2 token
-outlives the CST9217 provider. The caller must quiesce/stop CST9217 before calling
-`risc_board_prepare_finish`; the helper cannot enforce consumer lifecycle itself.
-GPIO1 is not claimed by this adapter. The existing facade briefly owns GPIO1 to
-clear old deep-sleep hold, releases it, then the native backend owns it until
-checked close. There is no release/reclaim of a live consumer's reset and no
-new reset handoff ABI. Full graph validation and scoped GPIO/I2C callbacks remain
-responsibilities of the eventual Runtime product assembly.
+The production scoped CST9217 provider owns GPIO2 directly through Runtime's
+`platform.gpio` and retains it for the complete consumer lifetime. It first checks
+its independently bound passive `power.rail`, then stages/asserts LOW, checks pad
+readback, waits10ms, deasserts/checks HIGH and waits50ms. The CST provider only claims address0x5a and never claims PMIC0x34; Runtime
+enforces bus-instance matching, not per-consumer address ACLs. Scoped
+synchronization replaces privileged FreeRTOS imports.
+Failed cleanup retains all relevant dependencies, reset and synchronization until
+checked quiescence succeeds; an active touch subscriber prevents teardown.
+
+`touch-startup.c` and the original two-reset helper remain historical source, not
+linked into the production native profile. GPIO1 is not claimed by CST9217. The
+existing facade briefly owns GPIO1 to clear old deep-sleep hold, releases it,
+then the native backend owns it until checked close. There is no second startup
+reset or new reset-handoff ABI.
 
 ## Qualification and remaining assembly
 
 Pinned source inputs for this unit:
 
 - Watch `605d5e7d4e2b46f6b33ff2f195582db6f882535c` (shared app/safe-insets contract).
-- This Drivers source tree (preparation and CST9217 inherited unchanged from
-  `0a04382db4b6871a9e8298cbc964d4896e8b483a`).
+- This Drivers source tree; preparation remains preserved, while CST9217 now
+  has production physical admission and lifecycle-owned GPIO2 reset.
 - Runtime `13eca114cb58469cf6004fafc3da84fbd9d29beb` (actual loader and SDK build).
 - IDF `fff9895c82d744c7237be8847347bdd1b07c6643`, GCC15.2.0.
 
-`tests/test_badge_display.py --watch PATH [--sanitize]` tests the same facade
+`tests/test_badge_display.py --watch PATH --runtime PATH [--sanitize]` tests the same facade
 under default2.06, selected1.75C and unrelated320×240/asymmetric-inset profiles.
-`tests/test_badge_touch_composition.py [--sanitize]` links the real
-preparation helper and CST9217. The facade test also includes all DCDC1 codes/enables and read/claim/release
-failures. Existing preparation and CST9217 regression suites remain unchanged.
+`tests/test_badge_touch_composition.py --runtime PATH [--sanitize]` tests the real
+scoped CST9217 dependency/reset lifecycle. The facade test also includes all DCDC1 codes/enables and read/claim/release
+failures. The historical preparation suite remains separate; the CST protocol suite now
+uses the admitted dependency model.
 `tests/test_co5300_native.py --idf PATH --compile-commands PATH` compiles against
 actual SDK declarations for three geometries × trace/probe variants, with an
 optional `--host-only --sanitize` run. No substitute SDK ABI is used.
@@ -85,11 +91,11 @@ The new CI reproduces host, ASan/UBSan and target checks. Leak checking is disab
 for the ptrace-hosted runner; no LeakSanitizer pass is claimed. These are component
 results, not a linked firmware or physical test.
 
-Remaining software work is actual board/provider graph and startup binding,
-32 MiB product/partition assembly, battery/time service selection without a
-nonexistent external RTC, and packaging the existing shared Watch default app.
-No SD is advertised. Source preparation can proceed while held PRs and inherited
-Drivers parity diagnostics are resolved; neither implies hardware qualification.
+The [Home graph](home/README.md) and [32MiB native target](native/README.md) now
+compose these sources with the unchanged shared Home ELF. Their admission, native
+link and host behavior checks remain distinct from component tests and physical
+qualification. Battery telemetry, external-service availability and a genuine
+cold-start time source are not fabricated first-frame prerequisites.
 
 ## Shared ownership and provenance
 
