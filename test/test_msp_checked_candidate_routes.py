@@ -3,9 +3,13 @@ import ast
 import json
 from pathlib import Path
 import subprocess
+import sys
 import unittest
 import yaml
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'scripts'))
+from verify_usb_hid_preservation import preserved_bytes
+
 BASE = 'a7ae39994603c4545a3c014f09051ecfc12084d2'
 class CandidateRoutes(unittest.TestCase):
     def test_historical_builders_and_accepted_bytes_unchanged(self):
@@ -14,9 +18,11 @@ class CandidateRoutes(unittest.TestCase):
             expected = subprocess.check_output(['git', '-C', str(ROOT), 'show', BASE+':'+path])
             self.assertEqual((ROOT/path).read_bytes(), expected)
         self.assertEqual(subprocess.check_output(['git', '-C', str(ROOT), 'diff', BASE, '--', 'dist', 'release', 'manifest', ':(exclude)manifest/released-drivers.json']), b'')
-        baseline = json.loads(subprocess.check_output(['git', '-C', str(ROOT), 'show', BASE+':manifest/released-drivers.json']))
-        baseline['original_drivers'].append({'id': 'cst9217-touch', 'version': '0.1.0', 'source_path': 'Drivers/cst9217_touch', 'source_tree_sha': '36e5a8d9bc1ffb420df89f4aa9a7ae478d129d96'})
-        self.assertEqual((ROOT/'manifest/released-drivers.json').read_text(), json.dumps(baseline, indent=2)+'\n')
+        path = 'manifest/released-drivers.json'
+        baseline = subprocess.check_output(['git', '-C', str(ROOT), 'show', BASE+':'+path])
+        # Share the exact allowed addition and canonical serialization checks with
+        # the PR40 guard, then require the historical inventory's original bytes.
+        self.assertEqual(preserved_bytes(path, (ROOT/path).read_bytes()), baseline)
     def test_candidate_identities_and_paths(self):
         for driver in ('usb_msp', 'program_msp'):
             manifest = json.loads((ROOT/f'Drivers/{driver}/manifest.json').read_text())

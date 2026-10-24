@@ -15,6 +15,9 @@ def preserved_bytes(path, data):
     inventory = json.loads(data)
     if not inventory.get('original_drivers') or inventory['original_drivers'][-1] != CST_ENTRY:
         raise ValueError('missing or changed exact CST9217 inventory addition')
+    # Use the pinned entry's field order too; dict equality alone would let a
+    # reordered addition disappear before the historical-byte comparison.
+    inventory['original_drivers'][-1] = CST_ENTRY
     # Reject formatting drift as well as any extra fields, duplicate entries or edits.
     if (json.dumps(inventory, indent=2)+'\n').encode() != data:
         raise ValueError('inventory serialization drift')
