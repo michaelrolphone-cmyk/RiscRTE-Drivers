@@ -1,0 +1,49 @@
+{
+  "type": "driver",
+  "id": "co5300-display",
+  "version": "0.1.0",
+  "driver_abi": 2,
+  "architecture": "xtensa-esp32s3",
+  "file_name": "driver.elf",
+  "requires": [
+    {
+      "capability": "hardware.device",
+      "api": 1
+    },
+    {
+      "capability": "platform.display.backend",
+      "api": 1
+    },
+    {
+      "capability": "platform.clock",
+      "api": 1
+    },
+    {
+      "capability": "power.rail",
+      "api": 1
+    },
+    {
+      "capability": "platform.gpio",
+      "api": 1
+    }
+  ],
+  "provides": [
+    {
+      "capability": "display.output",
+      "api": 1
+    }
+  ],
+  "hardware_compatibility": [
+    {
+      "compatible": "chipone,co5300",
+      "revisions": [
+        "unspecified"
+      ],
+      "config_type": "display.spi",
+      "config_version": 2
+    }
+  ],
+  "physical_verification": "pending",
+  "notes": "Shared CO5300 facade; select the same build profile as the linked native backend. No published artifact or physical qualification.",
+  "status": "experimental-source-only"
+}

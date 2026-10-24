@@ -1,8 +1,9 @@
-# Waveshare ESP32-S3-Touch-AMOLED-1.75C preparation
+# Waveshare ESP32-S3-Touch-AMOLED-1.75C board sources
 
-This is a source preparation slice for the aluminium round Badge port. It is
-not an installable RiscRTE image, Runtime board manifest, loadable provider,
-finished startup adapter or hardware qualification. Do not rename
+This package contains preparation and [shared-display integration](DISPLAY.md)
+for the aluminium round Badge port. It is not an installable RiscRTE image,
+Runtime board manifest or hardware qualification. The original preparation
+archive is not a loadable provider or a finished Runtime startup adapter. Do not rename
 `preparation.json` to `board.json` or add this archive to the driver inventory.
 The shared `RiscRTE-Watch` default application remains the only application owner.
 
@@ -71,12 +72,14 @@ It does not create a `driver.elf` or claim Runtime ELF admission. Existing
 
 ## Next technical integration, not hardware gates
 
-1. Bind this exact prepared I2C/reset ownership into the real startup/provider
-   composition. Do not let the CO5300 driver separately claim reset1 while this
-   helper owns it. Stop consumers before cleanup; keep dependencies mapped on failure.
-2. Add CO5300 output using the pinned 1.75C command table, 466x466 dimensions,
-   offset6, safe insets, and the existing generic display contract. The 2.06
-   panel's 410x502/offset22 and separate ALDO2 rail are incompatible.
+1. Bind the tested touch-only adapter and shared CO5300 component into the real
+   startup/provider graph. The adapter retains GPIO2 only; the native display
+   owns GPIO1. The original two-reset preparation must not run concurrently
+   with that composition. Stop consumers before cleanup and retain dependencies
+   on failure.
+2. Select the [tested 1.75C display profile and passive DCDC1 observer](DISPLAY.md)
+   in that graph. These sources now exist, but a full linked boot graph does not.
+   The 2.06 panel profile and separate ALDO2 rail remain incompatible.
 3. Compose the existing CST9217 provider and shared Watch default with admitted
    providers, real onboard-flash storage/time policy, partitions and target image.
    No app migration, contour extension, or unrelated parity repair is a blanket gate.

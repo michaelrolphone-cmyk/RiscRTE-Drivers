@@ -1,0 +1,301 @@
+{
+  "schema": 1,
+  "source_repository": "michaelrolphone-cmyk/RiscRTE-Wavshare-S3-Touch-AMOLED-2.06",
+  "source_revision": "0161c20852797f8e587640a53c4e8f3094e324d6",
+  "source_revision_status": "reviewed local candidate, preserved and unpublished",
+  "published_parent": "098b1bd432be76a87e887509db84bf905de76013",
+  "destination_base": "0a04382db4b6871a9e8298cbc964d4896e8b483a",
+  "files": [
+    {
+      "destination": ".github/workflows/badge-display.yml",
+      "source": ".github/workflows/badge-display.yml",
+      "source_git_blob": "57da07556e9cac73c04e9173d3b702b8b4de3037",
+      "source_sha256": "0a119dddcbc63838b0cac2879e7fe8e339f6b769665678a0206bb1316b92705a",
+      "adaptation": "Drivers source/main selection; same pinned IDF container and component-only scope."
+    },
+    {
+      "destination": "boards/waveshare-esp32-s3-touch-amoled-1.75c/DISPLAY.md",
+      "source": "boards/waveshare-esp32-s3-touch-amoled-1.75c/README.md",
+      "source_git_blob": "e6dabc9d7b6ed988a8440f0cbdb19d40be78ae8f",
+      "source_sha256": "a878ae8d7765b8c9717cde7d3cdf62b14baa96574b4ecd560ef39fc861196325",
+      "adaptation": "Correct destination paths, current scope and provenance links."
+    },
+    {
+      "destination": "boards/waveshare-esp32-s3-touch-amoled-1.75c/display-profile.h",
+      "source": "boards/waveshare-esp32-s3-touch-amoled-1.75c/display-profile.h",
+      "source_git_blob": "6bd541a0e14b8995b2b96ac7e6642737b32022c5",
+      "source_sha256": "df024066ed7f64a08c9f0c031827904233ffa61a538cf40a61398c55970d4395",
+      "adaptation": "Retained behavior; profile attribution comment added."
+    },
+    {
+      "destination": "boards/waveshare-esp32-s3-touch-amoled-1.75c/supply/driver.c",
+      "source": "boards/waveshare-esp32-s3-touch-amoled-1.75c/supply/driver.c",
+      "source_git_blob": "f312fd7ebe4e392c4a18b420a260e392ba03b936",
+      "source_sha256": "46c8897fb20019a5c08c9e1ea5bb4caeb5231395bb4d000a98e3d03ae90f0c26",
+      "adaptation": "Unchanged source bytes."
+    },
+    {
+      "destination": "boards/waveshare-esp32-s3-touch-amoled-1.75c/supply/manifest.json",
+      "source": "boards/waveshare-esp32-s3-touch-amoled-1.75c/supply/manifest.json",
+      "source_git_blob": "1fbc3f4fc035c9dd2e11f36dc75f216977890a8c",
+      "source_sha256": "78972cbff8eb6a22ffd5a0ec4524808f07e5b9e30290e1bf12685b01381d227a",
+      "adaptation": "Unchanged source bytes."
+    },
+    {
+      "destination": "boards/waveshare-esp32-s3-touch-amoled-1.75c/touch-startup.c",
+      "source": "boards/waveshare-esp32-s3-touch-amoled-1.75c/touch-startup.c",
+      "source_git_blob": "90e8b8fd3b616c286293d43f8391439cbcf2aa4a",
+      "source_sha256": "b837f4354600460550c5edf8342d71713173a09522a76004d3ded79fec98b51b",
+      "adaptation": "Unchanged source bytes."
+    },
+    {
+      "destination": "boards/waveshare-esp32-s3-touch-amoled-1.75c/touch-startup.h",
+      "source": "boards/waveshare-esp32-s3-touch-amoled-1.75c/touch-startup.h",
+      "source_git_blob": "64a69008f91b5d2b0dda0db4670b4ecd29213896",
+      "source_sha256": "f99d6dec1fa05f498be05340fa2784f4266d8b0425d31126d2f4dec591402c91",
+      "adaptation": "Unchanged source bytes."
+    },
+    {
+      "destination": "components/co5300/facade/driver.c",
+      "source": "drivers/panel_vendor/driver.c",
+      "source_git_blob": "0723bc143619c3b0aa2a103c73f30fdaa1896ce6",
+      "source_sha256": "94711b5aadef9c61fe3d556f112587820316504fff10935c0fd3a7ce8f1a064e",
+      "adaptation": "Component-neutral identity and comments; lifecycle retained."
+    },
+    {
+      "destination": "components/co5300/facade/manifest.json",
+      "source": "drivers/panel_vendor/manifest.json",
+      "source_git_blob": "5ef9f2e389783bba8aecf5f682112a371d6b00e7",
+      "source_sha256": "766335aedc9074262e7864c7b51c1a69e78af20e339407500afae231a4600537",
+      "adaptation": "Independent experimental co5300-display 0.1.0; same capability contract."
+    },
+    {
+      "destination": "components/co5300/include/DriverHardware.h",
+      "source": "include/DriverHardware.h",
+      "source_git_blob": "9b18939d38200a15a2b10bbdf7bb9b3184defa3d",
+      "source_sha256": "3393199de17e48910d136c3685eb41342221ae8ea732d212ab501898472d326c",
+      "adaptation": "Unchanged source bytes."
+    },
+    {
+      "destination": "components/co5300/include/DriverSupport.h",
+      "source": "include/DriverSupport.h",
+      "source_git_blob": "3d052ff6d849bd05788835b328d54ce02109781b",
+      "source_sha256": "1a3147c10fd695c88aacb2613d9621af16e8fa8bbdf482f9a335232b2eff6ed7",
+      "adaptation": "Unchanged source bytes."
+    },
+    {
+      "destination": "components/co5300/include/DriverUtil.h",
+      "source": "include/DriverUtil.h",
+      "source_git_blob": "bbb91db0bb168b80a081dfc015dc351badfe0e49",
+      "source_sha256": "8303bef501c6638953c66318bb6df84e416aaa38b2718079609b2e167765cc04",
+      "adaptation": "Unchanged source bytes."
+    },
+    {
+      "destination": "components/co5300/include/ProviderLog.h",
+      "source": "include/ProviderLog.h",
+      "source_git_blob": "8ab2385877646a960101540ac09a6983815f0866",
+      "source_sha256": "f3c4528faab6d96efe0d503be4502dec0a9a845a6eb1b947970e369c7c021212",
+      "adaptation": "Unchanged source bytes."
+    },
+    {
+      "destination": "components/co5300/include/RiscCo5300Profile.h",
+      "source": "include/RiscCo5300Profile.h",
+      "source_git_blob": "4975b6d0c9d4baec9fde06047aca0870911902a8",
+      "source_sha256": "30d8f8eae0f46de94c63b7986912850dce9425b7bf2dc23477d727b70f8dfbf5",
+      "adaptation": "Unchanged source bytes."
+    },
+    {
+      "destination": "components/co5300/include/RiscDisplayBackendV1.h",
+      "source": "include/RiscDisplayBackendV1.h",
+      "source_git_blob": "7238810e263c773a9c5f750159fc35a0428f2727",
+      "source_sha256": "ac21e77652597e7f211b5630c447327efe75536b7f13c468e2c168797f3f38f2",
+      "adaptation": "Unchanged source bytes."
+    },
+    {
+      "destination": "components/co5300/include/RiscDisplaySpiV2.h",
+      "source": "include/RiscDisplaySpiV2.h",
+      "source_git_blob": "0689a355d99185dae4412a6f05cd716d865c4415",
+      "source_sha256": "362c056e5512fc99d500451f7758dba023cf7d096536959e3fab8b05cd1001ce",
+      "adaptation": "Unchanged source bytes."
+    },
+    {
+      "destination": "components/co5300/include/RiscI2cFunctionV1.h",
+      "source": "include/RiscI2cFunctionV1.h",
+      "source_git_blob": "9cf1de8120c0fac2dc1a2aebf495f0122502aced",
+      "source_sha256": "2706be5fb3ace2f85d37ac24e4559631c6a941e96f8a99a57d0067c3b24bf13c",
+      "adaptation": "Unchanged source bytes."
+    },
+    {
+      "destination": "components/co5300/include/RiscPowerRailV1.h",
+      "source": "include/RiscPowerRailV1.h",
+      "source_git_blob": "4995cf5d04631257ea98ef3249f65316f4772bdb",
+      "source_sha256": "e9f81f7582dadde095c5b73362a70a171ba04c2cf6513e5c95886eec2f9083b6",
+      "adaptation": "Unchanged source bytes."
+    },
+    {
+      "destination": "components/co5300/include/common/display.h",
+      "source": "include/common/display.h",
+      "source_git_blob": "005c7a0835149f4cb1088ca087390dcb445a761b",
+      "source_sha256": "092cf013913b8c864d645ac26b739509781f56b5e28ece51d1e776644c62bb60",
+      "adaptation": "Unchanged source bytes."
+    },
+    {
+      "destination": "components/co5300/licenses/Apache-2.0.txt",
+      "source": "licenses/Apache-2.0.txt",
+      "source_git_blob": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+      "source_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "adaptation": "Unchanged bytes; identical to primary BSP/ESP-IOT license texts."
+    },
+    {
+      "destination": "components/co5300/native/Co5300Display.cpp",
+      "source": "native/VendorDisplay.cpp",
+      "source_git_blob": "1eb4934d9c4aaab162f30a129bf60cd9873d4612",
+      "source_sha256": "53380032dac99fbb1922af5a00be38d97db80adc17688e753cc8f77766a85560",
+      "adaptation": "New minimal IDF6-only wrapper; legacy Arduino fallback omitted."
+    },
+    {
+      "destination": "components/co5300/native/Co5300DisplayIdf6.inc",
+      "source": "native/VendorDisplayIdf6.inc",
+      "source_git_blob": "5fc3af1c9c9d72409e6eef56871fe606a7a5f8ea",
+      "source_sha256": "fbcd7c6577fd4e9e49ea3a321b6a878e402a1da3b2b0a6cd10c34121d6840aeb",
+      "adaptation": "Same native implementation; neutral link anchor and attribution/provenance comments."
+    },
+    {
+      "destination": "components/co5300/native/co5300-native-provenance.json",
+      "source": "native/vendor-idf6-provenance.json",
+      "source_git_blob": "48fa5012262bb5a0f5d061243124097832426882",
+      "source_sha256": "9c686222da36bed182a5661bc6461508af7dfc28ee11ab3354e8e0f8a4c45631",
+      "adaptation": "Retain vendor hashes; add Runtime/reviewed candidate origins."
+    },
+    {
+      "destination": "scripts/build_badge_display.py",
+      "source": "scripts/build_badge_display.py",
+      "source_git_blob": "854029046e16be203b3a9522b0cb9162c62cabe6",
+      "source_sha256": "0fa07356af41cb8e1943777cd3c6a986b249667ce5e8fad23bb5bb7ac132d254",
+      "adaptation": "Current Drivers layout, source identity, artifact manifests/notices and receipt hashes; same target/loader checks."
+    },
+    {
+      "destination": "scripts/run_badge_display_ci.sh",
+      "source": "scripts/run_badge_display_ci.sh",
+      "source_git_blob": "fa9d6ebcb4d2d6f31d13cc6a5a1db521a883cbb6",
+      "source_sha256": "b5410fbe05eeff0e05c03a9f0bd7503709285109dff181479f128963273da703",
+      "adaptation": "Current Drivers tree, Runtime/Watch dependencies only; no old product qualifiers or vendor checkout."
+    },
+    {
+      "destination": "scripts/stage_co5300_native.py",
+      "source": "scripts/stage_vendor_display.py",
+      "source_git_blob": "455a40b79ce107e17f69852a6becdce244741683",
+      "source_sha256": "3b4dc5f2c53fd1eb1aedc51bc56d168bec2a669d217aa149dbfe0640830c3737",
+      "adaptation": "Native-only staging with arbitrary profile path and explicit CMake/link inputs; no product/vendor dependency; retain notices."
+    },
+    {
+      "destination": "tests/badge_touch_composition_test.c",
+      "source": "tests/badge_touch_composition_test.c",
+      "source_git_blob": "fd5603d0a4a4eeb82e826c9faf59d9761bccf3d3",
+      "source_sha256": "f14e6a4725a79cfe238209056ce51f348006cba32a29e2e2dc35e9062fdf0818",
+      "adaptation": "Adapt paths/default source checkout where needed; preserve behavioral assertions."
+    },
+    {
+      "destination": "tests/co5300_native/rtos_shim/freertos/FreeRTOS.h",
+      "source": "tests/native_display_idf6_shim/freertos/FreeRTOS.h",
+      "source_git_blob": "d8fe9aef381f2ab8201e0796f9b12d758f9bed2f",
+      "source_sha256": "c9c8e8dfa97b4097ff0a3610304abb835cf3c8bc92d05a114c161b9b36b2d822",
+      "adaptation": "Unchanged host RTOS scheduler shim; actual SDK types retained."
+    },
+    {
+      "destination": "tests/co5300_native/rtos_shim/freertos/task.h",
+      "source": "tests/native_display_idf6_shim/freertos/task.h",
+      "source_git_blob": "a51c5d65d08ca8aa7f54125c942a7549d7cf3b1b",
+      "source_sha256": "cebd6ec77ff3f1578290213e82215c8e18c5cce68b28a30d8eec40313ce6d531",
+      "adaptation": "Unchanged host RTOS scheduler shim; actual SDK types retained."
+    },
+    {
+      "destination": "tests/co5300_native/test.cpp",
+      "source": "tests/native_display_idf6_test.cpp",
+      "source_git_blob": "0574364eee47d46e3d89f0ac577bb7ca8f6c392d",
+      "source_sha256": "30ef1a5c0f599068c431184278d23f63bf8726bc3e755f7a98dfaf8839ea6281",
+      "adaptation": "Relocated production include; same SDK failure/timeout assertions."
+    },
+    {
+      "destination": "tests/hardware_model.h",
+      "source": "tests/hardware_model.h",
+      "source_git_blob": "fd5fe85159240bbc46e97b3a7b122ef6bbf0d579",
+      "source_sha256": "2ce140680195bcdaad42eb23c5ee6913377c5448e5dd434001af4e9a138dde73",
+      "adaptation": "Adapt paths/default source checkout where needed; preserve behavioral assertions."
+    },
+    {
+      "destination": "tests/provider_log_mock.h",
+      "source": "tests/provider_log_mock.h",
+      "source_git_blob": "f2fa0b8f94fe3f6db611499a855c4d58d5dbb820",
+      "source_sha256": "3f4d801125d7f938ac11c6869d994d34a54d0c32f75e6c3ebe4d55f46e5443fc",
+      "adaptation": "Adapt paths/default source checkout where needed; preserve behavioral assertions."
+    },
+    {
+      "destination": "tests/test_badge_display.py",
+      "source": "tests/test_badge_display.py",
+      "source_git_blob": "2a61b1cdc7a49d2c4fbb4bfc45794006862f49bf",
+      "source_sha256": "2e6bfc81d1359317439f88bde958e157c556ba44c008a8fa0686a9f11e829b21",
+      "adaptation": "Adapt paths/default source checkout where needed; preserve behavioral assertions."
+    },
+    {
+      "destination": "tests/test_badge_supply.c",
+      "source": "tests/test_badge_supply.c",
+      "source_git_blob": "a3d9a925d82c6e16ad72366f3e8cfc5e73e20bd7",
+      "source_sha256": "28120571029772b330364755ac8c5d37748e9a2ad0cb5b04f02acbba88dde3f6",
+      "adaptation": "Adapt paths/default source checkout where needed; preserve behavioral assertions."
+    },
+    {
+      "destination": "tests/test_badge_touch_composition.py",
+      "source": "tests/test_badge_touch_composition.py",
+      "source_git_blob": "9b78a9461f1f3716c6891fcab57ad082c802c044",
+      "source_sha256": "fa6c20790a9f6af4074b2ff8acd95d62b9a8a79b6581e82ed2bda4874c5e4e5b",
+      "adaptation": "Adapt paths/default source checkout where needed; preserve behavioral assertions."
+    },
+    {
+      "destination": "tests/test_co5300_native.py",
+      "source": "tests/test_vendor_idf6.py",
+      "source_git_blob": "b89e03a346dc516979c5d49c24dad7f738c40c9a",
+      "source_sha256": "78fb21e2b40fefe20d1cc70c1551a6cc3fefde86b3d1c9cf11d2e1f697adb4e9",
+      "adaptation": "Actual Runtime/SDK host/target matrix; native-only paths and new staging checks."
+    },
+    {
+      "destination": "tests/test_co5300_profile.py",
+      "source": "tests/test_co5300_profile.py",
+      "source_git_blob": "9a99a5a15ed6f48f701fbdf5c64066f822229d8c",
+      "source_sha256": "5eaf7b6414a15335ddaf9be50e1df2726c81e296009858c01e7f2247cececec8",
+      "adaptation": "Adapt paths/default source checkout where needed; preserve behavioral assertions."
+    },
+    {
+      "destination": "tests/test_vendor_panel.c",
+      "source": "tests/test_vendor_panel.c",
+      "source_git_blob": "740395c0837e13e6879130ab03b64fcc09e2fd2b",
+      "source_sha256": "0c811c6cf95481fe0eb2a8b31a3dc32404546158a23d842e5da8e42b20890199",
+      "adaptation": "Adapt paths/default source checkout where needed; preserve behavioral assertions."
+    }
+  ],
+  "additional_origins": [
+    {
+      "destination": "components/co5300/licenses/Arduino_GFX-BSD.txt",
+      "repository": "moononournation/Arduino_GFX",
+      "revision": "e7f29f12b247015c0cf99f59a525e30cd1b1dab1",
+      "path": "license.txt",
+      "source_git_blob": "7492e93a134119acae08098a6f7fe1e81d1b3122"
+    }
+  ],
+  "unchanged_historical_namespaces": [
+    "Drivers",
+    "sdk",
+    "manifest",
+    "candidates",
+    "release"
+  ],
+  "omitted_product_only_changes": [
+    "profiles/native-idf61.cmake",
+    "scripts/native_display_admission.py",
+    "product qualification admission extractors",
+    "scripts/test_serial_logging_release.py",
+    "docs/consolidation/20261022.json",
+    "scripts/consolidated_wave_source.py"
+  ],
+  "scope": "Provenance receipt, not an admission rule or parity exemption. Source-only component; no firmware, hardware or release qualification."
+}

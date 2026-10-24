@@ -131,3 +131,14 @@ not replace accepted artifacts or qualify serial delivery or X4 hardware.
 - [cst9217-touch](docs/drivers/cst9217-touch.md): experimental raw-touch provider
   for the 1.75C bring-up chain; host/target-build qualification is separate from
   board provisioning and physical validation.
+
+## Shared CO5300 and round-board display sources
+
+[CO5300](components/co5300/README.md) contains one reusable loadable facade and
+one device-linked native ESP-IDF implementation. The
+[1.75C board package](boards/waveshare-esp32-s3-touch-amoled-1.75c/DISPLAY.md) selects
+466×466 geometry, its panel protocol, passive shared-DCDC1 observation and
+touch-only reset composition. These source-only components have dedicated host,
+sanitizer and GCC15 qualification; they are not published drivers or installable
+firmware. They do not change the historical driver inventory, accepted release
+bytes or the 2.06 product repository. The shared Watch application stays unchanged.

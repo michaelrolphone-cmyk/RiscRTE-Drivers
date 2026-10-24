@@ -1,0 +1,22 @@
+{
+  "vendor_revision": "b099739ad0e33b34e5fbaae77f02bd84805d79a3",
+  "idf_revision": "fff9895c82d744c7237be8847347bdd1b07c6643",
+  "reference_sha256": {
+    "databus/Arduino_ESP32QSPI.cpp": "794be26f298fcf31dbdab55734f21593c515875b2a7cec741846d36fa6d0e84b",
+    "databus/Arduino_ESP32QSPI.h": "4ec773d401d6bfef1d3c23dafde3a1020c30ec061d0fe2762d80b4d7e4353be5",
+    "display/Arduino_CO5300.cpp": "b9a36fe5d81da061f4c9c4ba10354ba2fd5259064c3f4ad14c4bb3412725aa59",
+    "display/Arduino_CO5300.h": "ad26ba2d773471198e65f57365b0b35e17b54b405313407bbb0474e1549fce86",
+    "Arduino_TFT.cpp": "d9dafc1b7cae9bb0de79dd11421aa14686493141c9f6fcf955e239adea9c79ba",
+    "Arduino_OLED.cpp": "b14435b63fc470cf1b029ba5f2c3ab89a46580fa3fc2e0dc13d111db29b8584a"
+  },
+  "runtime_revision": "13eca114cb58469cf6004fafc3da84fbd9d29beb",
+  "reviewed_candidate_revision": "0161c20852797f8e587640a53c4e8f3094e324d6",
+  "source_sha256": {
+    "native/VendorDisplayIdf6.inc": "fbcd7c6577fd4e9e49ea3a321b6a878e402a1da3b2b0a6cd10c34121d6840aeb",
+    "include/RiscCo5300Profile.h": "30d8f8eae0f46de94c63b7986912850dce9425b7bf2dc23477d727b70f8dfbf5",
+    "tests/native_display_idf6_test.cpp": "30ef1a5c0f599068c431184278d23f63bf8726bc3e755f7a98dfaf8839ea6281",
+    "tests/test_vendor_idf6.py": "78fb21e2b40fefe20d1cc70c1551a6cc3fefde86b3d1c9cf11d2e1f697adb4e9",
+    "tests/test_co5300_profile.py": "5eaf7b6414a15335ddaf9be50e1df2726c81e296009858c01e7f2247cececec8"
+  },
+  "scope": "Native-only extraction into RiscRTE-Drivers. Historical vendor reference hashes are provenance, not build or staging dependencies. Qualification uses Runtime and the pinned ESP-IDF SDK directly; no firmware or hardware qualification is implied."
+}
