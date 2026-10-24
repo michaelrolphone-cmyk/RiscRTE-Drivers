@@ -1,0 +1,2 @@
+OBSERVED: detached MSP token close remains false after transport quiesces
+MSP-FET/eZ-FET discovery, HAL framing, JTAG, SBW, detach and quiescence: PASS

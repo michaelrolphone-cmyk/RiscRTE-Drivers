@@ -1,0 +1,5 @@
+# NEW 32 MiB Badge layout only. No OTA/update/erase/flash authorization implied.
+# Name, Type, SubType, Offset, Size
+nvs,data,nvs,0x9000,0x6000
+factory,app,factory,0x10000,0x300000
+bootfs,data,spiffs,0x310000,0x1cf0000

@@ -1,0 +1,125 @@
+{
+  "checked_utc": "2026-10-22T01:54:04Z",
+  "refs": {
+    "reader_master": {
+      "url": "https://api.github.com/repos/michaelrolphone-cmyk/T5S3-Reader/git/ref/heads/master",
+      "ref": "refs/heads/master",
+      "sha": "9c8783d6f20659a514bfaeb3847a77c7213dc4f6"
+    },
+    "reader_release_index": {
+      "url": "https://api.github.com/repos/michaelrolphone-cmyk/T5S3-Reader/git/ref/heads/release-index",
+      "ref": "refs/heads/release-index",
+      "sha": "19bb3dcb5cb763c4eacd884ad5fc0bcab57ff2ed"
+    },
+    "drivers_main": {
+      "url": "https://api.github.com/repos/michaelrolphone-cmyk/RiscRTE-Drivers/git/ref/heads/main",
+      "ref": "refs/heads/main",
+      "sha": "a7ae39994603c4545a3c014f09051ecfc12084d2"
+    }
+  },
+  "reader_release_index_hid": [
+    {
+      "asset": "usb-hid--driver.elf",
+      "id": "usb-hid",
+      "kind": "driver",
+      "manifest": {
+        "api": 1,
+        "capability": "usb.hid",
+        "files": [
+          {
+            "executable": false,
+            "name": ".package.json",
+            "sha256": "db748cf938b70e41e1238150dfea2403efa1297021fb1c5a7d587e99f274349d",
+            "size_bytes": 617
+          },
+          {
+            "executable": true,
+            "name": "driver.elf",
+            "sha256": "b50db48b09c71a1f4a0f5885526657ba8f4324e5ccef4a28e0e2ed7908b12ffb",
+            "size_bytes": 7380
+          },
+          {
+            "executable": false,
+            "name": "provider-abi.v1",
+            "sha256": "1c7cb1cf375e55ae85b5c9cb3981969fb89fe5f36678609df90640c48a3fe53b",
+            "size_bytes": 36
+          },
+          {
+            "executable": false,
+            "name": "privileged-imports.v1",
+            "sha256": "a46fff766cb063bc348b3e7a6670e4a48c5c9201f0da92e73a67670229be7cca",
+            "size_bytes": 14
+          }
+        ],
+        "id": "usb-hid",
+        "requires": [
+          {
+            "capability": "usb.host",
+            "min_api": 1
+          }
+        ],
+        "version": "0.1.2"
+      },
+      "sha256": "b50db48b09c71a1f4a0f5885526657ba8f4324e5ccef4a28e0e2ed7908b12ffb",
+      "size": 7380,
+      "tag": "driver-usb-hid-v0.1.2",
+      "url": "https://github.com/michaelrolphone-cmyk/T5S3-Reader/releases/download/driver-usb-hid-v0.1.2/usb-hid--driver.elf",
+      "version": "0.1.2"
+    }
+  ],
+  "reader_matching_tags": [
+    {
+      "ref": "refs/tags/driver-usb-hid-v0.1.2",
+      "node_id": "REF_kwDOUYMZ2L9yZWZzL3RhZ3MvZHJpdmVyLXVzYi1oaWQtdjAuMS4y",
+      "url": "https://api.github.com/repos/michaelrolphone-cmyk/T5S3-Reader/git/refs/tags/driver-usb-hid-v0.1.2",
+      "object": {
+        "sha": "adaaf938a54cad604ff480b050c4ea68c6d916af",
+        "type": "commit",
+        "url": "https://api.github.com/repos/michaelrolphone-cmyk/T5S3-Reader/git/commits/adaaf938a54cad604ff480b050c4ea68c6d916af"
+      }
+    }
+  ],
+  "drivers_matching_tags": [],
+  "reader_manifest": {
+    "type": "driver",
+    "id": "usb-hid",
+    "version": "0.1.2",
+    "driver_abi": 2,
+    "architecture": "xtensa-esp32s3",
+    "file_name": "driver.elf",
+    "requires": [
+      {
+        "capability": "usb.host",
+        "api": 1
+      }
+    ],
+    "provides": [
+      {
+        "capability": "usb.hid",
+        "api": 1
+      }
+    ],
+    "status": "experimental-unpublished"
+  },
+  "drivers_manifest": {
+    "type": "driver",
+    "id": "usb-hid",
+    "version": "0.1.2",
+    "driver_abi": 2,
+    "architecture": "xtensa-esp32s3",
+    "file_name": "driver.elf",
+    "requires": [
+      {
+        "capability": "usb.host",
+        "api": 1
+      }
+    ],
+    "provides": [
+      {
+        "capability": "usb.hid",
+        "api": 1
+      }
+    ],
+    "status": "experimental-unpublished"
+  }
+}

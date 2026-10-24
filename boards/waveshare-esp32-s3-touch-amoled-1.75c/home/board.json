@@ -1,0 +1,158 @@
+{
+  "schema": "riscrte.board-hardware",
+  "schema_version": 1,
+  "board_id": "waveshare-esp32-s3-touch-amoled-1.75c",
+  "revision": "unspecified",
+  "buses": [
+    {
+      "instance_id": 101,
+      "kind": "i2c",
+      "controller_namespace": "esp32.peripheral",
+      "controller": 0,
+      "physical_controller": 0,
+      "frequency_hz": 400000,
+      "mode": 0,
+      "pins": {
+        "sda": 15,
+        "scl": 14
+      }
+    },
+    {
+      "instance_id": 103,
+      "kind": "spi",
+      "controller_namespace": "riscrte.logical",
+      "controller": 0,
+      "physical_controller": 2,
+      "frequency_hz": 40000000,
+      "mode": 0,
+      "pins": {
+        "sclk": 38,
+        "mosi": 4,
+        "miso": 5
+      }
+    }
+  ],
+  "devices": [
+    {
+      "instance_id": 2,
+      "chip": {
+        "vendor": "espressif",
+        "model": "esp32s3-i2c",
+        "revision": "unspecified"
+      },
+      "compatible": "espressif,esp32s3-i2c",
+      "config_type": "controller.i2c",
+      "config_version": 1,
+      "config": {
+        "bus_instance_id": 101
+      },
+      "bindings": {}
+    },
+    {
+      "instance_id": 4,
+      "chip": {
+        "vendor": "x-powers",
+        "model": "axp2101",
+        "revision": "unspecified"
+      },
+      "compatible": "x-powers,axp2101",
+      "config_type": "peripheral.i2c",
+      "config_version": 1,
+      "config": {
+        "bus_instance_id": 101,
+        "address": 52,
+        "chip_id": 74,
+        "irq": -1,
+        "irq_active_high": false,
+        "irq_pull_up": false
+      },
+      "bindings": {}
+    },
+    {
+      "instance_id": 5,
+      "chip": {
+        "vendor": "chipone",
+        "model": "co5300",
+        "revision": "unspecified"
+      },
+      "compatible": "chipone,co5300",
+      "config_type": "display.spi",
+      "config_version": 2,
+      "config": {
+        "bus_instance_id": 103,
+        "width": 466,
+        "height": 466,
+        "offset_x": 6,
+        "offset_y": 0,
+        "rotation": 0,
+        "cs": 12,
+        "dc": -1,
+        "reset": 1,
+        "backlight": -1,
+        "busy": -1,
+        "reset_active_high": false,
+        "busy_active_high": false,
+        "backlight_active_high": true,
+        "power_pins": [],
+        "power_active_high": [],
+        "reset_assert_ms": 10,
+        "reset_recovery_ms": 150,
+        "data2": 6,
+        "data3": 7
+      },
+      "bindings": {
+        "power.rail": 13
+      }
+    },
+    {
+      "instance_id": 6,
+      "chip": {
+        "vendor": "hynitron",
+        "model": "cst9217",
+        "revision": "unspecified"
+      },
+      "compatible": "hynitron,cst9217",
+      "config_type": "touch.i2c",
+      "config_version": 2,
+      "config": {
+        "bus_instance_id": 101,
+        "width": 466,
+        "height": 466,
+        "address": 90,
+        "reset": 2,
+        "irq": 11,
+        "reset_active_high": false,
+        "irq_active_high": false,
+        "irq_pull_up": false,
+        "reset_assert_ms": 10,
+        "reset_recovery_ms": 50,
+        "power": -1,
+        "power_active_high": false,
+        "irq_output": false,
+        "alternate_address": 0
+      },
+      "bindings": {
+        "i2c.bus": 2,
+        "power.rail": 13
+      }
+    },
+    {
+      "instance_id": 13,
+      "chip": {
+        "vendor": "x-powers",
+        "model": "axp2101-dcdc1",
+        "revision": "unspecified"
+      },
+      "compatible": "x-powers,axp2101-dcdc1",
+      "config_type": "peripheral.i2c-function",
+      "config_version": 1,
+      "config": {
+        "parent_instance_id": 4,
+        "function_id": 1
+      },
+      "bindings": {
+        "i2c.bus": 2
+      }
+    }
+  ]
+}
