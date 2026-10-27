@@ -1,0 +1,53 @@
+Mode: sanitized
+Output: /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized
+ASAN_OPTIONS: detect_leaks=0
+cc (Debian 14.2.0-19) 14.2.0
+Copyright (C) 2024 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
++ for driver in usb_host_v2 usb_hid usb_hid_keyboard usb_hid_gamepad
++ cc -std=c11 -Wall -Wextra -Werror -I sdk/driver -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -fPIC -fvisibility=hidden -shared Drivers/usb_host_v2/driver.c -o /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_host_v2.so
++ for driver in usb_host_v2 usb_hid usb_hid_keyboard usb_hid_gamepad
++ cc -std=c11 -Wall -Wextra -Werror -I sdk/driver -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -fPIC -fvisibility=hidden -shared Drivers/usb_hid/driver.c -o /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid.so
++ for driver in usb_host_v2 usb_hid usb_hid_keyboard usb_hid_gamepad
++ cc -std=c11 -Wall -Wextra -Werror -I sdk/driver -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -fPIC -fvisibility=hidden -shared Drivers/usb_hid_keyboard/driver.c -o /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid_keyboard.so
++ for driver in usb_host_v2 usb_hid usb_hid_keyboard usb_hid_gamepad
++ cc -std=c11 -Wall -Wextra -Werror -I sdk/driver -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -fPIC -fvisibility=hidden -shared Drivers/usb_hid_gamepad/driver.c -o /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid_gamepad.so
++ for fixture in usb_host_v2 usb_hid usb_hid_quiesce
++ cc -std=c11 -Wall -Wextra -Werror -I sdk/driver -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer test/drivers/usb_host_v2_test.c -ldl -o /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_host_v2
++ [[ usb_host_v2 == usb_host_v2 ]]
++ /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_host_v2 /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_host_v2.so
+USB host ELF discovery/generation, bulk and interrupt claim gates: PASS
++ for fixture in usb_host_v2 usb_hid usb_hid_quiesce
++ cc -std=c11 -Wall -Wextra -Werror -I sdk/driver -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer test/drivers/usb_hid_test.c -ldl -o /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid
++ [[ usb_hid == usb_host_v2 ]]
++ /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid.so /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid_keyboard.so /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid_gamepad.so
+USB HID class, keyboard and gamepad report subscriptions/disconnect: PASS
++ for fixture in usb_host_v2 usb_hid usb_hid_quiesce
++ cc -std=c11 -Wall -Wextra -Werror -I sdk/driver -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer test/drivers/usb_hid_quiesce_test.c -ldl -o /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid_quiesce
++ [[ usb_hid_quiesce == usb_host_v2 ]]
++ /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid_quiesce /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid.so /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid_keyboard.so /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid_gamepad.so
+USB HID unplug-free shutdown: all claims and dependent ELFs released: PASS
++ for fixture in usb_hid_keyboard usb_hid_gamepad usb_hid_text_input usb_ui_navigation usb_xinput_gamepad
++ cc -std=c11 -Wall -Wextra -Werror -I sdk/driver -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer test/drivers/usb_hid_keyboard_test.c -o /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid_keyboard
++ /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid_keyboard
+USB HID keyboard boot reports, modifiers, subscriptions, snapshot, gap and quiescence: PASS
++ for fixture in usb_hid_keyboard usb_hid_gamepad usb_hid_text_input usb_ui_navigation usb_xinput_gamepad
++ cc -std=c11 -Wall -Wextra -Werror -I sdk/driver -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer test/drivers/usb_hid_gamepad_test.c -o /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid_gamepad
++ /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid_gamepad
+Gamepad feature IDs, unrelated inputs, multiple collections, input delivery and detach: PASS
++ for fixture in usb_hid_keyboard usb_hid_gamepad usb_hid_text_input usb_ui_navigation usb_xinput_gamepad
++ cc -std=c11 -Wall -Wextra -Werror -I sdk/driver -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer test/drivers/usb_hid_text_input_test.c -o /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid_text_input
++ /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_hid_text_input
+USB HID to transport-neutral text translation and lifecycle: PASS
++ for fixture in usb_hid_keyboard usb_hid_gamepad usb_hid_text_input usb_ui_navigation usb_xinput_gamepad
++ cc -std=c11 -Wall -Wextra -Werror -I sdk/driver -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer test/drivers/usb_ui_navigation_test.c -o /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_ui_navigation
++ /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_ui_navigation
+Navigation mapping, semantic text focus, gamepad coexistence and cleanup: PASS
++ for fixture in usb_hid_keyboard usb_hid_gamepad usb_hid_text_input usb_ui_navigation usb_xinput_gamepad
++ cc -std=c11 -Wall -Wextra -Werror -I sdk/driver -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer test/drivers/usb_xinput_gamepad_test.c -o /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_xinput_gamepad
++ /workspace/scratch/c744abbbbd60/usb-host-hid/evidence/independent-sanitized/usb_xinput_gamepad
+XInput discovery, current state, bounded startup retries, hotplug and shutdown: PASS
++ set +x
+PASS: 8 distinct offline USB host/HID fixture bodies (sanitized)

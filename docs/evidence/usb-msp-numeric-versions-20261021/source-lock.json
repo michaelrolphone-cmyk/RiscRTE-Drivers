@@ -1,0 +1,28 @@
+{
+  "preserved_parent": "ed7886d0b2c7f1ac0d235f440d52756782d1b807",
+  "runtime_commit": "6a3b3d46f5b2857eacc6e9863799dec1f466b036",
+  "runtime_files": {
+    "src/bootstrap/Runtime.cpp": "1a7630145d53dda11984564a48ca71733f4fe625de008959497aac3b08901251",
+    "src/runtime/packages/PackageIdentity.h": "b9438c33b9575f1198cbe0a32a408f6960a4c3b56724e4828e6b632e35aa8204",
+    "src/runtime/update/Version.h": "e6f3df0a6152e250dcc7056c075c07c3bf3c57c7f4a28e59c98ac0d409e122a7"
+  },
+  "candidate_files": {
+    "Drivers/usb_msp/manifest.json": "47fb286f4556d94d0308ed3dfb602f7fff6290e18aaa677c584469cc08d92a35",
+    "Drivers/program_msp/manifest.json": "0900690e81916bbfa7c98e6a1866ccb6ad706c920916c2221a818e60aec3d8c6",
+    "scripts/build_usb_msp_checked_consumer.py": "c8953a0aad91c318618680d27a7f3da06496411bdce5eecec917d3fa99733fce",
+    "scripts/build_program_msp_checked_consumer.py": "81ae594d6c50c5dcf93a758b433aaeea39d66ec51961efacc001ec67164e014f",
+    "test/test_msp_checked_candidate_routes.py": "43867e7c57834e6422af9e3053d4b08cf9263fa1b75d0b75ccf3f43d2989e26d",
+    "test/msp_numeric_manifest_test.cpp": "6538890085a5353086dfc9e788cad4eaaf2639fb1828bfe0e1837ed766258713",
+    "test/run_msp_numeric_manifest_test.sh": "d383033f048f2992176b3cc63fd2d3382e2fb5e2e648dda03e496ebe1335480e"
+  },
+  "unchanged_production_sources": {
+    "Drivers/usb_msp/driver.c": "acd48d0d4a812c9b306e4392f448b86c0677989d506c97ffd817bfdd81eb3597",
+    "Drivers/program_msp/driver.c": "594d1ba6660514f390a6f4698ee75f1b526679c51b7952b19f18af13c05d2fbf",
+    "Drivers/usb_host_v2/driver.c": "7728ce7fbd37aae22af93988b5e25a1ae8876f9086476daf90e2023040e76fd4",
+    "Drivers/usb_controller_esp32s3/driver_base.cpp": "ed04b2fcc5485a8d9650ecc4ed4fb694f9fbe6417226def70134ab59b1440cce"
+  },
+  "preserved_artifacts": {
+    "usb-msp-checked-consumer.patch": "204ab5e89758465c86a9080933b24e3cd1d0d48fb2f37c3fe4e51b748bc11953",
+    "usb-msp-checked-consumer.bundle": "3b8ea93c10a35223a856f5fd9c69dfcb195d31844e951a3fb9c29bd806b41a5f"
+  }
+}

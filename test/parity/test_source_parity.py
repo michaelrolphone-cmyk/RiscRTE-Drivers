@@ -97,6 +97,42 @@ class SourceParityTests(unittest.TestCase):
         (self.root / 'Drivers/extra').mkdir()
         self.assertIn('untracked local source directory: extra', self.audit()['errors'])
 
+    def test_missing_snapshot_entry_does_not_mislabel_known_local_path(self):
+        for missing in ('upstream', 'recorded'):
+            with self.subTest(missing=missing):
+                source, trees = copy.deepcopy(self.source), copy.deepcopy(self.trees)
+                if missing == 'upstream':
+                    self.source.clear()
+                else:
+                    self.trees['drivers'].clear()
+                (self.root / 'Drivers/extra').mkdir(exist_ok=True)
+                errors = self.audit()['errors']
+                self.assertIn('source inventory mismatch: sample', errors)
+                self.assertIn('untracked local source directory: extra', errors)
+                self.assertNotIn('untracked local source directory: sample', errors)
+                self.source, self.trees = source, trees
+
+    def test_missing_upstream_does_not_hide_invalid_or_duplicate_local_paths(self):
+        self.source.clear()
+        self.inventory['drivers'].append({'id': 'duplicate', 'version': '1.0.0',
+                                           'source_path': 'Drivers/sample'})
+        errors = self.audit()['errors']
+        self.assertIn('invalid or duplicate source path: duplicate', errors)
+        self.assertIn('source inventory mismatch: sample', errors)
+        self.assertIn('source inventory mismatch: duplicate', errors)
+        self.inventory['drivers'].pop()
+        self.inventory['drivers'][0]['source_path'] = 'Drivers/../outside'
+        errors = self.audit()['errors']
+        self.assertIn('invalid or duplicate source path: sample', errors)
+        self.assertIn('source inventory mismatch: sample', errors)
+        self.assertIn('untracked local source directory: sample', errors)
+
+    def test_upstream_only_identity_does_not_register_local_path(self):
+        self.inventory['drivers'].clear()
+        errors = self.audit()['errors']
+        self.assertIn('source inventory mismatch: sample', errors)
+        self.assertIn('untracked local source directory: sample', errors)
+
     def test_path_escape_and_symlink_fail_without_reading_target(self):
         self.inventory['drivers'][0]['source_path'] = 'Drivers/../outside'
         self.assertTrue(self.audit()['errors'])

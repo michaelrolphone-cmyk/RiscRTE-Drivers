@@ -1,0 +1,28 @@
+test_argument_overrides_environment (test_native_driver_toolchain.DiscoveryTests.test_argument_overrides_environment) ... ok
+test_big_endian_target_rejected (test_native_driver_toolchain.DiscoveryTests.test_big_endian_target_rejected) ... ok
+test_board_legacy_fallback (test_native_driver_toolchain.DiscoveryTests.test_board_legacy_fallback) ... ok
+test_call0_target_rejected (test_native_driver_toolchain.DiscoveryTests.test_call0_target_rejected) ... ok
+test_custom_platformio_core_fallback (test_native_driver_toolchain.DiscoveryTests.test_custom_platformio_core_fallback) ... ok
+test_explicit_command_name (test_native_driver_toolchain.DiscoveryTests.test_explicit_command_name) ... ok
+test_explicit_legacy_overrides_native (test_native_driver_toolchain.DiscoveryTests.test_explicit_legacy_overrides_native) ... ok
+test_home_platformio_fallback (test_native_driver_toolchain.DiscoveryTests.test_home_platformio_fallback) ... ok
+test_host_target_rejected (test_native_driver_toolchain.DiscoveryTests.test_host_target_rejected) ... ok
+test_legacy_has_no_extra_link_support (test_native_driver_toolchain.DiscoveryTests.test_legacy_has_no_extra_link_support) ... ok
+test_legacy_path_supported (test_native_driver_toolchain.DiscoveryTests.test_legacy_path_supported) ... ok
+test_missing_compiler_actionable (test_native_driver_toolchain.DiscoveryTests.test_missing_compiler_actionable) ... ok
+test_missing_explicit_override_does_not_fall_back (test_native_driver_toolchain.DiscoveryTests.test_missing_explicit_override_does_not_fall_back) ... ok
+test_missing_native_frontend_fails_closed (test_native_driver_toolchain.DiscoveryTests.test_missing_native_frontend_fails_closed) ... ok
+test_native_preferred_over_earlier_legacy_on_path (test_native_driver_toolchain.DiscoveryTests.test_native_preferred_over_earlier_legacy_on_path) ... ok
+test_native_s3_frontend_selected (test_native_driver_toolchain.DiscoveryTests.test_native_s3_frontend_selected) ... ok
+test_native_support_is_source_owned (test_native_driver_toolchain.DiscoveryTests.test_native_support_is_source_owned) ... ok
+test_non_executable_override_does_not_fall_back (test_native_driver_toolchain.DiscoveryTests.test_non_executable_override_does_not_fall_back) ... ok
+test_parity_is_explicit (test_native_driver_toolchain.DiscoveryTests.test_parity_is_explicit) ... ok
+test_symlink_frontend_name_preserved (test_native_driver_toolchain.DiscoveryTests.test_symlink_frontend_name_preserved) ... ok
+test_unified_override_maps_only_to_matching_s3_frontend (test_native_driver_toolchain.DiscoveryTests.test_unified_override_maps_only_to_matching_s3_frontend) ... ok
+test_gcc15_representative_elf_contract (test_native_driver_toolchain.NativeBuildTests.test_gcc15_representative_elf_contract) ... skipped 'set NATIVE_DRIVER_INTEGRATION=1 for real GCC15 builds'
+test_native_cannot_claim_historical_parity (test_native_driver_toolchain.NativeBuildTests.test_native_cannot_claim_historical_parity) ... skipped 'set NATIVE_DRIVER_INTEGRATION=1 for real GCC15 builds'
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.071s
+
+OK (skipped=2)

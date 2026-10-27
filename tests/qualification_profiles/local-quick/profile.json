@@ -1,0 +1,20 @@
+{
+  "origin": "Preserved local Quick observation overlay, with additive selected sampler fixture binding; product code unchanged",
+  "files": [
+    {
+      "path": "tests/badge_quick_execution.inc",
+      "sha256": "a3fd080e307be035426d425e8f5216689b774c67bbc4be8c3b69f5fb9c32703c"
+    },
+    {
+      "path": "tests/badge_prototype_execution.cpp",
+      "sha256": "582b9b0c272b2086cf3e3af38f9777ae452e00fe35cb78508703a54cd7933b31"
+    },
+    {
+      "path": "scripts/test_badge_prototype_execution.py",
+      "sha256": "fba64b56c9b9420121d26a7a7aad849d03faf3860290686c462ac19b506805f7"
+    }
+  ],
+  "schema": 1,
+  "profile": "local-quick",
+  "runner": "scripts/test_badge_prototype_execution.py"
+}

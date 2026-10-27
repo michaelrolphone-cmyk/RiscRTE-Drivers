@@ -1,0 +1,34 @@
+{
+  "apps": [
+    {
+      "display_name": "Settings",
+      "file_name": "settings.elf",
+      "icon": "solid:f013"
+    },
+    {
+      "display_name": "Hardware Test",
+      "file_name": "bringup.elf",
+      "icon": "solid:f085"
+    },
+    {
+      "display_name": "Calculator",
+      "file_name": "calculator.elf",
+      "icon": "solid:f1ec"
+    },
+    {
+      "display_name": "Stopwatch",
+      "file_name": "stopwatch.elf",
+      "icon": "solid:f2f2"
+    },
+    {
+      "display_name": "Battery",
+      "file_name": "battery.elf",
+      "icon": "solid:f240"
+    },
+    {
+      "display_name": "Wi-Fi Networks",
+      "file_name": "wifi_settings.elf",
+      "icon": "solid:f1eb"
+    }
+  ]
+}

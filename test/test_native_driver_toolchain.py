@@ -155,7 +155,7 @@ class NativeBuildTests(unittest.TestCase):
         expected = {
             "platform_clock_v1": ("platform-clock-v1", {"clock_gettime", "usleep"}),
             "s3_radio_iq_v1": ("s3-radio-iq-v1", {"strcmp", "memcpy", "memset"}),
-            "usb_mass_storage": ("usb-mass-storage", {"memcpy", "memset"}),
+            "usb_mass_storage_legacy_prefix": ("usb-mass-storage-legacy-prefix", {"memcpy", "memset"}),
             "display_epd_video": ("display-epd-video", {"t5_video_get_api", "usleep", "memcpy", "memset"}),
         }
         for script, (identity, allowed) in expected.items():
@@ -177,6 +177,10 @@ class NativeBuildTests(unittest.TestCase):
                     subprocess.run([validator, str(elf)], check=True)
                 manifest = json.loads((elf.parent / "manifest.json").read_text())
                 self.assertEqual(manifest["driver_abi"], 2)
+                if script == "usb_mass_storage_legacy_prefix":
+                    self.assertEqual(manifest["id"], "usb-mass-storage")
+                    self.assertEqual(manifest["version"], "0.1.2")
+                    self.assertIs(manifest["canonical_byte_parity_claim"], False)
                 if "sha256" in manifest:
                     self.assertEqual(manifest["sha256"], hashlib.sha256(data).hexdigest())
 

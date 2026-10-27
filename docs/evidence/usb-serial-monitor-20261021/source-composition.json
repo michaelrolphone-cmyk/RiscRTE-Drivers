@@ -1,0 +1,546 @@
+{
+  "observed_at": "2026-10-21T11:07:34Z",
+  "drivers": {
+    "commit": "a7ae39994603c4545a3c014f09051ecfc12084d2",
+    "tree": "94b9d146c3adf962b6f6ddae4b54345ed3b36050",
+    "files": [
+      {
+        "path": "Drivers/usb_cdc_v2/driver.c",
+        "bytes": 11778,
+        "sha256": "81428ef7835c50db18b1d3987c4528d06b078f25938f01efb3bfda76acb9b4d0",
+        "blob": "eee1de030b6e7fbbb63b31dfa163fadbcca5ed46"
+      },
+      {
+        "path": "Drivers/usb_cdc_v2/manifest.json",
+        "bytes": 306,
+        "sha256": "e16c0de986c6cff164bda86c98be532569c6b3232778979717089bb71923d614",
+        "blob": "ed27a2f2da02b4c2c75ac9e125c735340cb8ffb1"
+      },
+      {
+        "path": "test/drivers/usb_cdc_v2_test.c",
+        "bytes": 5071,
+        "sha256": "ea3f937695b2788090652298bf25132f69aaf070fc377d285dd1a5b10c13e6a9",
+        "blob": "e65f9f541d946d9d7ba5b1a5b8615be4331331e5"
+      },
+      {
+        "path": "Drivers/usb_ch34x_v2/driver.c",
+        "bytes": 10451,
+        "sha256": "740c86094537cc15657ada368fc7f939299245ecfe95eeb8fc346130d17ff2a3",
+        "blob": "286651a6f2dfdd78c7816f31e58ea54d121d78e1"
+      },
+      {
+        "path": "Drivers/usb_ch34x_v2/manifest.json",
+        "bytes": 304,
+        "sha256": "0cc6565df93a90cab6d65d98debb589cdc776cbaefaa1566ffa731dcd6aa575a",
+        "blob": "54e57872d412ba9db4318efda59d1567351dd8aa"
+      },
+      {
+        "path": "test/drivers/usb_ch34x_v2_test.c",
+        "bytes": 5379,
+        "sha256": "46271ebeb153e23ffacef33a558553d7c15885c7587e0899876408a23ae9f856",
+        "blob": "e580f9486edaefba88f82bbc4500fe5681f1cf53"
+      },
+      {
+        "path": "Drivers/usb_cp210x_v2/driver.c",
+        "bytes": 8142,
+        "sha256": "b0322c08c0b522b9a0e85b1b3aa2b23d3d4927954ee5293efaf1cf5f89344852",
+        "blob": "d50d30a208dc6333dd0f6d8e9a4da89f61d12f1a"
+      },
+      {
+        "path": "Drivers/usb_cp210x_v2/manifest.json",
+        "bytes": 305,
+        "sha256": "1e68f46a0e1900b5c9619917149224f296f8a982307289f97578fdbefd6ad968",
+        "blob": "8b4c24020aa5fcd321f7f3eff169f3942544ac6e"
+      },
+      {
+        "path": "test/drivers/usb_cp210x_v2_test.c",
+        "bytes": 5083,
+        "sha256": "402e682dcd8c930d1a13e0b8fe8c40927af47cc77204b97f7229a6c7835e2392",
+        "blob": "4e4601a6a4d65fcd5466da0a3ddc6dfe648bd9a6"
+      },
+      {
+        "path": "Drivers/usb_ftdi/driver.c",
+        "bytes": 16062,
+        "sha256": "e93f0b10df6f94f4c31f36108e78e1377c7c4afd10d20555da160f87c5ea873f",
+        "blob": "80eda12b8209f042418a63421a3e6c6b896353c7"
+      },
+      {
+        "path": "Drivers/usb_ftdi/manifest.json",
+        "bytes": 300,
+        "sha256": "86464999662123a77398cf3d9ccfeeea20a31950d7b814b64210029b66f04c10",
+        "blob": "9b34e227debbf4cab125edf57688b996ce4cce6b"
+      },
+      {
+        "path": "test/drivers/usb_ftdi_test.c",
+        "bytes": 8900,
+        "sha256": "3104d7bac9b572fe17bea0adf950c67da1c82d1ce4aef020b5a2e4df592d6e10",
+        "blob": "e09f3252fb83d52426f74d3584c3d80bc9e60e95"
+      },
+      {
+        "path": "sdk/driver/RiscProviderV2.h",
+        "bytes": 2246,
+        "sha256": "358ac93f86a3e228c2a9c9cfca0b758571db43453bce1e4c5e38402096064ea0",
+        "blob": "4bdba1740d5788485ea10cad65a13be739c192fc"
+      },
+      {
+        "path": "sdk/driver/RiscUsbProviderV1.h",
+        "bytes": 2354,
+        "sha256": "77f67cf5db7ed3fd7c6e148807bc705b5f8443c90d401b546069d756eb997b9a",
+        "blob": "7e6a7512c332fd2014ecf4b44fa0c56de18a1e07"
+      }
+    ]
+  },
+  "historical_reader": {
+    "commit": "34d8e694d89a1e72d8854403d8592c289fae3ddc",
+    "tree": "e7dc2a45c3553f0102a7c2e2c2c9fe5bc51b00a2",
+    "files": [
+      {
+        "path": "Drivers/usb_cdc_v2/driver.c",
+        "bytes": 16113,
+        "sha256": "b5e6820966994855e3d109540016f82f0ba783bafe6bb0d3ced0fe1b845d254e",
+        "blob": "a4664b932b5655e67b740a71d0fa56cc6e79e53a"
+      },
+      {
+        "path": "Drivers/usb_cdc_v2/manifest.json",
+        "bytes": 350,
+        "sha256": "91b8d47969b345d579a2dec95ed65c27edfbb1a06351e462221c7aebaef8b431",
+        "blob": "2b6bf8857af44f7d64e0efd4ddce4283887dd085"
+      },
+      {
+        "path": "test/drivers/usb_cdc_v2_test.c",
+        "bytes": 6580,
+        "sha256": "8498d589f578a44fcc9ed8ecefe656808a9231d06f7891f5b049c7f68554b142",
+        "blob": "0adfc1011ccb8c979f06729854474e760bbfcce6"
+      },
+      {
+        "path": "Drivers/usb_ch34x_v2/driver.c",
+        "bytes": 15168,
+        "sha256": "8617d118637c75ae06816b4d755900d27390ecd4fe0b40ed316e660110a86c68",
+        "blob": "badff03abb0ab5f5ca9aaaa5d00ab74b698e94f1"
+      },
+      {
+        "path": "Drivers/usb_ch34x_v2/manifest.json",
+        "bytes": 304,
+        "sha256": "95746086832573192454bc4c8ac836faab36d5c24237713cde62e5813cbb05c2",
+        "blob": "3a57283250c4cff42d789721e9b278ac720c0512"
+      },
+      {
+        "path": "test/drivers/usb_ch34x_v2_test.c",
+        "bytes": 9082,
+        "sha256": "7d6b8dcc4e631525d97d3bfeab276a9bf911d0ccca73034aadad4d7ca13055aa",
+        "blob": "c90495f444fc4403aa16d14bf52069e63b820a89"
+      },
+      {
+        "path": "Drivers/usb_cp210x_v2/driver.c",
+        "bytes": 14237,
+        "sha256": "c765abb1544779c6986e5a44e80512868f8de6a81786bb585ae1137802b4da3d",
+        "blob": "2f1b17603063bcc7e5a931387faca5ad74aaca1a"
+      },
+      {
+        "path": "Drivers/usb_cp210x_v2/manifest.json",
+        "bytes": 300,
+        "sha256": "bb9289c13ecd6f2b079a51484ae1eb49000b46414d7399cdd2ef8532cafc5fbf",
+        "blob": "8028ce482c0f138f3c0c15d42aaa0339482568c5"
+      },
+      {
+        "path": "test/drivers/usb_cp210x_v2_test.c",
+        "bytes": 9974,
+        "sha256": "e292232f02f25eca88113425c30dcc7773560327722ed73e003ce82ad7deeec7",
+        "blob": "0f0739b190cd7d1e66716ab1577d8973b06186dd"
+      },
+      {
+        "path": "Drivers/usb_ftdi/driver.c",
+        "bytes": 16062,
+        "sha256": "e93f0b10df6f94f4c31f36108e78e1377c7c4afd10d20555da160f87c5ea873f",
+        "blob": "80eda12b8209f042418a63421a3e6c6b896353c7"
+      },
+      {
+        "path": "Drivers/usb_ftdi/manifest.json",
+        "bytes": 300,
+        "sha256": "86464999662123a77398cf3d9ccfeeea20a31950d7b814b64210029b66f04c10",
+        "blob": "9b34e227debbf4cab125edf57688b996ce4cce6b"
+      },
+      {
+        "path": "test/drivers/usb_ftdi_test.c",
+        "bytes": 8900,
+        "sha256": "3104d7bac9b572fe17bea0adf950c67da1c82d1ce4aef020b5a2e4df592d6e10",
+        "blob": "e09f3252fb83d52426f74d3584c3d80bc9e60e95"
+      },
+      {
+        "path": "sdk/driver/RiscProviderV2.h",
+        "bytes": 3302,
+        "sha256": "2935d83493a411e19ee98b8c7e805b86f4adf98c6bde66fd031df7cc379bdc17",
+        "blob": "1e491a6887cf20a3dda1fa42748711bbe921330b"
+      },
+      {
+        "path": "sdk/driver/RiscUsbProviderV1.h",
+        "bytes": 2226,
+        "sha256": "65bbde81bf4159918392d9525dc0dfd5a075bf028a693d9a4d9981b1cecf516e",
+        "blob": "1b01570c3292600738d59211b812daf4b5c8221a"
+      },
+      {
+        "path": "sdk/driver/RiscSerialPortV1.h",
+        "bytes": 3336,
+        "sha256": "7f00311161a071c6575be8b65e7aba30ebef7a8f1a45f9c0bf9168bc25e05700",
+        "blob": "16b59c5db0242f06de166e4bf572e2ca34739e7e"
+      },
+      {
+        "path": "Drivers/common/SerialStreamPump.inc",
+        "bytes": 6038,
+        "sha256": "b55aa67ed3e41e5bb24e8a05bb73c0bfaed8415652156b3834e4511865556cc4",
+        "blob": "4fd25b7fba9e059069523921632921b77bbd7a8d"
+      },
+      {
+        "path": "Apps/serial_monitor.c",
+        "bytes": 7004,
+        "sha256": "5494eec147d91bc0447964dc86c466f2aa0af241d817198ad4394542d1a8282a",
+        "blob": "d32911812d47d8ed69d0e9b8d7bd8c741835df58"
+      },
+      {
+        "path": "Apps/serial_monitor_implementation.inc",
+        "bytes": 46723,
+        "sha256": "c02c30c6b91a33c4b6640fccfcf0162da8825930ea8c4701cfc72e3c1b2d180b",
+        "blob": "f0e590f0222d7687fb4e3847ba1153dab586d6f9"
+      },
+      {
+        "path": "Apps/serial_monitor.json",
+        "bytes": 234,
+        "sha256": "f85b528d5106e92e2ce634334afb73b353ffcda5fce9b4100e1baef7c4ca66cd",
+        "blob": "71977dc7608651136f1a26a37c4416cd4eb03be1"
+      },
+      {
+        "path": "src/runtime/drivers/InstalledSerialInventory.h",
+        "bytes": 8262,
+        "sha256": "8ea510cac8335484063872e4fc7e292737b602be6ca7a8164d8395122efe2be2",
+        "blob": "380e1528e8cff563a11de1dd9c687fef05dc6a42"
+      },
+      {
+        "path": "src/runtime/drivers/InstalledSerialSession.h",
+        "bytes": 5369,
+        "sha256": "8f88c13eee61c9bddd45c29cb9fa73aa95da87c6750e6027a92d41dbf5bf4e7a",
+        "blob": "f02585d0f1773e852b76c9d1ecc1593f1e8e0a16"
+      },
+      {
+        "path": "src/native/NativeSerialPortBridge_implementation.inc",
+        "bytes": 35691,
+        "sha256": "bebfd38a36ce6464fb37854c1394a042cdd8c4a8d4d23b911607a459296cf9b8",
+        "blob": "3352d1ec321dcc5dde24286114e81eee3ecc0689"
+      }
+    ]
+  },
+  "native_runtime": {
+    "commit": "6a3b3d46f5b2857eacc6e9863799dec1f466b036",
+    "tree": "a5cc849726698c8651aa503af788b938bca28ec2",
+    "files": [
+      {
+        "path": "sdk/driver/RiscStreamSessionProviderV1.h",
+        "bytes": 2371,
+        "sha256": "fe463661530c43ae7d1dd8b9c8227fdc6a7e4380bca3f5c8a13287cb0db9e873",
+        "blob": "09c382c4440e2827351e7e271248e4e9da94f598"
+      },
+      {
+        "path": "sdk/app/RiscSerialStreamSessionV1.h",
+        "bytes": 1165,
+        "sha256": "66d328c2a201625a7be348507c8dbedcaa937dfb46f86b05ecd04d60e3fba0b7",
+        "blob": "9fb56fb19ecbc7d22ef807d569de04654575fa49"
+      },
+      {
+        "path": "test/run_serial_stream_client_integration_test.sh",
+        "bytes": 2251,
+        "sha256": "3458100687727c03e6a281d9ba92a232150de15c7e9d964c3421a721438f00b5",
+        "blob": "4ab2be37e24c0b65e3ec7e5d3d4b04e7c1f1dcf4"
+      },
+      {
+        "path": "test/fixtures/serial_stream_witness.c",
+        "bytes": 8229,
+        "sha256": "cbd6ec813896ba41802d594675cf03dfc1e256cd8bab236b3fe47b67663bc038",
+        "blob": "9d190f25f6eca5929d2f2667c87819ab42ddbfd7"
+      }
+    ]
+  },
+  "x4": {
+    "commit": "6b7d1abe9b2dcc236f6086d07c0f619244c907cb",
+    "tree": "953fb9507f3ea74dcb98ace20ca50452e4550f77",
+    "files": [
+      {
+        "path": "README.md",
+        "bytes": 2502,
+        "sha256": "9dc1cb1942272ecb34fbc063fa3f3c1eb7498d76943f98aa53856f8bbbcef0bc",
+        "blob": "50a15593559ba9a7c9caf9c09cd74f1cbf4be717"
+      },
+      {
+        "path": "migration-source.json",
+        "bytes": 9189,
+        "sha256": "74e3fb1a3fd5a8308ef6392318ad3d10c0093906fe003468822da787677d5c85",
+        "blob": "9a57a465da21d3d8cd5aa31d61ca21677645553d"
+      },
+      {
+        "path": "profiles/xteink-x4-pro.json",
+        "bytes": 247,
+        "sha256": "53e0f88fb5d413e1dcd472e26da454ba20b811df12d1c30f1bcd29e9d118f453",
+        "blob": "2e12effae8e4c0b28483934eca74913cb5b9361d"
+      },
+      {
+        "path": "docs/native-provision-123/source-inputs.json",
+        "bytes": 1141,
+        "sha256": "28008a21d351d89f066d2eb85d8c0363255c7f56b4e87efec169ab6bdc12e490",
+        "blob": "19fd50ba87d07ce29b53879710d5c594efc33b94"
+      },
+      {
+        "path": "docs/native-provision-123/README.md",
+        "bytes": 9904,
+        "sha256": "3afb47f0abc821dd23b4c0a29f912d5ba5cea3b1aa65fc52ce51fc1e83689bb4",
+        "blob": "bb9af262c00dbe2715f31804d4b62b1d36ba4727"
+      },
+      {
+        "path": "docs/native-provision-123/released-baseline.json",
+        "bytes": 56882,
+        "sha256": "604f3526ecd6a90040e63550f5ccf39214f677ed3c95096bb5f44e604cfd647e",
+        "blob": "6f42ae238732ee5965970e4e0d32c661d5356243"
+      },
+      {
+        "path": "Drivers/x4pro_battery/README.md",
+        "bytes": 4122,
+        "sha256": "5aab218874dfa6a525e247c8a5b7ebdc6760f1c8a3207335b213db418021c411",
+        "blob": "f10e01163c6f4c41d92662c84b5ba7a1831e5c93"
+      }
+    ]
+  },
+  "checks": {
+    "plain": 20,
+    "asan_ubsan": 20,
+    "leak_sanitizer": "not available; ptrace",
+    "target_build": "not run; no available Xtensa compiler",
+    "physical_usb": "not performed",
+    "production_changes": false
+  },
+  "native_inputs": {
+    "candidate_version": "0.1.123",
+    "feed_base_url": "https://github.com/michaelrolphone-cmyk/RiscRTE-XTEINK-X4-PRO/releases/download/test-native-provision-0.1.123/",
+    "publication_enabled": false,
+    "schema": 1,
+    "sources": {
+      "drivers": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "revision": "5890721073ebabd781d5d278e447c761947a5c58"
+      },
+      "image_helper": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-T-Watch-S3",
+        "revision": "74f7491dc470b92dfa41fce41bf0c500f3714a94"
+      },
+      "reader": {
+        "repository": "michaelrolphone-cmyk/T5S3-Reader",
+        "revision": "c98e4222048244b1e729869ed47aa99130025fd3"
+      },
+      "runtime": {
+        "repository": "michaelrolphone-cmyk/RiscRTE",
+        "revision": "6a3b3d46f5b2857eacc6e9863799dec1f466b036"
+      },
+      "system": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-System-Apps",
+        "revision": "0651a55513b0aa0dff1b6a9072303def08a97378"
+      },
+      "utilities": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Utilities",
+        "revision": "e80172353fcb9e6519ca9d9b2a4d43c69c1bc91d"
+      }
+    },
+    "time_server": "pool.ntp.org"
+  },
+  "native_baseline": {
+    "version": "0.1.122",
+    "runtime_revision": "659d859acb122640ef4003bb8d7099501d4381be",
+    "store_file_count": 107,
+    "elf_count": 43,
+    "historical_composition_recovered": true,
+    "historical_native_elf_recovered": true,
+    "internal_paths": [
+      "alarm/driver.elf",
+      "alarm/manifest.json",
+      "alarms.elf",
+      "alarms.json",
+      "app_store.elf",
+      "app_store.json",
+      "battery-telem/driver.elf",
+      "battery-telem/manifest.json",
+      "battery.elf",
+      "battery.json",
+      "battery/driver.elf",
+      "battery/manifest.json",
+      "ble-serial/driver.elf",
+      "ble-serial/manifest.json",
+      "ble-telem/driver.elf",
+      "ble-telem/manifest.json",
+      "ble/driver.elf",
+      "ble/manifest.json",
+      "ble_buttons.json",
+      "ble_scanner.json",
+      "ble_touchpad.json",
+      "board.json",
+      "board/driver.elf",
+      "board/manifest.json",
+      "boot.json",
+      "broadcast/driver.elf",
+      "broadcast/manifest.json",
+      "buttons/driver.elf",
+      "buttons/manifest.json",
+      "calculator.json",
+      "civil-clock-x4/driver.elf",
+      "civil-clock-x4/manifest.json",
+      "cohort.json",
+      "contexts.json",
+      "contexts/driver.elf",
+      "contexts/manifest.json",
+      "countdown.json",
+      "daily_digest.json",
+      "default.elf",
+      "default.json",
+      "ebook_reader.json",
+      "file_browser.elf",
+      "file_browser.json",
+      "gameboy.json",
+      "hid/driver.elf",
+      "hid/manifest.json",
+      "hollow_trail.json",
+      "i2c/driver.elf",
+      "i2c/manifest.json",
+      "installed-apps/driver.elf",
+      "installed-apps/manifest.json",
+      "iq/driver.elf",
+      "iq/manifest.json",
+      "light/driver.elf",
+      "light/manifest.json",
+      "lists.json",
+      "model_viewer.json",
+      "net-http-client/driver.elf",
+      "net-http-client/manifest.json",
+      "obd_dashboard.json",
+      "obd_test.json",
+      "ota_update.elf",
+      "ota_update.json",
+      "panel/driver.elf",
+      "panel/manifest.json",
+      "points_in_time.json",
+      "power/driver.elf",
+      "power/manifest.json",
+      "rtc/driver.elf",
+      "rtc/manifest.json",
+      "sd/driver.elf",
+      "sd/manifest.json",
+      "sensors/driver.elf",
+      "sensors/manifest.json",
+      "settings.elf",
+      "settings.json",
+      "sharing-ble/driver.elf",
+      "sharing-ble/manifest.json",
+      "sharing-entropy/driver.elf",
+      "sharing-entropy/manifest.json",
+      "sharing-tcp/driver.elf",
+      "sharing-tcp/manifest.json",
+      "springboard.elf",
+      "springboard.json",
+      "stopwatch.json",
+      "timecard.json",
+      "touch/driver.elf",
+      "touch/manifest.json",
+      "ui-profile/driver.elf",
+      "ui-profile/manifest.json",
+      "ui-scene/driver.elf",
+      "ui-scene/manifest.json",
+      "ui-text/driver.elf",
+      "ui-text/manifest.json",
+      "upd-app/driver.elf",
+      "upd-app/manifest.json",
+      "upd-fw/driver.elf",
+      "upd-fw/manifest.json",
+      "usb-msc/driver.elf",
+      "usb-msc/manifest.json",
+      "usb_sd_transfer.elf",
+      "usb_sd_transfer.json",
+      "waterfall.json",
+      "wifi/driver.elf",
+      "wifi/manifest.json",
+      "wifi_settings.elf",
+      "wifi_settings.json"
+    ],
+    "sd_paths": [
+      "Apps/ble_buttons/ble_buttons.elf",
+      "Apps/ble_buttons/manifest.json",
+      "Apps/ble_scanner/image-2fd57fe781737b6203f7d35479152825e8c636705e0284594007c0f260c2754c/ble_scanner.elf",
+      "Apps/ble_scanner/image-2fd57fe781737b6203f7d35479152825e8c636705e0284594007c0f260c2754c/manifest.json",
+      "Apps/ble_touchpad/ble_touchpad.elf",
+      "Apps/ble_touchpad/manifest.json",
+      "Apps/calculator/calculator.elf",
+      "Apps/calculator/manifest.json",
+      "Apps/contexts/image-60890de25747a929841df28346a21214b4509934261e2a1e21e0f008d37ce7a9/contexts.elf",
+      "Apps/contexts/image-60890de25747a929841df28346a21214b4509934261e2a1e21e0f008d37ce7a9/manifest.json",
+      "Apps/countdown/countdown.elf",
+      "Apps/countdown/manifest.json",
+      "Apps/daily-digest/daily_digest.elf",
+      "Apps/daily-digest/manifest.json",
+      "Apps/ebook-reader/ebook_reader.elf",
+      "Apps/ebook-reader/manifest.json",
+      "Apps/gameboy/gameboy.elf",
+      "Apps/gameboy/manifest.json",
+      "Apps/hollow_trail/hollow_trail.elf",
+      "Apps/hollow_trail/manifest.json",
+      "Apps/lists/image-8bdbc1a3c500a43bb59a115736b0e263d433f840195e5da5b34dd122ab87ba4c/lists.elf",
+      "Apps/lists/image-8bdbc1a3c500a43bb59a115736b0e263d433f840195e5da5b34dd122ab87ba4c/manifest.json",
+      "Apps/model_viewer/manifest.json",
+      "Apps/model_viewer/model_viewer.elf",
+      "Apps/obd-dashboard/manifest.json",
+      "Apps/obd-dashboard/obd_dashboard.elf",
+      "Apps/obd-test/manifest.json",
+      "Apps/obd-test/obd_test.elf",
+      "Apps/points_in_time/image-cbc08f8c5846967b7c9cdc5cae4f832e2a0ec7c8a3534d565eebef804ae92a2d/manifest.json",
+      "Apps/points_in_time/image-cbc08f8c5846967b7c9cdc5cae4f832e2a0ec7c8a3534d565eebef804ae92a2d/points_in_time.elf",
+      "Apps/stopwatch/manifest.json",
+      "Apps/stopwatch/stopwatch.elf",
+      "Apps/timecard/image-9a03a9a97bdcfc90c50f5ef6c5b54e2b0d5e8d810ff2d58ed3d67308e3c17b53/manifest.json",
+      "Apps/timecard/image-9a03a9a97bdcfc90c50f5ef6c5b54e2b0d5e8d810ff2d58ed3d67308e3c17b53/timecard.elf",
+      "Apps/waterfall/image-f670dc7ec2194a80a75057d818f87314d76721f3b0e811af4994568ef0618ac1/manifest.json",
+      "Apps/waterfall/image-f670dc7ec2194a80a75057d818f87314d76721f3b0e811af4994568ef0618ac1/waterfall.elf",
+      "Drivers/alarm-service/image-f4b68c8aaa61d7518593fb70e5bac99f5c5185689440440b7ea103cd9d015ac8.elf",
+      "Drivers/ble-hid/image-6290d9cdfae051b9f2f2c83060f1c4000a62f727d47b680c67cd77b0d9e0c555.elf",
+      "Drivers/ble-sensors/image-cf34fa23f8a6086c7dbeb022a5ddc252088207eb0773251d183873bf1737d998.elf",
+      "Drivers/ble-serial/image-643000ed431d9d2bf042014f2b51473d3911d733526b2c72f957d8a0f1d26cf7.elf",
+      "Drivers/ble-session-setup/image-589f7be25aa0523e6e2f66fda0384fccb3ddf86de8c2873daa9cdb0d9966d842.elf",
+      "Drivers/ble-telemetry/image-86e36ad3ec31ba1e4f639c1110cecfdd07e9bfc7695dcceba42672303f01f4a2.elf",
+      "Drivers/civil-clock-x4/image-d19f4281f20032f750b8df1676e2bc905ddfed67db6f914f06ffde554ca9362d.elf",
+      "Drivers/contexts-service/image-124b268da046f59e7bb50af0b2a2695de947a6d928ac2a58944438535012f7a4.elf",
+      "Drivers/crypto-entropy/image-b51575d470052e9906ff874f5552eb66b67aa51219fa6ddb04d753af9601704c.elf",
+      "Drivers/installed-apps/image-2bcd4948f7823d89ad8148d09c91d0dad54f5daabd3b6d4385051da897a98987.elf",
+      "Drivers/net-http-client/image-747c1e3ddde9c9218105d12970c8fc9569145f73b8154b23e4723579c8fea507.elf",
+      "Drivers/network-tcp-listener/image-49e256b42d1a8fcf46ffff4d9e2b05edd12c6dda96ed840d66c7a1c4e8468ed4.elf",
+      "Drivers/s3-radio-iq-v1/image-448f63fa06f2320b85ea56fcf10b49008a90eacc782729e9a5f28d1f6bf2df50.elf",
+      "Drivers/scene-host/image-8f841c721085de220e16460e07b2751be3673487838ab4c6915bf7d5405d3122.elf",
+      "Drivers/scene-profile-portrait-monochrome/image-81793b9d445b495b6e324f03e445d4922abb48101b62ba35482046a3abafd341.elf",
+      "Drivers/software-update-apps/image-c243053f0b319d99fecdb369a421519a494c840c1d94b13f8a6e1aa1cdca843a.elf",
+      "Drivers/software-update-firmware/image-8650b6bae3db171bae42f45adf4bbda4beeeeb42b349404fc8d4628351c4bc03.elf",
+      "Drivers/telemetry-battery/image-f0cab9a3eb32c9f0f351cc4f52ee5a4e9830d7ad26c012fa5c248fd791ac06da.elf",
+      "Drivers/telemetry-broadcast/image-0080c2a5c2e8affd8d6e4ca974f9a012c47b7f5bd7d7d1b2be730bacde1f6b4d.elf",
+      "Drivers/text-input-host/image-e0d6259ed441e18471d3ed85a8afc0b9b130f7e0767f61adecb793e514bbfb5a.elf",
+      "Drivers/twatch-ble/image-fd1366d4a7140988801105900eed85990534ca3c5c0f150090fb54e9c3b002a5.elf",
+      "Drivers/usb-device-msc-esp32s3/image-9a7cc6f87fc2a9cb5b1d65b7be1795be42cee822a2af722c8a81317a701d8461.elf",
+      "Drivers/wifi/image-8a46dd3534bd682c1950906de5478c7d4b999189d80ed76fd867907b1b6b54b9.elf",
+      "Drivers/x4pro-battery/image-937aa4335fe5aa2d25b8026beeec9ee0c04ed042d49583b353f69d46b69b61fe.elf",
+      "Drivers/x4pro-frontlight/image-c5b0ed5307e67f7493f075fbc18bf949ce13249c300eaa8498cc08d6b7f9457b.elf",
+      "Drivers/x4pro-gt911/image-0060c1b0d3bf47d362307faf2c7b677a59a5e0ccc9dc3b0a84eada41e1e250e4.elf",
+      "Drivers/x4pro-i2c/image-bac7fd8b7db7d71c219efdb43dbd259cc8cae1e7bfad66d9fff9ce4d39faabe1.elf",
+      "Drivers/x4pro-power-buttons/image-8277644e938a16460444d1d6b4b91148662ee8e625ff70a0a037ebc252a9cfa9.elf",
+      "Drivers/x4pro-power/image-79a1f58e9f0c5921b544989231c59258300b94b168669d8ce13c4227ffb7a71b.elf",
+      "Drivers/x4pro-rtc/image-47a372b44c897f0d95ff6d96e83b0bd34dcc8b910084fe61cfa99be609889d58.elf",
+      "Drivers/x4pro-uc8279-fast/image-3fe67b0b8b22b739b4cee6cb5d8e5da9536883ae567b6d61b142de5da50181d4.elf",
+      "fonts/Noto Sans/NotoSans-Bold.ttf",
+      "fonts/Noto Sans/NotoSans-BoldItalic.ttf",
+      "fonts/Noto Sans/NotoSans-Italic.ttf",
+      "fonts/Noto Sans/NotoSans-Regular.ttf",
+      "fonts/Noto Sans/OFL.txt",
+      "fonts/Noto Serif/NotoSerif-Bold.ttf",
+      "fonts/Noto Serif/NotoSerif-BoldItalic.ttf",
+      "fonts/Noto Serif/NotoSerif-Italic.ttf",
+      "fonts/Noto Serif/NotoSerif-Regular.ttf",
+      "fonts/Noto Serif/OFL.txt"
+    ]
+  }
+}

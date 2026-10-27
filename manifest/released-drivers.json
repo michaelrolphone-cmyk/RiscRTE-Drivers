@@ -186,6 +186,54 @@
       "version": "0.1.0",
       "source_path": "Drivers/telemetry_battery",
       "source_tree_sha": "a451ee283ff55a9dbe83fd93538853d6d54d5812"
+    },
+    {
+      "id": "cst9217-touch",
+      "version": "0.1.0",
+      "source_path": "Drivers/cst9217_touch",
+      "source_tree_sha": "f84e42291cdca24c00d4d178e3c22c2607fc30f9"
+    },
+    {
+      "id": "axp2101-observer",
+      "version": "0.1.0",
+      "source_path": "Drivers/axp2101_observer",
+      "source_tree_sha": "0b6f61b0a70349dfed45e4d72b2f24ed55c61770"
+    },
+    {
+      "id": "axp2101-power-key",
+      "version": "0.1.0",
+      "source_path": "Drivers/axp2101_power_key",
+      "source_tree_sha": "18c6d5b678fa398fe98c9162ebb7cc44b8c40347"
+    },
+    {
+      "id": "power-key-navigation",
+      "version": "0.1.0",
+      "source_path": "Drivers/power_key_navigation",
+      "source_tree_sha": "d84285f361ca36251384df4b71ef083f266a44b0"
+    },
+    {
+      "id": "qmi8658-accel",
+      "version": "0.1.0",
+      "source_path": "Drivers/qmi8658_accel",
+      "source_tree_sha": "3a40a63bb3172bf282a8025aa6da031822c1db7b"
+    },
+    {
+      "id": "gpio-key-sleep",
+      "version": "0.1.0",
+      "source_path": "Drivers/gpio_key_sleep",
+      "source_tree_sha": "6c082fb44410384943c6a8fa32ef5c029b8bdbf0"
+    },
+    {
+      "id": "wake-key-filter",
+      "version": "0.1.0",
+      "source_path": "Drivers/wake_key_filter",
+      "source_tree_sha": "b6e1a8de32aba0935b6c959e81df82f1a7778826"
+    },
+    {
+      "id": "qmi8658-idle",
+      "version": "0.1.0",
+      "source_path": "Drivers/qmi8658_idle",
+      "source_tree_sha": "0fa5d4f47588a3ff9d2ca49ce696e1ee3142537f"
     }
   ]
 }

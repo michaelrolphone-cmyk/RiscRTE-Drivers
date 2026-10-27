@@ -1,0 +1,5 @@
+MSP programmer target gating, FRAM RMW/write/verify, failed-open quarantine and cleanup: PASS
+==41==LeakSanitizer has encountered a fatal error.
+==41==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==41==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+usb-flashing-tools/RiscRTE-Drivers/test/run_program_msp_test.sh: line 14:    41 Aborted                 "$build/program-msp-test" "$build/program-msp.so"
