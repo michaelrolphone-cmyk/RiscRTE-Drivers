@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+  "source_commit": "bbfa35d8b0b90d7785d3f753d383f7cfe41237f2",
+  "source_tree": "38795f107762004c1d5bc78187b0bd7f6a666277",
+  "object_count": 3821,
+  "pack_sha256": "7a571fa3c20e10c77de133fa242b17f3e865b850138a1c63056e9172af959421",
+  "parts": [
+    {
+      "path": "objects-000.packpart",
+      "bytes": 524288,
+      "sha256": "2ffefd13a9f1c023eda7710ed05189f3507e7a017ff736c1d695f2d3d6e0d65c"
+    },
+    {
+      "path": "objects-001.packpart",
+      "bytes": 524288,
+      "sha256": "36249bd6a5781b078c4bb1bba696d1469ef5c183108c8ecab5e63b1fa60a187e"
+    },
+    {
+      "path": "objects-002.packpart",
+      "bytes": 524288,
+      "sha256": "0709897a2d7f5bfe5381083c98bbb1d638055fdfb022850ddfa4df004e69fa74"
+    },
+    {
+      "path": "objects-003.packpart",
+      "bytes": 524288,
+      "sha256": "c8c6dd3a7ea9d86053d70116e652e69ae1f75fa34cd722aa4d7776118b99be3f"
+    },
+    {
+      "path": "objects-004.packpart",
+      "bytes": 524288,
+      "sha256": "1075ebcd4de130cc6046ca86ffd1e8f1c66a9e13b10841ad7d922328d04ef083"
+    },
+    {
+      "path": "objects-005.packpart",
+      "bytes": 524288,
+      "sha256": "06a8eb18cfb785c560d0f44e35c19568820ec3a35095e8197851027d5cc6984b"
+    },
+    {
+      "path": "objects-006.packpart",
+      "bytes": 21085,
+      "sha256": "b3837d5bad9ac176c9b40f59c9c4b61ce8c8f1579a21c78298420a38e478df04"
+    }
+  ],
+  "shallow_boundaries": [
+    "1e2398a8c5b71a5599a0346b64e850a98b910e44",
+    "3e4a7ef605d13d389ed3722d5aee1de571d5640f",
+    "6468a46d6b0205620a818d7abb5f12ec5a85f893",
+    "6b79973a1b807f24440a98e0460741fdf6cdb3c2",
+    "6d64967c0a76741b95a0b979e0a5db1ed0b85c01",
+    "73de747f9d073e11d1655b1e47856c7583423c59",
+    "74eec28f82116313f13101e3cd38a12637522838",
+    "8950c1219e0892b83bb01f750a58ba59f7b42f23",
+    "90e7a8faae1a6678a24c92c32f95032b2fbe1e24",
+    "b7cef8dde0d8371303417ebfd3a7fcf987c0fbb0",
+    "f1b207ac6553609e4a313d1ed7f4ca09aeebd89c",
+    "105e19af106bfa86dd59378c489d3278d62fd813",
+    "9bf67c4e502fd74e31253cfefd9015bb88a74eb0"
+  ],
+  "scope": "Exact original Git objects recovered from source checkpoints, including canonical SDK and selected dependency anchors. Shallow boundaries are explicit; unavailable ancestors are not invented. Publication commit identity differs from original source identity."
+}
