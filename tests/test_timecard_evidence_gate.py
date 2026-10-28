@@ -1,5 +1,8 @@
-import copy,importlib.util,pathlib,unittest
+import copy,importlib.util,pathlib,unittest,sys,os,subprocess,tempfile,hashlib
 p=pathlib.Path(__file__).resolve().parents[1]/'scripts/timecard_evidence_gate.py'
+# File-based module loading does not add its directory for sibling imports.
+# Resolve from this checkout, never the caller's cwd or ambient PYTHONPATH.
+sys.path.insert(0,str(p.parent))
 spec=importlib.util.spec_from_file_location('timecard_evidence_gate',p);g=importlib.util.module_from_spec(spec);spec.loader.exec_module(g)
 class TimecardGateTests(unittest.TestCase):
  def good(self):
@@ -11,6 +14,28 @@ class TimecardGateTests(unittest.TestCase):
   return r
  def run_gate(self,r):g.qualify_timecard({'source_pins':{'system':'pin'},'foreground_idle':{'apps':[str(i) for i in range(9)]+['timecard']}},r,False,{'timecard.elf':'hash'},'target',p.parents[1],False)
  def test_valid(self):self.run_gate(self.good())
+ def test_standalone_entrypoint_without_ambient_imports(self):
+  with tempfile.TemporaryDirectory() as cwd:
+   for isolated in (False,True):
+    command=[sys.executable,'-B']+(['-I'] if isolated else [])+[str(pathlib.Path(__file__).resolve()),'TimecardGateTests.test_valid']
+    result=subprocess.run(command,cwd=cwd,env={k:v for k,v in os.environ.items() if k!='PYTHONPATH'},capture_output=True,text=True)
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    self.assertIn('Ran 1 test',result.stderr)
+ def test_real_source_verification_remains_enforced(self):
+  with tempfile.TemporaryDirectory() as directory:
+   root=pathlib.Path(directory);r=self.good()
+   for name in g.FIXTURES:
+    fixture=root/name;fixture.parent.mkdir(parents=True,exist_ok=True);fixture.write_text('fixture '+name)
+   r['fixture_sha256']={name:hashlib.sha256((root/name).read_bytes()).hexdigest() for name in g.FIXTURES}
+   catalog=root/'catalog.json';catalog.write_text('catalog')
+   source=root/'source.c';source.write_text('original input')
+   r['launcher_catalog_path']=str(catalog);r['launcher_catalog_sha256']=hashlib.sha256(catalog.read_bytes()).hexdigest()
+   r['source_sha256']={str(f):hashlib.sha256(f.read_bytes()).hexdigest() for f in (catalog,source)}
+   args=({'source_pins':{'system':'pin'},'foreground_idle':{'apps':list(r['foreground_recipes'])}},r,False,{'timecard.elf':'hash'},'target',root)
+   g.qualify_timecard(*args)
+   source.write_text('changed input')
+   with self.assertRaisesRegex(ValueError,'Execution source changed'):
+    g.qualify_timecard(*args)
  def test_manifest_position_is_not_assumed(self):
   r=self.good();r['launcher_catalog'].insert(1,r['launcher_catalog'].pop())
   for row in r['results']:row['stdout']=row['stdout'].replace('launcher_item=10','launcher_item=2')
