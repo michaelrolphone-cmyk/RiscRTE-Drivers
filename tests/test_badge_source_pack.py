@@ -10,6 +10,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from badge_source_pack import restore
+from recover_badge_ci_sources import fetch_declared_successor
 
 
 class Recovery(unittest.TestCase):
@@ -50,6 +51,29 @@ class Recovery(unittest.TestCase):
         self.assertEqual(receipt['source_tree'], self.tree)
         self.assertEqual(subprocess.check_output(['git', '-C', self.target, 'show',
                                                  self.commit + ':sdk.h']), b'exact canonical SDK bytes\n')
+
+    def test_declared_successor_keeps_original_and_checks_exact_tree(self):
+        self.run_restore()
+        subprocess.run(['git', '-C', self.target, 'remote', 'add', 'origin', str(self.origin)], check=True)
+        (self.origin/'metadata.txt').write_text('new exact producer metadata\n')
+        subprocess.run(['git', '-C', self.origin, 'add', '.'], check=True)
+        subprocess.run(['git', '-C', self.origin, 'commit', '--quiet', '-m', 'published successor'], check=True)
+        successor, tree = self.git('rev-parse', 'HEAD'), self.git('rev-parse', 'HEAD^{tree}')
+        spec = {'source_commit': self.commit, 'published_successors': {successor: {'tree': tree}}}
+        receipt = fetch_declared_successor(self.target, successor, spec)
+        self.assertEqual(receipt['tree'], tree)
+        self.assertEqual(receipt['recovery_original'], self.commit)
+        self.assertEqual(subprocess.check_output(['git', '-C', self.target, 'show', self.commit+':sdk.h']), b'exact canonical SDK bytes\n')
+        bad = copy.deepcopy(spec)
+        bad['published_successors'][successor]['tree'] = '0'*40
+        with self.assertRaisesRegex(ValueError, 'tree mismatch'):
+            fetch_declared_successor(self.target, successor, bad)
+
+    def test_undeclared_successor_rejected_before_fetch(self):
+        calls = []
+        with self.assertRaisesRegex(ValueError, 'Undeclared'):
+            fetch_declared_successor(self.target, self.commit, {'source_commit': self.commit}, run=lambda *a, **k: calls.append(a))
+        self.assertEqual(calls, [])
 
     def test_corrupt_part_is_rejected_before_import(self):
         (self.parts / 'objects-000.packpart').write_bytes(b'corrupt')

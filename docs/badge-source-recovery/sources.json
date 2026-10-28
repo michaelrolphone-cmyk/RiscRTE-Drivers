@@ -17,7 +17,13 @@
   "michaelrolphone-cmyk/RiscRTE-System-Apps": {
     "publication_commit": "68242a1cadc634e38ba2e81bf0ac0d2e77f0a23a",
     "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
-    "source_tree": "2d35e30df3f10393bc640117301423ab6a7abd33"
+    "source_tree": "2d35e30df3f10393bc640117301423ab6a7abd33",
+    "published_successors": {
+      "40e7222b390023a79288ddc369ffa2f485f85486": {
+        "tree": "a7d8a45a356ab3d93a38e4b98d30ab207665c6f7",
+        "purpose": "Current owning CI fixes and exact nonforeground native compile metadata; original source/SDK pack preserved"
+      }
+    }
   },
   "michaelrolphone-cmyk/RiscRTE-Watch": {
     "publication_commit": "46dd8504b0c69f240289e25f58e9c136881633c3",

@@ -17,8 +17,20 @@ def constants(path,names):
     if isinstance(target,ast.Name) and target.id in names:values[target.id]=exact_pin(ast.literal_eval(node.value))
  if set(values)!=set(names):raise ValueError('Missing owning SDK constants: '+str(path))
  return values
+def fetch_declared_successor(path,pin,spec,run=subprocess.run,output=subprocess.check_output):
+ # Explicit new publications are separate from immutable recovered identities.
+ # An absent old object never authorizes this path or a latest-ref fallback.
+ exact_pin(pin)
+ entry=spec.get('published_successors',{}).get(pin)
+ if not isinstance(entry,dict):raise ValueError('Undeclared source successor')
+ tree=exact_pin(entry.get('tree'))
+ run(['git','-C',str(path),'fetch','--no-tags','--depth=1','origin',pin],check=True)
+ actual=output(['git','-C',str(path),'rev-parse',pin+'^{tree}'],text=True).strip()
+ if actual!=tree:raise ValueError('Published successor tree mismatch')
+ return {'commit':pin,'tree':tree,'role':path.name,'method':'explicit-published-successor','recovery_original':spec['source_commit']}
+
 def recover(root,run=subprocess.run,output=subprocess.check_output,include_timecard=False):
- root=Path(root).resolve();recovery_lock=json.loads((root/'drivers/docs/badge-source-recovery/sources.json').read_text());restored={};pack_receipts=[];board=root/'drivers/boards/waveshare-esp32-s3-touch-amoled-1.75c';locks={n:json.loads((board/n/'sources.lock.json').read_text()) for n in ['home','prototype']};records=[]
+ root=Path(root).resolve();recovery_lock=json.loads((root/'drivers/docs/badge-source-recovery/sources.json').read_text());restored={};pack_receipts=[];published_receipts=[];board=root/'drivers/boards/waveshare-esp32-s3-touch-amoled-1.75c';locks={n:json.loads((board/n/'sources.lock.json').read_text()) for n in ['home','prototype']};records=[]
  def fetch(path,pin):
   exact_pin(pin)
   repo=output(['git','-C',str(path),'config','--get','remote.origin.url'],text=True).strip().removesuffix('.git').removeprefix('https://github.com/')
@@ -38,7 +50,10 @@ def recover(root,run=subprocess.run,output=subprocess.check_output,include_timec
      record=restore(path,folder,repo,run,output)
     if record['source_commit']!=spec['source_commit'] or record['source_tree']!=spec['source_tree']:raise ValueError('Recovery lock identity mismatch')
     record.update({'role':path.name,'publication_commit':publication});pack_receipts.append(record);restored[str(path)]=True
-   # Absence in the declared exact pack fails closed: never substitute/fetch another revision.
+   spec=recovery_lock[repo]
+   if pin in spec.get('published_successors',{}):
+    published_receipts.append(fetch_declared_successor(path,pin,spec,run,output))
+   # All other pins must exist in the declared exact pack; no speculative fetch.
    run(['git','-C',str(path),'cat-file','-e',pin+'^{commit}'],check=True)
   else:run(['git','-C',str(path),'fetch','--no-tags','--depth=1','origin',pin],check=True)
   actual=output(['git','-C',str(path),'rev-parse',pin+'^{commit}'],text=True).strip()
@@ -74,7 +89,7 @@ def recover(root,run=subprocess.run,output=subprocess.check_output,include_timec
  if hashlib.sha256(output(['git','-C',str(root/'runtime-prototype'),'show',helper['commit']+':'+helper['path']])).hexdigest()!=helper['sha256']:raise ValueError('Shared clock helper identity mismatch')
  usb=json.loads((root/'drivers/docs/usb-hid-checked-source-lock.json').read_text());extras.add(('drivers',exact_pin(usb['cohorts']['pr40']['commit'])))
  for label,pin in sorted(extras):fetch(root/label,pin)
- receipt={'include_timecard':include_timecard,'roles':records,'verified_packs':pack_receipts,'extra_refs':[{'role':label,'commit':pin} for label,pin in sorted(extras)],'latest_ref_fallback':False}
+ receipt={'include_timecard':include_timecard,'roles':records,'verified_packs':pack_receipts,'published_sources':published_receipts,'extra_refs':[{'role':label,'commit':pin} for label,pin in sorted(extras)],'latest_ref_fallback':False}
  (root/'source-recovery.json').write_text(json.dumps(receipt,indent=2)+'\n');return receipt
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--workspace',type=Path,required=True);p.add_argument('--include-timecard',action='store_true');a=p.parse_args();recover(a.workspace,include_timecard=a.include_timecard)
