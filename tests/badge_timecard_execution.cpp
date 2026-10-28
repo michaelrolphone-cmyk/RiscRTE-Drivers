@@ -28,6 +28,10 @@
 #include <unistd.h>
 #include <cerrno>
 #include "badge_timecard_execution.h"
+#include "badge_points_execution.h"
+#ifdef BADGE_POINTS_EXECUTION
+#include "PointsRecords.h"
+#endif
 #ifdef BADGE_NATIVE_ALARMS
 #include "AlarmRecords.h"
 #include <RiscKeyValueV2.h>
@@ -142,7 +146,7 @@ void delay(uint32_t ms){assert(!m.terminal);assert(ms<=5000);m.ms+=ms;assert(m.m
  * end Home through the explicit host-only observation loop gate. Runtime
  * controlExitRequested remains unbound: its native Home navigation action is
  * not a stop-run request. This is not a product/user return or target execution. */
-static void fixtureBoundaryObserve(){assert(!m.terminal);assert(++m.health<20000000);timecardObserve(false);assert(m.ms<2000000);if(am.enabled)alarmObserve(false);}
+static void fixtureBoundaryObserve(){assert(!m.terminal);assert(++m.health<20000000);fixtureAppObserve(false);assert(m.ms<2000000);if(am.enabled)alarmObserve(false);}
 static bool fixtureContinue(){fixtureBoundaryObserve();return !tc.done;}
 static bool fixtureStopRequested;
 bool fixtureMonotonic(uint32_t* out){assert(!m.terminal);*out=static_cast<uint32_t>(m.ms);return true;}
@@ -186,7 +190,7 @@ bool i2cTransfer(uint8_t physical,uint8_t address,const uint8_t* tx,size_t tn,ui
         if(tn==2){assert(tx[0]==0x41||tx[0]==0x49);if(tx[0]==0x49){assert(!(tx[1]&~0x0c));m.pmic[0x49]&=~tx[1];}else{assert(!((m.pmic[0x41]^tx[1])&~0x0c));m.pmic[0x41]=tx[1];}return true;}
         // Read-only state observation at an actual PMIC input read, never a clock query or new frame.
         if(tx[0]==0x49)fixtureBoundaryObserve();
-        timecardKeys(tx[0]);
+        fixtureAppKeys(tx[0]);
         memcpy(rx,m.pmic+tx[0],rn);return true;
     }
     assert(address==0x5a&&m.pins[2]&&m.levels[2]&&m.ms-m.resetAt>=60);
@@ -198,7 +202,7 @@ bool i2cTransfer(uint8_t physical,uint8_t address,const uint8_t* tx,size_t tn,ui
     if(m.reg==0xd1fc||m.reg==0xd204){assert(rn==4);memset(rx,0,rn);return true;}
     assert(m.reg==0xd000&&rn==10);++m.touchReads;fixtureBoundaryObserve();memset(rx,0,rn);rx[6]=0xab;
     const auto age=m.ms-m.entered;bool down=false;unsigned x=233,y=233;
-    timecardTouch(age,down,x,y);
+    fixtureAppTouch(age,down,x,y);
     rx[5]=down;
     if(qm.enabled&&m.app=="default"){uint64_t qa=m.ms-am.appReadyAt;if(m.caseIndex==38&&qm.pendingDelay&&!qm.pendingGapSent&&qm.ui[22]){rx[5]=2;qm.pendingGapSent=true;}if((m.caseIndex==38&&qa>=2600&&qa<2700)||(m.caseIndex==41&&qa>=6700&&qa<6800))rx[5]=2;} // Explicit malformed CST multi-contact report; real provider invalidates input.
     rx[0]=down?6:0;rx[1]=x>>4;rx[2]=y>>4;rx[3]=uint8_t((x&15)<<4|(y&15));
@@ -226,7 +230,7 @@ bool displayRow(uint32_t y,const uint16_t* row,size_t width){
     std::copy(row,row+width,m.pixels.begin()+y*width);++m.rows;m.nativeNextRow=(y+1)%466;if(y==465){++m.frames;
  if(!m.nativeFrameComplete){m.nativeFrameComplete=true;m.level=m.requestedBrightness;if(m.level)++m.unblanks;}
  observeVisibility();
- timecardObserve(true);
+ fixtureAppObserve(true);
  if(am.enabled)alarmObserve(true);
  fixtureBoundaryObserve();
  if(m.app=="file_browser")probeState();
@@ -261,8 +265,8 @@ static constexpr uint32_t modeledKvMax=RISC_KEY_VALUE_BLOB_MAX;
 #endif
 static const RiscBoot::KeyValueBackend keyValue{nullptr,
  [](void*,uint32_t ns,const char*k,void*b,uint32_t capacity,uint32_t*size)->int32_t{
-  assert(!m.terminal);if(am.enabled&&m.nativeToken)++am.parkedKv;auto i=values.find(std::to_string(ns)+":"+k);if(i==values.end()){*size=0;return RISC_KEY_VALUE_NOT_FOUND;}*size=i->second.size();if(capacity<*size)return RISC_KEY_VALUE_BUFFER_SMALL;memcpy(b,i->second.data(),*size);quickKvRead(ns,k,b,*size);timecardKvRead(ns,k,b,*size);return 0;},
- [](void*,uint32_t ns,const char*k,const void*b,uint32_t size)->int32_t{assert(!m.terminal);if(!b||!size||size>modeledKvMax)return RISC_KEY_VALUE_INVALID;if(am.enabled&&m.nativeToken)++am.parkedKv;if(selectedForeground())++m.kvWrites;values[std::to_string(ns)+":"+k]=std::vector<uint8_t>((const uint8_t*)b,(const uint8_t*)b+size);alarmKvWritten(ns,k,b,size);quickKvWrite(ns,k,b,size);wifiKvWrite(ns,k);timecardKvWrite(ns,k,b,size);return 0;},modeledKvMax};
+  assert(!m.terminal);if(am.enabled&&m.nativeToken)++am.parkedKv;auto i=values.find(std::to_string(ns)+":"+k);if(i==values.end()){*size=0;return RISC_KEY_VALUE_NOT_FOUND;}*size=i->second.size();if(capacity<*size)return RISC_KEY_VALUE_BUFFER_SMALL;memcpy(b,i->second.data(),*size);quickKvRead(ns,k,b,*size);fixtureAppKvRead(ns,k,b,*size);return 0;},
+ [](void*,uint32_t ns,const char*k,const void*b,uint32_t size)->int32_t{assert(!m.terminal);if(!b||!size||size>modeledKvMax)return RISC_KEY_VALUE_INVALID;if(am.enabled&&m.nativeToken)++am.parkedKv;if(selectedForeground())++m.kvWrites;values[std::to_string(ns)+":"+k]=std::vector<uint8_t>((const uint8_t*)b,(const uint8_t*)b+size);alarmKvWritten(ns,k,b,size);quickKvWrite(ns,k,b,size);wifiKvWrite(ns,k);fixtureAppKvWrite(ns,k,b,size);return 0;},modeledKvMax};
 static int64_t editedSeed=0,firstHomeEpoch=0,lastHomeEpoch=0;static unsigned homeValidReads=0;
 static timeval seeded{};static uint64_t seedMs;
 static esp_reset_reason_t resetReason=ESP_RST_POWERON;
@@ -280,6 +284,7 @@ static int wallSet(const timeval*in,const void*){seeded=*in;seedMs=m.ms;return 0
 #include "badge_quick_execution.inc"
 #include "badge_wifi_execution.inc"
 #include "badge_timecard_execution.inc"
+#include "badge_points_execution.inc"
 namespace RiscDiagnostics {uint64_t monotonicUs(){return m.ms*1000;}void timestamped(const char*f,...){char b[1024];va_list a;va_start(a,f);vsnprintf(b,sizeof(b),f,a);va_end(a);puts(b);}}
 // Read-only fixture observation: compare the app's actual Runtime read buffer
 // with the host medium. Never inject contents or change the app/provider state.
@@ -301,21 +306,30 @@ extern "C" void badge_sleep_transaction(int begin,unsigned long long token,int r
  if(begin&&result==0){assert(token&&!m.nativeToken);m.nativeToken=token;++m.transactions;}
  else if(!begin){assert(token==m.nativeToken);if(result==0||result==2){m.nativeToken=0;++m.transactionResumes;}}
 }
-extern "C" void badge_app_enter(const char*n){m.app=n;m.entered=m.ms;m.keySent=false;m.appVisible=false;++m.visits;timecardEnter(n);printf("APP_ENTER %s %u\n",n,m.visits);}
-extern "C" void badge_app_exit(const char*n){++m.appExits;timecardExit(n);printf("APP_EXIT %s\n",n);}
+extern "C" void badge_app_enter(const char*n){m.app=n;m.entered=m.ms;m.keySent=false;m.appVisible=false;++m.visits;fixtureAppEnter(n);printf("APP_ENTER %s %u\n",n,m.visits);}
+extern "C" void badge_app_exit(const char*n){++m.appExits;fixtureAppExit(n);printf("APP_EXIT %s\n",n);}
 int main(int argc,char**argv){
  setvbuf(stdout,nullptr,_IONBF,0);assert(argc==3);m.storeRoot=argv[1];m.caseIndex=std::strtoul(argv[2],nullptr,10);
- m.foreground=true;m.foregroundApp="timecard";m.target=9;m.mode="prototype";m.watchSpringboard=true;
+ m.foreground=true;m.foregroundApp=
+#ifdef BADGE_POINTS_EXECUTION
+ "points_in_time";
+#else
+ "timecard";
+#endif
+m.target=9;m.mode="prototype";m.watchSpringboard=true;
  m.safeViewport=true;m.nativeSafeContent=true;
  m.qmi[0]=5;m.qmi[0x2e]=1;m.qmi[0x36]=0x20; m.pmic[3]=0x4a;m.pmic[0x80]=1;m.pmic[0x82]=18;m.pmic[0]=0x28;m.pmic[1]=0x20;m.pmic[0x18]=0x0a;m.pmic[0x68]=1;m.pmic[0xa4]=42;m.pmic[0x34]=0x10;m.pmic[0x35]=4;
- timecardInitialize();
+ fixtureAppInitialize();
  RiscCpu::NativeRealtime::configure(owner);RiscCpu::NativeRealtime::start();
+#ifdef BADGE_POINTS_EXECUTION
+ assert(RiscCpu::NativeRealtime::seed(1767225600,0)==0);
+#endif
  if(am.enabled&&m.caseIndex==33&&am.reset){risc_realtime_snapshot_v1 snap{};snap.struct_size=sizeof(snap);assert(RiscCpu::NativeRealtime::read(&snap)==0&&snap.validity==RISC_REALTIME_UNSET&&!snap.epoch_seconds);}
  if(!am.enabled&&(!navigationTarget()||(m.foreground&&m.foregroundApp=="stopwatch")))assert(RiscCpu::NativeRealtime::seed(1792900000,0)==0);
  RiscCpu::Hardware h{};h.owner=owner;h.now=now;h.sleep=delay;h.gpioOpen=gpioOpen;h.gpioWrite=gpioWrite;h.gpioRead=gpioRead;h.gpioPwm=gpioPwm;h.gpioClose=gpioClose;h.i2cOpen=i2cOpen;h.i2cTransfer=i2cTransfer;h.i2cClose=i2cClose;
  h.wakeValid=[](uint8_t pin){assert(!m.terminal);return (am.enabled||m.foreground)&&pin==3;};
  h.wakeArm=[](uint8_t pin,bool high){assert(!m.terminal);assert((am.enabled||selectedForeground())&&pin==3&&high&&!m.terminal);++m.wakeArms;return true;};
- h.lightSleep=[](uint32_t*cause){return timecardLight(cause);};
+ h.lightSleep=[](uint32_t*cause){return fixtureAppLight(cause);};
  h.wakeClear=[](uint8_t pin){assert(!m.terminal&&pin==3);++m.wakeClears;return true;};
  h.timerArm=[](uint32_t ms){assert(!m.terminal&&ms&&ms<=86400000);am.timer=ms;++am.timerArms;return true;};
  h.timerClear=[](){assert(!m.terminal);am.timer=0;++am.timerClears;return true;};
@@ -342,7 +356,7 @@ int main(int argc,char**argv){
  RiscBoot::AppDataBackend appData{&data,[](void*c,uint32_t n,const char*p,uint32_t*s,uint64_t*r){assert(!m.terminal);++tc.dataStats;return static_cast<RiscStorage::AppDataFiles*>(c)->stat(n,p,s,r);},[](void*c,uint32_t n,const char*p,uint64_t v,void*b,uint32_t z,uint32_t*s,uint64_t*r){assert(!m.terminal);++tc.dataReads;int rc=static_cast<RiscStorage::AppDataFiles*>(c)->read(n,p,v,b,z,s,r);if(!rc)timecardDataRead(n,p,b,*s);return rc;},[](void*c,uint32_t n,const char*p,uint64_t v,const void*b,uint32_t z){assert(!m.terminal);timecardDataWrite(n,p,b,z);return static_cast<RiscStorage::AppDataFiles*>(c)->replace(n,p,v,b,z);},[](void*c){assert(!m.terminal);return static_cast<RiscStorage::AppDataFiles*>(c)->exitSafe();}};
  RiscBoot::Port boot{owner,health,delay,log,bind,&keyValue};boot.monotonicMs=fixtureMonotonic;boot.confirmBoot=confirm;boot.appData=&appData;
  RiscTest::FileSources files({std::string(argv[1])});RiscBoot::Runtime runtime(boot);running=&runtime;assert(files.bind(runtime));if(!runtime.prepare(argv[1])){fprintf(stderr,"PREPARE %s\n",runtime.error());return 2;}assert(!m.io);bool ran=runtime.run();
- timecardFinish(ran,runtime.retained());
+ fixtureAppFinish(ran,runtime.retained());
  if(runtime.retained())std::exit(0); // Preserve retained invocation; no destructor cleanup.
  assert(port.quiescent()&&!m.display&&!m.i2c);return 0;
 }

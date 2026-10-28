@@ -13,6 +13,7 @@ from springboard_gesture_profile import qualify as qualify_gesture
 from home_raster_reuse_profile import qualify as qualify_home_reuse
 import raster_traffic_profile
 import time_sync_profile
+import points_product_profile
 P=BOARD/'prototype'
 def git(root,*args):return subprocess.check_output(['git','-C',str(root),*args],text=True).strip()
 # Canonical performance SDK identity, independent of selected native implementation.
@@ -69,8 +70,10 @@ def qualify_interaction_selections(home,settings,springboard,trace,native_settin
 def main():
  p=argparse.ArgumentParser(description=__doc__)
  for n in ['runtime','runtime-baseline','watch','watch-bringup','controllers','system','system-baseline','utilities','utilities-baseline','output']:p.add_argument('--'+n,type=Path,required=True)
+ p.add_argument('--home-utilities',type=Path,help='Exact preserved Home Utilities dependency for explicit Points successor')
  p.add_argument('--home-system',type=Path,help='Exact System source pinned by the selected Home native profile; distinct from app producer metadata source')
  p.add_argument('--productivity',type=Path,help='Exact Productivity source for the explicit Timecard increment')
+ p.add_argument('--include-points',action='store_true',help='Select current Points with shared mixed clock editing, preserving Timecard')
  p.add_argument('--include-timecard',action='store_true',help='Select current native Timecard with private AppData; requires native alarms/foreground idle')
  p.add_argument('--native-glyph-coverage-cache',action='store_true',help='Explicit optional exact Home glyph coverage reuse')
  p.add_argument('--native-stroke-coverage-cache',action='store_true',help='Explicit optional exact Home stroke coverage reuse')
@@ -95,8 +98,12 @@ def main():
  p.add_argument('--include-files',action='store_true',help='Include restricted installed-file browser; requires returning foreground idle')
  p.add_argument('--foreground-idle',action='store_true',help='Opt in shared RAM-retaining foreground Light idle; Home policy unchanged');p.add_argument('--cc',required=True);p.add_argument('--idle-seconds',type=int,default=30,help='Configurable Home inactivity default; saved preferences override');a=p.parse_args();out=a.output.resolve()
  raster_traffic_profile.validate(a,p)
+ try:points_product_profile.validate_selection(a)
+ except ValueError as error:p.error(str(error))
  if a.time_server_sync and not (a.native_alarms and a.foreground_idle):p.error('Time sync requires existing alarm-safe clock edit and foreground lifecycle')
  if a.round_settings_ui and not a.native_settings_ui:p.error('round-settings-ui requires native-settings-ui')
+ if a.include_points and not a.home_utilities:p.error('include-points requires explicit preserved Home Utilities source')
+ if a.home_utilities and not a.include_points:p.error('home-utilities requires explicit include-points')
  if a.include_timecard and (not a.native_alarms or a.productivity is None):p.error('include-timecard requires native-alarms and exact Productivity source')
  if a.productivity is not None and not a.include_timecard:p.error('productivity requires explicit include-timecard selection')
  if a.include_timecard and not a.quick_actions:p.error('include-timecard requires the copied-preference QuickActions product cohort')
@@ -115,7 +122,8 @@ def main():
  roots={n:getattr(a,n.replace('-','_')).resolve() for n in ['runtime','runtime-baseline','watch','watch-bringup','controllers','system','system-baseline','utilities','utilities-baseline']}
  if a.include_timecard:roots['productivity']=a.productivity.resolve()
  if a.native_alarms:roots['home-system']=a.home_system.resolve()
- lock=json.loads((P/'sources.lock.json').read_text());base=json.loads((BOARD/'home/sources.lock.json').read_text())
+ if a.include_points:roots['home-utilities']=a.home_utilities.resolve()
+ lock=json.loads((P/('points-sources.lock.json' if a.include_points else 'sources.lock.json')).read_text());base=json.loads((BOARD/'home/sources.lock.json').read_text())
  for n,r in roots.items():
   k=n.replace('-baseline','').replace('watch-bringup','watch_bringup').replace('-','_');rev=(base if n.endswith('-baseline') else lock)[k]['commit']
   if git(r,'rev-parse','HEAD')!=rev or git(r,'status','--porcelain'):raise ValueError('Clean exact input required: '+n+' '+rev)
@@ -136,12 +144,14 @@ def main():
    fm=json.loads((roots['utilities']/'Apps'/(name+'.json')).read_text());catalog['apps'].append({key:fm[key] for key in ['display_name','file_name','icon']})
  if a.include_timecard:
   fm=json.loads((roots['productivity']/'Apps/native/timecard_current.json').read_text());catalog['apps'].append({key:fm[key] for key in ['display_name','file_name','icon']})
+ if a.include_points:
+  fm=json.loads((roots['productivity']/'Apps/native/points_current.json').read_text());catalog['apps'].append({key:fm[key] for key in ['display_name','file_name','icon']})
  write(out/'catalog.json',catalog)
  # Home is deliberately kept on its already qualified shared dependency cohort.
  cmd(sys.executable,ROOT/'scripts/build_badge_home.py','--runtime',roots['runtime-baseline'],'--watch',roots['watch'],'--controllers',roots['controllers'],'--system',roots['system-baseline'],'--utilities',roots['utilities-baseline'],'--cc',a.cc,'--output',out/'baseline')
  store=out/'store';shutil.copytree(out/'baseline/store',store)
  # Same maintained shared Home, with explicit generic product defaults, not a board app fork.
- cmd(sys.executable,roots['watch-bringup']/'scripts/build.py','--system',roots['home-system'] if a.native_alarms else roots['system-baseline'],'--utilities',roots['utilities'] if a.native_alarms else roots['utilities-baseline'],'--cc',a.cc,'--role','default','--time-authority','native','--unset-time-local','2026-01-01T00:00:00','--default-sleep-mode','hybrid','--default-idle-seconds',a.idle_seconds,'--output',out/'shared-home',*(['--native-alarm-v2','--clock-edit-authority'] if a.native_alarms else []),*(['--native-quick-actions'] if a.quick_actions else []),*(['--interaction-trace'] if a.interaction_trace else []),*(['--native-performance-runtime',roots['runtime']] if a.native_performance_trace else []),*(['--native-glyph-coverage-cache'] if a.native_glyph_coverage_cache else []),*(['--native-stroke-coverage-cache'] if a.native_stroke_coverage_cache else []),*(['--picker-compositor-plan'] if a.picker_compositor_plan else []),*(['--native-damage-replay'] if a.native_damage_replay else []))
+ cmd(sys.executable,roots['watch-bringup']/'scripts/build.py','--system',roots['home-system'] if a.native_alarms else roots['system-baseline'],'--utilities',roots['home-utilities'] if a.include_points else roots['utilities'] if a.native_alarms else roots['utilities-baseline'],'--cc',a.cc,'--role','default','--time-authority','native','--unset-time-local','2026-01-01T00:00:00','--default-sleep-mode','hybrid','--default-idle-seconds',a.idle_seconds,'--output',out/'shared-home',*(['--native-alarm-v2','--clock-edit-authority'] if a.native_alarms else []),*(['--native-quick-actions'] if a.quick_actions else []),*(['--interaction-trace'] if a.interaction_trace else []),*(['--native-performance-runtime',roots['runtime']] if a.native_performance_trace else []),*(['--native-glyph-coverage-cache'] if a.native_glyph_coverage_cache else []),*(['--native-stroke-coverage-cache'] if a.native_stroke_coverage_cache else []),*(['--picker-compositor-plan'] if a.picker_compositor_plan else []),*(['--native-damage-replay'] if a.native_damage_replay else []))
  shutil.copy2(out/'shared-home/default.elf',store/'default.elf')
  home=home_manifest(json.loads((out/'shared-home/default.json').read_text()),json.loads((store/'boot.json').read_text())['app_capabilities'][0])
  if a.native_alarms:
@@ -177,7 +187,7 @@ def main():
  if a.include_files:
   cmd(sys.executable,roots['system']/'scripts/build_portable_file_browser.py','--watch-native-ui','--time-profile','watch-native-time','--native-time-runtime-repo',roots['runtime'],'--display-rotation','0','--navigation','--read-copy-only','--rgb-only','--home-app','default.elf','--return-app','default.elf','--output-dir',out/'files',*foreground_args)
  if a.native_alarms:
-  cmd(sys.executable,roots['utilities']/'scripts/build_native_schedules_alarm.py','--runtime',roots['runtime'],'--system-apps',roots['system'],'--system-revision',lock['system']['commit'],'--cc',a.cc,'--output',out/'alarm-service','--clock-edit-authority')
+  cmd(sys.executable,roots['utilities']/'scripts/build_native_schedules_alarm.py','--runtime',roots['runtime'],'--system-apps',roots['system'],'--system-revision',lock['system']['commit'],'--cc',a.cc,'--output',out/'alarm-service','--clock-edit-authority',*(['--include-points'] if a.include_points else []))
   cmd(sys.executable,roots['utilities']/'scripts/build_badge_native_alarm_apps.py','--runtime',roots['runtime'],'--system-apps',roots['system'],'--system-revision',lock['system']['commit'],'--cc',a.cc,'--output',out/'alarm-apps',*alarm_foreground_args,*(['--native-alarm-presentation'] if a.native_alarm_geometry else []))
   presentation=json.loads((out/'alarm-apps/build-evidence.json').read_text()).get('native_alarm_geometry',False)
   if type(presentation) is not bool or presentation!=a.native_alarm_geometry:raise ValueError('Alarm aggregate geometry selection mismatch')
@@ -191,12 +201,17 @@ def main():
    raise ValueError('Timecard requires exact preference and private AppData namespaces, never diagnostic fallback')
   if timecard_record['grant_bindings'].get('storage.preferences')!=[1] or not all('-D'+flag in timecard_record['build_defines'] for flag in ['PORTABLE_QUICK_ACTIONS','PORTABLE_PREFERENCE_STORE','PORTABLE_QUICK_ATOMIC_PREFERENCES']):
    raise ValueError('Timecard must preserve QuickActions using the selected copied preference broker')
+ if a.include_points:
+  cmd(sys.executable,roots['productivity']/'scripts/build_points_current.py','--system-apps',roots['system'],'--system-revision',lock['system']['commit'],'--runtime',roots['runtime'],'--utilities',roots['utilities'],'--utilities-revision',lock['utilities']['commit'],'--foreground-idle-helper-dir',ROOT/'components/portable-light-sleep','--foreground-idle-drivers-sdk-dir',ROOT/'sdk/driver','--foreground-idle-fallback-seconds',a.idle_seconds,'--compiler',a.cc,'--output-dir',out/'points',*(['--alarm-ready-drain'] if a.alarm_ready_drain else []))
+  points_record=json.loads((out/'points/points-build-record.json').read_text())
+  points_product_profile.qualify_app(json.loads((out/'points/points_in_time.json').read_text()),points_record)
+  points_product_profile.qualify_service(json.loads((out/'alarm-service/build-evidence.json').read_text()),json.loads((out/'alarm-service/storage-policy.json').read_text()))
  sys.path.insert(0,str(roots['watch']/'scripts'))
  from compact_current_elf import compact
  from normalize_xtensa_relocations import normalize
  from verify_psram_elf import verify
  applications={}
- for folder,names in [('clock',['clock']),('bringup',['bringup']),('settings',['settings']),('springboard',['springboard']),('daily',['calculator','stopwatch','battery']),('wifi',['wifi_settings']),*([('files',['file_browser'])] if a.include_files else []),*([('alarm-apps',['alarms','countdown'])] if a.native_alarms else []),*([('timecard',['timecard'])] if a.include_timecard else [])]:
+ for folder,names in [('clock',['clock']),('bringup',['bringup']),('settings',['settings']),('springboard',['springboard']),('daily',['calculator','stopwatch','battery']),('wifi',['wifi_settings']),*([('files',['file_browser'])] if a.include_files else []),*([('alarm-apps',['alarms','countdown'])] if a.native_alarms else []),*([('timecard',['timecard'])] if a.include_timecard else []),*([('points',['points_in_time'])] if a.include_points else [])]:
   for name in names:
    source=out/folder/(name+'.elf');debug=out/folder/'debug'/(name+'.elf')
    if not debug.exists():normalize(source);compact(source,a.cc,debug_path=debug)
@@ -215,7 +230,7 @@ def main():
   shutil.copy2(source.with_name('manifest.json'),target/'manifest.json');providers[name]={'sha256':sha(elf),'psram_safety':safety}
  if a.native_alarms:
   target=store/'alarm-service';target.mkdir();elf=target/'driver.elf';shutil.copy2(out/'alarm-service/driver.elf',elf);normalize(elf);debug=out/'debug/alarm-service.elf';compact(elf,a.cc,debug_path=debug)
-  shutil.copy2(out/'alarm-service/manifest.json',target/'manifest.json');providers['alarm-service']={'sha256':sha(elf),'psram_safety':verify(debug,a.cc),'profile':'native-utc-schedules-clock-edit'}
+  shutil.copy2(out/'alarm-service/manifest.json',target/'manifest.json');providers['alarm-service']={'sha256':sha(elf),'psram_safety':verify(debug,a.cc),'profile':points_product_profile.PROFILE if a.include_points else 'native-utc-schedules-clock-edit'}
  board=json.loads((store/'board.json').read_text());next(d for d in board['devices'] if d['instance_id']==4)['bindings']={'i2c.bus':2}
  board['devices'].append({'instance_id':14,'chip':{'vendor':'x-powers','model':'axp2101-power-key','revision':'unspecified'},'compatible':'x-powers,axp2101-power-key','config_type':'peripheral.i2c-function','config_version':1,'config':{'parent_instance_id':4,'function_id':2},'bindings':{'i2c.bus':2}})
  board['devices'].append({'instance_id':15,'chip':{'vendor':'espressif','model':'esp32s3-wifi','revision':'unspecified'},'compatible':'espressif,esp32s3-wifi','config_type':'radio.integrated','config_version':1,'config':{'unit':0,'features':1},'bindings':{}})
@@ -249,6 +264,7 @@ def main():
   if a.native_alarms:
    for name in ['alarms','countdown']:foreground_records[name]=json.loads((out/'alarm-apps'/(name+'-build-record.json')).read_text())
   if a.include_timecard:foreground_records['timecard']=timecard_record
+  if a.include_points:foreground_records['points_in_time']=points_record
   for name,record in foreground_records.items():
    if not record.get('foreground_idle',{}).get('enabled') or 1 not in record['grant_bindings']['storage.key-value']:
     raise ValueError('Missing exact foreground policy receipt: '+name)
@@ -276,6 +292,8 @@ def main():
     if namespace not in current:g.append({'capability':'storage.key-value','api':1,'instance_id':namespace})
   if name=='timecard' and a.include_timecard:
    g=apply_private_bindings(m,timecard_record,g);qualify_private_grants(m,timecard_record,g)
+  if name=='points_in_time' and a.include_points:
+   g=apply_private_bindings(m,points_record,g);points_product_profile.qualify_grants(g)
   if name=='springboard':
    qualify_temporary_quick(json.loads((out/'springboard/springboard-build-record.json').read_text()),m,g,a.springboard_quick_actions)
   boot['app_capabilities'].append({'manifest':name+'.json','grants':g})
@@ -289,13 +307,14 @@ def main():
  write(store/'boot.json',boot)
  write(out/'APPLICATION-INVENTORY.json',collect_app_inventory(roots['system'],roots['utilities'],roots['controllers'],store,out/'catalog.json',roots.get('productivity')))
  if sha(store/'default.elf')!=sha(out/'shared-home/default.elf'):raise ValueError('Home byte identity changed')
- inputs=['scripts/time_sync_profile.py','scripts/raster_traffic_profile.py','scripts/home_raster_reuse_profile.py','scripts/springboard_gesture_profile.py','scripts/temporary_quick_profile.py','scripts/private_storage_profile.py','scripts/wifi_geometry_profile.py','scripts/alarm_geometry_profile.py','scripts/badge_app_inventory.py','scripts/build_badge_prototype.py','scripts/build_badge_home.py','boards/waveshare-esp32-s3-touch-amoled-1.75c/display-profile.h','boards/waveshare-esp32-s3-touch-amoled-1.75c/prototype/catalog.json','boards/waveshare-esp32-s3-touch-amoled-1.75c/prototype/sources.lock.json']
+ inputs=['scripts/points_product_profile.py','scripts/time_sync_profile.py','scripts/raster_traffic_profile.py','scripts/home_raster_reuse_profile.py','scripts/springboard_gesture_profile.py','scripts/temporary_quick_profile.py','scripts/private_storage_profile.py','scripts/wifi_geometry_profile.py','scripts/alarm_geometry_profile.py','scripts/badge_app_inventory.py','scripts/build_badge_prototype.py','scripts/build_badge_home.py','boards/waveshare-esp32-s3-touch-amoled-1.75c/display-profile.h','boards/waveshare-esp32-s3-touch-amoled-1.75c/prototype/catalog.json','boards/waveshare-esp32-s3-touch-amoled-1.75c/prototype/sources.lock.json']
  for directory in ['components/co5300','components/i2c-scoped','Drivers/axp2101_observer','Drivers/axp2101_power_key','Drivers/power_key_navigation','Drivers/legacy_display_power','Drivers/legacy_power_compat','Drivers/qmi8658_accel','Drivers/gpio_key_sleep','Drivers/wake_key_filter','Drivers/qmi8658_idle','components/portable-light-sleep']:
   inputs += [str(x.relative_to(ROOT)) for x in (ROOT/directory).rglob('*') if x.is_file()]
  inputs.append('sdk/driver/RiscPowerKeyNeutralizeV1.h')
  if a.time_server_sync:
   inputs += ['Drivers/time_sample/driver.c','Drivers/time_sample/manifest.json','sdk/driver/RiscTimeSampleV1.h']
   if (ROOT/'sdk/driver/RiscTimeSampleV1.h').read_bytes()!=(roots['runtime']/'sdk/driver/RiscTimeSampleV1.h').read_bytes():raise ValueError('Time sampler canonical SDK drift')
- record={'schema':1,'time_server_sync':{'enabled':a.time_server_sync,'server':a.time_server if a.time_server_sync else None,'application':'wifi_settings' if a.time_server_sync else None,'authentication':'unauthenticated SNTP','clock_commit':'existing alarm-safe UTC transaction; timezone unchanged'},'raster_traffic':raster_traffic_profile.selection_record(a),'alarm_ready_drain':{'enabled':a.alarm_ready_drain,'apps':sorted(alarm_ready_apps),'budget_ms':8 if a.alarm_ready_drain else None,'home_unchanged':True,'timecard_not_adopted':True},'native_raster_caches':home_reuse,'springboard_gesture_diagnostics':a.springboard_gesture_diagnostics,'native_performance_trace':a.native_performance_trace,'native_performance_apps':['default','settings','springboard'] if a.native_performance_trace else [],'springboard_quick_actions':a.springboard_quick_actions,'interaction_trace':a.interaction_trace,'native_settings_geometry':a.native_settings_ui,'settings_sliced_native_frames':a.native_settings_ui and a.sliced_native_frames,'sliced_native_frames':a.sliced_native_frames,'include_timecard':a.include_timecard,'timecard_profile':timecard_record if a.include_timecard else None,'native_wifi_geometry':a.native_wifi_geometry,'quick_actions':a.quick_actions,'application_inventory_sha256':sha(out/'APPLICATION-INVENTORY.json'),'native_alarms':a.native_alarms,'native_alarm_geometry':a.native_alarm_geometry,'clock_edit_authority':a.native_alarms,'alarm_profile':'native-utc-schedules-clock-edit' if a.native_alarms else None,'native_daily':a.native_daily,'supported_app_increment':{'files':a.include_files,'storage':'read-only admitted installed manifest/ELF allowlist' if a.include_files else None},'springboard_presentation':{'profile':'watch-native-time','native_dimensions':True,'readonly_runtime_time':True},'foreground_idle':{'enabled':a.foreground_idle,'mode':'returning Light only','apps':sorted(foreground_records),'diagnostic_bringup':'not yet opted in; remains awake','home_policy_unchanged':not a.native_alarms},'profile':'round-prototype','time_authority':{'source':'native Runtime UTC','timezone':'shared saved time_zone; missing defaults UTC','external_rtc':False,'unset_local_default':'2026-01-01T00:00:00','default_only_when_unset':True},'sleep_policy':{'default_mode':'hybrid','sequence':'Light first; configured interval timer may advance to Deep','default_idle_seconds':a.idle_seconds,'saved_preferences_override':True,'wake':'PWRON SYS_OUT GPIO3 active high plus tagged schedule timer; no touch/motion' if a.native_alarms else 'PWRON SYS_OUT GPIO3 active high plus staged Light interval timer; no touch/motion'},'source_pins':lock,'shared_home_pins':base,'home':{'sha256':sha(store/'default.elf'),'unchanged_from_shared_build':True},'applications':applications,'providers':providers,'source_sha256':{n:sha(ROOT/n) for n in inputs},'store_files':{str(f.relative_to(store)):{'sha256':sha(f),'bytes':f.stat().st_size} for f in sorted(store.rglob('*')) if f.is_file()},'hardware_verified':False,'real_runtime_admission':False}
+ if a.include_points:inputs.append('boards/waveshare-esp32-s3-touch-amoled-1.75c/prototype/points-sources.lock.json')
+ record={'schema':1,'include_points':a.include_points,'points_profile':points_record if a.include_points else None,'time_server_sync':{'enabled':a.time_server_sync,'server':a.time_server if a.time_server_sync else None,'application':'wifi_settings' if a.time_server_sync else None,'authentication':'unauthenticated SNTP','clock_commit':'existing alarm-safe UTC transaction; timezone unchanged'},'raster_traffic':raster_traffic_profile.selection_record(a),'alarm_ready_drain':{'enabled':a.alarm_ready_drain,'apps':sorted(alarm_ready_apps),'budget_ms':8 if a.alarm_ready_drain else None,'home_unchanged':True,'timecard_not_adopted':True},'native_raster_caches':home_reuse,'springboard_gesture_diagnostics':a.springboard_gesture_diagnostics,'native_performance_trace':a.native_performance_trace,'native_performance_apps':['default','settings','springboard'] if a.native_performance_trace else [],'springboard_quick_actions':a.springboard_quick_actions,'interaction_trace':a.interaction_trace,'native_settings_geometry':a.native_settings_ui,'settings_sliced_native_frames':a.native_settings_ui and a.sliced_native_frames,'sliced_native_frames':a.sliced_native_frames,'include_timecard':a.include_timecard,'timecard_profile':timecard_record if a.include_timecard else None,'native_wifi_geometry':a.native_wifi_geometry,'quick_actions':a.quick_actions,'application_inventory_sha256':sha(out/'APPLICATION-INVENTORY.json'),'native_alarms':a.native_alarms,'native_alarm_geometry':a.native_alarm_geometry,'clock_edit_authority':a.native_alarms,'alarm_profile':(points_product_profile.PROFILE if a.include_points else 'native-utc-schedules-clock-edit') if a.native_alarms else None,'native_daily':a.native_daily,'supported_app_increment':{'files':a.include_files,'storage':'read-only admitted installed manifest/ELF allowlist' if a.include_files else None},'springboard_presentation':{'profile':'watch-native-time','native_dimensions':True,'readonly_runtime_time':True},'foreground_idle':{'enabled':a.foreground_idle,'mode':'returning Light only','apps':sorted(foreground_records),'diagnostic_bringup':'not yet opted in; remains awake','home_policy_unchanged':not a.native_alarms},'profile':'round-prototype','time_authority':{'source':'native Runtime UTC','timezone':'shared saved time_zone; missing defaults UTC','external_rtc':False,'unset_local_default':'2026-01-01T00:00:00','default_only_when_unset':True},'sleep_policy':{'default_mode':'hybrid','sequence':'Light first; configured interval timer may advance to Deep','default_idle_seconds':a.idle_seconds,'saved_preferences_override':True,'wake':'PWRON SYS_OUT GPIO3 active high plus tagged schedule timer; no touch/motion' if a.native_alarms else 'PWRON SYS_OUT GPIO3 active high plus staged Light interval timer; no touch/motion'},'source_pins':lock,'shared_home_pins':base,'home':{'sha256':sha(store/'default.elf'),'unchanged_from_shared_build':True},'applications':applications,'providers':providers,'source_sha256':{n:sha(ROOT/n) for n in inputs},'store_files':{str(f.relative_to(store)):{'sha256':sha(f),'bytes':f.stat().st_size} for f in sorted(store.rglob('*')) if f.is_file()},'hardware_verified':False,'real_runtime_admission':False}
  write(out/'build.json',record);print('Prototype store built; full native import and graph admission still required')
 if __name__=='__main__':main()
