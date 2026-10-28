@@ -12,6 +12,15 @@ from springboard_gesture_profile import selected as gesture_selected,qualify as 
 from compress_badge_rasters import compress_rasters
 ROOT=Path(__file__).resolve().parents[1];TRACE=ROOT/'tests';BOARD=ROOT/'boards/waveshare-esp32-s3-touch-amoled-1.75c'
 def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+def verify_native_sdk(record,includes,folder,sources):
+ for name,digest in record.get('native_time_sdk',{}).get('sha256',{}).items():
+  # The owning builder installs licensing evidence beside the artifact, never
+  # as a compiler include. Both kinds of input remain independently checked.
+  if name=='LICENSE':matches=[folder/'licenses/native-time/Runtime-LICENSE.txt']
+  else:matches=[include/name for include in includes if (include/name).is_file()]
+  assert matches and matches[0].is_file() and sha(matches[0])==digest,'Changed native-time input: '+name
+  sources[str(matches[0])]=digest
+
 def main():
  p=argparse.ArgumentParser(description=__doc__)
  for n in ['runtime','watch','watch-bringup','controllers','system','system-baseline','utilities','utilities-baseline','store','output']:p.add_argument('--'+n,required=True,type=Path)
@@ -163,9 +172,7 @@ def main():
      for include in inc:
       for header in include.rglob('*'):
        if header.is_file():sources[str(header)]=sha(header)
-     for header,digest in rec.get('native_time_sdk',{}).get('sha256',{}).items():
-      matches=[include/header for include in inc if (include/header).is_file()]
-      assert matches and sha(matches[0])==digest,'Changed native-time staged header: '+header
+     verify_native_sdk(rec,inc,target/('springboard' if name=='springboard' else 'daily'),sources)
      source_app[name]=(paths,defines,inc)
     continue
    recipe=rec['compile_inputs'];paths=[Path(x) for x in recipe['sources']];defines=recipe['definitions'];inc=[Path(x) for x in recipe['include_directories']]
