@@ -40,6 +40,7 @@ class Dispatch(unittest.TestCase):
         native = next(c for c in commands if Path(c[1]).name == 'build_badge_native.py')
         target = next(c for c in commands if Path(c[1]).name == 'build_badge_prototype.py')
         self.assertEqual(native[native.index('--native-stripe-rows') + 1], '16')
+        self.assertEqual(target[target.index('--home-system') + 1], str(workspace/'home-system'))
         for flag in ('--quick-actions', '--time-server-sync', '--performance-trace', '--spiffs-source',
                      '--reuse-columns', '--queued-pixels', '--reuse-unchanged-stripes'):
             self.assertIn(flag, native)

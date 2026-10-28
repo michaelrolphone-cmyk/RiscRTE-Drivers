@@ -3,7 +3,7 @@
 import argparse,ast,json,re,subprocess,tempfile
 from badge_source_pack import restore
 from pathlib import Path
-ROLES=[('runtime','runtime','home'),('watch','watch','home'),('controllers','controllers','home'),('system','system','home'),('utilities','utilities','home'),('runtime-prototype','runtime','prototype'),('watch-prototype','watch_bringup','prototype'),('watch-alpha-baseline','watch_alpha_baseline','prototype'),('system-prototype','system','prototype'),('utilities-prototype','utilities','prototype')]
+ROLES=[('runtime','runtime','home'),('watch','watch','home'),('controllers','controllers','home'),('system','system','home'),('utilities','utilities','home'),('runtime-prototype','runtime','prototype'),('watch-prototype','watch_bringup','prototype'),('watch-alpha-baseline','watch_alpha_baseline','prototype'),('system-prototype','system','prototype'),('home-system','home_system','prototype'),('utilities-prototype','utilities','prototype')]
 # Read pin values from their owning selected builders, not duplicated SDK versions.
 ANCHORS=[('runtime','system-prototype/scripts/build_portable_settings.py',['NATIVE_TIME_RUNTIME_COMMIT']),('runtime-prototype','system-prototype/scripts/build_portable_settings.py',['NATIVE_TIME_RUNTIME_COMMIT']),('runtime-prototype','system-prototype/scripts/portable_foreground_idle_build.py',['RUNTIME_COMMIT']),('utilities-prototype','system-prototype/scripts/portable_alarm_build.py',['UTILITIES_COMMIT','CLOCK_EDIT_COMMIT','CATALOG_COMMIT']),('utilities-prototype','utilities-prototype/scripts/build_native_schedules_alarm.py',['BASE']),('watch-prototype','watch-prototype/scripts/test_meridiem_artwork.py',['baseline'])]
 def exact_pin(value):

@@ -443,7 +443,7 @@ int main(int argc,char**argv){
  am.enabled=m.caseIndex>=23;m.foreground=(m.caseIndex>=11&&m.caseIndex<19)||m.caseIndex==22;m.target=m.caseIndex;m.mode="prototype";m.watchSpringboard=getenv("BADGE_WATCH_SPRINGBOARD")!=nullptr;if(m.caseIndex==19)m.target=0;if(m.caseIndex==20)m.target=6;
  if(m.foreground&&m.caseIndex!=22){const unsigned selected[]={0,2,3,0,4,5,2,4};const char*names[]={"settings","calculator","stopwatch","springboard","battery","wifi_settings","calculator","battery"};m.target=selected[m.caseIndex-11];m.foregroundApp=names[m.caseIndex-11];const char*safe=getenv("BADGE_PROTOTYPE_SAFE_VIEWPORT");m.safeViewport=safe&&(std::string(",")+safe+",").find(","+m.foregroundApp+",")!=std::string::npos;}
  if(m.caseIndex==22){m.target=21;m.foregroundApp="file_browser";}
- const char*native=getenv("BADGE_PROTOTYPE_NATIVE_SAFE_CONTENT");m.nativeSafeContent=native&&(std::string(",")+native+",").find(","+m.foregroundApp+",")!=std::string::npos;
+ const char*native=getenv("BADGE_PROTOTYPE_NATIVE_SAFE_CONTENT");m.nativeSafeContent=!m.foregroundApp.empty()&&native&&(std::string(",")+native+",").find(","+m.foregroundApp+",")!=std::string::npos;
  if(m.nativeSafeContent)assert(m.safeViewport);
  m.qmi[0]=5;m.qmi[0x2e]=1;m.qmi[0x36]=0x20; m.pmic[3]=0x4a;m.pmic[0x80]=1;m.pmic[0x82]=18;m.pmic[0]=0x28;m.pmic[1]=0x20;m.pmic[0x18]=0x0a;m.pmic[0x68]=1;m.pmic[0xa4]=42;m.pmic[0x34]=0x10;m.pmic[0x35]=4;
  if(m.target==9){m.qmi[8]=3;m.qmi[3]=0x16;m.qmi[4]=0x26;}

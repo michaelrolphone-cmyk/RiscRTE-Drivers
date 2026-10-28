@@ -290,6 +290,9 @@ void alarmTimerArm(uint32_t){}
 unsigned alarmCatalog(){if(qm.enabled)return quickCatalog();assert(false);return 0;}
 bool alarmTouch(uint64_t,bool&,unsigned&,unsigned&){assert(false);return false;}
 void alarmKeys(uint8_t){}void alarmEnter(const char*){}void alarmExit(const char*){}
-void alarmInitialize(const char*){assert(false);}void alarmDeepReset(){
- if(qm.enabled&&m.caseIndex==39){assert(qm.saved&&!am.reset&&!m.display&&m.hold&&!am.timer&&m.deepArms);m.ms+=59000;RiscCpu::NativeRealtime::enter([](){alarmPersistReset(true);});return;}assert(false);}bool alarmLight(uint32_t*){assert(false);return false;}
+void alarmInitialize(const char*){assert(false);}
+// Alarm persistence reset exists only in the selected native-alarm fixture.
+// Unselected builds retain a terminal guard rather than naming that helper.
+void alarmDeepReset(){assert(false);}
+bool alarmLight(uint32_t*){assert(false);return false;}
 #endif

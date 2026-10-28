@@ -69,6 +69,7 @@ def qualify_interaction_selections(home,settings,springboard,trace,native_settin
 def main():
  p=argparse.ArgumentParser(description=__doc__)
  for n in ['runtime','runtime-baseline','watch','watch-bringup','controllers','system','system-baseline','utilities','utilities-baseline','output']:p.add_argument('--'+n,type=Path,required=True)
+ p.add_argument('--home-system',type=Path,help='Exact System source pinned by the selected Home native profile; distinct from app producer metadata source')
  p.add_argument('--productivity',type=Path,help='Exact Productivity source for the explicit Timecard increment')
  p.add_argument('--include-timecard',action='store_true',help='Select current native Timecard with private AppData; requires native alarms/foreground idle')
  p.add_argument('--native-glyph-coverage-cache',action='store_true',help='Explicit optional exact Home glyph coverage reuse')
@@ -105,6 +106,7 @@ def main():
  if a.alarm_ready_drain and not (a.native_alarms and a.foreground_idle):p.error('alarm-ready-drain requires native-alarms and foreground-idle')
  if a.springboard_quick_actions and not (a.quick_actions and a.sliced_native_frames):p.error('springboard-quick-actions requires Home copied preferences and sliced native frames')
  if a.native_alarm_geometry and not a.native_alarms:p.error('native-alarm-geometry requires native-alarms')
+ if a.native_alarms and not a.home_system:p.error('native-alarms requires the explicit pinned Home system source role')
  if a.native_alarms and not (a.native_daily and a.include_files and a.foreground_idle):p.error('native-alarms requires native-daily, include-files and foreground-idle')
  if a.native_daily and not a.foreground_idle:p.error('native-daily requires foreground-idle')
  if a.include_files and not a.foreground_idle:p.error('include-files requires foreground-idle')
@@ -112,9 +114,10 @@ def main():
  if out.exists() and any(out.iterdir()):p.error('Use an empty output')
  roots={n:getattr(a,n.replace('-','_')).resolve() for n in ['runtime','runtime-baseline','watch','watch-bringup','controllers','system','system-baseline','utilities','utilities-baseline']}
  if a.include_timecard:roots['productivity']=a.productivity.resolve()
+ if a.native_alarms:roots['home-system']=a.home_system.resolve()
  lock=json.loads((P/'sources.lock.json').read_text());base=json.loads((BOARD/'home/sources.lock.json').read_text())
  for n,r in roots.items():
-  k=n.replace('-baseline','').replace('watch-bringup','watch_bringup');rev=(base if n.endswith('-baseline') else lock)[k]['commit']
+  k=n.replace('-baseline','').replace('watch-bringup','watch_bringup').replace('-','_');rev=(base if n.endswith('-baseline') else lock)[k]['commit']
   if git(r,'rev-parse','HEAD')!=rev or git(r,'status','--porcelain'):raise ValueError('Clean exact input required: '+n+' '+rev)
  out.mkdir(parents=True,exist_ok=True)
  env={**os.environ,'NATIVE_APP_CC':a.cc,'WATCH_APP_CC':a.cc}
@@ -138,7 +141,7 @@ def main():
  cmd(sys.executable,ROOT/'scripts/build_badge_home.py','--runtime',roots['runtime-baseline'],'--watch',roots['watch'],'--controllers',roots['controllers'],'--system',roots['system-baseline'],'--utilities',roots['utilities-baseline'],'--cc',a.cc,'--output',out/'baseline')
  store=out/'store';shutil.copytree(out/'baseline/store',store)
  # Same maintained shared Home, with explicit generic product defaults, not a board app fork.
- cmd(sys.executable,roots['watch-bringup']/'scripts/build.py','--system',roots['system'] if a.native_alarms else roots['system-baseline'],'--utilities',roots['utilities'] if a.native_alarms else roots['utilities-baseline'],'--cc',a.cc,'--role','default','--time-authority','native','--unset-time-local','2026-01-01T00:00:00','--default-sleep-mode','hybrid','--default-idle-seconds',a.idle_seconds,'--output',out/'shared-home',*(['--native-alarm-v2','--clock-edit-authority'] if a.native_alarms else []),*(['--native-quick-actions'] if a.quick_actions else []),*(['--interaction-trace'] if a.interaction_trace else []),*(['--native-performance-runtime',roots['runtime']] if a.native_performance_trace else []),*(['--native-glyph-coverage-cache'] if a.native_glyph_coverage_cache else []),*(['--native-stroke-coverage-cache'] if a.native_stroke_coverage_cache else []),*(['--picker-compositor-plan'] if a.picker_compositor_plan else []),*(['--native-damage-replay'] if a.native_damage_replay else []))
+ cmd(sys.executable,roots['watch-bringup']/'scripts/build.py','--system',roots['home-system'] if a.native_alarms else roots['system-baseline'],'--utilities',roots['utilities'] if a.native_alarms else roots['utilities-baseline'],'--cc',a.cc,'--role','default','--time-authority','native','--unset-time-local','2026-01-01T00:00:00','--default-sleep-mode','hybrid','--default-idle-seconds',a.idle_seconds,'--output',out/'shared-home',*(['--native-alarm-v2','--clock-edit-authority'] if a.native_alarms else []),*(['--native-quick-actions'] if a.quick_actions else []),*(['--interaction-trace'] if a.interaction_trace else []),*(['--native-performance-runtime',roots['runtime']] if a.native_performance_trace else []),*(['--native-glyph-coverage-cache'] if a.native_glyph_coverage_cache else []),*(['--native-stroke-coverage-cache'] if a.native_stroke_coverage_cache else []),*(['--picker-compositor-plan'] if a.picker_compositor_plan else []),*(['--native-damage-replay'] if a.native_damage_replay else []))
  shutil.copy2(out/'shared-home/default.elf',store/'default.elf')
  home=home_manifest(json.loads((out/'shared-home/default.json').read_text()),json.loads((store/'boot.json').read_text())['app_capabilities'][0])
  if a.native_alarms:
