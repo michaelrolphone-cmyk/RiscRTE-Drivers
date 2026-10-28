@@ -1,0 +1,32 @@
+{
+  "michaelrolphone-cmyk/RiscRTE-Drivers": {
+    "publication_commit": "09b2fb6807827b8e9e53f8a265c082e98c013ab7",
+    "source_commit": "bbfa35d8b0b90d7785d3f753d383f7cfe41237f2",
+    "source_tree": "38795f107762004c1d5bc78187b0bd7f6a666277"
+  },
+  "michaelrolphone-cmyk/RiscRTE": {
+    "publication_commit": "318d77283ba707b6f2820d2833e5d7ea3ff3f7e8",
+    "source_commit": "046f4c22b263739f3bf3f96f888617d72eb3d498",
+    "source_tree": "876d77de61b53c05343a1de754c32eb476c3ed3b"
+  },
+  "michaelrolphone-cmyk/RiscRTE-Productivity": {
+    "publication_commit": "2ef95962463fc8d66fc0ab584933b7e1f792943f",
+    "source_commit": "55dd087b054242eb6b28acae08b0f2a913ce0e35",
+    "source_tree": "f2401e4a9e0dfcfef553633b1e4c2d9362f114eb"
+  },
+  "michaelrolphone-cmyk/RiscRTE-System-Apps": {
+    "publication_commit": "68242a1cadc634e38ba2e81bf0ac0d2e77f0a23a",
+    "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+    "source_tree": "2d35e30df3f10393bc640117301423ab6a7abd33"
+  },
+  "michaelrolphone-cmyk/RiscRTE-Watch": {
+    "publication_commit": "46dd8504b0c69f240289e25f58e9c136881633c3",
+    "source_commit": "f550d559d3eaae9a6a15ef27b5ea7f82e741e54a",
+    "source_tree": "fddcfbd7bafcaaa7f9109e7af05bdb53e19a0c60"
+  },
+  "michaelrolphone-cmyk/RiscRTE-Utilities": {
+    "publication_commit": "1152acf0cd426df15ca00197138d1b6fb7629113",
+    "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+    "source_tree": "62b740e1b6913cf20dc72e623b69bcfc48b253a7"
+  }
+}

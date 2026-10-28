@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "repository": "pellepl/spiffs",
+  "source_commit": "525335a05af89522a6f16b57d21682bcaeb518cc",
+  "source_tree": "2fc48a3d774b7106c8b736cc9a500d596eb8472c",
+  "object_count": 60,
+  "pack_sha256": "fcb8086eaeb1ab82ed428eb1f44ee202042a73e6d31273bd02a38415733fa607",
+  "parts": [
+    {
+      "path": "objects-000.packpart",
+      "bytes": 118511,
+      "sha256": "fcb8086eaeb1ab82ed428eb1f44ee202042a73e6d31273bd02a38415733fa607"
+    }
+  ],
+  "shallow_boundaries": [
+    "ad902cadceb39d0825a97e25ecb5867641f606ba"
+  ],
+  "scope": "Exact original SPIFFS override from preserved performance-source-checkpoint-v3/prior-checkpoint-v1/spiffs.bundle; upstream base is an explicit shallow boundary. No claim this local override is upstream-addressable."
+}

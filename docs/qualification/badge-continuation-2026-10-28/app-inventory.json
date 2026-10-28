@@ -1,0 +1,3388 @@
+{
+  "schema": 2,
+  "scope": "Selected source Apps manifests and exact intended Watch overlay roles; service closure is static, never hardware qualification",
+  "installed_app_ids": [
+    "alarms",
+    "battery",
+    "bringup",
+    "calculator",
+    "clock",
+    "countdown",
+    "default",
+    "file_browser",
+    "settings",
+    "springboard",
+    "stopwatch",
+    "timecard",
+    "wifi_settings"
+  ],
+  "launcher_app_ids": [
+    "alarms",
+    "battery",
+    "bringup",
+    "calculator",
+    "countdown",
+    "file_browser",
+    "settings",
+    "stopwatch",
+    "timecard",
+    "wifi_settings"
+  ],
+  "intended_watch_roles": [
+    "alarms",
+    "app_store",
+    "audio_spectrum",
+    "battery",
+    "ble_buttons",
+    "ble_scanner",
+    "ble_touchpad",
+    "calculator",
+    "clock",
+    "contexts",
+    "countdown",
+    "default",
+    "file_browser",
+    "frequency_generator",
+    "lora_messages",
+    "ota_update",
+    "points_in_time",
+    "settings",
+    "springboard",
+    "stopwatch",
+    "timecard",
+    "waterfall",
+    "wifi_settings"
+  ],
+  "missing_intended_roles": [
+    "app_store",
+    "audio_spectrum",
+    "ble_buttons",
+    "ble_scanner",
+    "ble_touchpad",
+    "contexts",
+    "frequency_generator",
+    "lora_messages",
+    "ota_update",
+    "points_in_time",
+    "waterfall"
+  ],
+  "available_capability_versions": [
+    {
+      "capability": "alarm.service",
+      "api": 2
+    },
+    {
+      "capability": "board.battery",
+      "api": 1
+    },
+    {
+      "capability": "display.output",
+      "api": 1
+    },
+    {
+      "capability": "display.power",
+      "api": 1
+    },
+    {
+      "capability": "i2c.bus",
+      "api": 1
+    },
+    {
+      "capability": "input.navigation",
+      "api": 1
+    },
+    {
+      "capability": "input.power-key",
+      "api": 1
+    },
+    {
+      "capability": "input.power-key.raw",
+      "api": 1
+    },
+    {
+      "capability": "input.touch.raw",
+      "api": 1
+    },
+    {
+      "capability": "net.time-sample",
+      "api": 1
+    },
+    {
+      "capability": "net.wifi",
+      "api": 1
+    },
+    {
+      "capability": "power.rail",
+      "api": 1
+    },
+    {
+      "capability": "power.sleep",
+      "api": 1
+    },
+    {
+      "capability": "power.sleep-guard",
+      "api": 1
+    },
+    {
+      "capability": "runtime.provider-promotion",
+      "api": 1
+    },
+    {
+      "capability": "runtime.realtime",
+      "api": 1
+    },
+    {
+      "capability": "runtime.realtime-control",
+      "api": 1
+    },
+    {
+      "capability": "storage.app-data",
+      "api": 1
+    },
+    {
+      "capability": "storage.installed-files",
+      "api": 1
+    },
+    {
+      "capability": "storage.key-value",
+      "api": 1
+    },
+    {
+      "capability": "storage.preferences",
+      "api": 1
+    }
+  ],
+  "apps": [
+    {
+      "repository": "system",
+      "id": "app_store",
+      "profiles": [
+        {
+          "path": "Apps/app_store.json",
+          "version": "1.0.8",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        },
+        {
+          "path": "Apps/native/app_store.json",
+          "version": "1.1.5",
+          "runtime_profile": null,
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": 1
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": 1
+            },
+            {
+              "capability": "rtc.clock",
+              "api": 2
+            },
+            {
+              "capability": "storage.key-value",
+              "api": 1
+            },
+            {
+              "capability": "net.wifi",
+              "api": 1
+            },
+            {
+              "capability": "software.update.apps",
+              "api": 1
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "rtc.clock",
+              "api": 2
+            },
+            {
+              "capability": "software.update.apps",
+              "api": 1
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": true,
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "pending Badge integration",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "button_remap",
+      "profiles": [
+        {
+          "path": "Apps/button_remap.json",
+          "version": "1.0.2",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "clear_cache",
+      "profiles": [
+        {
+          "path": "Apps/clear_cache.json",
+          "version": "1.0.2",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "driver_manager",
+      "profiles": [
+        {
+          "path": "Apps/driver_manager.json",
+          "version": "1.0.8",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "file_browser",
+      "profiles": [
+        {
+          "path": "Apps/file_browser.json",
+          "version": "1.5.2",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        },
+        {
+          "path": "Apps/native/file_browser.json",
+          "version": "1.5.8",
+          "runtime_profile": null,
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": 1
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": 1
+            },
+            {
+              "capability": "storage.installed-files",
+              "api": 1
+            }
+          ],
+          "missing_capabilities": [],
+          "assessment": "declared-capability-closure-only; build/lifecycle/geometry qualification required"
+        }
+      ],
+      "installed": true,
+      "launcher_entry": true,
+      "intended_watch_role": true,
+      "selected_contract": {
+        "manifest": "file_browser.json",
+        "requires": [
+          {
+            "capability": "display.output",
+            "api": 1
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1
+          },
+          {
+            "capability": "storage.installed-files",
+            "api": 1
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1
+          },
+          {
+            "capability": "runtime.realtime",
+            "api": 1
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1
+          },
+          {
+            "capability": "board.battery",
+            "api": 1
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1
+          },
+          {
+            "capability": "display.power",
+            "api": 1
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1
+          }
+        ],
+        "grants": [
+          {
+            "capability": "display.output",
+            "api": 1,
+            "instance_id": 5
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1,
+            "instance_id": 6
+          },
+          {
+            "capability": "storage.installed-files",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "runtime.realtime",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1,
+            "instance_id": 1
+          },
+          {
+            "capability": "board.battery",
+            "api": 1,
+            "instance_id": 4
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2,
+            "instance_id": 0
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1,
+            "instance_id": 17
+          },
+          {
+            "capability": "display.power",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1,
+            "instance_id": 0
+          }
+        ]
+      },
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "preserved in historical Timecard checkpoint; successor composition not yet rerun",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "file_transfer",
+      "profiles": [
+        {
+          "path": "Apps/file_transfer.json",
+          "version": "1.0.1",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "font_manager",
+      "profiles": [
+        {
+          "path": "Apps/font_manager.json",
+          "version": "1.0.2",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "font_selection",
+      "profiles": [
+        {
+          "path": "Apps/font_selection.json",
+          "version": "1.0.1",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "image_viewer",
+      "profiles": [
+        {
+          "path": "Apps/image_viewer.json",
+          "version": "1.1.1",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "language_settings",
+      "profiles": [
+        {
+          "path": "Apps/language_settings.json",
+          "version": "1.0.1",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "ota_update",
+      "profiles": [
+        {
+          "path": "Apps/native/ota_update.json",
+          "version": "1.1.5",
+          "runtime_profile": null,
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": 1
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": 1
+            },
+            {
+              "capability": "rtc.clock",
+              "api": 2
+            },
+            {
+              "capability": "storage.key-value",
+              "api": 1
+            },
+            {
+              "capability": "net.wifi",
+              "api": 1
+            },
+            {
+              "capability": "software.update.firmware",
+              "api": 1
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "rtc.clock",
+              "api": 2
+            },
+            {
+              "capability": "software.update.firmware",
+              "api": 1
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        },
+        {
+          "path": "Apps/ota_update.json",
+          "version": "1.0.2",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": true,
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "pending Badge integration",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "usb_sd_transfer",
+      "profiles": [
+        {
+          "path": "Apps/native/usb_sd_transfer.json",
+          "version": "0.1.11",
+          "runtime_profile": null,
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": 1
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": 1
+            },
+            {
+              "capability": "input.navigation",
+              "api": 1
+            },
+            {
+              "capability": "usb.device.msc",
+              "api": 1
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "usb.device.msc",
+              "api": 1
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "package_manager",
+      "profiles": [
+        {
+          "path": "Apps/package_manager.json",
+          "version": "1.1.1",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "default",
+      "profiles": [
+        {
+          "path": "Apps/paper_clock.json",
+          "version": "0.2.1",
+          "runtime_profile": "portable-riscrte-v1",
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": true,
+      "launcher_entry": false,
+      "intended_watch_role": true,
+      "selected_contract": {
+        "manifest": "default.json",
+        "requires": [
+          {
+            "capability": "display.output",
+            "api": 1
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1
+          },
+          {
+            "capability": "runtime.realtime-control",
+            "api": 1
+          },
+          {
+            "capability": "runtime.provider-promotion",
+            "api": 1
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2
+          },
+          {
+            "capability": "storage.preferences",
+            "api": 1
+          }
+        ],
+        "grants": [
+          {
+            "capability": "display.output",
+            "api": 1,
+            "instance_id": 5
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1,
+            "instance_id": 6
+          },
+          {
+            "capability": "runtime.realtime-control",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "runtime.provider-promotion",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2,
+            "instance_id": 0
+          },
+          {
+            "capability": "storage.preferences",
+            "api": 1,
+            "instance_id": 1
+          },
+          {
+            "capability": "board.battery",
+            "api": 1,
+            "instance_id": 4
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1,
+            "instance_id": 1
+          },
+          {
+            "capability": "net.wifi",
+            "api": 1,
+            "instance_id": 15
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1,
+            "instance_id": 17
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "display.power",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "storage.app-data",
+            "api": 1,
+            "instance_id": 61
+          }
+        ]
+      },
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "preserved in historical Timecard checkpoint; successor composition not yet rerun",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "sd_firmware_update",
+      "profiles": [
+        {
+          "path": "Apps/sd_firmware_update.json",
+          "version": "1.0.2",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "settings",
+      "profiles": [
+        {
+          "path": "Apps/settings.json",
+          "version": "1.3.4",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": true,
+      "launcher_entry": true,
+      "intended_watch_role": true,
+      "selected_contract": {
+        "manifest": "settings.json",
+        "requires": [
+          {
+            "capability": "display.output",
+            "api": 1
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1
+          },
+          {
+            "capability": "runtime.realtime-control",
+            "api": 1
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1
+          },
+          {
+            "capability": "display.power",
+            "api": 1
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1
+          }
+        ],
+        "grants": [
+          {
+            "capability": "display.output",
+            "api": 1,
+            "instance_id": 5
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1,
+            "instance_id": 6
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1,
+            "instance_id": 1
+          },
+          {
+            "capability": "runtime.realtime-control",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2,
+            "instance_id": 0
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1,
+            "instance_id": 17
+          },
+          {
+            "capability": "display.power",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1,
+            "instance_id": 0
+          }
+        ]
+      },
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "preserved in historical Timecard checkpoint; successor composition not yet rerun",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "springboard",
+      "profiles": [
+        {
+          "path": "Apps/springboard.json",
+          "version": "1.7.16",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": true,
+      "launcher_entry": false,
+      "intended_watch_role": true,
+      "selected_contract": {
+        "manifest": "springboard.json",
+        "requires": [
+          {
+            "capability": "display.output",
+            "api": 1
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1
+          },
+          {
+            "capability": "board.battery",
+            "api": 1
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1
+          },
+          {
+            "capability": "storage.preferences",
+            "api": 1
+          },
+          {
+            "capability": "runtime.realtime",
+            "api": 1
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1
+          },
+          {
+            "capability": "display.power",
+            "api": 1
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1
+          }
+        ],
+        "grants": [
+          {
+            "capability": "display.output",
+            "api": 1,
+            "instance_id": 5
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1,
+            "instance_id": 6
+          },
+          {
+            "capability": "board.battery",
+            "api": 1,
+            "instance_id": 4
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1,
+            "instance_id": 1
+          },
+          {
+            "capability": "storage.preferences",
+            "api": 1,
+            "instance_id": 1
+          },
+          {
+            "capability": "runtime.realtime",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2,
+            "instance_id": 0
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1,
+            "instance_id": 17
+          },
+          {
+            "capability": "display.power",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1,
+            "instance_id": 0
+          }
+        ]
+      },
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "preserved in historical Timecard checkpoint; successor composition not yet rerun",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "status_bar_settings",
+      "profiles": [
+        {
+          "path": "Apps/status_bar_settings.json",
+          "version": "1.0.3",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "time_zone",
+      "profiles": [
+        {
+          "path": "Apps/time_zone.json",
+          "version": "1.0.1",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "system",
+      "id": "wifi_settings",
+      "profiles": [
+        {
+          "path": "Apps/wifi_settings.json",
+          "version": "1.1.21",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": true,
+      "launcher_entry": true,
+      "intended_watch_role": true,
+      "selected_contract": {
+        "manifest": "wifi_settings.json",
+        "requires": [
+          {
+            "capability": "display.output",
+            "api": 1
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1
+          },
+          {
+            "capability": "net.wifi",
+            "api": 1
+          },
+          {
+            "capability": "net.time-sample",
+            "api": 1
+          },
+          {
+            "capability": "runtime.realtime-control",
+            "api": 1
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1
+          },
+          {
+            "capability": "display.power",
+            "api": 1
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1
+          }
+        ],
+        "grants": [
+          {
+            "capability": "display.output",
+            "api": 1,
+            "instance_id": 5
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1,
+            "instance_id": 6
+          },
+          {
+            "capability": "net.wifi",
+            "api": 1,
+            "instance_id": 15
+          },
+          {
+            "capability": "net.time-sample",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "runtime.realtime-control",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1,
+            "instance_id": 6
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2,
+            "instance_id": 0
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1,
+            "instance_id": 17
+          },
+          {
+            "capability": "display.power",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1,
+            "instance_id": 1
+          }
+        ]
+      },
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "integration_status": "preserved in historical Timecard checkpoint; successor composition not yet rerun",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "utilities",
+      "id": "alarms",
+      "profiles": [
+        {
+          "path": "Apps/alarms.json",
+          "version": "0.2.2",
+          "runtime_profile": "portable-riscrte-v1",
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": ">=1"
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": ">=1"
+            },
+            {
+              "capability": "rtc.clock",
+              "api": ">=2"
+            },
+            {
+              "capability": "storage.key-value",
+              "api": ">=1"
+            },
+            {
+              "capability": "alarm.service",
+              "api": ">=1"
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "rtc.clock",
+              "api": ">=2"
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": true,
+      "launcher_entry": true,
+      "intended_watch_role": true,
+      "selected_contract": {
+        "manifest": "alarms.json",
+        "requires": [
+          {
+            "capability": "display.output",
+            "api": 1
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1
+          },
+          {
+            "capability": "board.battery",
+            "api": 1
+          },
+          {
+            "capability": "runtime.realtime",
+            "api": 1
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1
+          },
+          {
+            "capability": "display.power",
+            "api": 1
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1
+          }
+        ],
+        "grants": [
+          {
+            "capability": "display.output",
+            "api": 1,
+            "instance_id": 5
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1,
+            "instance_id": 6
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "board.battery",
+            "api": 1,
+            "instance_id": 4
+          },
+          {
+            "capability": "runtime.realtime",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1,
+            "instance_id": 3
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2,
+            "instance_id": 0
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1,
+            "instance_id": 17
+          },
+          {
+            "capability": "display.power",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1,
+            "instance_id": 1
+          }
+        ]
+      },
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "integration_status": "preserved in historical Timecard checkpoint; successor composition not yet rerun",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "utilities",
+      "id": "audio_spectrum",
+      "profiles": [
+        {
+          "path": "Apps/audio_spectrum.json",
+          "version": "0.5.4",
+          "runtime_profile": "portable-riscrte-v1",
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": ">=1"
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": ">=1"
+            },
+            {
+              "capability": "audio.input",
+              "api": ">=1"
+            },
+            {
+              "capability": "alarm.service",
+              "api": ">=1"
+            },
+            {
+              "capability": "storage.key-value",
+              "api": ">=2"
+            },
+            {
+              "capability": "storage.app-data",
+              "api": ">=1"
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "audio.input",
+              "api": ">=1"
+            },
+            {
+              "capability": "storage.key-value",
+              "api": ">=2"
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": true,
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "integration_status": "pending Badge integration",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "utilities",
+      "id": "battery",
+      "profiles": [
+        {
+          "path": "Apps/battery.json",
+          "version": "1.1.0",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": true,
+      "launcher_entry": true,
+      "intended_watch_role": true,
+      "selected_contract": {
+        "manifest": "battery.json",
+        "requires": [
+          {
+            "capability": "display.output",
+            "api": 1
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1
+          },
+          {
+            "capability": "board.battery",
+            "api": 1
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1
+          },
+          {
+            "capability": "display.power",
+            "api": 1
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1
+          }
+        ],
+        "grants": [
+          {
+            "capability": "display.output",
+            "api": 1,
+            "instance_id": 5
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1,
+            "instance_id": 6
+          },
+          {
+            "capability": "board.battery",
+            "api": 1,
+            "instance_id": 4
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2,
+            "instance_id": 0
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1,
+            "instance_id": 17
+          },
+          {
+            "capability": "display.power",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1,
+            "instance_id": 1
+          }
+        ]
+      },
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "integration_status": "preserved in historical Timecard checkpoint; successor composition not yet rerun",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "utilities",
+      "id": "ble_buttons",
+      "profiles": [
+        {
+          "path": "Apps/ble_buttons.json",
+          "version": "0.1.26",
+          "runtime_profile": "portable-riscrte-v1",
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": ">=1"
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": ">=1"
+            },
+            {
+              "capability": "bluetooth.hid",
+              "api": ">=1"
+            },
+            {
+              "capability": "alarm.service",
+              "api": ">=1"
+            },
+            {
+              "capability": "storage.key-value",
+              "api": ">=1"
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "bluetooth.hid",
+              "api": ">=1"
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": true,
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "integration_status": "pending Badge integration",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "utilities",
+      "id": "ble_scanner",
+      "profiles": [
+        {
+          "path": "Apps/ble_scanner.json",
+          "version": "0.2.19",
+          "runtime_profile": "portable-riscrte-v1",
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": ">=1"
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": ">=1"
+            },
+            {
+              "capability": "bluetooth.sensors",
+              "api": ">=1"
+            },
+            {
+              "capability": "alarm.service",
+              "api": ">=1"
+            },
+            {
+              "capability": "storage.key-value",
+              "api": ">=1"
+            },
+            {
+              "capability": "bluetooth.hci",
+              "api": ">=1"
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "bluetooth.sensors",
+              "api": ">=1"
+            },
+            {
+              "capability": "bluetooth.hci",
+              "api": ">=1"
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": true,
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "integration_status": "pending Badge integration",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "utilities",
+      "id": "ble_touchpad",
+      "profiles": [
+        {
+          "path": "Apps/ble_touchpad.json",
+          "version": "0.1.14",
+          "runtime_profile": "portable-riscrte-v1",
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": ">=1"
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": ">=1"
+            },
+            {
+              "capability": "bluetooth.hid",
+              "api": ">=1"
+            },
+            {
+              "capability": "alarm.service",
+              "api": ">=1"
+            },
+            {
+              "capability": "storage.key-value",
+              "api": ">=1"
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "bluetooth.hid",
+              "api": ">=1"
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": true,
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "integration_status": "pending Badge integration",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "utilities",
+      "id": "calculator",
+      "profiles": [
+        {
+          "path": "Apps/calculator.json",
+          "version": "0.1.6",
+          "runtime_profile": "portable-riscrte-v1",
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": ">=1"
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": ">=1"
+            }
+          ],
+          "missing_capabilities": [],
+          "assessment": "declared-capability-closure-only; build/lifecycle/geometry qualification required"
+        }
+      ],
+      "installed": true,
+      "launcher_entry": true,
+      "intended_watch_role": true,
+      "selected_contract": {
+        "manifest": "calculator.json",
+        "requires": [
+          {
+            "capability": "display.output",
+            "api": 1
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1
+          },
+          {
+            "capability": "display.power",
+            "api": 1
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1
+          }
+        ],
+        "grants": [
+          {
+            "capability": "display.output",
+            "api": 1,
+            "instance_id": 5
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1,
+            "instance_id": 6
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2,
+            "instance_id": 0
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1,
+            "instance_id": 17
+          },
+          {
+            "capability": "display.power",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1,
+            "instance_id": 1
+          }
+        ]
+      },
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "integration_status": "preserved in historical Timecard checkpoint; successor composition not yet rerun",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "utilities",
+      "id": "contexts",
+      "profiles": [
+        {
+          "path": "Apps/contexts-scene.json",
+          "version": "0.4.2",
+          "runtime_profile": "portable-riscrte-v1",
+          "requires": [
+            {
+              "capability": "ui.scene",
+              "api": 1
+            },
+            {
+              "capability": "contexts.service",
+              "api": 1
+            },
+            {
+              "capability": "storage.key-value",
+              "api": 1
+            },
+            {
+              "capability": "storage.shared-data",
+              "api": 1
+            },
+            {
+              "capability": "time.civil",
+              "api": 1
+            },
+            {
+              "capability": "alarm.service",
+              "api": 1
+            },
+            {
+              "capability": "board.battery",
+              "api": 1
+            },
+            {
+              "capability": "rtc.clock",
+              "api": 2
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "ui.scene",
+              "api": 1
+            },
+            {
+              "capability": "contexts.service",
+              "api": 1
+            },
+            {
+              "capability": "storage.shared-data",
+              "api": 1
+            },
+            {
+              "capability": "time.civil",
+              "api": 1
+            },
+            {
+              "capability": "alarm.service",
+              "api": 1
+            },
+            {
+              "capability": "rtc.clock",
+              "api": 2
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        },
+        {
+          "path": "Apps/contexts.json",
+          "version": "0.4.2",
+          "runtime_profile": "portable-riscrte-v1",
+          "requires": [
+            {
+              "capability": "ui.scene",
+              "api": ">=1"
+            },
+            {
+              "capability": "contexts.service",
+              "api": ">=1"
+            },
+            {
+              "capability": "storage.key-value",
+              "api": ">=1"
+            },
+            {
+              "capability": "storage.shared-data",
+              "api": ">=1"
+            },
+            {
+              "capability": "time.civil",
+              "api": ">=1"
+            },
+            {
+              "capability": "alarm.service",
+              "api": ">=1"
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "ui.scene",
+              "api": ">=1"
+            },
+            {
+              "capability": "contexts.service",
+              "api": ">=1"
+            },
+            {
+              "capability": "storage.shared-data",
+              "api": ">=1"
+            },
+            {
+              "capability": "time.civil",
+              "api": ">=1"
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": true,
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "integration_status": "pending Badge integration",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "utilities",
+      "id": "countdown",
+      "profiles": [
+        {
+          "path": "Apps/countdown.json",
+          "version": "0.1.5",
+          "runtime_profile": "portable-riscrte-v1",
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": ">=1"
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": ">=1"
+            },
+            {
+              "capability": "rtc.clock",
+              "api": ">=2"
+            },
+            {
+              "capability": "storage.key-value",
+              "api": ">=1"
+            },
+            {
+              "capability": "alarm.service",
+              "api": ">=1"
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "rtc.clock",
+              "api": ">=2"
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": true,
+      "launcher_entry": true,
+      "intended_watch_role": true,
+      "selected_contract": {
+        "manifest": "countdown.json",
+        "requires": [
+          {
+            "capability": "display.output",
+            "api": 1
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1
+          },
+          {
+            "capability": "board.battery",
+            "api": 1
+          },
+          {
+            "capability": "runtime.realtime",
+            "api": 1
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1
+          },
+          {
+            "capability": "display.power",
+            "api": 1
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1
+          }
+        ],
+        "grants": [
+          {
+            "capability": "display.output",
+            "api": 1,
+            "instance_id": 5
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1,
+            "instance_id": 6
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "board.battery",
+            "api": 1,
+            "instance_id": 4
+          },
+          {
+            "capability": "runtime.realtime",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1,
+            "instance_id": 3
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2,
+            "instance_id": 0
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1,
+            "instance_id": 17
+          },
+          {
+            "capability": "display.power",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1,
+            "instance_id": 1
+          }
+        ]
+      },
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "integration_status": "preserved in historical Timecard checkpoint; successor composition not yet rerun",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "utilities",
+      "id": "frequency_generator",
+      "profiles": [
+        {
+          "path": "Apps/frequency_generator.json",
+          "version": "0.1.4",
+          "runtime_profile": "portable-riscrte-v1",
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": ">=1"
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": ">=1"
+            },
+            {
+              "capability": "audio.output",
+              "api": ">=1"
+            },
+            {
+              "capability": "alarm.service",
+              "api": ">=1"
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "audio.output",
+              "api": ">=1"
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": true,
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "integration_status": "pending Badge integration",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "utilities",
+      "id": "gps",
+      "profiles": [
+        {
+          "path": "Apps/gps.json",
+          "version": "1.0.1",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "utilities",
+      "id": "hollow_trail",
+      "profiles": [
+        {
+          "path": "Apps/hollow_trail.json",
+          "version": "1.2.2",
+          "runtime_profile": null,
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": 1
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": 1
+            },
+            {
+              "capability": "input.navigation",
+              "api": 1
+            }
+          ],
+          "missing_capabilities": [],
+          "assessment": "declared-capability-closure-only; build/lifecycle/geometry qualification required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "utilities",
+      "id": "lora",
+      "profiles": [
+        {
+          "path": "Apps/lora.json",
+          "version": "1.0.1",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "utilities",
+      "id": "lora_messages",
+      "profiles": [
+        {
+          "path": "Apps/lora_messages.json",
+          "version": "0.1.14",
+          "runtime_profile": "portable-riscrte-v1",
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": ">=1"
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": ">=1"
+            },
+            {
+              "capability": "radio.lora",
+              "api": ">=2"
+            },
+            {
+              "capability": "storage.key-value",
+              "api": ">=1"
+            },
+            {
+              "capability": "rtc.clock",
+              "api": ">=2"
+            },
+            {
+              "capability": "alarm.service",
+              "api": ">=1"
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "radio.lora",
+              "api": ">=2"
+            },
+            {
+              "capability": "rtc.clock",
+              "api": ">=2"
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": true,
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "integration_status": "pending Badge integration",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "utilities",
+      "id": "model_viewer",
+      "profiles": [
+        {
+          "path": "Apps/model_viewer.json",
+          "version": "1.3.0",
+          "runtime_profile": null,
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": 1
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": 1
+            },
+            {
+              "capability": "input.navigation",
+              "api": 1
+            },
+            {
+              "capability": "storage.volume",
+              "api": 1
+            },
+            {
+              "capability": "file.open",
+              "api": 1
+            },
+            {
+              "capability": "storage.app-data",
+              "api": 1
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "storage.volume",
+              "api": 1
+            },
+            {
+              "capability": "file.open",
+              "api": 1
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "utilities",
+      "id": "obd_dashboard",
+      "profiles": [
+        {
+          "path": "Apps/obd_dashboard.json",
+          "version": "0.1.1",
+          "runtime_profile": null,
+          "requires": [
+            {
+              "capability": "ui.scene",
+              "api": 1
+            },
+            {
+              "capability": "bluetooth.serial",
+              "api": 1
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "ui.scene",
+              "api": 1
+            },
+            {
+              "capability": "bluetooth.serial",
+              "api": 1
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "utilities",
+      "id": "stopwatch",
+      "profiles": [
+        {
+          "path": "Apps/stopwatch.json",
+          "version": "0.1.6",
+          "runtime_profile": "portable-riscrte-v1",
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": ">=1"
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": ">=1"
+            },
+            {
+              "capability": "rtc.clock",
+              "api": ">=2"
+            },
+            {
+              "capability": "storage.key-value",
+              "api": ">=1"
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "rtc.clock",
+              "api": ">=2"
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": true,
+      "launcher_entry": true,
+      "intended_watch_role": true,
+      "selected_contract": {
+        "manifest": "stopwatch.json",
+        "requires": [
+          {
+            "capability": "display.output",
+            "api": 1
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1
+          },
+          {
+            "capability": "runtime.realtime",
+            "api": 1
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1
+          },
+          {
+            "capability": "display.power",
+            "api": 1
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1
+          }
+        ],
+        "grants": [
+          {
+            "capability": "display.output",
+            "api": 1,
+            "instance_id": 5
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1,
+            "instance_id": 6
+          },
+          {
+            "capability": "runtime.realtime",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1,
+            "instance_id": 2
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2,
+            "instance_id": 0
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1,
+            "instance_id": 17
+          },
+          {
+            "capability": "display.power",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1,
+            "instance_id": 1
+          }
+        ]
+      },
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "integration_status": "preserved in historical Timecard checkpoint; successor composition not yet rerun",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "utilities",
+      "id": "waterfall",
+      "profiles": [
+        {
+          "path": "Apps/waterfall.json",
+          "version": "0.3.3",
+          "runtime_profile": "portable-riscrte-v1",
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": ">=1"
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": ">=1"
+            },
+            {
+              "capability": "radio.iq",
+              "api": ">=1"
+            },
+            {
+              "capability": "storage.key-value",
+              "api": ">=2"
+            },
+            {
+              "capability": "alarm.service",
+              "api": ">=1"
+            },
+            {
+              "capability": "storage.app-data",
+              "api": ">=1"
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "radio.iq",
+              "api": ">=1"
+            },
+            {
+              "capability": "storage.key-value",
+              "api": ">=2"
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": true,
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "integration_status": "pending Badge integration",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "productivity",
+      "id": "daily_digest",
+      "profiles": [
+        {
+          "path": "Apps/daily_digest.json",
+          "version": "0.1.0",
+          "runtime_profile": null,
+          "requires": [
+            {
+              "capability": "ui.scene",
+              "api": 1
+            },
+            {
+              "capability": "file.open",
+              "api": 1
+            },
+            {
+              "capability": "storage.volume",
+              "api": 1
+            },
+            {
+              "capability": "runtime.realtime",
+              "api": 1
+            },
+            {
+              "capability": "net.wifi",
+              "api": 1
+            },
+            {
+              "capability": "storage.key-value",
+              "api": 1
+            },
+            {
+              "capability": "net.http-client",
+              "api": 1
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "ui.scene",
+              "api": 1
+            },
+            {
+              "capability": "file.open",
+              "api": 1
+            },
+            {
+              "capability": "storage.volume",
+              "api": 1
+            },
+            {
+              "capability": "net.http-client",
+              "api": 1
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "55dd087b054242eb6b28acae08b0f2a913ce0e35",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "productivity",
+      "id": "ebook_reader",
+      "profiles": [
+        {
+          "path": "Apps/ebook_reader.json",
+          "version": "0.1.8",
+          "runtime_profile": null,
+          "requires": [
+            {
+              "capability": "ui.scene",
+              "api": 1
+            },
+            {
+              "capability": "storage.volume",
+              "api": 1
+            },
+            {
+              "capability": "memory.heap",
+              "api": 1
+            },
+            {
+              "capability": "random.bytes",
+              "api": 1
+            },
+            {
+              "capability": "file.open",
+              "api": 1
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "ui.scene",
+              "api": 1
+            },
+            {
+              "capability": "storage.volume",
+              "api": 1
+            },
+            {
+              "capability": "memory.heap",
+              "api": 1
+            },
+            {
+              "capability": "random.bytes",
+              "api": 1
+            },
+            {
+              "capability": "file.open",
+              "api": 1
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "55dd087b054242eb6b28acae08b0f2a913ce0e35",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "productivity",
+      "id": "lists",
+      "profiles": [
+        {
+          "path": "Apps/lists_scene.json",
+          "version": "0.1.1",
+          "runtime_profile": "portable-riscrte-v1",
+          "requires": [
+            {
+              "capability": "ui.scene",
+              "api": 1
+            },
+            {
+              "capability": "storage.app-data",
+              "api": 1
+            },
+            {
+              "capability": "time.civil",
+              "api": 1
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "ui.scene",
+              "api": 1
+            },
+            {
+              "capability": "time.civil",
+              "api": 1
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "55dd087b054242eb6b28acae08b0f2a913ce0e35",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "productivity",
+      "id": "points_in_time",
+      "profiles": [
+        {
+          "path": "Apps/native/points_catalog_watch.json",
+          "version": "0.6.11",
+          "runtime_profile": "portable-riscrte-v1",
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": 1
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": 1
+            },
+            {
+              "capability": "input.navigation",
+              "api": 1
+            },
+            {
+              "capability": "rtc.clock",
+              "api": 2
+            },
+            {
+              "capability": "storage.key-value",
+              "api": 1
+            },
+            {
+              "capability": "alarm.service",
+              "api": 1
+            },
+            {
+              "capability": "storage.app-data",
+              "api": 1
+            },
+            {
+              "capability": "board.battery",
+              "api": 1
+            },
+            {
+              "capability": "ui.text-input",
+              "api": 1
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "rtc.clock",
+              "api": 2
+            },
+            {
+              "capability": "alarm.service",
+              "api": 1
+            },
+            {
+              "capability": "ui.text-input",
+              "api": 1
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        },
+        {
+          "path": "Apps/native/points_catalog_x4.json",
+          "version": "0.6.11",
+          "runtime_profile": "portable-riscrte-v1",
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": 1
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": 1
+            },
+            {
+              "capability": "input.navigation",
+              "api": 1
+            },
+            {
+              "capability": "runtime.realtime",
+              "api": 1
+            },
+            {
+              "capability": "storage.key-value",
+              "api": 1
+            },
+            {
+              "capability": "alarm.service",
+              "api": 2
+            },
+            {
+              "capability": "storage.app-data",
+              "api": 1
+            },
+            {
+              "capability": "board.battery",
+              "api": 1
+            },
+            {
+              "capability": "ui.text-input",
+              "api": 1
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "ui.text-input",
+              "api": 1
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        },
+        {
+          "path": "Apps/native/points_catalog_x4_resident.json",
+          "version": "0.6.16",
+          "runtime_profile": null,
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": 1
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": 1
+            },
+            {
+              "capability": "input.navigation",
+              "api": 1
+            },
+            {
+              "capability": "runtime.realtime",
+              "api": 1
+            },
+            {
+              "capability": "storage.key-value",
+              "api": 1
+            },
+            {
+              "capability": "alarm.service",
+              "api": 2
+            },
+            {
+              "capability": "board.battery",
+              "api": 1
+            },
+            {
+              "capability": "telemetry.broadcast",
+              "api": 1
+            },
+            {
+              "capability": "storage.app-data",
+              "api": 1
+            },
+            {
+              "capability": "ui.text-input",
+              "api": 1
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "telemetry.broadcast",
+              "api": 1
+            },
+            {
+              "capability": "ui.text-input",
+              "api": 1
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        },
+        {
+          "path": "Apps/native/points_native_ui.json",
+          "version": "0.7.0",
+          "runtime_profile": null,
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": 1
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": 1
+            },
+            {
+              "capability": "input.navigation",
+              "api": 1
+            },
+            {
+              "capability": "runtime.realtime",
+              "api": 1
+            },
+            {
+              "capability": "storage.key-value",
+              "api": 1
+            },
+            {
+              "capability": "alarm.service",
+              "api": 2
+            }
+          ],
+          "missing_capabilities": [],
+          "assessment": "declared-capability-closure-only; build/lifecycle/geometry qualification required"
+        },
+        {
+          "path": "Apps/native/points_utc.json",
+          "version": "0.6.2",
+          "runtime_profile": null,
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": 1
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": 1
+            },
+            {
+              "capability": "input.navigation",
+              "api": 1
+            },
+            {
+              "capability": "runtime.realtime",
+              "api": 1
+            },
+            {
+              "capability": "storage.key-value",
+              "api": 1
+            },
+            {
+              "capability": "alarm.service",
+              "api": 2
+            }
+          ],
+          "missing_capabilities": [],
+          "assessment": "declared-capability-closure-only; build/lifecycle/geometry qualification required"
+        },
+        {
+          "path": "Apps/points_in_time.json",
+          "version": "0.5.3",
+          "runtime_profile": "portable-riscrte-v1",
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": ">=1"
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": ">=1"
+            },
+            {
+              "capability": "rtc.clock",
+              "api": ">=2"
+            },
+            {
+              "capability": "storage.key-value",
+              "api": ">=1"
+            },
+            {
+              "capability": "alarm.service",
+              "api": ">=1"
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "rtc.clock",
+              "api": ">=2"
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": true,
+      "source_commit": "55dd087b054242eb6b28acae08b0f2a913ce0e35",
+      "integration_status": "pending Badge integration",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "productivity",
+      "id": "timecard",
+      "profiles": [
+        {
+          "path": "Apps/native/timecard.json",
+          "version": "0.2.9",
+          "runtime_profile": null,
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": 1
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": 1
+            },
+            {
+              "capability": "input.navigation",
+              "api": 1
+            },
+            {
+              "capability": "rtc.clock",
+              "api": 2
+            },
+            {
+              "capability": "storage.key-value",
+              "api": 1
+            },
+            {
+              "capability": "alarm.service",
+              "api": 1
+            },
+            {
+              "capability": "storage.app-data",
+              "api": 1
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "rtc.clock",
+              "api": 2
+            },
+            {
+              "capability": "alarm.service",
+              "api": 1
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        },
+        {
+          "path": "Apps/native/timecard_current.json",
+          "version": "0.3.2",
+          "runtime_profile": null,
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": 1
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": 1
+            },
+            {
+              "capability": "input.navigation",
+              "api": 1
+            },
+            {
+              "capability": "runtime.realtime",
+              "api": 1
+            },
+            {
+              "capability": "storage.key-value",
+              "api": 1
+            },
+            {
+              "capability": "storage.app-data",
+              "api": 1
+            },
+            {
+              "capability": "alarm.service",
+              "api": 2
+            },
+            {
+              "capability": "power.sleep",
+              "api": 1
+            },
+            {
+              "capability": "display.power",
+              "api": 1
+            },
+            {
+              "capability": "input.power-key",
+              "api": 1
+            },
+            {
+              "capability": "storage.preferences",
+              "api": 1
+            }
+          ],
+          "missing_capabilities": [],
+          "assessment": "declared-capability-closure-only; build/lifecycle/geometry qualification required"
+        },
+        {
+          "path": "Apps/native/timecard_native_time.json",
+          "version": "0.2.9",
+          "runtime_profile": null,
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": 1
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": 1
+            },
+            {
+              "capability": "input.navigation",
+              "api": 1
+            },
+            {
+              "capability": "runtime.realtime",
+              "api": 1
+            },
+            {
+              "capability": "storage.key-value",
+              "api": 1
+            },
+            {
+              "capability": "alarm.service",
+              "api": 2
+            },
+            {
+              "capability": "storage.app-data",
+              "api": 1
+            }
+          ],
+          "missing_capabilities": [],
+          "assessment": "declared-capability-closure-only; build/lifecycle/geometry qualification required"
+        },
+        {
+          "path": "Apps/native/timecard_native_ui.json",
+          "version": "0.3.0",
+          "runtime_profile": null,
+          "requires": [
+            {
+              "capability": "display.output",
+              "api": 1
+            },
+            {
+              "capability": "input.touch.raw",
+              "api": 1
+            },
+            {
+              "capability": "input.navigation",
+              "api": 1
+            },
+            {
+              "capability": "rtc.clock",
+              "api": 2
+            },
+            {
+              "capability": "storage.key-value",
+              "api": 1
+            },
+            {
+              "capability": "alarm.service",
+              "api": 1
+            },
+            {
+              "capability": "storage.app-data",
+              "api": 1
+            }
+          ],
+          "missing_capabilities": [
+            {
+              "capability": "rtc.clock",
+              "api": 2
+            },
+            {
+              "capability": "alarm.service",
+              "api": 1
+            }
+          ],
+          "assessment": "additional-capabilities-required"
+        },
+        {
+          "path": "Apps/timecard.json",
+          "version": "1.0.4",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": true,
+      "launcher_entry": true,
+      "intended_watch_role": true,
+      "selected_contract": {
+        "manifest": "timecard.json",
+        "requires": [
+          {
+            "capability": "display.output",
+            "api": 1
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1
+          },
+          {
+            "capability": "runtime.realtime",
+            "api": 1
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1
+          },
+          {
+            "capability": "storage.app-data",
+            "api": 1
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1
+          },
+          {
+            "capability": "display.power",
+            "api": 1
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1
+          },
+          {
+            "capability": "storage.preferences",
+            "api": 1
+          }
+        ],
+        "grants": [
+          {
+            "capability": "display.output",
+            "api": 1,
+            "instance_id": 5
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1,
+            "instance_id": 6
+          },
+          {
+            "capability": "input.navigation",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "runtime.realtime",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2,
+            "instance_id": 0
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1,
+            "instance_id": 17
+          },
+          {
+            "capability": "display.power",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "storage.preferences",
+            "api": 1,
+            "instance_id": 1
+          },
+          {
+            "capability": "board.battery",
+            "api": 1,
+            "instance_id": 4
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1,
+            "instance_id": 1
+          },
+          {
+            "capability": "storage.app-data",
+            "api": 1,
+            "instance_id": 1
+          }
+        ]
+      },
+      "source_commit": "55dd087b054242eb6b28acae08b0f2a913ce0e35",
+      "integration_status": "preserved in historical Timecard checkpoint; successor composition not yet rerun",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "productivity",
+      "id": "text_editor",
+      "profiles": [
+        {
+          "path": "Apps/text_editor.json",
+          "version": "0.2.3",
+          "runtime_profile": null,
+          "requires": null,
+          "missing_capabilities": [],
+          "assessment": "capability-declaration-absent; legacy/API inspection required"
+        }
+      ],
+      "installed": false,
+      "launcher_entry": false,
+      "intended_watch_role": false,
+      "source_commit": "55dd087b054242eb6b28acae08b0f2a913ce0e35",
+      "integration_status": "discovered source app/profile; target applicability unresolved, not excluded",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "watch",
+      "id": "default",
+      "profiles": [],
+      "installed": true,
+      "launcher_entry": false,
+      "intended_watch_role": true,
+      "selected_contract": {
+        "manifest": "default.json",
+        "requires": [
+          {
+            "capability": "display.output",
+            "api": 1
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1
+          },
+          {
+            "capability": "runtime.realtime-control",
+            "api": 1
+          },
+          {
+            "capability": "runtime.provider-promotion",
+            "api": 1
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2
+          },
+          {
+            "capability": "storage.preferences",
+            "api": 1
+          }
+        ],
+        "grants": [
+          {
+            "capability": "display.output",
+            "api": 1,
+            "instance_id": 5
+          },
+          {
+            "capability": "input.touch.raw",
+            "api": 1,
+            "instance_id": 6
+          },
+          {
+            "capability": "runtime.realtime-control",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "runtime.provider-promotion",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "alarm.service",
+            "api": 2,
+            "instance_id": 0
+          },
+          {
+            "capability": "storage.preferences",
+            "api": 1,
+            "instance_id": 1
+          },
+          {
+            "capability": "board.battery",
+            "api": 1,
+            "instance_id": 4
+          },
+          {
+            "capability": "storage.key-value",
+            "api": 1,
+            "instance_id": 1
+          },
+          {
+            "capability": "net.wifi",
+            "api": 1,
+            "instance_id": 15
+          },
+          {
+            "capability": "power.sleep",
+            "api": 1,
+            "instance_id": 17
+          },
+          {
+            "capability": "input.power-key",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "display.power",
+            "api": 1,
+            "instance_id": 0
+          },
+          {
+            "capability": "storage.app-data",
+            "api": 1,
+            "instance_id": 61
+          }
+        ]
+      },
+      "source_commit": "f550d559d3eaae9a6a15ef27b5ea7f82e741e54a",
+      "integration_status": "preserved in historical Timecard checkpoint; successor composition not yet rerun",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    },
+    {
+      "repository": "watch",
+      "id": "clock",
+      "profiles": [],
+      "installed": true,
+      "launcher_entry": false,
+      "intended_watch_role": true,
+      "selected_contract": {
+        "manifest": "clock.json",
+        "requires": [],
+        "grants": []
+      },
+      "source_commit": "f550d559d3eaae9a6a15ef27b5ea7f82e741e54a",
+      "integration_status": "preserved in historical Timecard checkpoint; successor composition not yet rerun",
+      "workflow_validation": "No new composed Badge workflow qualification in this continuation"
+    }
+  ],
+  "limits": "No unsupported hardware inference from app absence. Raw/legacy/native profiles are alternatives, not interchangeable. Presence of capability names does not establish policy, lifecycle, sleeping alarms, rendering or real-device support.",
+  "observation": "Source manifests and Controllers851b8998 overlay freshly inventoried; installed/catalog identities read from hash-verified historical checkpoint. No successor target-build claim.",
+  "scope_change_approved": false
+}

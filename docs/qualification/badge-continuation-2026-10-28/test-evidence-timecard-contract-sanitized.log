@@ -1,0 +1,20 @@
+PASS current Timecard contract 0; authoritative ledger/private namespace/BUSY boundaries
+PASS current Timecard contract 1; authoritative ledger/private namespace/BUSY boundaries
+PASS current Timecard contract 2; authoritative ledger/private namespace/BUSY boundaries
+PASS current Timecard contract 3; authoritative ledger/private namespace/BUSY boundaries
+PASS current Timecard contract 4; authoritative ledger/private namespace/BUSY boundaries
+PASS current Timecard contract 5; authoritative ledger/private namespace/BUSY boundaries
+PASS current Timecard retained operation has no later calls
+PASS current Timecard contract 7; authoritative ledger/private namespace/BUSY boundaries
+PASS retained post-replace verification preserves committed uncertainty without calls
+PASS unknown preference custody remains terminal
+PASS current Timecard contract 10; authoritative ledger/private namespace/BUSY boundaries
+PASS current Timecard contract 11; authoritative ledger/private namespace/BUSY boundaries
+PASS current Timecard contract 12; authoritative ledger/private namespace/BUSY boundaries
+PASS current Timecard contract 13; authoritative ledger/private namespace/BUSY boundaries
+PASS current Timecard contract 14; authoritative ledger/private namespace/BUSY boundaries
+PASS current Timecard contract 15; authoritative ledger/private namespace/BUSY boundaries
+PASS current Timecard contract 16; authoritative ledger/private namespace/BUSY boundaries
+PASS unknown AppData custody terminal without later calls
+PASS current Timecard contract 18; authoritative ledger/private namespace/BUSY boundaries
+PASS current Timecard contract 19; authoritative ledger/private namespace/BUSY boundaries

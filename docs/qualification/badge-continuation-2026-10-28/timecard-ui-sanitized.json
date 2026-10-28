@@ -1,0 +1,3144 @@
+{
+  "schema": 1,
+  "profile": {
+    "schema": 1,
+    "profile": "timecard-current-badge",
+    "version": "0.3.2",
+    "authoritative_model_base": "bb8d0d99b3a857103d2b01e6b4c756b913aa14d3",
+    "authoritative_model_sha256": "c17b0fed28eb44d2397c740ef56c8f07bc51c3f707d3080ec9ad5849e25a31a9",
+    "scene_contract_basis": "55c94bde412dec7772bedac29b067bcd83aad802",
+    "runtime_sdk": "273bdbccf65647a803ab0586a418f8283732baec",
+    "alarm_sdk": "bbafc2c3aebe8c3b9805639f873341e31296c8fb",
+    "compiler_family": "ESP32-S3 GCC 15.2",
+    "time_policy": "native UTC projected to selected IANA civil time; history remains civil date/minutes",
+    "storage": {
+      "capability": "storage.app-data",
+      "api": 1,
+      "instance": 1,
+      "name": "timecard.json",
+      "maximum_bytes": 49151
+    },
+    "preferences": {
+      "capability": "storage.key-value",
+      "api": 1,
+      "instance": 1,
+      "writes": false,
+      "writer": "none; shared Quick writes use separate storage.preferences"
+    },
+    "navigation": {
+      "root_back": "springboard.elf",
+      "physical_home": "default.elf"
+    },
+    "clock_edit_authority": false,
+    "quick_actions_selected": true,
+    "snapshot_selected": false,
+    "historical_profiles_modified": false,
+    "quick_preference_store": {
+      "capability": "storage.preferences",
+      "api": 1,
+      "instance": 1,
+      "writes": true,
+      "mode": "copied atomic preference edits",
+      "completed_pending_frame_before_submit": true
+    }
+  },
+  "manifest": {
+    "type": "application",
+    "id": "timecard",
+    "version": "0.3.2",
+    "architecture": "xtensa-esp32s3",
+    "file_name": "timecard.elf",
+    "entry": "app_main",
+    "requires": [
+      {
+        "capability": "display.output",
+        "api": 1
+      },
+      {
+        "capability": "input.touch.raw",
+        "api": 1
+      },
+      {
+        "capability": "input.navigation",
+        "api": 1
+      },
+      {
+        "capability": "runtime.realtime",
+        "api": 1
+      },
+      {
+        "capability": "storage.key-value",
+        "api": 1
+      },
+      {
+        "capability": "storage.app-data",
+        "api": 1
+      },
+      {
+        "capability": "alarm.service",
+        "api": 2
+      },
+      {
+        "capability": "power.sleep",
+        "api": 1
+      },
+      {
+        "capability": "display.power",
+        "api": 1
+      },
+      {
+        "capability": "input.power-key",
+        "api": 1
+      },
+      {
+        "capability": "storage.preferences",
+        "api": 1
+      }
+    ],
+    "display_name": "Timecard",
+    "icon": "solid:f017",
+    "optional": [
+      {
+        "capability": "board.battery",
+        "api": 1
+      }
+    ]
+  },
+  "source_manifest": {
+    "type": "application",
+    "id": "timecard",
+    "version": "0.3.2",
+    "architecture": "xtensa-esp32s3",
+    "file_name": "timecard.elf",
+    "entry": "app_main",
+    "requires": [
+      {
+        "capability": "display.output",
+        "api": 1
+      },
+      {
+        "capability": "input.touch.raw",
+        "api": 1
+      },
+      {
+        "capability": "input.navigation",
+        "api": 1
+      },
+      {
+        "capability": "runtime.realtime",
+        "api": 1
+      },
+      {
+        "capability": "storage.key-value",
+        "api": 1
+      },
+      {
+        "capability": "storage.app-data",
+        "api": 1
+      },
+      {
+        "capability": "alarm.service",
+        "api": 2
+      },
+      {
+        "capability": "power.sleep",
+        "api": 1
+      },
+      {
+        "capability": "display.power",
+        "api": 1
+      },
+      {
+        "capability": "input.power-key",
+        "api": 1
+      },
+      {
+        "capability": "storage.preferences",
+        "api": 1
+      }
+    ],
+    "display_name": "Timecard",
+    "icon": "solid:f017",
+    "category": [
+      "Productivity",
+      "Time"
+    ],
+    "optional": [
+      {
+        "capability": "board.battery",
+        "api": 1
+      }
+    ]
+  },
+  "catalog_metadata": {
+    "display_name": "Timecard",
+    "icon": "solid:f017",
+    "category": [
+      "Productivity",
+      "Time"
+    ]
+  },
+  "hardware_verified": false,
+  "product_recipe": false,
+  "build_defines": [
+    "-DTIMECARD_CURRENT_PROFILE",
+    "-DTIMECARD_NATIVE_TIME",
+    "-DTIMECARD_PAPER",
+    "-DTIMECARD_APP_DATA",
+    "-DTIMECARD_APP_DATA_INSTANCE=1u",
+    "-DPORTABLE_QUICK_ACTIONS",
+    "-DPORTABLE_QUICK_PENDING_FRAME",
+    "-DPORTABLE_QUICK_NATIVE_GEOMETRY",
+    "-DPORTABLE_QUICK_SAFE_CONTENT",
+    "-DPORTABLE_QUICK_MIN_CONTENT=160",
+    "-DPORTABLE_QUICK_CAPABILITY_SAFE",
+    "-DPORTABLE_QUICK_ATOMIC_PREFERENCES",
+    "-DPORTABLE_PREFERENCE_STORE",
+    "-DPORTABLE_TIMECARD_NATIVE_UI",
+    "-DPORTABLE_NATIVE_SCENE",
+    "-DPORTABLE_NOVA_UI",
+    "-DPORTABLE_RF_NATIVE_CANVAS",
+    "-DPORTABLE_APP_OWNS_TOUCH_CHROME",
+    "-DPORTABLE_WATCH_NATIVE_HEIGHT",
+    "-DPORTABLE_WATCH_COLOR_ONLY",
+    "-DPORTABLE_WATCH_SAFE_INSETS",
+    "-DPORTABLE_SAFE_VIEWPORT",
+    "-DPORTABLE_FORCE_FULL_FRAMES",
+    "-DPORTABLE_NATIVE_CUSTODY_FENCE",
+    "-DPORTABLE_NATIVE_TIME_TOOLBAR",
+    "-DPORTABLE_INPUT_NAVIGATION",
+    "-DPORTABLE_ALARM_CLIENT",
+    "-DALARM_NATIVE_UTC",
+    "-DALARM_SERVICE_TAGGED_V2",
+    "-DALARM_SERVICE_CLOCK_EDIT_V2",
+    "-DPORTABLE_ALARM_TERMINAL_RETENTION",
+    "-DPORTABLE_DISPLAY_ROTATION=0",
+    "-DPORTABLE_TOUCH_ROTATION=0",
+    "-DTIMECARD_RETURN_APP=\"springboard.elf\"",
+    "-DPORTABLE_HOME_APP=\"default.elf\"",
+    "-DPORTABLE_FOREGROUND_IDLE",
+    "-DPORTABLE_APP_SLEEP_LOCAL",
+    "-DPORTABLE_FOREGROUND_IDLE_FALLBACK_SECONDS=15u",
+    "-DPORTABLE_FOREGROUND_ALARM_SLEEP"
+  ],
+  "grant_bindings": {
+    "storage.key-value": [
+      1
+    ],
+    "storage.app-data": [
+      1
+    ],
+    "storage.preferences": [
+      1
+    ]
+  },
+  "compile_inputs": {
+    "sources": [
+      "/workspace/scratch/2ab1619b7e17/verification2/productivity-prototype/Apps/timecard_portable.c",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/adapter.c",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/quick_actions.c",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/quick_render.c",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/quick_session.c",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableRealtimeClient.c",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableTimeZone.c",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableTimeZoneCatalog.c",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableTimeZonePreference.c",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableNativeTimeSource.c",
+      "/workspace/scratch/2ab1619b7e17/verification2/drivers/components/portable-light-sleep/foreground_light_sleep.c",
+      "/workspace/scratch/2ab1619b7e17/verification2/drivers/components/portable-light-sleep/foreground_idle_preferences.c",
+      "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/catalog.c"
+    ],
+    "definitions": [
+      "-DTIMECARD_CURRENT_PROFILE",
+      "-DTIMECARD_NATIVE_TIME",
+      "-DTIMECARD_PAPER",
+      "-DTIMECARD_APP_DATA",
+      "-DTIMECARD_APP_DATA_INSTANCE=1u",
+      "-DPORTABLE_QUICK_ACTIONS",
+      "-DPORTABLE_QUICK_PENDING_FRAME",
+      "-DPORTABLE_QUICK_NATIVE_GEOMETRY",
+      "-DPORTABLE_QUICK_SAFE_CONTENT",
+      "-DPORTABLE_QUICK_MIN_CONTENT=160",
+      "-DPORTABLE_QUICK_CAPABILITY_SAFE",
+      "-DPORTABLE_QUICK_ATOMIC_PREFERENCES",
+      "-DPORTABLE_PREFERENCE_STORE",
+      "-DPORTABLE_TIMECARD_NATIVE_UI",
+      "-DPORTABLE_NATIVE_SCENE",
+      "-DPORTABLE_NOVA_UI",
+      "-DPORTABLE_RF_NATIVE_CANVAS",
+      "-DPORTABLE_APP_OWNS_TOUCH_CHROME",
+      "-DPORTABLE_WATCH_NATIVE_HEIGHT",
+      "-DPORTABLE_WATCH_COLOR_ONLY",
+      "-DPORTABLE_WATCH_SAFE_INSETS",
+      "-DPORTABLE_SAFE_VIEWPORT",
+      "-DPORTABLE_FORCE_FULL_FRAMES",
+      "-DPORTABLE_NATIVE_CUSTODY_FENCE",
+      "-DPORTABLE_NATIVE_TIME_TOOLBAR",
+      "-DPORTABLE_INPUT_NAVIGATION",
+      "-DPORTABLE_ALARM_CLIENT",
+      "-DALARM_NATIVE_UTC",
+      "-DALARM_SERVICE_TAGGED_V2",
+      "-DALARM_SERVICE_CLOCK_EDIT_V2",
+      "-DPORTABLE_ALARM_TERMINAL_RETENTION",
+      "-DPORTABLE_DISPLAY_ROTATION=0",
+      "-DPORTABLE_TOUCH_ROTATION=0",
+      "-DTIMECARD_RETURN_APP=\"springboard.elf\"",
+      "-DPORTABLE_HOME_APP=\"default.elf\"",
+      "-DPORTABLE_FOREGROUND_IDLE",
+      "-DPORTABLE_APP_SLEEP_LOCAL",
+      "-DPORTABLE_FOREGROUND_IDLE_FALLBACK_SECONDS=15u",
+      "-DPORTABLE_FOREGROUND_ALARM_SLEEP"
+    ],
+    "include_directories": [
+      "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/NativeApps/include",
+      "/workspace/scratch/2ab1619b7e17/verification2/productivity-prototype/lib/NativeApps/include",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/Apps"
+    ],
+    "source_sha256": {
+      "/workspace/scratch/2ab1619b7e17/verification2/productivity-prototype/Apps/timecard_portable.c": "f749a670efc56f315ebeb2dbed2abcbca4f5368427b8d9e33af084791c0cf01b",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/adapter.c": "a9cd5966f4c9d5ab7d602c9c693485bcb81b0d0ff9c771165534c5cfddc54c79",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/quick_actions.c": "f980b8318a1c5f97532c54ecc841ddf4dfa6dc91cec4ab049cd7c68e68ac7ea3",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/quick_render.c": "249d325a6db502ee24af940287f62285f5eae7e95fadd8b1546383aa095a56cc",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/quick_session.c": "11f62f03f0511aae07a06b5a813d00e8aebc711e60828350dd6170c59f4711a0",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableRealtimeClient.c": "9bf7d696fa0d5578f622ddf9634093057f95a684f62aa93007d0121b936f44d6",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableTimeZone.c": "28c0fecf7a4d83bde07d2b72cb591122cf3c49c3219c8344b97b82a90625c5e7",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableTimeZoneCatalog.c": "29d4c86037f7554c94a4404d5e39e28091430a1f9c23b5e35224aed3df826f20",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableTimeZonePreference.c": "b54e455d587ba2ecda8f59dd899b59b767214aee807b92d79d18c5e9d30b6bb7",
+      "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableNativeTimeSource.c": "dc5594b34a42dedaf82c24d1acdfcefc1cd4abaa36eb9b2d0e4aaef3e139ce7e",
+      "/workspace/scratch/2ab1619b7e17/verification2/drivers/components/portable-light-sleep/foreground_light_sleep.c": "423a5ec8fea8f8a470385842b120a18cd347f89a3a5210479367062bd3e31d2f",
+      "/workspace/scratch/2ab1619b7e17/verification2/drivers/components/portable-light-sleep/foreground_idle_preferences.c": "00f8844d41b09d605ae4d96eebdd90291e89a1701b434316eccfc5b0631eafcc",
+      "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/catalog.c": "b777404301a5286ce19a95f4099bac47d93a46d3f86190b51b6c78665bbce23c"
+    }
+  },
+  "private_app_data": {
+    "capability": "storage.app-data",
+    "api": 1,
+    "instance": 1,
+    "name": "timecard.json",
+    "maximum_bytes": 49151
+  },
+  "read_only_preferences": false,
+  "timecard_time_format_read_only": true,
+  "shared_preference_writer": "QuickActions via storage.preferences1",
+  "key_value_read_only": true,
+  "clock_edit_authority": false,
+  "alarm_descriptor_clock_edit_feature_recognized": true,
+  "foreground_idle": {
+    "schema": 1,
+    "enabled": true,
+    "mode": "returning-light-only",
+    "alarm_sleep": {
+      "api": 2,
+      "protocol": "fresh-ticket-v1",
+      "ticket_owner": "adapter",
+      "duration_max_ms": 86400000
+    },
+    "fallback_seconds": 15,
+    "fallback_applies": "confirmed missing sleep_idle key only",
+    "saved_valid_idle_preference_wins": true,
+    "invalid_or_unavailable_preference": "defer idle",
+    "sleep_mode_preference": "not read or changed; Deep/Hybrid never selected",
+    "preferences": {
+      "capability": "storage.key-value",
+      "api": 1,
+      "namespace": 1,
+      "key": "sleep_idle",
+      "helper_operations": [
+        "get"
+      ],
+      "grant_is_readonly": false,
+      "release_before_regular_app_work": true
+    },
+    "required_capabilities": [
+      {
+        "capability": "power.sleep",
+        "api": 1
+      },
+      {
+        "capability": "display.power",
+        "api": 1
+      },
+      {
+        "capability": "input.power-key",
+        "api": 1
+      }
+    ],
+    "physical_grant_selection": "deployment-owned; not selected or applied by builder",
+    "prerequisites": {
+      "adapter_input_navigation": true,
+      "key_lifetime": "navigation grant remains live across Light and helper key-grant release; deployment navigation owns filtered power-key dependency"
+    },
+    "runtime_commit": "273bdbccf65647a803ab0586a418f8283732baec",
+    "runtime_checkout": "/workspace/scratch/2ab1619b7e17/verification2/runtime-prototype",
+    "runtime_sdk_identity": {
+      "canonical_commit": "273bdbccf65647a803ab0586a418f8283732baec",
+      "checkout_commit": "046f4c22b263739f3bf3f96f888617d72eb3d498",
+      "checkout_clean": true,
+      "canonical_ancestor": true,
+      "canonical_git_objects": {
+        "sdk": "30d9a0464b6c03f0ae265317530720b58cc9d698",
+        "LICENSE": "b8c074800342d88eb4892d9ef79a65485d1bfcf9"
+      },
+      "unchanged_canonical_sdk_files": 97,
+      "additive_sdk_files": {
+        "sdk/driver/RiscTimeSampleV1.h": "100644 blob 7e9044715c4a8c8f26739d9e85a5cb2576e4651a"
+      },
+      "checkout_sdk_object": "2855ac0f3609832d18806a9307bb56c9e373d509",
+      "scope": "All canonical SDK file modes/blob identities and LICENSE unchanged; additions are not staged implicitly; native implementation may differ"
+    },
+    "sdk_verifier_sha256": "1a6292ffa83494d7c4638ca9ce2f75156160c114ea4a47d5c1a64dedbecb9737",
+    "runtime_headers": "immutable git object bytes; working-tree copies not used",
+    "runtime_license_sha256": "7212963b5b1b5ee34ca158163356beb1e6945dd2cc5d320f1fe7573c424ea640",
+    "system_source": {
+      "root": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype",
+      "commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "working_tree_dirty": false
+    },
+    "helper_source": {
+      "root": "/workspace/scratch/2ab1619b7e17/verification2/drivers",
+      "commit": "2006b135a297b60b63baf04e2afcd3488693d501",
+      "working_tree_dirty": false
+    },
+    "drivers_source": {
+      "root": "/workspace/scratch/2ab1619b7e17/verification2/drivers",
+      "commit": "2006b135a297b60b63baf04e2afcd3488693d501",
+      "working_tree_dirty": false
+    },
+    "defines": [
+      "-DPORTABLE_FOREGROUND_IDLE",
+      "-DPORTABLE_APP_SLEEP_LOCAL",
+      "-DPORTABLE_NATIVE_CUSTODY_FENCE",
+      "-DPORTABLE_FOREGROUND_IDLE_FALLBACK_SECONDS=15u",
+      "-DPORTABLE_FOREGROUND_ALARM_SLEEP",
+      "-DALARM_SERVICE_TAGGED_V2",
+      "-DPORTABLE_ALARM_CLIENT",
+      "-DALARM_SERVICE_CLOCK_EDIT_V2"
+    ],
+    "compiled_include_directory": "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include",
+    "sources": [
+      "/workspace/scratch/2ab1619b7e17/verification2/drivers/components/portable-light-sleep/foreground_light_sleep.c",
+      "/workspace/scratch/2ab1619b7e17/verification2/drivers/components/portable-light-sleep/foreground_idle_preferences.c"
+    ],
+    "source_sha256": {
+      "/workspace/scratch/2ab1619b7e17/verification2/drivers/components/portable-light-sleep/foreground_light_sleep.c": "423a5ec8fea8f8a470385842b120a18cd347f89a3a5210479367062bd3e31d2f",
+      "/workspace/scratch/2ab1619b7e17/verification2/drivers/components/portable-light-sleep/foreground_idle_preferences.c": "00f8844d41b09d605ae4d96eebdd90291e89a1701b434316eccfc5b0631eafcc"
+    },
+    "builder_source_sha256": "fbfa0cdaff92a9b1d921bddbd0916c00ca2218f0ae677250bd6bdf9140278aef",
+    "header_origins": {
+      "PortableContextPreferences.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableContextPreferences.h",
+        "layer": "system-base",
+        "sha256": "1fb5e6d3cc796892f15c15162bd38b64d4b4508756de5f0c77b2015fbe388826"
+      },
+      "PortablePointsState.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortablePointsState.h",
+        "layer": "system-base",
+        "sha256": "69dd5c45cea14991a06b397b800de7006aee8509d6ffa905a905f40d8a40baaa"
+      },
+      "PortableNovaKeyboard.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableNovaKeyboard.h",
+        "layer": "system-base",
+        "sha256": "388cdc97e48b6e3378f1cf80b1b5dc3b0e116dd1e30a061697ae56bfb15ec0eb"
+      },
+      "PortableRadioPolicy.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableRadioPolicy.h",
+        "layer": "system-base",
+        "sha256": "560cf6d492bcf3453b2ee260e6e4dfa102afece7fb1d406a77f2fa32465d1ae3"
+      },
+      "PortableFingerprintClock.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableFingerprintClock.h",
+        "layer": "system-base",
+        "sha256": "26ec2a7c36f6a795d466c2cf2c4fafe37c03c24fa41060096676913b4c3a059d"
+      },
+      "PortableStageLog.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableStageLog.h",
+        "layer": "system-base",
+        "sha256": "f4e3f6ed7d15af923d31a819509aeeb0b373ac3a4c4c880bf1dd94ad37ce56be"
+      },
+      "PortableBackgroundServices.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableBackgroundServices.h",
+        "layer": "system-base",
+        "sha256": "f1291afed98c321a81550e7648234d478652f81299cbad9c44814218a384e5b8"
+      },
+      "PortableRgb565Blend.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableRgb565Blend.h",
+        "layer": "system-base",
+        "sha256": "05fea057365d73f590b97c5389ef6de6f1c589f660d099f2e9abaaed21945e2f"
+      },
+      "PortableNativeSceneState.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableNativeSceneState.h",
+        "layer": "system-base",
+        "sha256": "b327ca206eb466bc4edae6ae971e4cd390a91ff3b140dd606707c2a80f44c9ab"
+      },
+      "RiscRuntimeClockV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/RiscRuntimeClockV1.h",
+        "layer": "system-base",
+        "sha256": "76584fdab224b184918d9f9cf675d5c4443adef7161e8518d456bc25277dc30f"
+      },
+      "InstalledAppsV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/InstalledAppsV1.h",
+        "layer": "system-base",
+        "sha256": "0575bfdc3d54ca9430cc9689ca536384013a0e40b24c9002c28abfe2cc3f5d00"
+      },
+      "PortableTextInputPolicy.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableTextInputPolicy.h",
+        "layer": "system-base",
+        "sha256": "04e169c1f6d0b0c009149a7f6b068bb0af9d7f255ff27a39a3b79f900e99255e"
+      },
+      "PortableBroadcastAppData.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableBroadcastAppData.h",
+        "layer": "system-base",
+        "sha256": "39623ec4ebb2a1c576398b60be8cceef084ff7d0809d4f8903aaa6b7873bd30d"
+      },
+      "PortableRtcClock.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableRtcClock.h",
+        "layer": "system-base",
+        "sha256": "43508db1cd392606cf37a7e55ad15e3770de1284af13a431876fd5d7785b838c"
+      },
+      "RiscTcpConnectionV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/RiscTcpConnectionV1.h",
+        "layer": "system-base",
+        "sha256": "484ca863b82b44b7a26c4915a240be95b12a92817eb497def3c0d99eb68179c3"
+      },
+      "PortablePointsCatalogView.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortablePointsCatalogView.h",
+        "layer": "system-base",
+        "sha256": "0350a2d42d1befc07b838ef4386458d876cabc0820a2b773d9eb1b383dd2bead"
+      },
+      "PortableQuickSession.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableQuickSession.h",
+        "layer": "system-base",
+        "sha256": "039d8034f819ea6b494bcd9179408f57546f834a347b844c1f29c37b7c428ce8"
+      },
+      "PortableWifiProfiles.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableWifiProfiles.h",
+        "layer": "system-base",
+        "sha256": "3201c58bfb48fee81b05a27d7199c1cf6f6f49d4fa83422d0c0098c842de92d5"
+      },
+      "RiscProvisionRequestV1.h": {
+        "source": "sdk/driver/RiscProvisionRequestV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "f7fdd7ca974150a1d9e5242d1cb994eb614c6853b1598d530e47d8fc898dc870"
+      },
+      "RiscStorageVolumeFsV1.h": {
+        "source": "sdk/driver/RiscStorageVolumeFsV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "e487352157e3c3d5c10a28a16fdfcce76db693bf45c612ff4e2f31ee83e9a329"
+      },
+      "T5BatteryApi.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/T5BatteryApi.h",
+        "layer": "system-base",
+        "sha256": "f939c924102099de4ed746519791ce2b68eb2bac79bc212caeaad1366dc8c9a5"
+      },
+      "RiscStorageVolumeV1.h": {
+        "source": "sdk/app/RiscStorageVolumeV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "d477167a06004640b2c07c05d662c103be6e1b9e4a4d866f6fce13e754ef02f5"
+      },
+      "InstalledAppsFeedV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/InstalledAppsFeedV1.h",
+        "layer": "system-base",
+        "sha256": "351e0b19e53fee1d58c411791f65ea57d74e18e101f56e14b3e75b288f1d55cd"
+      },
+      "PortableRadioSession.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableRadioSession.h",
+        "layer": "system-base",
+        "sha256": "8b09b402a8235dbf48826b890a04dbcabe2f7ac6c600b90b42f71ac5997356b2"
+      },
+      "PortablePaperTransition.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortablePaperTransition.h",
+        "layer": "system-base",
+        "sha256": "2f1b60dddeeae8111287fc0aa13d0d15fcc37fcdaa5da3ae6fb96edb85847328"
+      },
+      "PortableSafeViewport.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableSafeViewport.h",
+        "layer": "system-base",
+        "sha256": "ff5c3b0d74ed5f44161020d95ffe70eddb644b2d01e6ac2226627b452a03070e"
+      },
+      "CrashReportSpool.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/CrashReportSpool.h",
+        "layer": "system-base",
+        "sha256": "d5b87876ffb05eb0eeb813658495b02b95cdfe6e5013bf303be81e5383f54554"
+      },
+      "PortableBroadcastClient.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableBroadcastClient.h",
+        "layer": "system-base",
+        "sha256": "dea874e2a90e188ef6726810a150efed1a1e77f42311287850d7e5b9d3d55fad"
+      },
+      "RiscPlatformClockV1.h": {
+        "source": "sdk/driver/RiscPlatformClockV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "41a12f6529f38731ee874f8bc166e1cf89fe376a1448fe5a4dd4c9abac90e5e2"
+      },
+      "PortableTextInputLongClient.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableTextInputLongClient.h",
+        "layer": "system-base",
+        "sha256": "7ac2a5d7bdeb91f58567f2fca1fb1682fa956931039f34ef9b79cbadd85a4ac6"
+      },
+      "PortableQuickRadios.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableQuickRadios.h",
+        "layer": "system-base",
+        "sha256": "6cf7c453a7d5cb99a83801bec1e8afe741f8f75c07ccd538c3d3e57f96956298"
+      },
+      "RiscAppCatalogV1.h": {
+        "source": "sdk/app/RiscAppCatalogV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "34550d01d90513459ff7f3284681c4c108af9e64d5c20af6ae4696a1c051b0c5"
+      },
+      "RiscTelemetryV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscTelemetryV1.h",
+        "layer": "drivers-capability",
+        "sha256": "8ef64c586e8392c1d7521498c25cfdaccefd53242530e2dda9116e9cc12a5d48"
+      },
+      "PortableWifiNativeLayout.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableWifiNativeLayout.h",
+        "layer": "system-base",
+        "sha256": "7c2bada97c5e55a1b25da0e0730181cb6f918c30db42f6b777d24297ca7f8811"
+      },
+      "PortableQuickPendingFrame.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableQuickPendingFrame.h",
+        "layer": "system-base",
+        "sha256": "9b2f37f4efc4dde0e7457bef53a237e93406431b98c0622b0cbada128c4d5213"
+      },
+      "PortableNetworkSession.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableNetworkSession.h",
+        "layer": "system-base",
+        "sha256": "7e573c3148c10bb3e0c50babea7714478ae9cd1265f7f97a91e574134f2cb5c2"
+      },
+      "TelemetryBroadcastV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/TelemetryBroadcastV1.h",
+        "layer": "system-base",
+        "sha256": "986a52b5a3ddd361189d204e33624ce6275d953bca6a94a6e6dd5c136a89e2d5"
+      },
+      "PortableNavigation.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableNavigation.h",
+        "layer": "system-base",
+        "sha256": "f3b9623d1e97d6a18df565aef0d9c934f18a1b97b701fbbc208de3bf0a344e6d"
+      },
+      "PortableReaderPreferences.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableReaderPreferences.h",
+        "layer": "system-base",
+        "sha256": "3f0b7b12b1ddf6bf9c45c9598dab5488feadde0e9f5879b5e12c9f4eff8d4eda"
+      },
+      "CrashReportFiles.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/CrashReportFiles.h",
+        "layer": "system-base",
+        "sha256": "406fd011c329281315ce9097cfc7feafeb233c054c2658cbe24b5f21baff5a41"
+      },
+      "PortableResidentShell.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableResidentShell.h",
+        "layer": "system-base",
+        "sha256": "d92e6cc59adb9f38139b3b1693990e6494fa327cc81747a7a591c9cbfd8a3696"
+      },
+      "RiscStorageFilesV1.h": {
+        "source": "sdk/app/RiscStorageFilesV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "0699725f95e574a22ef7892416e76a33cd0a57d06b96cc42021e10ba0aeb215b"
+      },
+      "RiscKeyValueAtomicV1.h": {
+        "source": "sdk/app/RiscKeyValueAtomicV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "552b0be1890eced2c688700671832bbd1ec15b3663801d59ae946173f94313c5"
+      },
+      "RiscStorageFilesCatalogV1.h": {
+        "source": "sdk/app/RiscStorageFilesCatalogV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "c06e05c2d808cca87d8a83ce2253166ac0bb553b6307290a641feca427a70e87"
+      },
+      "PortableApps.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableApps.h",
+        "layer": "system-base",
+        "sha256": "d8fc1fae3669c439fda7af94568a93bc1d1f35ddc6fe05615eac1cb41ea4a78e"
+      },
+      "PortableTime.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableTime.h",
+        "layer": "system-base",
+        "sha256": "350b8c5255dafa9e25c4a20cfb458cdcda3439da929dab05e0de0c82e981ff6e"
+      },
+      "PortableTextInputResidentCheckpoint.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableTextInputResidentCheckpoint.h",
+        "layer": "system-base",
+        "sha256": "827ef461207082700ef01dba563bd46e69394f7749d3694031016cf478fb390a"
+      },
+      "PortableFileSetup.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableFileSetup.h",
+        "layer": "system-base",
+        "sha256": "19b833d0d31276a620a008ea4e49e1681616788c960e31edcf4f1d064feb27d3"
+      },
+      "RiscHttpTimeV1.h": {
+        "source": "sdk/driver/RiscHttpTimeV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "1dad7f0d28f00ca7424ba95d4e08228f3b398eeaab68e64328362a6d3537a391"
+      },
+      "RiscStreamProviderV1.h": {
+        "source": "sdk/driver/RiscStreamProviderV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "0fe306e060321387c816bb70ec4370a501a423f4fe19a20c9be80aa1b98f3432"
+      },
+      "InstalledAppsAutomaticV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/InstalledAppsAutomaticV1.h",
+        "layer": "system-base",
+        "sha256": "e611cce4a5f260f6998830b2364722dc497ea58257a21abbc70c8602d820919e"
+      },
+      "PortableAppSleep.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableAppSleep.h",
+        "layer": "system-base",
+        "sha256": "027f70965663bc86e7f3bbf2733002870e2254ec92d39037def5f42c52fedc62"
+      },
+      "PortableTimeFormat.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableTimeFormat.h",
+        "layer": "system-base",
+        "sha256": "8eb4d0f850c974da910a516c0f13ed9302ad3928849aa85d7641bdbcf3bd1867"
+      },
+      "PortableSpringboardGestureTrace.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableSpringboardGestureTrace.h",
+        "layer": "system-base",
+        "sha256": "b33a17d1bbbe487a3f040b252c10b9eb91479c28bad21f958c3c695fcdb14426"
+      },
+      "RiscBatteryGaugeV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscBatteryGaugeV1.h",
+        "layer": "drivers-capability",
+        "sha256": "e63ec549baa5a263f325990320ff7cffb210c8149a1a3fb29e2e7f65f9a1c5bb"
+      },
+      "InstalledAppsAutomaticTimeV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/InstalledAppsAutomaticTimeV1.h",
+        "layer": "system-base",
+        "sha256": "a21f312573449ebb739b981c6da338685b5d58d2af395145505cff0b9f2a27c9"
+      },
+      "PortableSleepPolicy.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableSleepPolicy.h",
+        "layer": "system-base",
+        "sha256": "70fa8ff8f63270b2a04d591bdbc61cd7e16d6483421121a96fe22f2855966d9d"
+      },
+      "PortableDeskClockSettings.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableDeskClockSettings.h",
+        "layer": "system-base",
+        "sha256": "ca26111d67474f7664d9fac748708c25f0bc0454c0ffe647e6199d689059af0d"
+      },
+      "AlarmServiceV1.h": {
+        "source": "lib/Alarm/include/AlarmServiceV1.h",
+        "layer": "tagged-alarm",
+        "commit": "bbafc2c3aebe8c3b9805639f873341e31296c8fb",
+        "sha256": "c70c087550306c123255e1ace41aeb504809e16b0193e382ec8dfbd7cb5531f5"
+      },
+      "PortablePeerFiles.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortablePeerFiles.h",
+        "layer": "system-base",
+        "sha256": "7498674fe9cb2cf6f139c501d46307296927c4978d01867146d46258a6935ee6"
+      },
+      "PortableOptionalService.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableOptionalService.h",
+        "layer": "system-base",
+        "sha256": "e8731e97933bd07a27e90cce29eb09566c7f4db0c7af5fd30faf2c7364c9460a"
+      },
+      "RiscDiagnosticCheckpointV1.h": {
+        "source": "sdk/app/RiscDiagnosticCheckpointV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "2c41504823df54a43e383baafa07f45191869f6ea5de4adaaf2651c2d78af017"
+      },
+      "PortableQuickUserPreference.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableQuickUserPreference.h",
+        "layer": "system-base",
+        "sha256": "cef595ee29659622dc8be0f5d841d40fa9ed18f6a082bd0140fde7c67e563f42"
+      },
+      "InstalledAppsProvisionV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/InstalledAppsProvisionV1.h",
+        "layer": "system-base",
+        "sha256": "6563f0e6c48fb22dc8fbcdddaf2f61f2e03e19086e738fcbb17c6e2d46698be5"
+      },
+      "ContextsServiceV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/ContextsServiceV1.h",
+        "layer": "system-base",
+        "sha256": "ade2f40d01c7c384c6a71b4ee2a3b077c140ac6af06d7cc69350f02f7be6643d"
+      },
+      "PortableTransition.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableTransition.h",
+        "layer": "system-base",
+        "sha256": "627e00b7c8143d946556f67a61803a56335f747dd8f6489bbfcabaef015542d2"
+      },
+      "PortableDeskClock.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableDeskClock.h",
+        "layer": "system-base",
+        "sha256": "603609b28ee7d891de2743d0f86417c3b00ca4201be28eb42ac257194e594bb4"
+      },
+      "PortableTouchScroll.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableTouchScroll.h",
+        "layer": "system-base",
+        "sha256": "d19aba992818d60477ef0fea7882b73dd6c9c1bd1db76d4d0faf9acc2e64aebd"
+      },
+      "RiscBluetoothSessionSetupV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/RiscBluetoothSessionSetupV1.h",
+        "layer": "system-base",
+        "sha256": "8cc14caeb548f11f0045811bfc7ac66c007ddd3419b5b8db6947dc7362725b9f"
+      },
+      "PortableResidentPolicyInput.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableResidentPolicyInput.h",
+        "layer": "system-base",
+        "sha256": "58063d5b10c848c09a1340e297c6aeb8fc7b9b4d7aed32e813d6c1904fbc5c0e"
+      },
+      "PortableTimeZone.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableTimeZone.h",
+        "layer": "system-base",
+        "sha256": "3cfb6687d8f3675beb020a059b8cd3b3d8beffd42c11c6fd61d14b48af729c54"
+      },
+      "RiscPreferenceStoreV1.h": {
+        "source": "sdk/app/RiscPreferenceStoreV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "dc5fb37d8158117cc4418957de0bb23b4723035860e6d27aa7d398887cb785a6"
+      },
+      "PortableAppCatalog.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableAppCatalog.h",
+        "layer": "system-base",
+        "sha256": "9328b640d09910d58cd83cfc3b14872a3a77133f1d50c15e4053bfaf2a3529e2"
+      },
+      "RiscRuntimeV1.h": {
+        "source": "sdk/app/RiscRuntimeV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "f1b59491473b268722306ce63a97228f90487493e13aa4f470b1ce0c864d4565"
+      },
+      "ContextsRules.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/ContextsRules.h",
+        "layer": "system-base",
+        "sha256": "e890b236dd7a969f25db9642fcd8eea25eaed68f3dcb41820ffaacc95c159c89"
+      },
+      "PortableAudioSession.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableAudioSession.h",
+        "layer": "system-base",
+        "sha256": "2f3d9cdd59005d44201f52005c7c88c8a9b2d9e816853338e4254196fad36f47"
+      },
+      "RiscProviderV2.h": {
+        "source": "sdk/driver/RiscProviderV2.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "62478822fa8943ddfd1607f8923de52d7b5b6fc8a0db2df6ca07c65c95c62d41"
+      },
+      "PortableContextRules.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableContextRules.h",
+        "layer": "system-base",
+        "sha256": "b259780f2366e80f9e818e63da659cc7cd8883dd73c22d2192f1452efa87e510"
+      },
+      "PortableSpringboardCatalog.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableSpringboardCatalog.h",
+        "layer": "system-base",
+        "sha256": "c5d0ef941090cb68a3d355989d6fedb27546a7d8b1fe16d30c702c326f3056ef"
+      },
+      "RiscBankStoreV1.h": {
+        "source": "sdk/driver/RiscBankStoreV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "4c20c21500f1c0724221f30cb5664e99b8316e3d0a9594319f63a206ed0e25a8"
+      },
+      "PortablePerformance.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortablePerformance.h",
+        "layer": "system-base",
+        "sha256": "3e97672f88ac23808d384c7244a95f8d47424048c3d593d9330f7ce17541ccc6"
+      },
+      "PortableContextFingerprints.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableContextFingerprints.h",
+        "layer": "system-base",
+        "sha256": "11493f75a58e83a67189c24c33bbd9657fdfd86da19266e4d8c56e98342a3d18"
+      },
+      "PortableInstalledCatalog.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableInstalledCatalog.h",
+        "layer": "system-base",
+        "sha256": "d01b8fd59edd509a80cb216a26ccd3b228f8d0321073f75d1ed74db6f6c56f3d"
+      },
+      "PortableNativeCustody.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableNativeCustody.h",
+        "layer": "system-base",
+        "sha256": "05302ee29be0222164be440b0a03bb9461ea5b6cd5d38c2f1f10a98a1eebebb9"
+      },
+      "PortableTextInputHandoff.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableTextInputHandoff.h",
+        "layer": "system-base",
+        "sha256": "ef811b3b7cf805ccdab1fb330e09dd8c533e303d29b8b4693ae5089a85432c36"
+      },
+      "PortableAppLaunchGuard.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableAppLaunchGuard.h",
+        "layer": "system-base",
+        "sha256": "a7da58c80c62ef35cdf4e76aff0d2f66768b66963457c3a00f5e9890ca357558"
+      },
+      "RiscAppDataV1.h": {
+        "source": "sdk/app/RiscAppDataV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "9eb18840ea691f88e85cca6ede3de4833467745ec29225a51a58cb84c0aac84e"
+      },
+      "PortableRasterLayer.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableRasterLayer.h",
+        "layer": "system-base",
+        "sha256": "6bfac32a8582a41d447bd8121dc76fdd147c2761f3d75ff458b556339c4f2ff9"
+      },
+      "CrashReportSession.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/CrashReportSession.h",
+        "layer": "system-base",
+        "sha256": "7ca0958fe337c5872b8aa501d897921e272ebc56d0d48ce209c3c6d687d00331"
+      },
+      "RiscRuntimeHostControlV1.h": {
+        "source": "sdk/app/RiscRuntimeHostControlV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "697f710f7512dc724c2986bac0abc86756c9ae0739577b4f4ab20583a2743815"
+      },
+      "RiscStorageVolumeStateV1.h": {
+        "source": "sdk/driver/RiscStorageVolumeStateV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "1f2f7dbfe9ec7ac27a57149ac720cf7f3a4801d6d34b5532f77c77db252b87a1"
+      },
+      "PortableWifiView.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableWifiView.h",
+        "layer": "system-base",
+        "sha256": "a045bf1cbc28314ef81dffd5a49f5e79d35dff83dded4a09dec5978d5d2139a3"
+      },
+      "RiscTimeSampleV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscTimeSampleV1.h",
+        "layer": "drivers-capability",
+        "sha256": "3298d2826a55263a5a5478f6f230030588ad7538aca5076d124d70f3e795eb2b"
+      },
+      "PortableForegroundIdle.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableForegroundIdle.h",
+        "layer": "system-base",
+        "sha256": "5f5466f43031d4aefcb942bdb671733da2d13521e7d9662950e28d5b102c5d87"
+      },
+      "PortablePreferenceAutomatic.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortablePreferenceAutomatic.h",
+        "layer": "system-base",
+        "sha256": "071c8c099abc403fb63176939b13158f821c839b51c7ccf57e9b5c3d2c565d66"
+      },
+      "RiscRadioScanV1.h": {
+        "source": "sdk/driver/RiscRadioScanV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "696227eecfd124f941023673680e0a15917d5b03c8f769756ed12ec34f7ccc9b"
+      },
+      "RiscDisplayOutputV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscDisplayOutputV1.h",
+        "layer": "drivers-capability",
+        "sha256": "11e747aecadcdfd0b37c79d057208ca9249714cb7482ca32b4a7a3296648c619"
+      },
+      "PortableUsbTransfer.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableUsbTransfer.h",
+        "layer": "system-base",
+        "sha256": "f1351bb4ca5d5af029f6427e814e77c2eca4baa410ca00e9be51a5bce794a2b3"
+      },
+      "PortableWifiAtomic.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableWifiAtomic.h",
+        "layer": "system-base",
+        "sha256": "e3d6f411a9ccae3f19f9b20b3d91fe4e99dc8e4746661210213a0c135abdc9fa"
+      },
+      "PortableQuickRender.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableQuickRender.h",
+        "layer": "system-base",
+        "sha256": "d3d8ce211ae359f36e4ecc85d0a8e009331a5a858c1d78aae4bb996d4025c767"
+      },
+      "PortableRaster.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableRaster.h",
+        "layer": "system-base",
+        "sha256": "0cded4d7c7d288f5f7a9b20114810aee209302e042d9cfead2cd8316866afc2e"
+      },
+      "PortableFileBrowser.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableFileBrowser.h",
+        "layer": "system-base",
+        "sha256": "ba52e70f3dd1ac3f705d29155eaeb5885550cb2b33cf459cfd15ddbe09bbccd3"
+      },
+      "PortablePreferenceAtomic.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortablePreferenceAtomic.h",
+        "layer": "system-base",
+        "sha256": "195f8515c0be007dc06821eba89c6f52680c2e0d375744a0adc63878d15aec31"
+      },
+      "PortableNativeTimeToolbar.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableNativeTimeToolbar.h",
+        "layer": "system-base",
+        "sha256": "6fde0eb385b40836aa10924a57b610ee26a43c0a3eb2148656ce38e9deac07f3"
+      },
+      "PortableDeskClockFaces.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableDeskClockFaces.h",
+        "layer": "system-base",
+        "sha256": "6864b07c69edcdc20e473d9716db2d9ce19edf2fbfafc379566c1990c78ac5a2"
+      },
+      "RiscAppDataExportV1.h": {
+        "source": "sdk/app/RiscAppDataExportV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "56f9afd075f0fe3d8e7e8cdbec2d34813018dfe6cb3de3f18b326c4de948cddd"
+      },
+      "PortableNovaUi.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableNovaUi.h",
+        "layer": "system-base",
+        "sha256": "c171d7b14d6fb6bca53fa500b9ce9e34daa17b6eed62ae9fd2452ed1ef0d5c5c"
+      },
+      "WatchLayout.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/WatchLayout.h",
+        "layer": "system-base",
+        "sha256": "e622bcf52e40ad7fd343f4c209dfa1dfe2ed87db979558cce26c39bfd6752b63"
+      },
+      "PortablePaperScroll.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortablePaperScroll.h",
+        "layer": "system-base",
+        "sha256": "6575d6618628f5e195b06d9034acea20be9a5d84cee1210c1c248546c27d4347"
+      },
+      "PortableQuickPreferences.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableQuickPreferences.h",
+        "layer": "system-base",
+        "sha256": "bc0de08849d553da4049cee1608d765db1f48d89aa27524094088ea31d8b1b91"
+      },
+      "PortableLowBattery.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableLowBattery.h",
+        "layer": "system-base",
+        "sha256": "c83b663b1d5676c7eb7a8ec59157f0efc561802cfe2a3b6eb63937e28b0acca3"
+      },
+      "PortableTimeZonePreference.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableTimeZonePreference.h",
+        "layer": "system-base",
+        "sha256": "0674f99eebc20d8665dc63915019c39b0dd7171e0ea8b6a284150b2eb473d7b0"
+      },
+      "PortableTextInputClient.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableTextInputClient.h",
+        "layer": "system-base",
+        "sha256": "f98564291d4b3685c429cdb96fd6edd0a4b5226b6bbde6ab3ea197a832f5746f"
+      },
+      "PortableDeskPointsSnapshot.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableDeskPointsSnapshot.h",
+        "layer": "system-base",
+        "sha256": "7d3a6816c86d029b9900e7af56e878cea814ed94d637a031031cc8fe928157eb"
+      },
+      "PortableQuickLayout.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableQuickLayout.h",
+        "layer": "system-base",
+        "sha256": "8b6757fcae081554eb3333ea475a83c74506f64c42e86e791d42663da55aa654"
+      },
+      "RiscRadioAsyncV1.h": {
+        "source": "sdk/driver/RiscRadioAsyncV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "2b5a916cfe9e1fb6520043c2b8f3e8c13ea8e022166fcbdfa6b50ce691ebfe48"
+      },
+      "PortableFileSharing.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableFileSharing.h",
+        "layer": "system-base",
+        "sha256": "454ef57abeea736a143ad7eeca52724bdafd1c7dfdfbf0062a3629f9527d30ec"
+      },
+      "RiscBluetoothTelemetryV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscBluetoothTelemetryV1.h",
+        "layer": "drivers-capability",
+        "sha256": "f98aaff4165ee3816846cfe9ba110e8bafce403342a870162eb1089a03d935a6"
+      },
+      "RiscTextEntryV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/RiscTextEntryV1.h",
+        "layer": "system-base",
+        "sha256": "a5733f06b1d8caf86f21d730abcd9ff833b603807c8b028a49544c997b6cdba3"
+      },
+      "PortableTimeSync.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableTimeSync.h",
+        "layer": "system-base",
+        "sha256": "68a478387a80daadb2ea047e020dc0e7c0874be8a361ca48b8bbc5aadd9a3965"
+      },
+      "PortableWatchKeyboard.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableWatchKeyboard.h",
+        "layer": "system-base",
+        "sha256": "f006ff13fe70236433ec6c37fb8cf5c4efe018d24393a9035c446e1f3554f4dd"
+      },
+      "PortableBluetoothControl.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableBluetoothControl.h",
+        "layer": "system-base",
+        "sha256": "777f0c7f92092d05a428c04255b6df1b3e9510a36c7425fc95092b3321e67a2c"
+      },
+      "PortableLastAttempt.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableLastAttempt.h",
+        "layer": "system-base",
+        "sha256": "90ad5c4235cbd7ccb622d537c6ba0aeb6aa692d7739c04dfee4dcd4472b7b951"
+      },
+      "PortableWifiSavedNetwork.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableWifiSavedNetwork.h",
+        "layer": "system-base",
+        "sha256": "9d61ddb8d6f5741e731c4b78123afeaf904a6447103b7231bc1d70842dd7e9ea"
+      },
+      "PortableTouch.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableTouch.h",
+        "layer": "system-base",
+        "sha256": "51307ba1f38ea23212bb6610abe3f2149ea65e1a8e36713cfc89e15e7e16b667"
+      },
+      "RiscEntropySourceV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/RiscEntropySourceV1.h",
+        "layer": "system-base",
+        "sha256": "042b367b5c766b4a79d887c3bc573fdd2c90b6b231510bd8b20d0b5c3d7796a7"
+      },
+      "PortableTimecardNative.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableTimecardNative.h",
+        "layer": "system-base",
+        "sha256": "284a45890a9df8b779c8263ce000f6cdc2c079a9b567cb446f74e595190927fa"
+      },
+      "PortableNativeScene.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableNativeScene.h",
+        "layer": "system-base",
+        "sha256": "5c638aa288c1e76c04d76c1222eae1dc7c0b3bb0d7bcbfab5e174f844ef67582"
+      },
+      "PortablePowerStatus.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortablePowerStatus.h",
+        "layer": "system-base",
+        "sha256": "957925504f2032963d1f2411bc676f2f6b493b41db3f9317182c2cca1a3067e4"
+      },
+      "RiscKeyValueAvailabilityV1.h": {
+        "source": "sdk/app/RiscKeyValueAvailabilityV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "7cf7765c26af74813f86a1a041a0a92495840c883f5e231c391294dd928ad976"
+      },
+      "AlarmClockChangeV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/AlarmClockChangeV1.h",
+        "layer": "system-base",
+        "sha256": "2e2d474327faccb9aea25085073e0e71df30cb96dd1984d183f876a153cb7302"
+      },
+      "ContextFingerprintService.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/ContextFingerprintService.h",
+        "layer": "system-base",
+        "sha256": "edbd70bd1542824f58ddd487cf22d7b59ced4bb762361288210a489a01c4f0b7"
+      },
+      "RiscProtectedSettingsPath.h": {
+        "source": "sdk/app/RiscProtectedSettingsPath.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "d7b894658ad802fbb9c15b17f0f3953dfd9bd48e0a3ffffbc5c1b21f457ec750"
+      },
+      "PortableAppCustody.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableAppCustody.h",
+        "layer": "system-base",
+        "sha256": "82f6fd94881499646be4bfa491fec9338bf99ad0d50adfaadbe876db7da9600c"
+      },
+      "PortableHomePointsCatalog.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableHomePointsCatalog.h",
+        "layer": "system-base",
+        "sha256": "d3c46fef226e626c0732c190108d016caf7bfbdfa0ac15c120e3ce281ca9181b"
+      },
+      "RiscFileOpenSourceV1.h": {
+        "source": "sdk/app/RiscFileOpenSourceV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "6f4592ea20f26262125e9a1a1ae030aa13bbc08d06eb319c7d7f09417598ad02"
+      },
+      "PortableContextActions.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableContextActions.h",
+        "layer": "system-base",
+        "sha256": "9ebea2abc377b880fed7ab8537b93fa123eb58ea11d35f53aa96bcf4fd0dbb0c"
+      },
+      "CrashReportSd.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/CrashReportSd.h",
+        "layer": "system-base",
+        "sha256": "779e02c23c190439a7683b0cc827012e3fbe781085a118e2722ec22604d5f6ba"
+      },
+      "RiscTouchV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscTouchV1.h",
+        "layer": "drivers-capability",
+        "sha256": "fe18fab3ac20fda95747388f1428408b7795e5da3511c7a9fff07c16ddfd2c7d"
+      },
+      "PortableWifiCredentials.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableWifiCredentials.h",
+        "layer": "system-base",
+        "sha256": "a6fd61ac64d3607de04b01185633fe9653678df73a467c22e458f9cc43393d29"
+      },
+      "PortableUpdate.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableUpdate.h",
+        "layer": "system-base",
+        "sha256": "344344762bfc0430285ecf8a781b64fb3789949cca7a517ad0b0684bf7fa6b76"
+      },
+      "PortableQuickActions.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableQuickActions.h",
+        "layer": "system-base",
+        "sha256": "6f03506c6846c1644c7eed750ce50369c4dfa111566f4720c1c5bd65a50fbc55"
+      },
+      "SoftwareUpdateV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/SoftwareUpdateV1.h",
+        "layer": "system-base",
+        "sha256": "25c1851c3c61f7d699d166c230cc561961c7e6f0fb5dcad5db8e24eb6bcf93ca"
+      },
+      "PortablePreferenceRollback.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortablePreferenceRollback.h",
+        "layer": "system-base",
+        "sha256": "9b2f63ba5752a93a8bb269a77aef29dfe0f0d4dc1a946ab16cfa5b341de7f92a"
+      },
+      "PortableRealtimeClient.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableRealtimeClient.h",
+        "layer": "system-base",
+        "sha256": "43877995f95622d7e7e9733f6bca181f6aad222b604d1d4ba85b344551ec6f1b"
+      },
+      "PortableRoundViewport.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableRoundViewport.h",
+        "layer": "system-base",
+        "sha256": "a1dc6e51fb88c1f017b3d1653b7eb52e50dd4cb3499f3fdb978a2ac766d12e84"
+      },
+      "FailureEvidenceReport.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/FailureEvidenceReport.h",
+        "layer": "system-base",
+        "sha256": "4e82c61315936c04ee75f61f6a375b2f568fdd6aacc58487127a11f0932c4a67"
+      },
+      "PortableAlarmTerminalClient.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableAlarmTerminalClient.h",
+        "layer": "system-base",
+        "sha256": "9e7a94d258c2f5027639964985d4c165225fe6028eecacd5c5bcbb80d45d998f"
+      },
+      "PortableFrameReceipt.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableFrameReceipt.h",
+        "layer": "system-base",
+        "sha256": "a849140306b3595ecf3abe44691e6eac27aedf939f6bdbedde49186ef7d3c5fd"
+      },
+      "PortableAlarmClient.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableAlarmClient.h",
+        "layer": "system-base",
+        "sha256": "1515b28f7761289b6edd148e653c5d8985b145c439f5d261adef4b307edc463a"
+      },
+      "RiscHttpClientV1.h": {
+        "source": "sdk/driver/RiscHttpClientV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "e966177d426d3fadcb420f5fa9dd7226d3450a208f7ed333808d6466ba7bf8d6"
+      },
+      "PortableAlarmSettings.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableAlarmSettings.h",
+        "layer": "system-base",
+        "sha256": "cf4fb88bfeabb99282b02a871963858a9d20c8985e7da80d57341c33c5250284"
+      },
+      "WifiApi.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/WifiApi.h",
+        "layer": "system-base",
+        "sha256": "eddb48c2e4284a592f32a540e10e02572bf251e3145783e9083278afd1aa0159"
+      },
+      "RiscInputNavigationV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscInputNavigationV1.h",
+        "layer": "drivers-capability",
+        "sha256": "2644754feb7238d066908658ac9d4fe25537d4d5e424a6aef1365fabea600a26"
+      },
+      "PortableContextsClient.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableContextsClient.h",
+        "layer": "system-base",
+        "sha256": "5579586750294a4f25e29f5499eb81ef7a4858dbd4ede4861b106f867614ee0a"
+      },
+      "PortableAutomaticProvision.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableAutomaticProvision.h",
+        "layer": "system-base",
+        "sha256": "1ad6f71d4093785efee72c590ef6cf781f3516290d3584b4eb045a8bd3a8d869"
+      },
+      "PortableRtcBasis.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableRtcBasis.h",
+        "layer": "system-base",
+        "sha256": "89bd6751cf29c78e0eb3b76b3fe1862d5ebe733b9da0de4688e95150885496f9"
+      },
+      "PortableTextInputCheckpointClient.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableTextInputCheckpointClient.h",
+        "layer": "system-base",
+        "sha256": "1c5c1dd7c1e47cc9844d1838e85c09fdd8949c9c43006e99205d0cc4f2059de0"
+      },
+      "PortableTextInputExtendedClient.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableTextInputExtendedClient.h",
+        "layer": "system-base",
+        "sha256": "c466d3143c160ec19ece4b1b073070cb0f953ab3820e8ebe6f12be813025f4cc"
+      },
+      "InstalledAppsBootProfileV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/InstalledAppsBootProfileV1.h",
+        "layer": "system-base",
+        "sha256": "01f439e2f8ad5c224643df1afed7c9fe311a4b6be5d18d750b680e8413eab49d"
+      },
+      "PortableClockCommit.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableClockCommit.h",
+        "layer": "system-base",
+        "sha256": "89091d22f5c47e9d8591229f024bf1040d58053829a6559b861b3c05cd6ad1c9"
+      },
+      "PortableDeskClockApp.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableDeskClockApp.h",
+        "layer": "system-base",
+        "sha256": "3f5e02d7ec62352fea644aa9e5d7dbd81bf4a21fa53e8d346eeed6c659133c59"
+      },
+      "RiscStorageExportV1.h": {
+        "source": "sdk/driver/RiscStorageExportV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "4ba5a0cec6bd9514dd5f77982f1b94c22aeca72bf94d0c79b11f1f5b689189a2"
+      },
+      "PortableSettingsAvailability.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableSettingsAvailability.h",
+        "layer": "system-base",
+        "sha256": "5c5b9982bce02a532b18644580c4f7ece11bfa0df01ae0c1078bc86183d20be8"
+      },
+      "RiscKeyValueV1.h": {
+        "source": "sdk/app/RiscKeyValueV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "0e73bf29c402be030baf52f5b2b324f5b872549cdf58aa31f45b72bd70977179"
+      },
+      "PortableFrameCadence.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableFrameCadence.h",
+        "layer": "system-base",
+        "sha256": "d524dea3416fdbc9453fb89fc8d0221ffbc85a27dd6451e4659a12fc776571f2"
+      },
+      "WatchViewLayout.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/WatchViewLayout.h",
+        "layer": "system-base",
+        "sha256": "3585c799dc39eeb451e6669d6b07cc86fe6633456935407cb81dd29e0534ded2"
+      },
+      "PortableSetTime.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/include/PortableSetTime.h",
+        "layer": "system-base",
+        "sha256": "52bff55873d1e29ece9da91e26e4840fa4035daad858f1f5618281b5ba985457"
+      },
+      "RiscAudioPcmV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscAudioPcmV1.h",
+        "layer": "drivers-capability",
+        "sha256": "2a7c5417aa4453440e3b8112d664a93530aeb4d5567a3b2eb3c93f929a46d321"
+      },
+      "RiscAudioV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscAudioV1.h",
+        "layer": "drivers-capability",
+        "sha256": "46c362397b6ce9754261a05a111b8c43aea32adccf83e1f3491cef5e895b607f"
+      },
+      "RiscBluetoothHidV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscBluetoothHidV1.h",
+        "layer": "drivers-capability",
+        "sha256": "ccac0a0c70b6aa73233201c1289a6825b6976d8d6b1758e394995eed234bf1b7"
+      },
+      "RiscBluetoothHostV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscBluetoothHostV1.h",
+        "layer": "drivers-capability",
+        "sha256": "d3846ce9597357772ad37739a1919e28a15790d9d2067be3060dabe976d27156"
+      },
+      "RiscBluetoothSensorsV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscBluetoothSensorsV1.h",
+        "layer": "drivers-capability",
+        "sha256": "62f21be78604b6c32c47beb8317f1fea059653b407baa73a93ee23ce8d8d050e"
+      },
+      "RiscBoundKeyValueV1.h": {
+        "source": "sdk/driver/RiscBoundKeyValueV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "4a4c7ce1ea9a941e833afc0a5c796cae1b7ec49a813350288e4220a6b52bb4d3"
+      },
+      "RiscBq25896ProfileV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscBq25896ProfileV1.h",
+        "layer": "drivers-capability",
+        "sha256": "04e33c1b5a3385c2bedf275b85aa62a5dbfbec8cb38c2f3879ebb413e70a0c98"
+      },
+      "RiscDisplayPowerV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscDisplayPowerV1.h",
+        "layer": "drivers-capability",
+        "sha256": "4ba5303d82c1b9a97ba1abada14456f882e449331bc04bf9caa70ded23d1560b"
+      },
+      "RiscFirmwareI2cCompatV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscFirmwareI2cCompatV1.h",
+        "layer": "drivers-capability",
+        "sha256": "4abe4c6d4b83432bd76ca8fdbf9502dfbab25f5579ae0acd6de367cc133bb0ef"
+      },
+      "RiscFrontlightV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscFrontlightV1.h",
+        "layer": "drivers-capability",
+        "sha256": "202f9f4b5e00452d80f2bda836327a121e23437280f166bbf45c64764ba15d9d"
+      },
+      "RiscGpioBankV1.h": {
+        "source": "sdk/driver/RiscGpioBankV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "58cb736872a689413f6ffcf24cc5cc1bce5187e7d7cfb6fcffe10ad854e7a35c"
+      },
+      "RiscI2cBusV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscI2cBusV1.h",
+        "layer": "drivers-capability",
+        "sha256": "a6b769efbbf7f3837a6a348689b0aee84bf687ae8e18a31d0296f3bfa6ac2004"
+      },
+      "RiscMspFetV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscMspFetV1.h",
+        "layer": "drivers-capability",
+        "sha256": "883879ee0ce2ac3ff5df42eb549a856557132a4da5a1dfe22edff8ad8c4e015b"
+      },
+      "RiscPowerKeyNeutralizeV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscPowerKeyNeutralizeV1.h",
+        "layer": "drivers-capability",
+        "sha256": "5ec7d904b25d8ea8d515ceac88605d1f183cfe48740a30133a16c983d7d7f111"
+      },
+      "RiscPowerKeyV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscPowerKeyV1.h",
+        "layer": "drivers-capability",
+        "sha256": "65acb08b7527a7597ea24a6adae6d70e7182413705b957cdb88e27e2a985e75f"
+      },
+      "RiscPowerSleepV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscPowerSleepV1.h",
+        "layer": "drivers-capability",
+        "sha256": "2ca96de4ddb76b511c2b9d23571a060e19efff3ebf793714324c5ac012c5179c"
+      },
+      "RiscProgramMspV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscProgramMspV1.h",
+        "layer": "drivers-capability",
+        "sha256": "fd1a7c6ebdfdaeb951c3b82abf2baca6f84f4a4e533841c12d2eb81ff2e0166f"
+      },
+      "RiscRadioIqResourceV1.h": {
+        "source": "sdk/driver/RiscRadioIqResourceV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "5a1cc689b067ea59ca15ef62d943ef6fb8d4f75a887de210c859fb7e0f471874"
+      },
+      "RiscRadioIqV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscRadioIqV1.h",
+        "layer": "drivers-capability",
+        "sha256": "7b6e99c6a886b9445ffae7c3471c4f9867b8af9329924710203db5b99764bd2f"
+      },
+      "RiscSerialPortV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscSerialPortV1.h",
+        "layer": "drivers-capability",
+        "sha256": "7f00311161a071c6575be8b65e7aba30ebef7a8f1a45f9c0bf9168bc25e05700"
+      },
+      "RiscSerialStreamSessionV1.h": {
+        "source": "sdk/app/RiscSerialStreamSessionV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "66d328c2a201625a7be348507c8dbedcaa937dfb46f86b05ecd04d60e3fba0b7"
+      },
+      "RiscStlinkV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscStlinkV1.h",
+        "layer": "drivers-capability",
+        "sha256": "1261bd3a8ed77646d03a686cb13b72461ca9ca040ef81d48329e92228461ed8d"
+      },
+      "RiscStreamResultV1.h": {
+        "source": "sdk/driver/RiscStreamResultV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "af140ee9ca4f6286c5f1beeecb0a0952264b14eb40d3ba4f313ff952e8824a6f"
+      },
+      "RiscStreamSessionProviderV1.h": {
+        "source": "sdk/driver/RiscStreamSessionProviderV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "fe463661530c43ae7d1dd8b9c8227fdc6a7e4380bca3f5c8a13287cb0db9e873"
+      },
+      "RiscTextInputV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscTextInputV1.h",
+        "layer": "drivers-capability",
+        "sha256": "32f2a6cda3b7a4fef8487cc046ceb891261e483feafed32908cbd924112a1a77"
+      },
+      "RiscUsbControllerV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscUsbControllerV1.h",
+        "layer": "drivers-capability",
+        "sha256": "226f083493085ecdcaa21a7c3bf1c269640b7d1ebaa099e7217fb64124f1dbed"
+      },
+      "RiscUsbDiscoveryDiagnosticsV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscUsbDiscoveryDiagnosticsV1.h",
+        "layer": "drivers-capability",
+        "sha256": "b0a2652e3724f5cb3003485397fae860a6f49a38092d5f30345573ec8931c4d7"
+      },
+      "RiscUsbGamepadDiagnosticsV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscUsbGamepadDiagnosticsV1.h",
+        "layer": "drivers-capability",
+        "sha256": "b58df5e7618f8a0e3e58ae023fd034c96ff9f7d04b6c35080a4b6661a064ae0a"
+      },
+      "RiscUsbHidV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscUsbHidV1.h",
+        "layer": "drivers-capability",
+        "sha256": "5b5549c4cb718dec55f2aca8bc93f401b2d5a703d30aaa1a78d1bcdd26755b5c"
+      },
+      "RiscUsbInterruptV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscUsbInterruptV1.h",
+        "layer": "drivers-capability",
+        "sha256": "bfdd4644feaf3f4dc5d06070f052104579d3fb902e27e707f27943d7bf22815e"
+      },
+      "RiscUsbProviderV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscUsbProviderV1.h",
+        "layer": "drivers-capability",
+        "sha256": "77f67cf5db7ed3fd7c6e148807bc705b5f8443c90d401b546069d756eb997b9a"
+      },
+      "RiscUsbVbusV1.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/RiscUsbVbusV1.h",
+        "layer": "drivers-capability",
+        "sha256": "27efb8b327d38c3ca6a97d5f2936094659f67d69e89b49afcba9fc4ee5db6a6a"
+      },
+      "T5DriverApi.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/T5DriverApi.h",
+        "layer": "drivers-capability",
+        "sha256": "e0960f0b2e2579d7b7245734b593182841806c5eb7b7d67af4194ac8eb0c4b55"
+      },
+      "T5GnssProvider.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/T5GnssProvider.h",
+        "layer": "drivers-capability",
+        "sha256": "f093ed0f5707b1cbe12caa5086f248e884fb5f69c7fbcf1f6f6a3ce911747116"
+      },
+      "T5GpsApi.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/T5GpsApi.h",
+        "layer": "drivers-capability",
+        "sha256": "a0550bc74574ba073a419d8a65ae73bd2697f531dc1b6d5172d6eab5ccea3262"
+      },
+      "T5UsbClassDriver.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/T5UsbClassDriver.h",
+        "layer": "drivers-capability",
+        "sha256": "64a6a3a8081509ce9ab8e15c15095578174d9d7afb4343672576b89b4f65300d"
+      },
+      "T5VideoApi.h": {
+        "source": "/workspace/scratch/2ab1619b7e17/verification2/drivers/sdk/driver/T5VideoApi.h",
+        "layer": "drivers-capability",
+        "sha256": "7efa44432f7787ab6827c5e284f368ac4db7dcef274fcd8e0c062c0086c9d5db"
+      },
+      "GardenPlatformV1.h": {
+        "source": "sdk/driver/GardenPlatformV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "2e8e32f52554b706fafce1af27a5fbaf99187f67ecb55dc0cf333144b48ef9d2"
+      },
+      "GardenRadioAsyncV1.h": {
+        "source": "sdk/driver/GardenRadioAsyncV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "2cd46090528452cdb1f9d8368fa3f4afc568c0403f7acb38613fe63c6ac3b6aa"
+      },
+      "RiscBoundAppDataAsyncV1.h": {
+        "source": "sdk/driver/RiscBoundAppDataAsyncV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "3bdc04e0b27ba119139fe8ac81bcc59e3c979ca83847425ccff98f147242f7be"
+      },
+      "RiscBoundAppDataV1.h": {
+        "source": "sdk/driver/RiscBoundAppDataV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "f4c6b9e475409515ee3b385a85790f592e8d943b0f811707926a32be4e1a6a42"
+      },
+      "RiscBoundKeyValueV2.h": {
+        "source": "sdk/driver/RiscBoundKeyValueV2.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "f9c6589a346e6a79e784c37862228cc0c3ad3fe0c4cd8d6664800605f239b606"
+      },
+      "RiscDeepSleepV1.h": {
+        "source": "sdk/driver/RiscDeepSleepV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "0949cf9591ef0f07b61c1306897287ea2eb1533755b5e569bfe1cb2c9b236161"
+      },
+      "RiscDiagnosticSourceV1.h": {
+        "source": "sdk/driver/RiscDiagnosticSourceV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "a2e246858df68fc5ad452f0d4b07d8eba10267176f75f17346417ef2b83fa845"
+      },
+      "RiscDisplayBackendV1.h": {
+        "source": "sdk/driver/RiscDisplayBackendV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "ac21e77652597e7f211b5630c447327efe75536b7f13c468e2c168797f3f38f2"
+      },
+      "RiscEntropyV1.h": {
+        "source": "sdk/driver/RiscEntropyV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "08b4d52e71b1349a57d1713e54bcc7872ae63d55edf647ec17b0bbb2f509c0d1"
+      },
+      "RiscGpioSdmmcV1.h": {
+        "source": "sdk/driver/RiscGpioSdmmcV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "00d7788c381be557deec18a959b55d474bad7edc0331ae8331b878a618b9818f"
+      },
+      "RiscHciControllerStatusV1.h": {
+        "source": "sdk/driver/RiscHciControllerStatusV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "235b388d91ed7e0becbb44dd476a29ef526fb2f7d9bf44b1072b86cbe5860e0e"
+      },
+      "RiscI2sStandardV1.h": {
+        "source": "sdk/driver/RiscI2sStandardV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "22b2624c25f07085bb768d49e295f3a7e4ebf2891f5fb9948b12ead826cd35c0"
+      },
+      "RiscInstallationMediaV1.h": {
+        "source": "sdk/driver/RiscInstallationMediaV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "bfceaef18bca72c67855adb7f0846c6a9cac92c6ac3b396ee8318aac5ddb7481"
+      },
+      "RiscInstallationV1.h": {
+        "source": "sdk/driver/RiscInstallationV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "cbf51953a4b8b11cfa0891cd3f16796123bc3e546e22b62b43285a83aa1496f4"
+      },
+      "RiscInternalPackageVolumeV1.h": {
+        "source": "sdk/driver/RiscInternalPackageVolumeV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "398d0003d98d4bed49bd0e667b25d76180d2657486c784ffeab10139d910dc9c"
+      },
+      "RiscLightSleepV1.h": {
+        "source": "sdk/driver/RiscLightSleepV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "43cbd671265959ec2db7904bf6185e97a87c4cde9d389cdccf6fbb7c916f3b94"
+      },
+      "RiscPackageResourcesV1.h": {
+        "source": "sdk/driver/RiscPackageResourcesV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "8aff53415cf68a46e8e492dd02d12bde802ce2a1d69629dd4f3b0aad5794e459"
+      },
+      "RiscPlatformClockWaitV1.h": {
+        "source": "sdk/driver/RiscPlatformClockWaitV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "c09d95c418f930f56c6e66004e07e38cb5726d8c7e5cd49b579bafbeebbe831c"
+      },
+      "RiscPlatformRealtimeV1.h": {
+        "source": "sdk/driver/RiscPlatformRealtimeV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "ed642c0f37350f7f1402342c7710564019db9c4750f3572f153d2ef1e37eca98"
+      },
+      "RiscProviderSyncV1.h": {
+        "source": "sdk/driver/RiscProviderSyncV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "c0981bde804b20c1b963323f91c4e9804c144c56535160bfd467be7e93028f45"
+      },
+      "RiscSpiFrameV1.h": {
+        "source": "sdk/driver/RiscSpiFrameV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "189493301b8480f8f59a63bd894fa46a747d63e7e790d26da56d7469e88a1461"
+      },
+      "RiscSpiQuadV1.h": {
+        "source": "sdk/driver/RiscSpiQuadV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "9f62ada4f4b5ecc62284afe6096ab039409a75769f61f08f57f73d68da9af6fe"
+      },
+      "RiscStorageAsyncAdapterV1.h": {
+        "source": "sdk/driver/RiscStorageAsyncAdapterV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "4b0df57b80046eeed82afddac4233dcbf378378b300805bdaca836ad238223e0"
+      },
+      "RiscStorageNativeCapacityV1.h": {
+        "source": "sdk/driver/RiscStorageNativeCapacityV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "5eabb6202e062cc66d73b8645c0faa25ad7bc9eb57f0ed3e1a59846e3b305db2"
+      },
+      "RiscStoragePackageAsyncV1.h": {
+        "source": "sdk/driver/RiscStoragePackageAsyncV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "5a3703aede3c7ae523d0d0eb1ea31ab0e9915424af7b9db6d9c7d8f23118534f"
+      },
+      "RiscStorageSessionAdmissionV1.h": {
+        "source": "sdk/driver/RiscStorageSessionAdmissionV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "eccf8e59cba6ec58a2456d00bcbd07131d1e4ec8d5ac36f23b35f793a33284fc"
+      },
+      "RiscStorageVolumeAsyncV1.h": {
+        "source": "sdk/driver/RiscStorageVolumeAsyncV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "e395dccfa5c89e1585acaed0e5c8932d8487940261759741e3e60b483aafcaec"
+      },
+      "RiscStorageWorkerAdmissionV1.h": {
+        "source": "sdk/driver/RiscStorageWorkerAdmissionV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "013322a0db332ee9e7b124399ac12dfe050c53fd4b018feb7c278edd2ef8d8bd"
+      },
+      "RiscStorageWorkerV1.h": {
+        "source": "sdk/driver/RiscStorageWorkerV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "9e859235403292a0108fd10b8122218d72c1c2d1dd460d94304d919f77b83b6f"
+      },
+      "RiscTcpListenerV1.h": {
+        "source": "sdk/driver/RiscTcpListenerV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "63ed934c4cb1a505de539d06ad04c1551ec23f64d56b6ea07129698dde0ba886"
+      },
+      "RiscTimedSleepV1.h": {
+        "source": "sdk/driver/RiscTimedSleepV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "475ba9bfaf6c7497ace7baeb93f2bd9a6abe1e3a91f62eed24862a88d60dbf34"
+      },
+      "RiscUsbPhyResourceV1.h": {
+        "source": "sdk/driver/RiscUsbPhyResourceV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "fe668ff8e8f83ea454eafd059c61c633d2213bc2a77504d8794a64c1dc11b016"
+      },
+      "RiscWakeSetV1.h": {
+        "source": "sdk/driver/RiscWakeSetV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "0b5a4914ac67d37b420e1ea19b591a71440f6e4c20149ca4324e1049517ba375"
+      },
+      "TWatchPlatformV1.h": {
+        "source": "sdk/driver/TWatchPlatformV1.h",
+        "layer": "runtime-driver",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "88457c6cd36a8d2550c964ede1060b4006b72be5d290cff7cd108087bacc16dd"
+      },
+      "RiscDisplaySpiV2.h": {
+        "source": "sdk/hardware/RiscDisplaySpiV2.h",
+        "layer": "runtime-hardware",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "362c056e5512fc99d500451f7758dba023cf7d096536959e3fab8b05cd1001ce"
+      },
+      "RiscHardwareConfigV1.h": {
+        "source": "sdk/hardware/RiscHardwareConfigV1.h",
+        "layer": "runtime-hardware",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "47fa4cd7d4f09f571a5aedc87376d2f57520ad7873f5556af0a932011633e240"
+      },
+      "RiscI2cFunctionV1.h": {
+        "source": "sdk/hardware/RiscI2cFunctionV1.h",
+        "layer": "runtime-hardware",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "2706be5fb3ace2f85d37ac24e4559631c6a941e96f8a99a57d0067c3b24bf13c"
+      },
+      "RiscI2sStandardConfigV1.h": {
+        "source": "sdk/hardware/RiscI2sStandardConfigV1.h",
+        "layer": "runtime-hardware",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "45d9f1f080b2a8e118045286582612a750f95e41449add9bf75d1713152aa282"
+      },
+      "RiscTouchI2cV2.h": {
+        "source": "sdk/hardware/RiscTouchI2cV2.h",
+        "layer": "runtime-hardware",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "78179bc7a8d2dbbb5fb738d1ffabe02b31312173e70c9573941d1c8a4fcad3cf"
+      },
+      "TWatchHardwareV1.h": {
+        "source": "sdk/hardware/TWatchHardwareV1.h",
+        "layer": "runtime-hardware",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "ca48ca21a944565ae185f7c4e8cc0e73bcc18871d79b966f7e7da916e7ab2c99"
+      },
+      "RiscFailureEvidenceV1.h": {
+        "source": "sdk/app/RiscFailureEvidenceV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "f2b024c21780155bacf78bd67a279d8959365c1d25ff1ba421449dd5d3b35265"
+      },
+      "RiscKeyValueV2.h": {
+        "source": "sdk/app/RiscKeyValueV2.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "c66337a93c6f5fff6dac9507e011655f4827c3d0ec06b3e6d9d039084b3ec4d3"
+      },
+      "RiscMemoryHeapV1.h": {
+        "source": "sdk/app/RiscMemoryHeapV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "369965f04303c7dae3d52b5e3d47aeb01f417ab0a566919fdb94677a1d64dced"
+      },
+      "RiscPerformanceV1.h": {
+        "source": "sdk/app/RiscPerformanceV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "c1e52e2e257a057dbbbc371fb8d83d9262bcea674f28f6ce9c56725b0d6dd14d"
+      },
+      "RiscProviderPromotionV1.h": {
+        "source": "sdk/app/RiscProviderPromotionV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "751585fed0336bf068cdde488d65b2e0191f113184e48eecbfb4f80861512c51"
+      },
+      "RiscRandomV1.h": {
+        "source": "sdk/app/RiscRandomV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "67e10d8b6d8b96f0ead5f0071e0eabbf73e30d2a6e0968e8bdd371ad492b6b57"
+      },
+      "RiscRealtimeV1.h": {
+        "source": "sdk/app/RiscRealtimeV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "639781f728841cda6d40c3033877436b9e5d59519a4b15e11a9bc99b2365395d"
+      },
+      "RiscResidentShellV1.h": {
+        "source": "sdk/app/RiscResidentShellV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "1a84715c03fcc7fae7f75cb72c0daf875e761567dda5d1b39ec0dc8b14fba8bd"
+      },
+      "RiscRetainedWakeV1.h": {
+        "source": "sdk/app/RiscRetainedWakeV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "7c7b6f0d56631f3aab521a43499d2ea840d075084536e4afa654a74c52e1e511"
+      },
+      "RiscRuntimeCheckpointV1.h": {
+        "source": "sdk/app/RiscRuntimeCheckpointV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "dcc3bb7d76aa2d39f45d6cc648f38b6e4e3708cafcff463d21bee96275fd17f0"
+      },
+      "RiscRuntimeSleepV1.h": {
+        "source": "sdk/app/RiscRuntimeSleepV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "b21695ec84db931e58ddb1a2a916f7f017d55d7546707eb25ee4247df87e3a28"
+      },
+      "RiscStorageFilesDirectoryV1.h": {
+        "source": "sdk/app/RiscStorageFilesDirectoryV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "bf19f85ef1d4d0fa9664056026ac61dfbd3dc58b96600273a877489b8a576639"
+      },
+      "RiscStorageFilesIdentityV1.h": {
+        "source": "sdk/app/RiscStorageFilesIdentityV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "4e6561f5a1f3402501ad12a13e097c019c7f3dfd6df2311071d7f2d5515716d7"
+      },
+      "RiscStreamClientV1.h": {
+        "source": "sdk/app/RiscStreamClientV1.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "ef5deb9a3bf8d20c0af9859a83977b93acfb8e480a851d0dcf96caf2795babcb"
+      },
+      "T5FileOpenApi.h": {
+        "source": "sdk/app/T5FileOpenApi.h",
+        "layer": "runtime-app",
+        "commit": "273bdbccf65647a803ab0586a418f8283732baec",
+        "sha256": "c1b873e364dba81ce39d8c8a62668db618735407a6291dca87b9795ce4accc30"
+      },
+      "AlarmServiceV2.h": {
+        "source": "lib/Alarm/include/AlarmServiceV2.h",
+        "layer": "tagged-alarm",
+        "commit": "bbafc2c3aebe8c3b9805639f873341e31296c8fb",
+        "sha256": "786007e521ac01fc6b2dedd9c3fa2314b779f386978856de9bc435c8b6dfda89"
+      },
+      "AlarmClockEditV2.h": {
+        "source": "lib/Alarm/include/AlarmClockEditV2.h",
+        "layer": "tagged-alarm",
+        "commit": "bbafc2c3aebe8c3b9805639f873341e31296c8fb",
+        "sha256": "555e197063ae3c60fa9f2cf2766214f16bf2c6796bf28fddc3b4003471a259ef"
+      }
+    },
+    "time_sha256": {
+      "SOURCES.json": "4e7f30ef9414cc625484bd693ff5cbf8a00adc7571f55feae36f9cdf0b2bc5b3",
+      "TIMEZONE_PROVENANCE.json": "4dda9d416b6ca815155dbf3ecac6452789564ff1312bba2d28a6d5a9b7eaab1b",
+      "denver/display_time.h": "9460e26e1d6faf574a212cdec86d9477de7a0e5d50168d5e7e76613be2868a03",
+      "denver/twatch_calendar.h": "67e4a670e4ee8a485843e99be0d198d0b60d84a0bc8d84fc77a3d0e4bde39733",
+      "denver/twatch_caps.h": "b8b3003c77c72eb251227329c94fda7244389fb45c7a7e92aa01a5ddce50600e"
+    },
+    "hardware_qualification": false,
+    "alarm_descriptor_clock_edit_feature_recognized": true,
+    "clock_edit_authority": false
+  },
+  "source_repositories": {
+    "productivity": {
+      "path": "/workspace/scratch/2ab1619b7e17/verification2/productivity-prototype",
+      "commit": "55dd087b054242eb6b28acae08b0f2a913ce0e35",
+      "dirty": false
+    },
+    "system": {
+      "path": "/workspace/scratch/2ab1619b7e17/verification2/system-prototype",
+      "commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "dirty": false
+    },
+    "runtime": {
+      "path": "/workspace/scratch/2ab1619b7e17/verification2/runtime-prototype",
+      "commit": "046f4c22b263739f3bf3f96f888617d72eb3d498",
+      "dirty": false
+    },
+    "utilities": {
+      "path": "/workspace/scratch/2ab1619b7e17/verification2/utilities-prototype",
+      "commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "dirty": false
+    }
+  },
+  "source_sha256": {
+    "/workspace/scratch/2ab1619b7e17/verification2/productivity-prototype/Apps/timecard_portable.c": "f749a670efc56f315ebeb2dbed2abcbca4f5368427b8d9e33af084791c0cf01b",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/adapter.c": "a9cd5966f4c9d5ab7d602c9c693485bcb81b0d0ff9c771165534c5cfddc54c79",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/quick_actions.c": "f980b8318a1c5f97532c54ecc841ddf4dfa6dc91cec4ab049cd7c68e68ac7ea3",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/quick_render.c": "249d325a6db502ee24af940287f62285f5eae7e95fadd8b1546383aa095a56cc",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/quick_session.c": "11f62f03f0511aae07a06b5a813d00e8aebc711e60828350dd6170c59f4711a0",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableRealtimeClient.c": "9bf7d696fa0d5578f622ddf9634093057f95a684f62aa93007d0121b936f44d6",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableTimeZone.c": "28c0fecf7a4d83bde07d2b72cb591122cf3c49c3219c8344b97b82a90625c5e7",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableTimeZoneCatalog.c": "29d4c86037f7554c94a4404d5e39e28091430a1f9c23b5e35224aed3df826f20",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableTimeZonePreference.c": "b54e455d587ba2ecda8f59dd899b59b767214aee807b92d79d18c5e9d30b6bb7",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableNativeTimeSource.c": "dc5594b34a42dedaf82c24d1acdfcefc1cd4abaa36eb9b2d0e4aaef3e139ce7e",
+    "/workspace/scratch/2ab1619b7e17/verification2/drivers/components/portable-light-sleep/foreground_light_sleep.c": "423a5ec8fea8f8a470385842b120a18cd347f89a3a5210479367062bd3e31d2f",
+    "/workspace/scratch/2ab1619b7e17/verification2/drivers/components/portable-light-sleep/foreground_idle_preferences.c": "00f8844d41b09d605ae4d96eebdd90291e89a1701b434316eccfc5b0631eafcc",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/catalog.c": "b777404301a5286ce19a95f4099bac47d93a46d3f86190b51b6c78665bbce23c"
+  },
+  "builder_sha256": "2907edeb32d2530b6ccae37166d2959843796597cb2e60d0d61dbbb00bd57913",
+  "build_helper_sha256": {
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/scripts/portable_foreground_idle_build.py": "fbfa0cdaff92a9b1d921bddbd0916c00ca2218f0ae677250bd6bdf9140278aef",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/scripts/native_toolchain.py": "18da16e5cb4b5a9b33154085f278eaa24bd54a9b9aacb97f1165c7625c62022c"
+  },
+  "profile_sha256": "63a0bbe3b8e8253ffb1b0fb03dcc03cdbf50c0d983d56444468a01a93f1feb20",
+  "manifest_sha256": "38443afbfee4f1b3c55f49a441d2d4b1762a1d849159987e7933906b58c1d03f",
+  "maintained_catalog_sha256": "20dd3433258a3f74f14d5063506052625aa6d8b0a396101233fd76c30412bf5b",
+  "header_sha256": {
+    "AlarmClockChangeV1.h": "2e2d474327faccb9aea25085073e0e71df30cb96dd1984d183f876a153cb7302",
+    "AlarmClockEditV2.h": "555e197063ae3c60fa9f2cf2766214f16bf2c6796bf28fddc3b4003471a259ef",
+    "AlarmServiceV1.h": "c70c087550306c123255e1ace41aeb504809e16b0193e382ec8dfbd7cb5531f5",
+    "AlarmServiceV2.h": "786007e521ac01fc6b2dedd9c3fa2314b779f386978856de9bc435c8b6dfda89",
+    "ContextFingerprintService.h": "edbd70bd1542824f58ddd487cf22d7b59ced4bb762361288210a489a01c4f0b7",
+    "ContextsRules.h": "e890b236dd7a969f25db9642fcd8eea25eaed68f3dcb41820ffaacc95c159c89",
+    "ContextsServiceV1.h": "ade2f40d01c7c384c6a71b4ee2a3b077c140ac6af06d7cc69350f02f7be6643d",
+    "CrashReportFiles.h": "406fd011c329281315ce9097cfc7feafeb233c054c2658cbe24b5f21baff5a41",
+    "CrashReportSd.h": "779e02c23c190439a7683b0cc827012e3fbe781085a118e2722ec22604d5f6ba",
+    "CrashReportSession.h": "7ca0958fe337c5872b8aa501d897921e272ebc56d0d48ce209c3c6d687d00331",
+    "CrashReportSpool.h": "d5b87876ffb05eb0eeb813658495b02b95cdfe6e5013bf303be81e5383f54554",
+    "FailureEvidenceReport.h": "4e82c61315936c04ee75f61f6a375b2f568fdd6aacc58487127a11f0932c4a67",
+    "GardenPlatformV1.h": "2e8e32f52554b706fafce1af27a5fbaf99187f67ecb55dc0cf333144b48ef9d2",
+    "GardenRadioAsyncV1.h": "2cd46090528452cdb1f9d8368fa3f4afc568c0403f7acb38613fe63c6ac3b6aa",
+    "InstalledAppsAutomaticTimeV1.h": "a21f312573449ebb739b981c6da338685b5d58d2af395145505cff0b9f2a27c9",
+    "InstalledAppsAutomaticV1.h": "e611cce4a5f260f6998830b2364722dc497ea58257a21abbc70c8602d820919e",
+    "InstalledAppsBootProfileV1.h": "01f439e2f8ad5c224643df1afed7c9fe311a4b6be5d18d750b680e8413eab49d",
+    "InstalledAppsFeedV1.h": "351e0b19e53fee1d58c411791f65ea57d74e18e101f56e14b3e75b288f1d55cd",
+    "InstalledAppsProvisionV1.h": "6563f0e6c48fb22dc8fbcdddaf2f61f2e03e19086e738fcbb17c6e2d46698be5",
+    "InstalledAppsV1.h": "0575bfdc3d54ca9430cc9689ca536384013a0e40b24c9002c28abfe2cc3f5d00",
+    "PaperBattery.h": "269daa3729f4e454f29dbc1323601cdc722e88ab428267af917af5cdbd4f7708",
+    "PaperPresentation.h": "8d13a8c73187d1e35f67c3208f861b95ceac143b6401e6572c2b4356ef409747",
+    "PortableAlarmClient.h": "1515b28f7761289b6edd148e653c5d8985b145c439f5d261adef4b307edc463a",
+    "PortableAlarmSettings.h": "cf4fb88bfeabb99282b02a871963858a9d20c8985e7da80d57341c33c5250284",
+    "PortableAlarmTerminalClient.h": "9e7a94d258c2f5027639964985d4c165225fe6028eecacd5c5bcbb80d45d998f",
+    "PortableAppCatalog.h": "9328b640d09910d58cd83cfc3b14872a3a77133f1d50c15e4053bfaf2a3529e2",
+    "PortableAppCustody.h": "82f6fd94881499646be4bfa491fec9338bf99ad0d50adfaadbe876db7da9600c",
+    "PortableAppLaunchGuard.h": "a7da58c80c62ef35cdf4e76aff0d2f66768b66963457c3a00f5e9890ca357558",
+    "PortableAppSleep.h": "027f70965663bc86e7f3bbf2733002870e2254ec92d39037def5f42c52fedc62",
+    "PortableApps.h": "d8fc1fae3669c439fda7af94568a93bc1d1f35ddc6fe05615eac1cb41ea4a78e",
+    "PortableAudioSession.h": "2f3d9cdd59005d44201f52005c7c88c8a9b2d9e816853338e4254196fad36f47",
+    "PortableAutomaticProvision.h": "1ad6f71d4093785efee72c590ef6cf781f3516290d3584b4eb045a8bd3a8d869",
+    "PortableBackgroundServices.h": "f1291afed98c321a81550e7648234d478652f81299cbad9c44814218a384e5b8",
+    "PortableBluetoothControl.h": "777f0c7f92092d05a428c04255b6df1b3e9510a36c7425fc95092b3321e67a2c",
+    "PortableBroadcastAppData.h": "39623ec4ebb2a1c576398b60be8cceef084ff7d0809d4f8903aaa6b7873bd30d",
+    "PortableBroadcastClient.h": "dea874e2a90e188ef6726810a150efed1a1e77f42311287850d7e5b9d3d55fad",
+    "PortableClockCommit.h": "89091d22f5c47e9d8591229f024bf1040d58053829a6559b861b3c05cd6ad1c9",
+    "PortableContextActions.h": "9ebea2abc377b880fed7ab8537b93fa123eb58ea11d35f53aa96bcf4fd0dbb0c",
+    "PortableContextFingerprints.h": "11493f75a58e83a67189c24c33bbd9657fdfd86da19266e4d8c56e98342a3d18",
+    "PortableContextPreferences.h": "1fb5e6d3cc796892f15c15162bd38b64d4b4508756de5f0c77b2015fbe388826",
+    "PortableContextRules.h": "b259780f2366e80f9e818e63da659cc7cd8883dd73c22d2192f1452efa87e510",
+    "PortableContextsClient.h": "5579586750294a4f25e29f5499eb81ef7a4858dbd4ede4861b106f867614ee0a",
+    "PortableDeskClock.h": "603609b28ee7d891de2743d0f86417c3b00ca4201be28eb42ac257194e594bb4",
+    "PortableDeskClockApp.h": "3f5e02d7ec62352fea644aa9e5d7dbd81bf4a21fa53e8d346eeed6c659133c59",
+    "PortableDeskClockFaces.h": "6864b07c69edcdc20e473d9716db2d9ce19edf2fbfafc379566c1990c78ac5a2",
+    "PortableDeskClockSettings.h": "ca26111d67474f7664d9fac748708c25f0bc0454c0ffe647e6199d689059af0d",
+    "PortableDeskPointsSnapshot.h": "7d3a6816c86d029b9900e7af56e878cea814ed94d637a031031cc8fe928157eb",
+    "PortableFileBrowser.h": "ba52e70f3dd1ac3f705d29155eaeb5885550cb2b33cf459cfd15ddbe09bbccd3",
+    "PortableFileSetup.h": "19b833d0d31276a620a008ea4e49e1681616788c960e31edcf4f1d064feb27d3",
+    "PortableFileSharing.h": "454ef57abeea736a143ad7eeca52724bdafd1c7dfdfbf0062a3629f9527d30ec",
+    "PortableFingerprintClock.h": "26ec2a7c36f6a795d466c2cf2c4fafe37c03c24fa41060096676913b4c3a059d",
+    "PortableForegroundIdle.h": "5f5466f43031d4aefcb942bdb671733da2d13521e7d9662950e28d5b102c5d87",
+    "PortableFrameCadence.h": "d524dea3416fdbc9453fb89fc8d0221ffbc85a27dd6451e4659a12fc776571f2",
+    "PortableFrameReceipt.h": "a849140306b3595ecf3abe44691e6eac27aedf939f6bdbedde49186ef7d3c5fd",
+    "PortableHomePointsCatalog.h": "d3c46fef226e626c0732c190108d016caf7bfbdfa0ac15c120e3ce281ca9181b",
+    "PortableInstalledCatalog.h": "d01b8fd59edd509a80cb216a26ccd3b228f8d0321073f75d1ed74db6f6c56f3d",
+    "PortableLastAttempt.h": "90ad5c4235cbd7ccb622d537c6ba0aeb6aa692d7739c04dfee4dcd4472b7b951",
+    "PortableLowBattery.h": "c83b663b1d5676c7eb7a8ec59157f0efc561802cfe2a3b6eb63937e28b0acca3",
+    "PortableNativeCustody.h": "05302ee29be0222164be440b0a03bb9461ea5b6cd5d38c2f1f10a98a1eebebb9",
+    "PortableNativeScene.h": "5c638aa288c1e76c04d76c1222eae1dc7c0b3bb0d7bcbfab5e174f844ef67582",
+    "PortableNativeSceneState.h": "b327ca206eb466bc4edae6ae971e4cd390a91ff3b140dd606707c2a80f44c9ab",
+    "PortableNativeTimeToolbar.h": "6fde0eb385b40836aa10924a57b610ee26a43c0a3eb2148656ce38e9deac07f3",
+    "PortableNavigation.h": "f3b9623d1e97d6a18df565aef0d9c934f18a1b97b701fbbc208de3bf0a344e6d",
+    "PortableNetworkSession.h": "7e573c3148c10bb3e0c50babea7714478ae9cd1265f7f97a91e574134f2cb5c2",
+    "PortableNovaKeyboard.h": "388cdc97e48b6e3378f1cf80b1b5dc3b0e116dd1e30a061697ae56bfb15ec0eb",
+    "PortableNovaUi.h": "c171d7b14d6fb6bca53fa500b9ce9e34daa17b6eed62ae9fd2452ed1ef0d5c5c",
+    "PortableOptionalService.h": "e8731e97933bd07a27e90cce29eb09566c7f4db0c7af5fd30faf2c7364c9460a",
+    "PortablePaperScroll.h": "6575d6618628f5e195b06d9034acea20be9a5d84cee1210c1c248546c27d4347",
+    "PortablePaperTransition.h": "2f1b60dddeeae8111287fc0aa13d0d15fcc37fcdaa5da3ae6fb96edb85847328",
+    "PortablePeerFiles.h": "7498674fe9cb2cf6f139c501d46307296927c4978d01867146d46258a6935ee6",
+    "PortablePerformance.h": "3e97672f88ac23808d384c7244a95f8d47424048c3d593d9330f7ce17541ccc6",
+    "PortablePointsCatalogView.h": "0350a2d42d1befc07b838ef4386458d876cabc0820a2b773d9eb1b383dd2bead",
+    "PortablePointsState.h": "69dd5c45cea14991a06b397b800de7006aee8509d6ffa905a905f40d8a40baaa",
+    "PortablePowerStatus.h": "957925504f2032963d1f2411bc676f2f6b493b41db3f9317182c2cca1a3067e4",
+    "PortablePreferenceAtomic.h": "195f8515c0be007dc06821eba89c6f52680c2e0d375744a0adc63878d15aec31",
+    "PortablePreferenceAutomatic.h": "071c8c099abc403fb63176939b13158f821c839b51c7ccf57e9b5c3d2c565d66",
+    "PortablePreferenceRollback.h": "9b2f63ba5752a93a8bb269a77aef29dfe0f0d4dc1a946ab16cfa5b341de7f92a",
+    "PortableQuickActions.h": "6f03506c6846c1644c7eed750ce50369c4dfa111566f4720c1c5bd65a50fbc55",
+    "PortableQuickLayout.h": "8b6757fcae081554eb3333ea475a83c74506f64c42e86e791d42663da55aa654",
+    "PortableQuickPendingFrame.h": "9b2f37f4efc4dde0e7457bef53a237e93406431b98c0622b0cbada128c4d5213",
+    "PortableQuickPreferences.h": "bc0de08849d553da4049cee1608d765db1f48d89aa27524094088ea31d8b1b91",
+    "PortableQuickRadios.h": "6cf7c453a7d5cb99a83801bec1e8afe741f8f75c07ccd538c3d3e57f96956298",
+    "PortableQuickRender.h": "d3d8ce211ae359f36e4ecc85d0a8e009331a5a858c1d78aae4bb996d4025c767",
+    "PortableQuickSession.h": "039d8034f819ea6b494bcd9179408f57546f834a347b844c1f29c37b7c428ce8",
+    "PortableQuickUserPreference.h": "cef595ee29659622dc8be0f5d841d40fa9ed18f6a082bd0140fde7c67e563f42",
+    "PortableRadioPolicy.h": "560cf6d492bcf3453b2ee260e6e4dfa102afece7fb1d406a77f2fa32465d1ae3",
+    "PortableRadioSession.h": "8b09b402a8235dbf48826b890a04dbcabe2f7ac6c600b90b42f71ac5997356b2",
+    "PortableRaster.h": "0cded4d7c7d288f5f7a9b20114810aee209302e042d9cfead2cd8316866afc2e",
+    "PortableRasterLayer.h": "6bfac32a8582a41d447bd8121dc76fdd147c2761f3d75ff458b556339c4f2ff9",
+    "PortableReaderPreferences.h": "3f0b7b12b1ddf6bf9c45c9598dab5488feadde0e9f5879b5e12c9f4eff8d4eda",
+    "PortableRealtimeClient.h": "43877995f95622d7e7e9733f6bca181f6aad222b604d1d4ba85b344551ec6f1b",
+    "PortableResidentPolicyInput.h": "58063d5b10c848c09a1340e297c6aeb8fc7b9b4d7aed32e813d6c1904fbc5c0e",
+    "PortableResidentShell.h": "d92e6cc59adb9f38139b3b1693990e6494fa327cc81747a7a591c9cbfd8a3696",
+    "PortableRgb565Blend.h": "05fea057365d73f590b97c5389ef6de6f1c589f660d099f2e9abaaed21945e2f",
+    "PortableRoundViewport.h": "a1dc6e51fb88c1f017b3d1653b7eb52e50dd4cb3499f3fdb978a2ac766d12e84",
+    "PortableRtcBasis.h": "89bd6751cf29c78e0eb3b76b3fe1862d5ebe733b9da0de4688e95150885496f9",
+    "PortableRtcClock.h": "43508db1cd392606cf37a7e55ad15e3770de1284af13a431876fd5d7785b838c",
+    "PortableSafeViewport.h": "ff5c3b0d74ed5f44161020d95ffe70eddb644b2d01e6ac2226627b452a03070e",
+    "PortableSetTime.h": "52bff55873d1e29ece9da91e26e4840fa4035daad858f1f5618281b5ba985457",
+    "PortableSettingsAvailability.h": "5c5b9982bce02a532b18644580c4f7ece11bfa0df01ae0c1078bc86183d20be8",
+    "PortableSleepPolicy.h": "70fa8ff8f63270b2a04d591bdbc61cd7e16d6483421121a96fe22f2855966d9d",
+    "PortableSpringboardCatalog.h": "c5d0ef941090cb68a3d355989d6fedb27546a7d8b1fe16d30c702c326f3056ef",
+    "PortableSpringboardGestureTrace.h": "b33a17d1bbbe487a3f040b252c10b9eb91479c28bad21f958c3c695fcdb14426",
+    "PortableStageLog.h": "f4e3f6ed7d15af923d31a819509aeeb0b373ac3a4c4c880bf1dd94ad37ce56be",
+    "PortableTextInputCheckpointClient.h": "1c5c1dd7c1e47cc9844d1838e85c09fdd8949c9c43006e99205d0cc4f2059de0",
+    "PortableTextInputClient.h": "f98564291d4b3685c429cdb96fd6edd0a4b5226b6bbde6ab3ea197a832f5746f",
+    "PortableTextInputExtendedClient.h": "c466d3143c160ec19ece4b1b073070cb0f953ab3820e8ebe6f12be813025f4cc",
+    "PortableTextInputHandoff.h": "ef811b3b7cf805ccdab1fb330e09dd8c533e303d29b8b4693ae5089a85432c36",
+    "PortableTextInputLongClient.h": "7ac2a5d7bdeb91f58567f2fca1fb1682fa956931039f34ef9b79cbadd85a4ac6",
+    "PortableTextInputPolicy.h": "04e169c1f6d0b0c009149a7f6b068bb0af9d7f255ff27a39a3b79f900e99255e",
+    "PortableTextInputResidentCheckpoint.h": "827ef461207082700ef01dba563bd46e69394f7749d3694031016cf478fb390a",
+    "PortableTime.h": "350b8c5255dafa9e25c4a20cfb458cdcda3439da929dab05e0de0c82e981ff6e",
+    "PortableTimeFormat.h": "8eb4d0f850c974da910a516c0f13ed9302ad3928849aa85d7641bdbcf3bd1867",
+    "PortableTimeSync.h": "68a478387a80daadb2ea047e020dc0e7c0874be8a361ca48b8bbc5aadd9a3965",
+    "PortableTimeZone.h": "3cfb6687d8f3675beb020a059b8cd3b3d8beffd42c11c6fd61d14b48af729c54",
+    "PortableTimeZonePreference.h": "0674f99eebc20d8665dc63915019c39b0dd7171e0ea8b6a284150b2eb473d7b0",
+    "PortableTimecardNative.h": "284a45890a9df8b779c8263ce000f6cdc2c079a9b567cb446f74e595190927fa",
+    "PortableTouch.h": "51307ba1f38ea23212bb6610abe3f2149ea65e1a8e36713cfc89e15e7e16b667",
+    "PortableTouchScroll.h": "d19aba992818d60477ef0fea7882b73dd6c9c1bd1db76d4d0faf9acc2e64aebd",
+    "PortableTransition.h": "627e00b7c8143d946556f67a61803a56335f747dd8f6489bbfcabaef015542d2",
+    "PortableUpdate.h": "344344762bfc0430285ecf8a781b64fb3789949cca7a517ad0b0684bf7fa6b76",
+    "PortableUsbTransfer.h": "f1351bb4ca5d5af029f6427e814e77c2eca4baa410ca00e9be51a5bce794a2b3",
+    "PortableWatchKeyboard.h": "f006ff13fe70236433ec6c37fb8cf5c4efe018d24393a9035c446e1f3554f4dd",
+    "PortableWifiAtomic.h": "e3d6f411a9ccae3f19f9b20b3d91fe4e99dc8e4746661210213a0c135abdc9fa",
+    "PortableWifiCredentials.h": "a6fd61ac64d3607de04b01185633fe9653678df73a467c22e458f9cc43393d29",
+    "PortableWifiNativeLayout.h": "7c2bada97c5e55a1b25da0e0730181cb6f918c30db42f6b777d24297ca7f8811",
+    "PortableWifiProfiles.h": "3201c58bfb48fee81b05a27d7199c1cf6f6f49d4fa83422d0c0098c842de92d5",
+    "PortableWifiSavedNetwork.h": "9d61ddb8d6f5741e731c4b78123afeaf904a6447103b7231bc1d70842dd7e9ea",
+    "PortableWifiView.h": "a045bf1cbc28314ef81dffd5a49f5e79d35dff83dded4a09dec5978d5d2139a3",
+    "RiscAppCatalogV1.h": "34550d01d90513459ff7f3284681c4c108af9e64d5c20af6ae4696a1c051b0c5",
+    "RiscAppDataExportV1.h": "56f9afd075f0fe3d8e7e8cdbec2d34813018dfe6cb3de3f18b326c4de948cddd",
+    "RiscAppDataV1.h": "9eb18840ea691f88e85cca6ede3de4833467745ec29225a51a58cb84c0aac84e",
+    "RiscAudioPcmV1.h": "2a7c5417aa4453440e3b8112d664a93530aeb4d5567a3b2eb3c93f929a46d321",
+    "RiscAudioV1.h": "46c362397b6ce9754261a05a111b8c43aea32adccf83e1f3491cef5e895b607f",
+    "RiscBankStoreV1.h": "4c20c21500f1c0724221f30cb5664e99b8316e3d0a9594319f63a206ed0e25a8",
+    "RiscBatteryGaugeV1.h": "e63ec549baa5a263f325990320ff7cffb210c8149a1a3fb29e2e7f65f9a1c5bb",
+    "RiscBluetoothHidV1.h": "ccac0a0c70b6aa73233201c1289a6825b6976d8d6b1758e394995eed234bf1b7",
+    "RiscBluetoothHostV1.h": "d3846ce9597357772ad37739a1919e28a15790d9d2067be3060dabe976d27156",
+    "RiscBluetoothSensorsV1.h": "62f21be78604b6c32c47beb8317f1fea059653b407baa73a93ee23ce8d8d050e",
+    "RiscBluetoothSessionSetupV1.h": "8cc14caeb548f11f0045811bfc7ac66c007ddd3419b5b8db6947dc7362725b9f",
+    "RiscBluetoothTelemetryV1.h": "f98aaff4165ee3816846cfe9ba110e8bafce403342a870162eb1089a03d935a6",
+    "RiscBoundAppDataAsyncV1.h": "3bdc04e0b27ba119139fe8ac81bcc59e3c979ca83847425ccff98f147242f7be",
+    "RiscBoundAppDataV1.h": "f4c6b9e475409515ee3b385a85790f592e8d943b0f811707926a32be4e1a6a42",
+    "RiscBoundKeyValueV1.h": "4a4c7ce1ea9a941e833afc0a5c796cae1b7ec49a813350288e4220a6b52bb4d3",
+    "RiscBoundKeyValueV2.h": "f9c6589a346e6a79e784c37862228cc0c3ad3fe0c4cd8d6664800605f239b606",
+    "RiscBq25896ProfileV1.h": "04e33c1b5a3385c2bedf275b85aa62a5dbfbec8cb38c2f3879ebb413e70a0c98",
+    "RiscDeepSleepV1.h": "0949cf9591ef0f07b61c1306897287ea2eb1533755b5e569bfe1cb2c9b236161",
+    "RiscDiagnosticCheckpointV1.h": "2c41504823df54a43e383baafa07f45191869f6ea5de4adaaf2651c2d78af017",
+    "RiscDiagnosticSourceV1.h": "a2e246858df68fc5ad452f0d4b07d8eba10267176f75f17346417ef2b83fa845",
+    "RiscDisplayBackendV1.h": "ac21e77652597e7f211b5630c447327efe75536b7f13c468e2c168797f3f38f2",
+    "RiscDisplayOutputV1.h": "11e747aecadcdfd0b37c79d057208ca9249714cb7482ca32b4a7a3296648c619",
+    "RiscDisplayPowerV1.h": "4ba5303d82c1b9a97ba1abada14456f882e449331bc04bf9caa70ded23d1560b",
+    "RiscDisplaySpiV2.h": "362c056e5512fc99d500451f7758dba023cf7d096536959e3fab8b05cd1001ce",
+    "RiscEntropySourceV1.h": "042b367b5c766b4a79d887c3bc573fdd2c90b6b231510bd8b20d0b5c3d7796a7",
+    "RiscEntropyV1.h": "08b4d52e71b1349a57d1713e54bcc7872ae63d55edf647ec17b0bbb2f509c0d1",
+    "RiscFailureEvidenceV1.h": "f2b024c21780155bacf78bd67a279d8959365c1d25ff1ba421449dd5d3b35265",
+    "RiscFileOpenSourceV1.h": "6f4592ea20f26262125e9a1a1ae030aa13bbc08d06eb319c7d7f09417598ad02",
+    "RiscFirmwareI2cCompatV1.h": "4abe4c6d4b83432bd76ca8fdbf9502dfbab25f5579ae0acd6de367cc133bb0ef",
+    "RiscFrontlightV1.h": "202f9f4b5e00452d80f2bda836327a121e23437280f166bbf45c64764ba15d9d",
+    "RiscGpioBankV1.h": "58cb736872a689413f6ffcf24cc5cc1bce5187e7d7cfb6fcffe10ad854e7a35c",
+    "RiscGpioSdmmcV1.h": "00d7788c381be557deec18a959b55d474bad7edc0331ae8331b878a618b9818f",
+    "RiscHardwareConfigV1.h": "47fa4cd7d4f09f571a5aedc87376d2f57520ad7873f5556af0a932011633e240",
+    "RiscHciControllerStatusV1.h": "235b388d91ed7e0becbb44dd476a29ef526fb2f7d9bf44b1072b86cbe5860e0e",
+    "RiscHttpClientV1.h": "e966177d426d3fadcb420f5fa9dd7226d3450a208f7ed333808d6466ba7bf8d6",
+    "RiscHttpTimeV1.h": "1dad7f0d28f00ca7424ba95d4e08228f3b398eeaab68e64328362a6d3537a391",
+    "RiscI2cBusV1.h": "a6b769efbbf7f3837a6a348689b0aee84bf687ae8e18a31d0296f3bfa6ac2004",
+    "RiscI2cFunctionV1.h": "2706be5fb3ace2f85d37ac24e4559631c6a941e96f8a99a57d0067c3b24bf13c",
+    "RiscI2sStandardConfigV1.h": "45d9f1f080b2a8e118045286582612a750f95e41449add9bf75d1713152aa282",
+    "RiscI2sStandardV1.h": "22b2624c25f07085bb768d49e295f3a7e4ebf2891f5fb9948b12ead826cd35c0",
+    "RiscInputNavigationV1.h": "2644754feb7238d066908658ac9d4fe25537d4d5e424a6aef1365fabea600a26",
+    "RiscInstallationMediaV1.h": "bfceaef18bca72c67855adb7f0846c6a9cac92c6ac3b396ee8318aac5ddb7481",
+    "RiscInstallationV1.h": "cbf51953a4b8b11cfa0891cd3f16796123bc3e546e22b62b43285a83aa1496f4",
+    "RiscInternalPackageVolumeV1.h": "398d0003d98d4bed49bd0e667b25d76180d2657486c784ffeab10139d910dc9c",
+    "RiscKeyValueAtomicV1.h": "552b0be1890eced2c688700671832bbd1ec15b3663801d59ae946173f94313c5",
+    "RiscKeyValueAvailabilityV1.h": "7cf7765c26af74813f86a1a041a0a92495840c883f5e231c391294dd928ad976",
+    "RiscKeyValueV1.h": "0e73bf29c402be030baf52f5b2b324f5b872549cdf58aa31f45b72bd70977179",
+    "RiscKeyValueV2.h": "c66337a93c6f5fff6dac9507e011655f4827c3d0ec06b3e6d9d039084b3ec4d3",
+    "RiscLightSleepV1.h": "43cbd671265959ec2db7904bf6185e97a87c4cde9d389cdccf6fbb7c916f3b94",
+    "RiscMemoryHeapV1.h": "369965f04303c7dae3d52b5e3d47aeb01f417ab0a566919fdb94677a1d64dced",
+    "RiscMspFetV1.h": "883879ee0ce2ac3ff5df42eb549a856557132a4da5a1dfe22edff8ad8c4e015b",
+    "RiscPackageResourcesV1.h": "8aff53415cf68a46e8e492dd02d12bde802ce2a1d69629dd4f3b0aad5794e459",
+    "RiscPerformanceV1.h": "c1e52e2e257a057dbbbc371fb8d83d9262bcea674f28f6ce9c56725b0d6dd14d",
+    "RiscPlatformClockV1.h": "41a12f6529f38731ee874f8bc166e1cf89fe376a1448fe5a4dd4c9abac90e5e2",
+    "RiscPlatformClockWaitV1.h": "c09d95c418f930f56c6e66004e07e38cb5726d8c7e5cd49b579bafbeebbe831c",
+    "RiscPlatformRealtimeV1.h": "ed642c0f37350f7f1402342c7710564019db9c4750f3572f153d2ef1e37eca98",
+    "RiscPowerKeyNeutralizeV1.h": "5ec7d904b25d8ea8d515ceac88605d1f183cfe48740a30133a16c983d7d7f111",
+    "RiscPowerKeyV1.h": "65acb08b7527a7597ea24a6adae6d70e7182413705b957cdb88e27e2a985e75f",
+    "RiscPowerSleepV1.h": "2ca96de4ddb76b511c2b9d23571a060e19efff3ebf793714324c5ac012c5179c",
+    "RiscPreferenceStoreV1.h": "dc5fb37d8158117cc4418957de0bb23b4723035860e6d27aa7d398887cb785a6",
+    "RiscProgramMspV1.h": "fd1a7c6ebdfdaeb951c3b82abf2baca6f84f4a4e533841c12d2eb81ff2e0166f",
+    "RiscProtectedSettingsPath.h": "d7b894658ad802fbb9c15b17f0f3953dfd9bd48e0a3ffffbc5c1b21f457ec750",
+    "RiscProviderPromotionV1.h": "751585fed0336bf068cdde488d65b2e0191f113184e48eecbfb4f80861512c51",
+    "RiscProviderSyncV1.h": "c0981bde804b20c1b963323f91c4e9804c144c56535160bfd467be7e93028f45",
+    "RiscProviderV2.h": "62478822fa8943ddfd1607f8923de52d7b5b6fc8a0db2df6ca07c65c95c62d41",
+    "RiscProvisionRequestV1.h": "f7fdd7ca974150a1d9e5242d1cb994eb614c6853b1598d530e47d8fc898dc870",
+    "RiscRadioAsyncV1.h": "2b5a916cfe9e1fb6520043c2b8f3e8c13ea8e022166fcbdfa6b50ce691ebfe48",
+    "RiscRadioIqResourceV1.h": "5a1cc689b067ea59ca15ef62d943ef6fb8d4f75a887de210c859fb7e0f471874",
+    "RiscRadioIqV1.h": "7b6e99c6a886b9445ffae7c3471c4f9867b8af9329924710203db5b99764bd2f",
+    "RiscRadioScanV1.h": "696227eecfd124f941023673680e0a15917d5b03c8f769756ed12ec34f7ccc9b",
+    "RiscRandomV1.h": "67e10d8b6d8b96f0ead5f0071e0eabbf73e30d2a6e0968e8bdd371ad492b6b57",
+    "RiscRealtimeV1.h": "639781f728841cda6d40c3033877436b9e5d59519a4b15e11a9bc99b2365395d",
+    "RiscResidentShellV1.h": "1a84715c03fcc7fae7f75cb72c0daf875e761567dda5d1b39ec0dc8b14fba8bd",
+    "RiscRetainedWakeV1.h": "7c7b6f0d56631f3aab521a43499d2ea840d075084536e4afa654a74c52e1e511",
+    "RiscRuntimeCheckpointV1.h": "dcc3bb7d76aa2d39f45d6cc648f38b6e4e3708cafcff463d21bee96275fd17f0",
+    "RiscRuntimeClockV1.h": "76584fdab224b184918d9f9cf675d5c4443adef7161e8518d456bc25277dc30f",
+    "RiscRuntimeHostControlV1.h": "697f710f7512dc724c2986bac0abc86756c9ae0739577b4f4ab20583a2743815",
+    "RiscRuntimeSleepV1.h": "b21695ec84db931e58ddb1a2a916f7f017d55d7546707eb25ee4247df87e3a28",
+    "RiscRuntimeV1.h": "f1b59491473b268722306ce63a97228f90487493e13aa4f470b1ce0c864d4565",
+    "RiscSerialPortV1.h": "7f00311161a071c6575be8b65e7aba30ebef7a8f1a45f9c0bf9168bc25e05700",
+    "RiscSerialStreamSessionV1.h": "66d328c2a201625a7be348507c8dbedcaa937dfb46f86b05ecd04d60e3fba0b7",
+    "RiscSpiFrameV1.h": "189493301b8480f8f59a63bd894fa46a747d63e7e790d26da56d7469e88a1461",
+    "RiscSpiQuadV1.h": "9f62ada4f4b5ecc62284afe6096ab039409a75769f61f08f57f73d68da9af6fe",
+    "RiscStlinkV1.h": "1261bd3a8ed77646d03a686cb13b72461ca9ca040ef81d48329e92228461ed8d",
+    "RiscStorageAsyncAdapterV1.h": "4b0df57b80046eeed82afddac4233dcbf378378b300805bdaca836ad238223e0",
+    "RiscStorageExportV1.h": "4ba5a0cec6bd9514dd5f77982f1b94c22aeca72bf94d0c79b11f1f5b689189a2",
+    "RiscStorageFilesCatalogV1.h": "c06e05c2d808cca87d8a83ce2253166ac0bb553b6307290a641feca427a70e87",
+    "RiscStorageFilesDirectoryV1.h": "bf19f85ef1d4d0fa9664056026ac61dfbd3dc58b96600273a877489b8a576639",
+    "RiscStorageFilesIdentityV1.h": "4e6561f5a1f3402501ad12a13e097c019c7f3dfd6df2311071d7f2d5515716d7",
+    "RiscStorageFilesV1.h": "0699725f95e574a22ef7892416e76a33cd0a57d06b96cc42021e10ba0aeb215b",
+    "RiscStorageNativeCapacityV1.h": "5eabb6202e062cc66d73b8645c0faa25ad7bc9eb57f0ed3e1a59846e3b305db2",
+    "RiscStoragePackageAsyncV1.h": "5a3703aede3c7ae523d0d0eb1ea31ab0e9915424af7b9db6d9c7d8f23118534f",
+    "RiscStorageSessionAdmissionV1.h": "eccf8e59cba6ec58a2456d00bcbd07131d1e4ec8d5ac36f23b35f793a33284fc",
+    "RiscStorageVolumeAsyncV1.h": "e395dccfa5c89e1585acaed0e5c8932d8487940261759741e3e60b483aafcaec",
+    "RiscStorageVolumeFsV1.h": "e487352157e3c3d5c10a28a16fdfcce76db693bf45c612ff4e2f31ee83e9a329",
+    "RiscStorageVolumeStateV1.h": "1f2f7dbfe9ec7ac27a57149ac720cf7f3a4801d6d34b5532f77c77db252b87a1",
+    "RiscStorageVolumeV1.h": "d477167a06004640b2c07c05d662c103be6e1b9e4a4d866f6fce13e754ef02f5",
+    "RiscStorageWorkerAdmissionV1.h": "013322a0db332ee9e7b124399ac12dfe050c53fd4b018feb7c278edd2ef8d8bd",
+    "RiscStorageWorkerV1.h": "9e859235403292a0108fd10b8122218d72c1c2d1dd460d94304d919f77b83b6f",
+    "RiscStreamClientV1.h": "ef5deb9a3bf8d20c0af9859a83977b93acfb8e480a851d0dcf96caf2795babcb",
+    "RiscStreamProviderV1.h": "0fe306e060321387c816bb70ec4370a501a423f4fe19a20c9be80aa1b98f3432",
+    "RiscStreamResultV1.h": "af140ee9ca4f6286c5f1beeecb0a0952264b14eb40d3ba4f313ff952e8824a6f",
+    "RiscStreamSessionProviderV1.h": "fe463661530c43ae7d1dd8b9c8227fdc6a7e4380bca3f5c8a13287cb0db9e873",
+    "RiscTcpConnectionV1.h": "484ca863b82b44b7a26c4915a240be95b12a92817eb497def3c0d99eb68179c3",
+    "RiscTcpListenerV1.h": "63ed934c4cb1a505de539d06ad04c1551ec23f64d56b6ea07129698dde0ba886",
+    "RiscTelemetryV1.h": "8ef64c586e8392c1d7521498c25cfdaccefd53242530e2dda9116e9cc12a5d48",
+    "RiscTextEntryV1.h": "a5733f06b1d8caf86f21d730abcd9ff833b603807c8b028a49544c997b6cdba3",
+    "RiscTextInputV1.h": "32f2a6cda3b7a4fef8487cc046ceb891261e483feafed32908cbd924112a1a77",
+    "RiscTimeSampleV1.h": "3298d2826a55263a5a5478f6f230030588ad7538aca5076d124d70f3e795eb2b",
+    "RiscTimedSleepV1.h": "475ba9bfaf6c7497ace7baeb93f2bd9a6abe1e3a91f62eed24862a88d60dbf34",
+    "RiscTouchI2cV2.h": "78179bc7a8d2dbbb5fb738d1ffabe02b31312173e70c9573941d1c8a4fcad3cf",
+    "RiscTouchV1.h": "fe18fab3ac20fda95747388f1428408b7795e5da3511c7a9fff07c16ddfd2c7d",
+    "RiscUsbControllerV1.h": "226f083493085ecdcaa21a7c3bf1c269640b7d1ebaa099e7217fb64124f1dbed",
+    "RiscUsbDiscoveryDiagnosticsV1.h": "b0a2652e3724f5cb3003485397fae860a6f49a38092d5f30345573ec8931c4d7",
+    "RiscUsbGamepadDiagnosticsV1.h": "b58df5e7618f8a0e3e58ae023fd034c96ff9f7d04b6c35080a4b6661a064ae0a",
+    "RiscUsbHidV1.h": "5b5549c4cb718dec55f2aca8bc93f401b2d5a703d30aaa1a78d1bcdd26755b5c",
+    "RiscUsbInterruptV1.h": "bfdd4644feaf3f4dc5d06070f052104579d3fb902e27e707f27943d7bf22815e",
+    "RiscUsbPhyResourceV1.h": "fe668ff8e8f83ea454eafd059c61c633d2213bc2a77504d8794a64c1dc11b016",
+    "RiscUsbProviderV1.h": "77f67cf5db7ed3fd7c6e148807bc705b5f8443c90d401b546069d756eb997b9a",
+    "RiscUsbVbusV1.h": "27efb8b327d38c3ca6a97d5f2936094659f67d69e89b49afcba9fc4ee5db6a6a",
+    "RiscWakeSetV1.h": "0b5a4914ac67d37b420e1ea19b591a71440f6e4c20149ca4324e1049517ba375",
+    "SoftwareUpdateV1.h": "25c1851c3c61f7d699d166c230cc561961c7e6f0fb5dcad5db8e24eb6bcf93ca",
+    "T5BatteryApi.h": "f939c924102099de4ed746519791ce2b68eb2bac79bc212caeaad1366dc8c9a5",
+    "T5DriverApi.h": "e0960f0b2e2579d7b7245734b593182841806c5eb7b7d67af4194ac8eb0c4b55",
+    "T5FileOpenApi.h": "c1b873e364dba81ce39d8c8a62668db618735407a6291dca87b9795ce4accc30",
+    "T5GnssProvider.h": "f093ed0f5707b1cbe12caa5086f248e884fb5f69c7fbcf1f6f6a3ce911747116",
+    "T5GpsApi.h": "a0550bc74574ba073a419d8a65ae73bd2697f531dc1b6d5172d6eab5ccea3262",
+    "T5UsbClassDriver.h": "64a6a3a8081509ce9ab8e15c15095578174d9d7afb4343672576b89b4f65300d",
+    "T5VideoApi.h": "7efa44432f7787ab6827c5e284f368ac4db7dcef274fcd8e0c062c0086c9d5db",
+    "TWatchHardwareV1.h": "ca48ca21a944565ae185f7c4e8cc0e73bcc18871d79b966f7e7da916e7ab2c99",
+    "TWatchPlatformV1.h": "88457c6cd36a8d2550c964ede1060b4006b72be5d290cff7cd108087bacc16dd",
+    "TelemetryBroadcastV1.h": "986a52b5a3ddd361189d204e33624ce6275d953bca6a94a6e6dd5c136a89e2d5",
+    "WatchLayout.h": "e622bcf52e40ad7fd343f4c209dfa1dfe2ed87db979558cce26c39bfd6752b63",
+    "WatchViewLayout.h": "3585c799dc39eeb451e6669d6b07cc86fe6633456935407cb81dd29e0534ded2",
+    "WifiApi.h": "eddb48c2e4284a592f32a540e10e02572bf251e3145783e9083278afd1aa0159"
+  },
+  "pending_product_grant_binding": "Deployment-owned explicit AppData instance1; never diagnostic instance61 or wildcard0",
+  "runtime_sdk_identity": {
+    "canonical_commit": "273bdbccf65647a803ab0586a418f8283732baec",
+    "checkout_commit": "046f4c22b263739f3bf3f96f888617d72eb3d498",
+    "checkout_clean": true,
+    "canonical_ancestor": true,
+    "canonical_git_objects": {
+      "sdk": "30d9a0464b6c03f0ae265317530720b58cc9d698",
+      "LICENSE": "b8c074800342d88eb4892d9ef79a65485d1bfcf9"
+    },
+    "unchanged_canonical_sdk_files": 97,
+    "additive_sdk_files": {
+      "sdk/driver/RiscTimeSampleV1.h": "100644 blob 7e9044715c4a8c8f26739d9e85a5cb2576e4651a"
+    },
+    "checkout_sdk_object": "2855ac0f3609832d18806a9307bb56c9e373d509",
+    "scope": "All canonical SDK file modes/blob identities and LICENSE unchanged; additions are not staged implicitly; native implementation may differ"
+  },
+  "consumed_source_sha256": {
+    "/workspace/scratch/2ab1619b7e17/verification2/productivity-prototype/test/native_apps/timecard_current_ui_test.c": "15eadef279186d498f826fa593ac00a2a05a98c694cd5180d35e7f8906e7062e",
+    "/workspace/scratch/2ab1619b7e17/verification2/productivity-prototype/Apps/timecard_portable.c": "f749a670efc56f315ebeb2dbed2abcbca4f5368427b8d9e33af084791c0cf01b",
+    "/workspace/scratch/2ab1619b7e17/verification2/productivity-prototype/Apps/timecard.c": "c17b0fed28eb44d2397c740ef56c8f07bc51c3f707d3080ec9ad5849e25a31a9",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/NativeApps/include/T5AppApi.h": "23ec6910005343055e71d0a364458824734f52c91a28364e419a85e94aa4ff42",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/NativeApps/include/T5StorageApi.h": "be0d63a89943a75a58723b703284992e8c6e95956c7cb39a9b3523af2c5d23ba",
+    "/workspace/scratch/2ab1619b7e17/verification2/productivity-prototype/lib/NativeApps/include/T5SystemApi.h": "56179941cac6dac7c71c2fe43013015a2d286620172a4d5945425c9cebc6d2d2",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/NativeApps/include/T5SystemUiApi.h": "aea03c2fe4ea5944dbda4ad6cfc499baa69fc2711bb55167a1e10461d500c8d1",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/NativeApps/include/T5UiApi.h": "88dbfde2a45ab385c69ee0b8192e8025446c9872711e4810f799251479b1057a",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscRuntimeV1.h": "f1b59491473b268722306ce63a97228f90487493e13aa4f470b1ce0c864d4565",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableNovaUi.h": "c171d7b14d6fb6bca53fa500b9ce9e34daa17b6eed62ae9fd2452ed1ef0d5c5c",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableWatchKeyboard.h": "f006ff13fe70236433ec6c37fb8cf5c4efe018d24393a9035c446e1f3554f4dd",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableRtcClock.h": "43508db1cd392606cf37a7e55ad15e3770de1284af13a431876fd5d7785b838c",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableTime.h": "350b8c5255dafa9e25c4a20cfb458cdcda3439da929dab05e0de0c82e981ff6e",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/time/denver/display_time.h": "9460e26e1d6faf574a212cdec86d9477de7a0e5d50168d5e7e76613be2868a03",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/time/denver/twatch_calendar.h": "67e4a670e4ee8a485843e99be0d198d0b60d84a0bc8d84fc77a3d0e4bde39733",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/time/denver/twatch_caps.h": "b8b3003c77c72eb251227329c94fda7244389fb45c7a7e92aa01a5ddce50600e",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableTimeFormat.h": "8eb4d0f850c974da910a516c0f13ed9302ad3928849aa85d7641bdbcf3bd1867",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscKeyValueV1.h": "0e73bf29c402be030baf52f5b2b324f5b872549cdf58aa31f45b72bd70977179",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableTimecardNative.h": "284a45890a9df8b779c8263ce000f6cdc2c079a9b567cb446f74e595190927fa",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableNativeScene.h": "5c638aa288c1e76c04d76c1222eae1dc7c0b3bb0d7bcbfab5e174f844ef67582",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableNativeCustody.h": "05302ee29be0222164be440b0a03bb9461ea5b6cd5d38c2f1f10a98a1eebebb9",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableNativeTimeToolbar.h": "6fde0eb385b40836aa10924a57b610ee26a43c0a3eb2148656ce38e9deac07f3",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableAppSleep.h": "027f70965663bc86e7f3bbf2733002870e2254ec92d39037def5f42c52fedc62",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscDisplayOutputV1.h": "11e747aecadcdfd0b37c79d057208ca9249714cb7482ca32b4a7a3296648c619",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscBatteryGaugeV1.h": "e63ec549baa5a263f325990320ff7cffb210c8149a1a3fb29e2e7f65f9a1c5bb",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscProviderV2.h": "62478822fa8943ddfd1607f8923de52d7b5b6fc8a0db2df6ca07c65c95c62d41",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscStreamProviderV1.h": "0fe306e060321387c816bb70ec4370a501a423f4fe19a20c9be80aa1b98f3432",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/AlarmServiceV2.h": "786007e521ac01fc6b2dedd9c3fa2314b779f386978856de9bc435c8b6dfda89",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/AlarmServiceV1.h": "c70c087550306c123255e1ace41aeb504809e16b0193e382ec8dfbd7cb5531f5",
+    "/workspace/scratch/2ab1619b7e17/verification2/productivity-prototype/Apps/timecard_portable_validation.h": "6f86fb034b96fa3dc15f902182efd6e4a850699dd9be0e944823d9cddfe429e8",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PaperPresentation.h": "8d13a8c73187d1e35f67c3208f861b95ceac143b6401e6572c2b4356ef409747",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/Apps/SpringboardPresentation.h": "186ee26a6facd1c3a3418e093e9f5c9208aa3d07521ce0d61ea0281466454fd2",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PaperBattery.h": "269daa3729f4e454f29dbc1323601cdc722e88ab428267af917af5cdbd4f7708",
+    "/workspace/scratch/2ab1619b7e17/verification2/productivity-prototype/Apps/timecard_appdata_bridge.h": "0adf349d3aba15dd29575d57c14d6ecf8123d304c939f4a32589d91e0c9ba585",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscAppDataV1.h": "9eb18840ea691f88e85cca6ede3de4833467745ec29225a51a58cb84c0aac84e",
+    "/workspace/scratch/2ab1619b7e17/verification2/productivity-prototype/Apps/timecard_native_time.h": "9a26f02fef3577c9ce6e951f451c4cdf89c2e36d0e89bd76e253c4d11f11976e",
+    "/workspace/scratch/2ab1619b7e17/verification2/productivity-prototype/Apps/timecard_paper.inc": "702f19939beb4b3cf5ba412fa398b7541ea0dd166d069a0ce3dbefc1f8ec6e23",
+    "/workspace/scratch/2ab1619b7e17/verification2/productivity-prototype/Apps/timecard_native_ui.inc": "b1f024b5829d625fd9b92082cd5b35793d7e09c602be4007e53d23bd5053c56c",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableApps.h": "d8fc1fae3669c439fda7af94568a93bc1d1f35ddc6fe05615eac1cb41ea4a78e",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscRealtimeV1.h": "639781f728841cda6d40c3033877436b9e5d59519a4b15e11a9bc99b2365395d",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableTimeZonePreference.h": "0674f99eebc20d8665dc63915019c39b0dd7171e0ea8b6a284150b2eb473d7b0",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableTimeZone.h": "3cfb6687d8f3675beb020a059b8cd3b3d8beffd42c11c6fd61d14b48af729c54",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscTouchV1.h": "fe18fab3ac20fda95747388f1428408b7795e5da3511c7a9fff07c16ddfd2c7d",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscInputNavigationV1.h": "2644754feb7238d066908658ac9d4fe25537d4d5e424a6aef1365fabea600a26",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscPreferenceStoreV1.h": "dc5fb37d8158117cc4418957de0bb23b4723035860e6d27aa7d398887cb785a6",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscKeyValueAtomicV1.h": "552b0be1890eced2c688700671832bbd1ec15b3663801d59ae946173f94313c5",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableQuickActions.h": "6f03506c6846c1644c7eed750ce50369c4dfa111566f4720c1c5bd65a50fbc55",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableQuickLayout.h": "8b6757fcae081554eb3333ea475a83c74506f64c42e86e791d42663da55aa654",
+    "/workspace/scratch/2ab1619b7e17/verification2/productivity-prototype/test/native_apps/native_broadcast_fixture.h": "1505787fc6d4a01ff80d2430e99df656bd48e247ad5b8eb04cc6c7d6ca059e83",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/adapter.c": "a9cd5966f4c9d5ab7d602c9c693485bcb81b0d0ff9c771165534c5cfddc54c79",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableLastAttempt.h": "90ad5c4235cbd7ccb622d537c6ba0aeb6aa692d7739c04dfee4dcd4472b7b951",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableSafeViewport.h": "ff5c3b0d74ed5f44161020d95ffe70eddb644b2d01e6ac2226627b452a03070e",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscRuntimeHostControlV1.h": "697f710f7512dc724c2986bac0abc86756c9ae0739577b4f4ab20583a2743815",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscRuntimeClockV1.h": "76584fdab224b184918d9f9cf675d5c4443adef7161e8518d456bc25277dc30f",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableForegroundIdle.h": "5f5466f43031d4aefcb942bdb671733da2d13521e7d9662950e28d5b102c5d87",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortablePerformance.h": "3e97672f88ac23808d384c7244a95f8d47424048c3d593d9330f7ce17541ccc6",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableStageLog.h": "f4e3f6ed7d15af923d31a819509aeeb0b373ac3a4c4c880bf1dd94ad37ce56be",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableTouch.h": "51307ba1f38ea23212bb6610abe3f2149ea65e1a8e36713cfc89e15e7e16b667",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/T5BatteryApi.h": "f939c924102099de4ed746519791ce2b68eb2bac79bc212caeaad1366dc8c9a5",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/T5VideoApi.h": "7efa44432f7787ab6827c5e284f368ac4db7dcef274fcd8e0c062c0086c9d5db",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableBackgroundServices.h": "f1291afed98c321a81550e7648234d478652f81299cbad9c44814218a384e5b8",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/performance.inc": "547a1f1902f60b816b8dc25a28821fb0a4c84c21e219c460a6dbb760a8c71db9",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableQuickSession.h": "039d8034f819ea6b494bcd9179408f57546f834a347b844c1f29c37b7c428ce8",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableQuickUserPreference.h": "cef595ee29659622dc8be0f5d841d40fa9ed18f6a082bd0140fde7c67e563f42",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableQuickPreferences.h": "bc0de08849d553da4049cee1608d765db1f48d89aa27524094088ea31d8b1b91",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableSleepPolicy.h": "70fa8ff8f63270b2a04d591bdbc61cd7e16d6483421121a96fe22f2855966d9d",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableQuickRender.h": "d3d8ce211ae359f36e4ecc85d0a8e009331a5a858c1d78aae4bb996d4025c767",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableAlarmClient.h": "1515b28f7761289b6edd148e653c5d8985b145c439f5d261adef4b307edc463a",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableAlarmTerminalClient.h": "9e7a94d258c2f5027639964985d4c165225fe6028eecacd5c5bcbb80d45d998f",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/last_attempt.inc": "c47524a14c3e879f0a0a9018e42368e8530a49662b33bd63002c0dc1caf8358e",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/native_custody_adapter.inc": "6055974ae3f4300957f3ace767cac3ad8f95f0f92b166681bd45f9c3ae7cd6ce",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/native_scene.inc": "25b771c3809bcc105acf263af053dda51ee678d3c2e71ae4ed3c9922cbd96449",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableNativeSceneState.h": "b327ca206eb466bc4edae6ae971e4cd390a91ff3b140dd606707c2a80f44c9ab",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableNavigation.h": "f3b9623d1e97d6a18df565aef0d9c934f18a1b97b701fbbc208de3bf0a344e6d",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/native_toolbar.inc": "0ecab2af95aab850734d9a13482a9e3177d4a6cddf5499435ae746fe7a21151f",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/nova.inc": "22c0702a350fe4d2045151f4e70848fb1f0852eab5a36770021bc11bd1f3fd44",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableRgb565Blend.h": "05fea057365d73f590b97c5389ef6de6f1c589f660d099f2e9abaaed21945e2f",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableFrameCadence.h": "d524dea3416fdbc9453fb89fc8d0221ffbc85a27dd6451e4659a12fc776571f2",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/fonts/watch-native-icons.inc": "8e3d9a110f13787048cab5643f06313c48bb69b0d1ddd4545786cd3a6d2fc351",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/fonts/text.inc": "88aad3c3002381190ba5fc584fb2177b623cbeb30bc6cf7bfde10b0399d20c42",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/nova_rgb565_row.inc": "026cbbab2d71a6d2825f0b977ea0860da8e75dd15605496167329a89e3d3f947",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/nova_ui.inc": "b773abf9e33380be141bda57979deae1395bc75e0d87bc1868205fe6f7e0f2f8",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/settings_fonts/text.inc": "8453a3f7c123799354a0ff4246dba420de2a612f421d6d9de9bf4c976073b449",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/WatchLayout.h": "e622bcf52e40ad7fd343f4c209dfa1dfe2ed87db979558cce26c39bfd6752b63",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/nova_native.inc": "21932411fc127625c27ab9a1d9272f9d13c15cf2a8017f546b313e3550d4abfc",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/paper.inc": "4d6c7067392bf688be512735523e48a850dbecf0f823128b701436429d5eccac",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/Apps/PaperPresentation.h": "8d13a8c73187d1e35f67c3208f861b95ceac143b6401e6572c2b4356ef409747",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/paper_fonts/text.inc": "9ee273df1c27df92d8ab2a985fb474d15b715770984894da4fee40b8cd9f2e4a",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/quick_adapter.inc": "b2ee25925858ce720a505fd7533fe3778dc9c151bcaea8491d5ae221300f7cd6",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableQuickPendingFrame.h": "9b2f37f4efc4dde0e7457bef53a237e93406431b98c0622b0cbada128c4d5213",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/quick_atomic.inc": "ab069a7d4d062263d60a33bfc2c9cd469db2a920e635e6c5a30a6d54fae7e707",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortablePreferenceAtomic.h": "195f8515c0be007dc06821eba89c6f52680c2e0d375744a0adc63878d15aec31",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableContextPreferences.h": "1fb5e6d3cc796892f15c15162bd38b64d4b4508756de5f0c77b2015fbe388826",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableAlarmSettings.h": "cf4fb88bfeabb99282b02a871963858a9d20c8985e7da80d57341c33c5250284",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/quick_pending_frame.inc": "9af7b5efd229fd666edb08e942db0c210c869aca61b292d0f6efd7b814ac05da",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/installed_catalog_adapter.inc": "76aabb6052b96cd2925d03d7f5648a1d4d295a08f0f8e108f9334bd314409d4b",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/resident_adapter.inc": "db0c5d2b2423a7cd0f948af816234b51db489ea73cf43ca050e7ef1b7ec5a514",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/resident_shell.inc": "8ae9ae7483ee06dce74983cad92ee3199050b4045ad732c25d4dbd211fda3fad",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/alarm.inc": "61a0afebcd6b18d22fccd4093cb82b746ebf8670a4229ddccf464ecebc8668a9",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/foreground_idle.inc": "f513b4c5a3457465ba53c4d1cec3ce304bf5dbe04ff582cbd3760c93f8ddc7c2",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscRuntimeCheckpointV1.h": "dcc3bb7d76aa2d39f45d6cc648f38b6e4e3708cafcff463d21bee96275fd17f0",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/foreground_alarm.inc": "c18a7cb0d46e2ab1bf8080be1abdbee7d97165425b07ef17390485c3a4271838",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/foreground_adapter_open.inc": "993897963ae0377db00245ac50ec1d02a9ce3524c35352be9322328fa9962506",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/quick_actions.c": "f980b8318a1c5f97532c54ecc841ddf4dfa6dc91cec4ab049cd7c68e68ac7ea3",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/quick_render.c": "249d325a6db502ee24af940287f62285f5eae7e95fadd8b1546383aa095a56cc",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/quick_actions_assets.inc": "6e0eadad1387eee501f4524d3b21d86fac61e9051822c368070468b9c41d896c",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/quick_native_fonts.inc": "b49cfeb165aeb5bfd7a85a8e32fc80c10b4a8062e29707ab0f93805d445b3997",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/quick_native_render.inc": "6b36448708ec35ef5376a5457289166303bf5b8c636a5b9515f919ea69d25e3f",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/quick_session.c": "11f62f03f0511aae07a06b5a813d00e8aebc711e60828350dd6170c59f4711a0",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableRealtimeClient.c": "9bf7d696fa0d5578f622ddf9634093057f95a684f62aa93007d0121b936f44d6",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableRealtimeClient.h": "43877995f95622d7e7e9733f6bca181f6aad222b604d1d4ba85b344551ec6f1b",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/PortableRtcBasis.h": "89bd6751cf29c78e0eb3b76b3fe1862d5ebe733b9da0de4688e95150885496f9",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableTimeZone.c": "28c0fecf7a4d83bde07d2b72cb591122cf3c49c3219c8344b97b82a90625c5e7",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableTimeZoneCatalog.c": "29d4c86037f7554c94a4404d5e39e28091430a1f9c23b5e35224aed3df826f20",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableTimeZonePreference.c": "b54e455d587ba2ecda8f59dd899b59b767214aee807b92d79d18c5e9d30b6bb7",
+    "/workspace/scratch/2ab1619b7e17/verification2/system-prototype/lib/PortableApps/src/PortableNativeTimeSource.c": "dc5594b34a42dedaf82c24d1acdfcefc1cd4abaa36eb9b2d0e4aaef3e139ce7e",
+    "/workspace/scratch/2ab1619b7e17/verification2/drivers/components/portable-light-sleep/foreground_light_sleep.c": "423a5ec8fea8f8a470385842b120a18cd347f89a3a5210479367062bd3e31d2f",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscRuntimeSleepV1.h": "b21695ec84db931e58ddb1a2a916f7f017d55d7546707eb25ee4247df87e3a28",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscDisplayPowerV1.h": "4ba5303d82c1b9a97ba1abada14456f882e449331bc04bf9caa70ded23d1560b",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscDeepSleepV1.h": "0949cf9591ef0f07b61c1306897287ea2eb1533755b5e569bfe1cb2c9b236161",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscPowerSleepV1.h": "2ca96de4ddb76b511c2b9d23571a060e19efff3ebf793714324c5ac012c5179c",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscLightSleepV1.h": "43cbd671265959ec2db7904bf6185e97a87c4cde9d389cdccf6fbb7c916f3b94",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscPowerKeyNeutralizeV1.h": "5ec7d904b25d8ea8d515ceac88605d1f183cfe48740a30133a16c983d7d7f111",
+    "/workspace/scratch/2ab1619b7e17/test-evidence/timecard-ui-sanitized/foreground-idle-sdk/include/RiscPowerKeyV1.h": "65acb08b7527a7597ea24a6adae6d70e7182413705b957cdb88e27e2a985e75f",
+    "/workspace/scratch/2ab1619b7e17/verification2/drivers/components/portable-light-sleep/foreground_idle_preferences.c": "00f8844d41b09d605ae4d96eebdd90291e89a1701b434316eccfc5b0631eafcc"
+  },
+  "scope": "Actual app/shared adapter/scene/Quick and native helpers; provider tables mocked. Not target, Runtime, radio, physical or Quick write-path qualification.",
+  "sanitized": true,
+  "passed": [
+    [
+      "240x240",
+      0,
+      0
+    ],
+    [
+      "240x240",
+      0,
+      100
+    ],
+    [
+      "240x240",
+      1,
+      0
+    ],
+    [
+      "240x240",
+      1,
+      100
+    ],
+    [
+      "240x240",
+      2,
+      0
+    ],
+    [
+      "240x240",
+      2,
+      100
+    ],
+    [
+      "240x240",
+      3,
+      0
+    ],
+    [
+      "240x240",
+      3,
+      100
+    ],
+    [
+      "240x240",
+      4,
+      0
+    ],
+    [
+      "240x240",
+      4,
+      100
+    ],
+    [
+      "240x240",
+      5,
+      0
+    ],
+    [
+      "240x240",
+      5,
+      100
+    ],
+    [
+      "240x240",
+      6,
+      0
+    ],
+    [
+      "240x240",
+      6,
+      100
+    ],
+    [
+      "240x240",
+      7,
+      0
+    ],
+    [
+      "240x240",
+      7,
+      100
+    ],
+    [
+      "240x240",
+      8,
+      0
+    ],
+    [
+      "240x240",
+      8,
+      100
+    ],
+    [
+      "240x240",
+      9,
+      0
+    ],
+    [
+      "240x240",
+      9,
+      100
+    ],
+    [
+      "240x240",
+      10,
+      0
+    ],
+    [
+      "240x240",
+      10,
+      100
+    ],
+    [
+      "240x240",
+      11,
+      0
+    ],
+    [
+      "240x240",
+      11,
+      100
+    ],
+    [
+      "240x240",
+      12,
+      0
+    ],
+    [
+      "240x240",
+      12,
+      100
+    ],
+    [
+      "240x240",
+      13,
+      0
+    ],
+    [
+      "240x240",
+      13,
+      100
+    ],
+    [
+      "320x320",
+      0,
+      0
+    ],
+    [
+      "320x320",
+      0,
+      100
+    ],
+    [
+      "320x320",
+      1,
+      0
+    ],
+    [
+      "320x320",
+      1,
+      100
+    ],
+    [
+      "320x320",
+      2,
+      0
+    ],
+    [
+      "320x320",
+      2,
+      100
+    ],
+    [
+      "320x320",
+      3,
+      0
+    ],
+    [
+      "320x320",
+      3,
+      100
+    ],
+    [
+      "320x320",
+      4,
+      0
+    ],
+    [
+      "320x320",
+      4,
+      100
+    ],
+    [
+      "320x320",
+      5,
+      0
+    ],
+    [
+      "320x320",
+      5,
+      100
+    ],
+    [
+      "320x320",
+      6,
+      0
+    ],
+    [
+      "320x320",
+      6,
+      100
+    ],
+    [
+      "320x320",
+      7,
+      0
+    ],
+    [
+      "320x320",
+      7,
+      100
+    ],
+    [
+      "320x320",
+      8,
+      0
+    ],
+    [
+      "320x320",
+      8,
+      100
+    ],
+    [
+      "320x320",
+      9,
+      0
+    ],
+    [
+      "320x320",
+      9,
+      100
+    ],
+    [
+      "320x320",
+      10,
+      0
+    ],
+    [
+      "320x320",
+      10,
+      100
+    ],
+    [
+      "320x320",
+      11,
+      0
+    ],
+    [
+      "320x320",
+      11,
+      100
+    ],
+    [
+      "320x320",
+      12,
+      0
+    ],
+    [
+      "320x320",
+      12,
+      100
+    ],
+    [
+      "320x320",
+      13,
+      0
+    ],
+    [
+      "320x320",
+      13,
+      100
+    ],
+    [
+      "466x466",
+      0,
+      0
+    ],
+    [
+      "466x466",
+      0,
+      100
+    ],
+    [
+      "466x466",
+      1,
+      0
+    ],
+    [
+      "466x466",
+      1,
+      100
+    ],
+    [
+      "466x466",
+      2,
+      0
+    ],
+    [
+      "466x466",
+      2,
+      100
+    ],
+    [
+      "466x466",
+      3,
+      0
+    ],
+    [
+      "466x466",
+      3,
+      100
+    ],
+    [
+      "466x466",
+      4,
+      0
+    ],
+    [
+      "466x466",
+      4,
+      100
+    ],
+    [
+      "466x466",
+      5,
+      0
+    ],
+    [
+      "466x466",
+      5,
+      100
+    ],
+    [
+      "466x466",
+      6,
+      0
+    ],
+    [
+      "466x466",
+      6,
+      100
+    ],
+    [
+      "466x466",
+      7,
+      0
+    ],
+    [
+      "466x466",
+      7,
+      100
+    ],
+    [
+      "466x466",
+      8,
+      0
+    ],
+    [
+      "466x466",
+      8,
+      100
+    ],
+    [
+      "466x466",
+      9,
+      0
+    ],
+    [
+      "466x466",
+      9,
+      100
+    ],
+    [
+      "466x466",
+      10,
+      0
+    ],
+    [
+      "466x466",
+      10,
+      100
+    ],
+    [
+      "466x466",
+      11,
+      0
+    ],
+    [
+      "466x466",
+      11,
+      100
+    ],
+    [
+      "466x466",
+      12,
+      0
+    ],
+    [
+      "466x466",
+      12,
+      100
+    ],
+    [
+      "466x466",
+      13,
+      0
+    ],
+    [
+      "466x466",
+      13,
+      100
+    ],
+    [
+      "410x502",
+      0,
+      0
+    ],
+    [
+      "410x502",
+      0,
+      100
+    ],
+    [
+      "410x502",
+      1,
+      0
+    ],
+    [
+      "410x502",
+      1,
+      100
+    ],
+    [
+      "410x502",
+      2,
+      0
+    ],
+    [
+      "410x502",
+      2,
+      100
+    ],
+    [
+      "410x502",
+      3,
+      0
+    ],
+    [
+      "410x502",
+      3,
+      100
+    ],
+    [
+      "410x502",
+      4,
+      0
+    ],
+    [
+      "410x502",
+      4,
+      100
+    ],
+    [
+      "410x502",
+      5,
+      0
+    ],
+    [
+      "410x502",
+      5,
+      100
+    ],
+    [
+      "410x502",
+      6,
+      0
+    ],
+    [
+      "410x502",
+      6,
+      100
+    ],
+    [
+      "410x502",
+      7,
+      0
+    ],
+    [
+      "410x502",
+      7,
+      100
+    ],
+    [
+      "410x502",
+      8,
+      0
+    ],
+    [
+      "410x502",
+      8,
+      100
+    ],
+    [
+      "410x502",
+      9,
+      0
+    ],
+    [
+      "410x502",
+      9,
+      100
+    ],
+    [
+      "410x502",
+      10,
+      0
+    ],
+    [
+      "410x502",
+      10,
+      100
+    ],
+    [
+      "410x502",
+      11,
+      0
+    ],
+    [
+      "410x502",
+      11,
+      100
+    ],
+    [
+      "410x502",
+      12,
+      0
+    ],
+    [
+      "410x502",
+      12,
+      100
+    ],
+    [
+      "410x502",
+      13,
+      0
+    ],
+    [
+      "410x502",
+      13,
+      100
+    ],
+    [
+      "502x410",
+      0,
+      0
+    ],
+    [
+      "502x410",
+      0,
+      100
+    ],
+    [
+      "502x410",
+      1,
+      0
+    ],
+    [
+      "502x410",
+      1,
+      100
+    ],
+    [
+      "502x410",
+      2,
+      0
+    ],
+    [
+      "502x410",
+      2,
+      100
+    ],
+    [
+      "502x410",
+      3,
+      0
+    ],
+    [
+      "502x410",
+      3,
+      100
+    ],
+    [
+      "502x410",
+      4,
+      0
+    ],
+    [
+      "502x410",
+      4,
+      100
+    ],
+    [
+      "502x410",
+      5,
+      0
+    ],
+    [
+      "502x410",
+      5,
+      100
+    ],
+    [
+      "502x410",
+      6,
+      0
+    ],
+    [
+      "502x410",
+      6,
+      100
+    ],
+    [
+      "502x410",
+      7,
+      0
+    ],
+    [
+      "502x410",
+      7,
+      100
+    ],
+    [
+      "502x410",
+      8,
+      0
+    ],
+    [
+      "502x410",
+      8,
+      100
+    ],
+    [
+      "502x410",
+      9,
+      0
+    ],
+    [
+      "502x410",
+      9,
+      100
+    ],
+    [
+      "502x410",
+      10,
+      0
+    ],
+    [
+      "502x410",
+      10,
+      100
+    ],
+    [
+      "502x410",
+      11,
+      0
+    ],
+    [
+      "502x410",
+      11,
+      100
+    ],
+    [
+      "502x410",
+      12,
+      0
+    ],
+    [
+      "502x410",
+      12,
+      100
+    ],
+    [
+      "502x410",
+      13,
+      0
+    ],
+    [
+      "502x410",
+      13,
+      100
+    ],
+    [
+      "160x160",
+      0,
+      0
+    ],
+    [
+      "160x160",
+      0,
+      100
+    ],
+    [
+      "160x160",
+      1,
+      0
+    ],
+    [
+      "160x160",
+      1,
+      100
+    ],
+    [
+      "160x160",
+      2,
+      0
+    ],
+    [
+      "160x160",
+      2,
+      100
+    ],
+    [
+      "160x160",
+      3,
+      0
+    ],
+    [
+      "160x160",
+      3,
+      100
+    ],
+    [
+      "160x160",
+      4,
+      0
+    ],
+    [
+      "160x160",
+      4,
+      100
+    ],
+    [
+      "160x160",
+      5,
+      0
+    ],
+    [
+      "160x160",
+      5,
+      100
+    ],
+    [
+      "160x160",
+      6,
+      0
+    ],
+    [
+      "160x160",
+      6,
+      100
+    ],
+    [
+      "160x160",
+      7,
+      0
+    ],
+    [
+      "160x160",
+      7,
+      100
+    ],
+    [
+      "160x160",
+      8,
+      0
+    ],
+    [
+      "160x160",
+      8,
+      100
+    ],
+    [
+      "160x160",
+      9,
+      0
+    ],
+    [
+      "160x160",
+      9,
+      100
+    ],
+    [
+      "160x160",
+      10,
+      0
+    ],
+    [
+      "160x160",
+      10,
+      100
+    ],
+    [
+      "160x160",
+      11,
+      0
+    ],
+    [
+      "160x160",
+      11,
+      100
+    ],
+    [
+      "160x160",
+      12,
+      0
+    ],
+    [
+      "160x160",
+      12,
+      100
+    ],
+    [
+      "160x160",
+      13,
+      0
+    ],
+    [
+      "160x160",
+      13,
+      100
+    ]
+  ],
+  "fixture_sha256": "15eadef279186d498f826fa593ac00a2a05a98c694cd5180d35e7f8906e7062e",
+  "runner_sha256": "204b0c8b85d452c52cd3a5c447dcb1f1101410a297f135b8aebca6e7a427c146",
+  "rasters": {}
+}

@@ -1,0 +1,409 @@
+{
+  "include_timecard": true,
+  "roles": [
+    {
+      "role": "runtime",
+      "repository": "michaelrolphone-cmyk/RiscRTE",
+      "commit": "13eca114cb58469cf6004fafc3da84fbd9d29beb",
+      "actual_tree": "8c18029d7d845b35a447fc6a871a529f65d4c647",
+      "clean": true
+    },
+    {
+      "role": "watch",
+      "repository": "michaelrolphone-cmyk/RiscRTE-Watch",
+      "commit": "605d5e7d4e2b46f6b33ff2f195582db6f882535c",
+      "actual_tree": "014d0d4c3ec24b9bc1c1641ac5e08f7b625cba71",
+      "clean": true
+    },
+    {
+      "role": "controllers",
+      "repository": "michaelrolphone-cmyk/RiscRTE-T-Watch-S3",
+      "commit": "851b8998e804c57b2c9f42d9f8fd0a69e79f2b41",
+      "actual_tree": "82be16b624abdbda7b567d81890b5e87d68601cd",
+      "clean": true
+    },
+    {
+      "role": "system",
+      "repository": "michaelrolphone-cmyk/RiscRTE-System-Apps",
+      "commit": "bb0cadf3cec3445a64e11513b47b2676f3fdd92d",
+      "actual_tree": "828adf684bdef6eb4fad920bc66899b2d9173092",
+      "clean": true
+    },
+    {
+      "role": "utilities",
+      "repository": "michaelrolphone-cmyk/RiscRTE-Utilities",
+      "commit": "4fdcad2495c33fe63f5f6faca9b11ced3c739a5b",
+      "actual_tree": "71ff6a433e71dd76629758db755a6bef3dbf1335",
+      "clean": true
+    },
+    {
+      "role": "runtime-prototype",
+      "repository": "michaelrolphone-cmyk/RiscRTE",
+      "commit": "046f4c22b263739f3bf3f96f888617d72eb3d498",
+      "actual_tree": "876d77de61b53c05343a1de754c32eb476c3ed3b",
+      "clean": true
+    },
+    {
+      "role": "watch-prototype",
+      "repository": "michaelrolphone-cmyk/RiscRTE-Watch",
+      "commit": "f550d559d3eaae9a6a15ef27b5ea7f82e741e54a",
+      "actual_tree": "fddcfbd7bafcaaa7f9109e7af05bdb53e19a0c60",
+      "clean": true
+    },
+    {
+      "role": "watch-alpha-baseline",
+      "repository": "michaelrolphone-cmyk/RiscRTE-Watch",
+      "commit": "03aa63fb4830987c854e05a878c00c8cdde9577c",
+      "actual_tree": "ead3eb0fffd2baa78c7657e8caab90c4cbba9cc3",
+      "clean": true
+    },
+    {
+      "role": "system-prototype",
+      "repository": "michaelrolphone-cmyk/RiscRTE-System-Apps",
+      "commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "actual_tree": "2d35e30df3f10393bc640117301423ab6a7abd33",
+      "clean": true
+    },
+    {
+      "role": "utilities-prototype",
+      "repository": "michaelrolphone-cmyk/RiscRTE-Utilities",
+      "commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "actual_tree": "62b740e1b6913cf20dc72e623b69bcfc48b253a7",
+      "clean": true
+    },
+    {
+      "role": "productivity-prototype",
+      "repository": "michaelrolphone-cmyk/RiscRTE-Productivity",
+      "commit": "55dd087b054242eb6b28acae08b0f2a913ce0e35",
+      "actual_tree": "f2401e4a9e0dfcfef553633b1e4c2d9362f114eb",
+      "clean": true
+    },
+    {
+      "role": "timecard-productivity-baseline",
+      "repository": "michaelrolphone-cmyk/RiscRTE-Productivity",
+      "commit": "bb8d0d99b3a857103d2b01e6b4c756b913aa14d3",
+      "purpose": "owning selector parity or canonical alarm SDK",
+      "actual_tree": "023c7fa84df380a74f30b6340ff03e12e28e66b1",
+      "clean": true
+    },
+    {
+      "role": "timecard-system-baseline",
+      "repository": "michaelrolphone-cmyk/RiscRTE-System-Apps",
+      "commit": "55c94bde412dec7772bedac29b067bcd83aad802",
+      "purpose": "owning selector parity or canonical alarm SDK",
+      "actual_tree": "3727307239ba29a840f57ffbda206d19fa11ade9",
+      "clean": true
+    },
+    {
+      "role": "timecard-alarm-sdk",
+      "repository": "michaelrolphone-cmyk/RiscRTE-Utilities",
+      "commit": "bbafc2c3aebe8c3b9805639f873341e31296c8fb",
+      "purpose": "owning selector parity or canonical alarm SDK",
+      "actual_tree": "6e55cd8916a01b8633a495f7b125b3bdfe382dd2",
+      "clean": true
+    },
+    {
+      "role": "spiffs",
+      "repository": "pellepl/spiffs",
+      "commit": "525335a05af89522a6f16b57d21682bcaeb518cc",
+      "actual_tree": "2fc48a3d774b7106c8b736cc9a500d596eb8472c",
+      "clean": true
+    }
+  ],
+  "verified_packs": [
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE",
+      "source_commit": "046f4c22b263739f3bf3f96f888617d72eb3d498",
+      "source_tree": "876d77de61b53c05343a1de754c32eb476c3ed3b",
+      "object_count": 4200,
+      "pack_sha256": "fc7d8da7e7c7df2f3750b602012c477a623183b1d350ca6a4d9191e220312ad7",
+      "shallow_boundaries": [
+        "13eca114cb58469cf6004fafc3da84fbd9d29beb",
+        "273bdbccf65647a803ab0586a418f8283732baec",
+        "274bc66f193cbe29018d2a85c9400cb0dce8aacc",
+        "341e6e38ce00b7c57d5daaf5f8c829c3575db931"
+      ],
+      "role": "runtime",
+      "publication_commit": "e125ae9ee7d3b8bc9aa2f1709cb1f34b5562de16"
+    },
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE-Watch",
+      "source_commit": "f550d559d3eaae9a6a15ef27b5ea7f82e741e54a",
+      "source_tree": "fddcfbd7bafcaaa7f9109e7af05bdb53e19a0c60",
+      "object_count": 1808,
+      "pack_sha256": "e9ee316f74b9cad24f2bec03fb05b1c8b29dafd77d185c0d757bb62025fba043",
+      "shallow_boundaries": [
+        "03aa63fb4830987c854e05a878c00c8cdde9577c",
+        "0ec555f17360ff63b659803677fbc78d61bd93c4",
+        "447b94f13ad963701414d2f17223d0218ee85b5f",
+        "5d46eba6368597da8072956677a04528e6f6484d",
+        "605d5e7d4e2b46f6b33ff2f195582db6f882535c",
+        "c41c2b7f9e6902ab8e6f4f73a7ec70ea171be9b6",
+        "e012406deff782ea382724e2102e22c2a29e59a4",
+        "e969a34ec6c3133fa5f0a04bf7b7d9446aec5455",
+        "f10fcdcce10c16681e4e0fa1660abee267f9410d",
+        "831d34f2380d1043aa1d29384948aa935b9b15b8"
+      ],
+      "role": "watch",
+      "publication_commit": "46dd8504b0c69f240289e25f58e9c136881633c3"
+    },
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE-System-Apps",
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "source_tree": "2d35e30df3f10393bc640117301423ab6a7abd33",
+      "object_count": 10288,
+      "pack_sha256": "50ca1f8faefad629e199cf17dab5f0ec4dd7f2a4d576d7d1ad155a1fa40311ba",
+      "shallow_boundaries": [
+        "55c94bde412dec7772bedac29b067bcd83aad802",
+        "ad4c433a8d1d69c94b6bdb8b400a964f7de5932a",
+        "bb0cadf3cec3445a64e11513b47b2676f3fdd92d",
+        "be142dbec17881ac09e4b1617606d161a8bf5204",
+        "ee0f51138c52060bd6e240cf0aa3e08c7e22cb43",
+        "f53d6456f270a15248df23243030fc0e4b21cf93",
+        "bed0b262d1141b52dc59eb8befa9b59ab62f155c",
+        "7d376c8d448abd86e7d18460952b3dc5170fdf70",
+        "0f52fe9ed330ae23868bf617f5511f55150993b7",
+        "b54a9b4ea277e95330463a74d2221cbc345edb3c",
+        "568d7ef4803a28a92d0a2f5270f93f89999aefc6"
+      ],
+      "role": "system",
+      "publication_commit": "68242a1cadc634e38ba2e81bf0ac0d2e77f0a23a"
+    },
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE-Utilities",
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "source_tree": "62b740e1b6913cf20dc72e623b69bcfc48b253a7",
+      "object_count": 1960,
+      "pack_sha256": "075cd20ca4045525a3582f8347f48077fafde5c950674d738516d09e85369da4",
+      "shallow_boundaries": [
+        "bbafc2c3aebe8c3b9805639f873341e31296c8fb",
+        "e80172353fcb9e6519ca9d9b2a4d43c69c1bc91d",
+        "4fdcad2495c33fe63f5f6faca9b11ced3c739a5b",
+        "1eb8948ab4d7fcc20ae467638d8b4867e966316b",
+        "ce33416f6981270958da63780f18961b2f2ec9e0"
+      ],
+      "role": "utilities",
+      "publication_commit": "1152acf0cd426df15ca00197138d1b6fb7629113"
+    },
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE",
+      "source_commit": "046f4c22b263739f3bf3f96f888617d72eb3d498",
+      "source_tree": "876d77de61b53c05343a1de754c32eb476c3ed3b",
+      "object_count": 4200,
+      "pack_sha256": "fc7d8da7e7c7df2f3750b602012c477a623183b1d350ca6a4d9191e220312ad7",
+      "shallow_boundaries": [
+        "13eca114cb58469cf6004fafc3da84fbd9d29beb",
+        "273bdbccf65647a803ab0586a418f8283732baec",
+        "274bc66f193cbe29018d2a85c9400cb0dce8aacc",
+        "341e6e38ce00b7c57d5daaf5f8c829c3575db931"
+      ],
+      "role": "runtime-prototype",
+      "publication_commit": "e125ae9ee7d3b8bc9aa2f1709cb1f34b5562de16"
+    },
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE-Watch",
+      "source_commit": "f550d559d3eaae9a6a15ef27b5ea7f82e741e54a",
+      "source_tree": "fddcfbd7bafcaaa7f9109e7af05bdb53e19a0c60",
+      "object_count": 1808,
+      "pack_sha256": "e9ee316f74b9cad24f2bec03fb05b1c8b29dafd77d185c0d757bb62025fba043",
+      "shallow_boundaries": [
+        "03aa63fb4830987c854e05a878c00c8cdde9577c",
+        "0ec555f17360ff63b659803677fbc78d61bd93c4",
+        "447b94f13ad963701414d2f17223d0218ee85b5f",
+        "5d46eba6368597da8072956677a04528e6f6484d",
+        "605d5e7d4e2b46f6b33ff2f195582db6f882535c",
+        "c41c2b7f9e6902ab8e6f4f73a7ec70ea171be9b6",
+        "e012406deff782ea382724e2102e22c2a29e59a4",
+        "e969a34ec6c3133fa5f0a04bf7b7d9446aec5455",
+        "f10fcdcce10c16681e4e0fa1660abee267f9410d",
+        "831d34f2380d1043aa1d29384948aa935b9b15b8"
+      ],
+      "role": "watch-prototype",
+      "publication_commit": "46dd8504b0c69f240289e25f58e9c136881633c3"
+    },
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE-Watch",
+      "source_commit": "f550d559d3eaae9a6a15ef27b5ea7f82e741e54a",
+      "source_tree": "fddcfbd7bafcaaa7f9109e7af05bdb53e19a0c60",
+      "object_count": 1808,
+      "pack_sha256": "e9ee316f74b9cad24f2bec03fb05b1c8b29dafd77d185c0d757bb62025fba043",
+      "shallow_boundaries": [
+        "03aa63fb4830987c854e05a878c00c8cdde9577c",
+        "0ec555f17360ff63b659803677fbc78d61bd93c4",
+        "447b94f13ad963701414d2f17223d0218ee85b5f",
+        "5d46eba6368597da8072956677a04528e6f6484d",
+        "605d5e7d4e2b46f6b33ff2f195582db6f882535c",
+        "c41c2b7f9e6902ab8e6f4f73a7ec70ea171be9b6",
+        "e012406deff782ea382724e2102e22c2a29e59a4",
+        "e969a34ec6c3133fa5f0a04bf7b7d9446aec5455",
+        "f10fcdcce10c16681e4e0fa1660abee267f9410d",
+        "831d34f2380d1043aa1d29384948aa935b9b15b8"
+      ],
+      "role": "watch-alpha-baseline",
+      "publication_commit": "46dd8504b0c69f240289e25f58e9c136881633c3"
+    },
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE-System-Apps",
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "source_tree": "2d35e30df3f10393bc640117301423ab6a7abd33",
+      "object_count": 10288,
+      "pack_sha256": "50ca1f8faefad629e199cf17dab5f0ec4dd7f2a4d576d7d1ad155a1fa40311ba",
+      "shallow_boundaries": [
+        "55c94bde412dec7772bedac29b067bcd83aad802",
+        "ad4c433a8d1d69c94b6bdb8b400a964f7de5932a",
+        "bb0cadf3cec3445a64e11513b47b2676f3fdd92d",
+        "be142dbec17881ac09e4b1617606d161a8bf5204",
+        "ee0f51138c52060bd6e240cf0aa3e08c7e22cb43",
+        "f53d6456f270a15248df23243030fc0e4b21cf93",
+        "bed0b262d1141b52dc59eb8befa9b59ab62f155c",
+        "7d376c8d448abd86e7d18460952b3dc5170fdf70",
+        "0f52fe9ed330ae23868bf617f5511f55150993b7",
+        "b54a9b4ea277e95330463a74d2221cbc345edb3c",
+        "568d7ef4803a28a92d0a2f5270f93f89999aefc6"
+      ],
+      "role": "system-prototype",
+      "publication_commit": "68242a1cadc634e38ba2e81bf0ac0d2e77f0a23a"
+    },
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE-Utilities",
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "source_tree": "62b740e1b6913cf20dc72e623b69bcfc48b253a7",
+      "object_count": 1960,
+      "pack_sha256": "075cd20ca4045525a3582f8347f48077fafde5c950674d738516d09e85369da4",
+      "shallow_boundaries": [
+        "bbafc2c3aebe8c3b9805639f873341e31296c8fb",
+        "e80172353fcb9e6519ca9d9b2a4d43c69c1bc91d",
+        "4fdcad2495c33fe63f5f6faca9b11ced3c739a5b",
+        "1eb8948ab4d7fcc20ae467638d8b4867e966316b",
+        "ce33416f6981270958da63780f18961b2f2ec9e0"
+      ],
+      "role": "utilities-prototype",
+      "publication_commit": "1152acf0cd426df15ca00197138d1b6fb7629113"
+    },
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE-Productivity",
+      "source_commit": "55dd087b054242eb6b28acae08b0f2a913ce0e35",
+      "source_tree": "f2401e4a9e0dfcfef553633b1e4c2d9362f114eb",
+      "object_count": 468,
+      "pack_sha256": "afc905402661c7a34e7d3fc1216ffa9e543238f12ab85929b85ae469ccd091db",
+      "shallow_boundaries": [
+        "2f2eeaba46353e343841fc35450184a5174b5ae8",
+        "a3a0d2b36114bc1130509e67c6ba7ddee3123148",
+        "bdf5c0ef03ceb87ed91cb2d2a847c1575dc7fae7",
+        "bb8d0d99b3a857103d2b01e6b4c756b913aa14d3",
+        "79d4d9ef498735b31a5618c07ac039af3fa6869b"
+      ],
+      "role": "productivity-prototype",
+      "publication_commit": "2ef95962463fc8d66fc0ab584933b7e1f792943f"
+    },
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE-Productivity",
+      "source_commit": "55dd087b054242eb6b28acae08b0f2a913ce0e35",
+      "source_tree": "f2401e4a9e0dfcfef553633b1e4c2d9362f114eb",
+      "object_count": 468,
+      "pack_sha256": "afc905402661c7a34e7d3fc1216ffa9e543238f12ab85929b85ae469ccd091db",
+      "shallow_boundaries": [
+        "2f2eeaba46353e343841fc35450184a5174b5ae8",
+        "a3a0d2b36114bc1130509e67c6ba7ddee3123148",
+        "bdf5c0ef03ceb87ed91cb2d2a847c1575dc7fae7",
+        "bb8d0d99b3a857103d2b01e6b4c756b913aa14d3",
+        "79d4d9ef498735b31a5618c07ac039af3fa6869b"
+      ],
+      "role": "timecard-productivity-baseline",
+      "publication_commit": "2ef95962463fc8d66fc0ab584933b7e1f792943f"
+    },
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE-System-Apps",
+      "source_commit": "50684639efd155042d599ba8edc10c3268aac82d",
+      "source_tree": "2d35e30df3f10393bc640117301423ab6a7abd33",
+      "object_count": 10288,
+      "pack_sha256": "50ca1f8faefad629e199cf17dab5f0ec4dd7f2a4d576d7d1ad155a1fa40311ba",
+      "shallow_boundaries": [
+        "55c94bde412dec7772bedac29b067bcd83aad802",
+        "ad4c433a8d1d69c94b6bdb8b400a964f7de5932a",
+        "bb0cadf3cec3445a64e11513b47b2676f3fdd92d",
+        "be142dbec17881ac09e4b1617606d161a8bf5204",
+        "ee0f51138c52060bd6e240cf0aa3e08c7e22cb43",
+        "f53d6456f270a15248df23243030fc0e4b21cf93",
+        "bed0b262d1141b52dc59eb8befa9b59ab62f155c",
+        "7d376c8d448abd86e7d18460952b3dc5170fdf70",
+        "0f52fe9ed330ae23868bf617f5511f55150993b7",
+        "b54a9b4ea277e95330463a74d2221cbc345edb3c",
+        "568d7ef4803a28a92d0a2f5270f93f89999aefc6"
+      ],
+      "role": "timecard-system-baseline",
+      "publication_commit": "68242a1cadc634e38ba2e81bf0ac0d2e77f0a23a"
+    },
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE-Utilities",
+      "source_commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952",
+      "source_tree": "62b740e1b6913cf20dc72e623b69bcfc48b253a7",
+      "object_count": 1960,
+      "pack_sha256": "075cd20ca4045525a3582f8347f48077fafde5c950674d738516d09e85369da4",
+      "shallow_boundaries": [
+        "bbafc2c3aebe8c3b9805639f873341e31296c8fb",
+        "e80172353fcb9e6519ca9d9b2a4d43c69c1bc91d",
+        "4fdcad2495c33fe63f5f6faca9b11ced3c739a5b",
+        "1eb8948ab4d7fcc20ae467638d8b4867e966316b",
+        "ce33416f6981270958da63780f18961b2f2ec9e0"
+      ],
+      "role": "timecard-alarm-sdk",
+      "publication_commit": "1152acf0cd426df15ca00197138d1b6fb7629113"
+    },
+    {
+      "repository": "pellepl/spiffs",
+      "source_commit": "525335a05af89522a6f16b57d21682bcaeb518cc",
+      "source_tree": "2fc48a3d774b7106c8b736cc9a500d596eb8472c",
+      "object_count": 60,
+      "pack_sha256": "fcb8086eaeb1ab82ed428eb1f44ee202042a73e6d31273bd02a38415733fa607",
+      "shallow_boundaries": [
+        "ad902cadceb39d0825a97e25ecb5867641f606ba"
+      ]
+    }
+  ],
+  "extra_refs": [
+    {
+      "role": "drivers",
+      "commit": "90e7a8faae1a6678a24c92c32f95032b2fbe1e24"
+    },
+    {
+      "role": "runtime",
+      "commit": "274bc66f193cbe29018d2a85c9400cb0dce8aacc"
+    },
+    {
+      "role": "runtime-prototype",
+      "commit": "273bdbccf65647a803ab0586a418f8283732baec"
+    },
+    {
+      "role": "runtime-prototype",
+      "commit": "274bc66f193cbe29018d2a85c9400cb0dce8aacc"
+    },
+    {
+      "role": "utilities-prototype",
+      "commit": "1eb8948ab4d7fcc20ae467638d8b4867e966316b"
+    },
+    {
+      "role": "utilities-prototype",
+      "commit": "bbafc2c3aebe8c3b9805639f873341e31296c8fb"
+    },
+    {
+      "role": "utilities-prototype",
+      "commit": "e80172353fcb9e6519ca9d9b2a4d43c69c1bc91d"
+    },
+    {
+      "role": "watch-prototype",
+      "commit": "447b94f13ad963701414d2f17223d0218ee85b5f"
+    }
+  ],
+  "latest_ref_fallback": false,
+  "validation_origin": {
+    "runtime_publication": "consumer-local e125ae9 (GitHub publication blocked by auto-review)",
+    "drivers_publication": "consumer-local2006b13; historical owning pack independently imported afterward",
+    "other_roles": "immutable GitHub publication commits from sources.json",
+    "full_clean_github_reproduction": false
+  },
+  "driver_pack_independent_check": {
+    "source_commit": "bbfa35d8b0b90d7785d3f753d383f7cfe41237f2",
+    "source_tree": "38795f107762004c1d5bc78187b0bd7f6a666277"
+  }
+}

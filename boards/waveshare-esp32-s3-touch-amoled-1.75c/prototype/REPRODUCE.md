@@ -112,3 +112,45 @@ recipes must agree on selection; both complete execution receipts must match.
 Old profile paths remain available and retain their original source branches.
 The app ABI has no circular aperture query: truthful conservative safe insets
 remain a provider contract. This does not claim full-aperture daily-app layouts.
+
+
+## Exact source-pack consumer (continuation candidate)
+
+The candidate recovery path consumes immutable owning publication commits in
+`docs/badge-source-recovery/sources.json`, validates every object pack, and checks
+out original source pins and SDK anchors. The publication identity is recorded
+separately. It also restores the exact SPIFFS override and checks the shared
+clock helper blob hash. No latest-ref fallback is permitted.
+
+Start with only a clean candidate Drivers checkout at WORKSPACE/drivers and no
+other role directories. Existing roles are refused to preserve custody; keep
+failed attempts and use another fresh workspace. After the candidate commits
+are published, the supported invocation is:
+
+```sh
+python WORKSPACE/drivers/scripts/recover_badge_ci_sources.py --workspace WORKSPACE --include-timecard
+```
+
+Use the `selected-full` matrix recipe in `.github/workflows/badge-prototype.yml`
+with the pinned ESP-IDF container, all accepted app/rendering/time-sync flags,
+16-row queued native pixels, column/unchanged-stripe reuse, Timecard, and
+`--spiffs-source WORKSPACE/spiffs`. This is the maintained complete selection;
+the earlier foreground-only example above is historical. Native/app selections
+must match. The runner executes both normal and ASan+UBSan lanes independently,
+qualifies local Quick receipts, and applies artifact-dependent time-sync gates
+only after native/target/execution outputs exist. Do not call them without inputs.
+
+Current boundary: original Runtime recovery publication e125ae9 is stopped by
+automatic approval review. A locally supplied exact commit passes source
+restoration but is not GitHub-only reproduction. The prepared full recipe has
+not completed target/package/hosted qualification. See
+`docs/qualification/badge-continuation-2026-10-28/REVIEW.md` for exact tests,
+original/publication identities, pending drafts, current-main reconciliation
+and remaining applications. The accepted public prototype remains unchanged.
+
+
+The Runtime publication hold above is resolved by explicit approval: published
+`318d77283ba707b6f2820d2833e5d7ea3ff3f7e8` preserves the approved e125ae9
+tree. The current sources.json contains its actual GitHub identity. Historical
+failed attempts remain preserved; rerun the current consumer from clean GitHub
+inputs before claiming reproducibility.
