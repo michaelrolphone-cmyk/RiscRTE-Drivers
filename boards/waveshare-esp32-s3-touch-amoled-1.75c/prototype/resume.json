@@ -1,0 +1,63 @@
+{
+  "schema": 2,
+  "task": "Round Badge prototype: pocket time checks with true deep sleep",
+  "parent_task": "b55a7da0-d13b-4fdd-a20f-8d2da06d5097",
+  "sleep_task": "6bfc2c04-1a32-4260-9499-179935a3e8cf",
+  "qualification": "Read exact matching package, admission, execution and software-evidence receipts. This source note does not certify a build or physical result.",
+  "source_pins_file": "sources.lock.json",
+  "policy": {
+    "default_mode": "hybrid",
+    "default_idle_seconds": 15,
+    "saved_preferences_override": true,
+    "wake_pin": 3,
+    "wake_active_high": true,
+    "touch_motion_wake": false,
+    "held_wake_key": "Suppress initial held press through release and require an observed fresh press before forwarding later PMIC events.",
+    "cold_reset_time": "UNSET until explicitly seeded",
+    "deep_reset_time": "SDK RTC/HRT retained with admitted validity checkpoint",
+    "time_authority": "Native Runtime UTC; saved shared timezone preference; missing timezone means UTC; no external RTC reconciliation or seeding",
+    "sequence": "Button or idle enters Light; configured interval timer may advance to Deep; earlier alarm or physical wake returns normally"
+  },
+  "reproduce": "scripts/run_badge_prototype_ci.py; exact command and inputs in REPRODUCE.md",
+  "requirements": [
+    "Full native target link and board/flash/PSRAM/export proof",
+    "Normal and sanitized full store admission including negative mutations",
+    "Actual Runtime app navigation plus manual/idle staged Light-to-Deep, saved timer/mode, earlier/equal alarm, GPIO wake, held key and reasserted wake refusal",
+    "Native standalone AppData pending/retained refusal and repeated RTC cycles",
+    "Checked touch sleep/reset-resume fault and repeat tests",
+    "Strict package mutations, partition MD5, complete32MiB ranges and filesystem replay",
+    "Historical custody/parity comparison, preserving unrelated diagnostics"
+  ],
+  "next_action": "Qualify restored staged policy from pre-PMU b7 without removing established features; preserve earlier app work and pending physical evidence.",
+  "limits": [
+    "No device flash, erase, serial read or reset performed",
+    "No remote source publication, merge or release authorized by this artifact",
+    "Actual board revision,GPIO3 voltage,wake reliability,internal-RC drift and total current unmeasured",
+    "No hard power-off/charger/shared-DCDC1 policy writes",
+    "Motion byte-order/scale remains physical qualification gate; no tap/gyro/audio/BLE",
+    "Ordinary reset or PMIC long-hold power loss invalidates retained civil time",
+    "Separate inherited parity diagnostics are not a prototype feature gate"
+  ],
+  "publication_targets": [
+    {
+      "repository": "RiscRTE-Drivers",
+      "branch": "codex/round-badge-prototype-20261025"
+    },
+    {
+      "repository": "RiscRTE",
+      "branch": "codex/native-appdata-profile-20261025"
+    },
+    {
+      "repository": "RiscRTE-System-Apps",
+      "branch": "codex/generic-safe-settings-20261025"
+    },
+    {
+      "repository": "RiscRTE-Watch",
+      "branch": "codex/bringup-safe-bounds-20261025"
+    },
+    {
+      "repository": "RiscRTE-Utilities",
+      "branch": "codex/configurable-portable-tools-20261025"
+    }
+  ]
+}

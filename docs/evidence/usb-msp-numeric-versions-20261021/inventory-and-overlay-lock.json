@@ -1,0 +1,172 @@
+{
+  "inventory_scope": "Inspected source/release inventory and reachable Drivers source history, not a global catalog reservation",
+  "records": [
+    {
+      "repository": "",
+      "commit": "ed7886d0b2c7f1ac0d235f440d52756782d1b807",
+      "path": "Drivers/usb_msp/manifest.json",
+      "id": "usb-msp",
+      "version": "0.1.2-checked-consumer.1",
+      "sha256": "d2db2713278953cb35392e33d5e359dc3b0e74e5b39b16e196fa53b63f3dc035"
+    },
+    {
+      "repository": "",
+      "commit": "ed7886d0b2c7f1ac0d235f440d52756782d1b807",
+      "path": "Drivers/program_msp/manifest.json",
+      "id": "program-msp",
+      "version": "0.1.2-checked-consumer.1",
+      "sha256": "d02cd614f0b2613008fbaa291de2baf96ed58ab2e8b7f0bba5398623230cb0c4"
+    },
+    {
+      "repository": "",
+      "commit": "a7ae39994603c4545a3c014f09051ecfc12084d2",
+      "path": "Drivers/usb_msp/manifest.json",
+      "id": "usb-msp",
+      "version": "0.1.1",
+      "sha256": "bf3c1fdc48cc9a1c54df2b966946665ba03fe5f7225990a134d46812e4dfa6ec"
+    },
+    {
+      "repository": "",
+      "commit": "a7ae39994603c4545a3c014f09051ecfc12084d2",
+      "path": "Drivers/program_msp/manifest.json",
+      "id": "program-msp",
+      "version": "0.1.0",
+      "sha256": "1d1739795c1fab9062914b732f30167c03d783373f266b35976b4f8561b23bef"
+    },
+    {
+      "repository": "",
+      "commit": "1f86a08db75a98247bab47f0f1800c64a4e2075f",
+      "path": "Drivers/usb_msp/manifest.json",
+      "id": "usb-msp",
+      "version": "0.1.1",
+      "sha256": "bf3c1fdc48cc9a1c54df2b966946665ba03fe5f7225990a134d46812e4dfa6ec"
+    },
+    {
+      "repository": "",
+      "commit": "1f86a08db75a98247bab47f0f1800c64a4e2075f",
+      "path": "Drivers/program_msp/manifest.json",
+      "id": "program-msp",
+      "version": "0.1.1",
+      "sha256": "841984170a3e17c4e7c73320a46aadacd658f5811ea72de94af2d8151c83b71b"
+    },
+    {
+      "repository": "T5S3-Reader-native",
+      "commit": "c98e4222048244b1e729869ed47aa99130025fd3",
+      "path": "Drivers/usb_msp/manifest.json",
+      "id": "usb-msp",
+      "version": "0.1.1",
+      "sha256": "bf3c1fdc48cc9a1c54df2b966946665ba03fe5f7225990a134d46812e4dfa6ec"
+    },
+    {
+      "repository": "T5S3-Reader-native",
+      "commit": "c98e4222048244b1e729869ed47aa99130025fd3",
+      "path": "Drivers/program_msp/manifest.json",
+      "id": "program-msp",
+      "version": "0.1.0",
+      "sha256": "1d1739795c1fab9062914b732f30167c03d783373f266b35976b4f8561b23bef"
+    },
+    {
+      "repository": "T5S3-Reader",
+      "commit": "34d8e694d89a1e72d8854403d8592c289fae3ddc",
+      "path": "Drivers/usb_msp/manifest.json",
+      "id": "usb-msp",
+      "version": "0.1.1",
+      "sha256": "bf3c1fdc48cc9a1c54df2b966946665ba03fe5f7225990a134d46812e4dfa6ec"
+    },
+    {
+      "repository": "T5S3-Reader",
+      "commit": "34d8e694d89a1e72d8854403d8592c289fae3ddc",
+      "path": "Drivers/program_msp/manifest.json",
+      "id": "program-msp",
+      "version": "0.1.0",
+      "sha256": "1d1739795c1fab9062914b732f30167c03d783373f266b35976b4f8561b23bef"
+    },
+    {
+      "repository": "T5S3-Reader",
+      "commit": "9c8783d6f20659a514bfaeb3847a77c7213dc4f6",
+      "path": "Drivers/usb_msp/manifest.json",
+      "id": "usb-msp",
+      "version": "0.1.1",
+      "sha256": "bf3c1fdc48cc9a1c54df2b966946665ba03fe5f7225990a134d46812e4dfa6ec"
+    },
+    {
+      "repository": "T5S3-Reader",
+      "commit": "9c8783d6f20659a514bfaeb3847a77c7213dc4f6",
+      "path": "Drivers/program_msp/manifest.json",
+      "id": "program-msp",
+      "version": "0.1.0",
+      "sha256": "1d1739795c1fab9062914b732f30167c03d783373f266b35976b4f8561b23bef"
+    },
+    {
+      "repository": "RiscRTE-Drivers reachable history",
+      "commit": "ed7886d0b2c7f1ac0d235f440d52756782d1b807",
+      "path": "Drivers/usb_msp/manifest.json",
+      "id": "usb-msp",
+      "version": "0.1.2-checked-consumer.1",
+      "sha256": "d2db2713278953cb35392e33d5e359dc3b0e74e5b39b16e196fa53b63f3dc035"
+    },
+    {
+      "repository": "RiscRTE-Drivers reachable history",
+      "commit": "4efae71f05e4af06520990a76773b9cd984940fa",
+      "path": "Drivers/usb_msp/manifest.json",
+      "id": "usb-msp",
+      "version": "0.1.1",
+      "sha256": "bf3c1fdc48cc9a1c54df2b966946665ba03fe5f7225990a134d46812e4dfa6ec"
+    },
+    {
+      "repository": "RiscRTE-Drivers reachable history",
+      "commit": "ed7886d0b2c7f1ac0d235f440d52756782d1b807",
+      "path": "Drivers/program_msp/manifest.json",
+      "id": "program-msp",
+      "version": "0.1.2-checked-consumer.1",
+      "sha256": "d02cd614f0b2613008fbaa291de2baf96ed58ab2e8b7f0bba5398623230cb0c4"
+    },
+    {
+      "repository": "RiscRTE-Drivers reachable history",
+      "commit": "e1f310d46a0b3cdd9b1caf1a69c836a9fdf581e0",
+      "path": "Drivers/program_msp/manifest.json",
+      "id": "program-msp",
+      "version": "0.1.0",
+      "sha256": "1d1739795c1fab9062914b732f30167c03d783373f266b35976b4f8561b23bef"
+    },
+    {
+      "repository": "RiscRTE-Drivers released inventory",
+      "commit": "ed7886d0b2c7f1ac0d235f440d52756782d1b807",
+      "path": "manifest/released-drivers.json",
+      "id": "program-msp",
+      "version": "0.1.0",
+      "sha256": "0688044be40b198fd2204856ff4b05a5946083379d411a75e2d94575e00f880a"
+    },
+    {
+      "repository": "RiscRTE-Drivers released inventory",
+      "commit": "ed7886d0b2c7f1ac0d235f440d52756782d1b807",
+      "path": "manifest/released-drivers.json",
+      "id": "usb-msp",
+      "version": "0.1.1",
+      "sha256": "0688044be40b198fd2204856ff4b05a5946083379d411a75e2d94575e00f880a"
+    }
+  ],
+  "selected_candidates": {
+    "usb-msp": "0.1.2",
+    "program-msp": "0.1.2"
+  },
+  "runtime_commit": "6a3b3d46f5b2857eacc6e9863799dec1f466b036",
+  "coordinated_overlays": [
+    {
+      "owner": "implement_native_cdc_monitor",
+      "path": "candidates/usb-native-stream/usb-host-v2.json",
+      "id": "usb-host-v2",
+      "version": "0.1.7",
+      "sha256": "15f119c2f9f879bf7b7b29dd5b12ae0fab0a899c5f8c6f005471ea5169a9119e",
+      "copied_or_edited": false
+    },
+    {
+      "owner": "implement_native_cdc_monitor",
+      "path": "candidates/usb-native-stream/usb-controller-esp32s3.json",
+      "id": "usb-controller-esp32s3",
+      "version": "0.1.27",
+      "sha256": "aa3d543c127925096944c234ad69888d87b0d198ac5cad2c6be7780777f74c43",
+      "copied_or_edited": false
+    }
+  ]
+}

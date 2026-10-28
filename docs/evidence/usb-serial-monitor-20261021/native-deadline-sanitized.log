@@ -1,0 +1,13 @@
+source=/workspace/scratch/c744abbbbd60/usb-serial-monitor/RiscRTE-Drivers/Drivers/usb_controller_esp32s3/driver_base.cpp
+source_sha256=93102583176e7a7e5f7db108aa0d49e90bec3e589d988eefe22e4ca264d7801b
+extracted_function_sha256=f212829c65208aca6a5ccb6a9c1c80e505eb56e6bd93678be1a54216424c516e
+ASan/UBSan enabled; leak detection is controlled separately
+USBCTRL cleanup-failed stage=bulk-callback ep=81
+USBCTRL failure=bulk-timeout-undrained
+OBSERVED bulk wait: requested=1 fake-ms, elapsed=501 fake-ms, DMA retained
+USBCTRL cleanup-failed stage=bulk-callback ep=81
+OBSERVED checked physical release: elapsed=500 fake-ms, claim=17 retained; no caller budget parameter
+USBCTRL stage=bulk-drained ep=81 resume=0
+CONTROL callback delivered: elapsed=3 fake-ms, claim released only after DMA return
+CONTROL endpoint-zero timeout retains in-flight transfer; no bulk-drain substitution
+PASS: exact-source prerequisite reproduced; NOT a native integration or hardware pass

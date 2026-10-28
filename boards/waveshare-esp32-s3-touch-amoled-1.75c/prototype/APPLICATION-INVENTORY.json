@@ -1,0 +1,295 @@
+{
+  "schema": 1,
+  "scope": "All entries in exact selected System/Utilities inventories; no count-based cutoff",
+  "apps": [
+    {
+      "repository": "system",
+      "inventory_group": "apps",
+      "id": "app_store",
+      "source_path": "Apps/app_store.c",
+      "selected": false,
+      "reason": "Legacy Reader migration API/SD/service dependencies are not a portable native app contract; shared Settings covers supported settings functions"
+    },
+    {
+      "repository": "system",
+      "inventory_group": "apps",
+      "id": "settings",
+      "source_path": "Apps/settings.c",
+      "selected": true,
+      "reason": "Selected maintained generic native builder/profile; exact manifests/grants in store"
+    },
+    {
+      "repository": "system",
+      "inventory_group": "apps",
+      "id": "springboard",
+      "source_path": "Apps/springboard.c",
+      "selected": true,
+      "reason": "Selected maintained generic native builder/profile; exact manifests/grants in store"
+    },
+    {
+      "repository": "system",
+      "inventory_group": "apps",
+      "id": "file_browser",
+      "source_path": "Apps/file_browser.c",
+      "selected": false,
+      "reason": "Legacy Reader migration API/SD/service dependencies are not a portable native app contract; shared Settings covers supported settings functions"
+    },
+    {
+      "repository": "system",
+      "inventory_group": "apps",
+      "id": "time_zone",
+      "source_path": "Apps/time_zone.c",
+      "selected": false,
+      "reason": "Legacy Reader migration API/SD/service dependencies are not a portable native app contract; shared Settings covers supported settings functions"
+    },
+    {
+      "repository": "system",
+      "inventory_group": "apps",
+      "id": "wifi_settings",
+      "source_path": "Apps/wifi_settings.c",
+      "selected": true,
+      "reason": "Selected maintained generic native builder/profile; exact manifests/grants in store"
+    },
+    {
+      "repository": "system",
+      "inventory_group": "apps",
+      "id": "package_manager",
+      "source_path": "Apps/package_manager.c",
+      "selected": false,
+      "reason": "Legacy Reader migration API/SD/service dependencies are not a portable native app contract; shared Settings covers supported settings functions"
+    },
+    {
+      "repository": "system",
+      "inventory_group": "apps",
+      "id": "driver_manager",
+      "source_path": "Apps/driver_manager.c",
+      "selected": false,
+      "reason": "Legacy Reader migration API/SD/service dependencies are not a portable native app contract; shared Settings covers supported settings functions"
+    },
+    {
+      "repository": "system",
+      "inventory_group": "apps",
+      "id": "sd_firmware_update",
+      "source_path": "Apps/sd_firmware_update.c",
+      "selected": false,
+      "reason": "Legacy Reader migration API/SD/service dependencies are not a portable native app contract; shared Settings covers supported settings functions"
+    },
+    {
+      "repository": "system",
+      "inventory_group": "apps",
+      "id": "button_remap",
+      "source_path": "Apps/button_remap.c",
+      "selected": false,
+      "reason": "Legacy Reader migration API/SD/service dependencies are not a portable native app contract; shared Settings covers supported settings functions"
+    },
+    {
+      "repository": "system",
+      "inventory_group": "apps",
+      "id": "clear_cache",
+      "source_path": "Apps/clear_cache.c",
+      "selected": false,
+      "reason": "Legacy Reader migration API/SD/service dependencies are not a portable native app contract; shared Settings covers supported settings functions"
+    },
+    {
+      "repository": "system",
+      "inventory_group": "apps",
+      "id": "language_settings",
+      "source_path": "Apps/language_settings.c",
+      "selected": false,
+      "reason": "Legacy Reader migration API/SD/service dependencies are not a portable native app contract; shared Settings covers supported settings functions"
+    },
+    {
+      "repository": "system",
+      "inventory_group": "apps",
+      "id": "status_bar_settings",
+      "source_path": "Apps/status_bar_settings.c",
+      "selected": false,
+      "reason": "Legacy Reader migration API/SD/service dependencies are not a portable native app contract; shared Settings covers supported settings functions"
+    },
+    {
+      "repository": "system",
+      "inventory_group": "apps",
+      "id": "ota_update",
+      "source_path": "Apps/ota_update.c",
+      "selected": false,
+      "reason": "Legacy Reader migration API/SD/service dependencies are not a portable native app contract; shared Settings covers supported settings functions"
+    },
+    {
+      "repository": "system",
+      "inventory_group": "apps",
+      "id": "font_manager",
+      "source_path": "Apps/font_manager.c",
+      "selected": false,
+      "reason": "Legacy Reader migration API/SD/service dependencies are not a portable native app contract; shared Settings covers supported settings functions"
+    },
+    {
+      "repository": "system",
+      "inventory_group": "apps",
+      "id": "font_selection",
+      "source_path": "Apps/font_selection.c",
+      "selected": false,
+      "reason": "Legacy Reader migration API/SD/service dependencies are not a portable native app contract; shared Settings covers supported settings functions"
+    },
+    {
+      "repository": "system",
+      "inventory_group": "apps",
+      "id": "image_viewer",
+      "source_path": "Apps/image_viewer.c",
+      "selected": false,
+      "reason": "Legacy Reader migration API/SD/service dependencies are not a portable native app contract; shared Settings covers supported settings functions"
+    },
+    {
+      "repository": "system",
+      "inventory_group": "apps",
+      "id": "file_transfer",
+      "source_path": "Apps/file_transfer.c",
+      "selected": false,
+      "reason": "Legacy Reader migration API/SD/service dependencies are not a portable native app contract; shared Settings covers supported settings functions"
+    },
+    {
+      "repository": "utilities",
+      "inventory_group": "apps",
+      "id": "gps",
+      "source_path": "Apps/gps.c",
+      "selected": false,
+      "reason": "Unselected external hardware or additional alarm/scene/audio/HID/contexts service contracts; not advertised as compatible"
+    },
+    {
+      "repository": "utilities",
+      "inventory_group": "apps",
+      "id": "lora",
+      "source_path": "Apps/lora.c",
+      "selected": false,
+      "reason": "Unselected external hardware or additional alarm/scene/audio/HID/contexts service contracts; not advertised as compatible"
+    },
+    {
+      "repository": "utilities",
+      "inventory_group": "apps",
+      "id": "battery",
+      "source_path": "Apps/battery.c",
+      "selected": true,
+      "reason": "Selected maintained generic native builder/profile; exact manifests/grants in store"
+    },
+    {
+      "repository": "utilities",
+      "inventory_group": "portable_apps",
+      "id": "calculator",
+      "source_path": "Apps/calculator.c",
+      "selected": true,
+      "reason": "Selected maintained generic native builder/profile; exact manifests/grants in store"
+    },
+    {
+      "repository": "utilities",
+      "inventory_group": "portable_apps",
+      "id": "stopwatch",
+      "source_path": "Apps/stopwatch.c",
+      "selected": true,
+      "reason": "Selected maintained generic native builder/profile; exact manifests/grants in store"
+    },
+    {
+      "repository": "utilities",
+      "inventory_group": "alarm_apps",
+      "id": "alarms",
+      "source_path": "Apps/alarms.c",
+      "selected": false,
+      "reason": "Unselected external hardware or additional alarm/scene/audio/HID/contexts service contracts; not advertised as compatible"
+    },
+    {
+      "repository": "utilities",
+      "inventory_group": "alarm_apps",
+      "id": "countdown",
+      "source_path": "Apps/countdown.c",
+      "selected": false,
+      "reason": "Unselected external hardware or additional alarm/scene/audio/HID/contexts service contracts; not advertised as compatible"
+    },
+    {
+      "repository": "utilities",
+      "inventory_group": "alarm_services",
+      "id": "alarm-service",
+      "source_path": "Services/alarm_service/service.c",
+      "selected": false,
+      "reason": "Unselected external hardware or additional alarm/scene/audio/HID/contexts service contracts; not advertised as compatible"
+    },
+    {
+      "repository": "utilities",
+      "inventory_group": "audio_apps",
+      "id": "frequency_generator",
+      "source_path": "Apps/frequency_generator.c",
+      "selected": false,
+      "reason": "Unselected external hardware or additional alarm/scene/audio/HID/contexts service contracts; not advertised as compatible"
+    },
+    {
+      "repository": "utilities",
+      "inventory_group": "audio_apps",
+      "id": "audio_spectrum",
+      "source_path": "Apps/audio_spectrum.c",
+      "selected": false,
+      "reason": "Unselected external hardware or additional alarm/scene/audio/HID/contexts service contracts; not advertised as compatible"
+    },
+    {
+      "repository": "utilities",
+      "inventory_group": "lora_apps",
+      "id": "lora_messages",
+      "source_path": "Apps/lora_messages.c",
+      "selected": false,
+      "reason": "Unselected external hardware or additional alarm/scene/audio/HID/contexts service contracts; not advertised as compatible"
+    },
+    {
+      "repository": "utilities",
+      "inventory_group": "ble_apps",
+      "id": "ble_scanner",
+      "source_path": "Apps/ble_scanner.c",
+      "selected": false,
+      "reason": "Unselected external hardware or additional alarm/scene/audio/HID/contexts service contracts; not advertised as compatible"
+    },
+    {
+      "repository": "utilities",
+      "inventory_group": "sdr_apps",
+      "id": "waterfall",
+      "source_path": "Apps/waterfall.c",
+      "selected": false,
+      "reason": "Unselected external hardware or additional alarm/scene/audio/HID/contexts service contracts; not advertised as compatible"
+    },
+    {
+      "repository": "utilities",
+      "inventory_group": "hid_apps",
+      "id": "ble_touchpad",
+      "source_path": "Apps/ble_touchpad.c",
+      "selected": false,
+      "reason": "Unselected external hardware or additional alarm/scene/audio/HID/contexts service contracts; not advertised as compatible"
+    },
+    {
+      "repository": "utilities",
+      "inventory_group": "hid_apps",
+      "id": "ble_buttons",
+      "source_path": "Apps/ble_buttons.c",
+      "selected": false,
+      "reason": "Unselected external hardware or additional alarm/scene/audio/HID/contexts service contracts; not advertised as compatible"
+    },
+    {
+      "repository": "utilities",
+      "inventory_group": "contexts_apps",
+      "id": "contexts",
+      "source_path": "Apps/contexts.c",
+      "selected": false,
+      "reason": "Unselected external hardware or additional alarm/scene/audio/HID/contexts service contracts; not advertised as compatible"
+    }
+  ],
+  "watch_roles": [
+    {
+      "id": "default",
+      "selected": true,
+      "reason": "Canonical unchanged shared Home"
+    },
+    {
+      "id": "clock",
+      "selected": true,
+      "reason": "Canonical shared return-to-default role"
+    },
+    {
+      "id": "bringup",
+      "selected": true,
+      "reason": "Maintained hardware-neutral diagnostics with safe bounds"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+# Prototype full 32MiB image; appdata preformatted at packaging, never on boot.
+nvs,data,nvs,0x9000,0x6000
+factory,app,factory,0x10000,0x300000
+bootfs,data,spiffs,0x310000,0x1bf0000
+appdata,data,0x41,0x1f00000,0x100000

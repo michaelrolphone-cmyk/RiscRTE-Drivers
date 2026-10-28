@@ -1,0 +1,68 @@
+name: Badge scoped Home and native link
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    container: espressif/idf:v6.1@sha256:81893c71bb5e570088901f21def8684c25cd2a9020281bd01b843a7655edb18c
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      CMAKE_BUILD_PARALLEL_LEVEL: '1'
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Clone exact source as shell owner
+        env:
+          SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/badge-native"
+          echo "BADGE_NATIVE_ROOT=$root" >> "$GITHUB_ENV"
+          clone_exact() {
+            git init --quiet "$3"
+            git -C "$3" remote add origin "https://github.com/$1.git"
+            git -C "$3" fetch --no-tags --depth=1 origin "$2"
+            git -C "$3" checkout --quiet --detach FETCH_HEAD
+            test "$(git -C "$3" rev-parse HEAD)" = "$2"
+          }
+          clone_exact "$GITHUB_REPOSITORY" "$SOURCE_SHA" "$root/drivers"
+          clone_exact michaelrolphone-cmyk/RiscRTE 13eca114cb58469cf6004fafc3da84fbd9d29beb "$root/runtime"
+          clone_exact michaelrolphone-cmyk/RiscRTE-Watch 605d5e7d4e2b46f6b33ff2f195582db6f882535c "$root/watch"
+          clone_exact michaelrolphone-cmyk/RiscRTE-T-Watch-S3 851b8998e804c57b2c9f42d9f8fd0a69e79f2b41 "$root/controllers"
+          clone_exact michaelrolphone-cmyk/RiscRTE-System-Apps bb0cadf3cec3445a64e11513b47b2676f3fdd92d "$root/system"
+          clone_exact michaelrolphone-cmyk/RiscRTE-Utilities 4fdcad2495c33fe63f5f6faca9b11ced3c739a5b "$root/utilities"
+      - name: Build and verify pinned native image without a device
+        run: |
+          set -euo pipefail
+          source "$IDF_PATH/export.sh" >/dev/null
+          python "$BADGE_NATIVE_ROOT/drivers/scripts/build_badge_native.py" \
+            --runtime "$BADGE_NATIVE_ROOT/runtime" --idf "$IDF_PATH" \
+            --cc "$(command -v xtensa-esp32s3-elf-gcc)" --python "$(command -v python)" \
+            --output "$BADGE_NATIVE_ROOT/evidence"
+      - name: Qualify scoped Home graph, real activation and failure custody
+        run: bash "$BADGE_NATIVE_ROOT/drivers/scripts/run_badge_home_ci.sh"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: badge-home-evidence-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ env.BADGE_NATIVE_ROOT }}/home-evidence/
+            ${{ env.BADGE_NATIVE_ROOT }}/evidence/*.log
+            ${{ env.BADGE_NATIVE_ROOT }}/evidence/build-proof.json
+            ${{ env.BADGE_NATIVE_ROOT }}/evidence/build/qualification/
+            ${{ env.BADGE_NATIVE_ROOT }}/evidence/build/*.elf
+            ${{ env.BADGE_NATIVE_ROOT }}/evidence/build/*.bin
+            ${{ env.BADGE_NATIVE_ROOT }}/evidence/build/*.map
+            ${{ env.BADGE_NATIVE_ROOT }}/evidence/build/bootloader/bootloader.bin
+            ${{ env.BADGE_NATIVE_ROOT }}/evidence/build/partition_table/partition-table.bin
+            ${{ env.BADGE_NATIVE_ROOT }}/evidence/build/config/sdkconfig.json
+            ${{ env.BADGE_NATIVE_ROOT }}/evidence/build/compile_commands.json
+          if-no-files-found: error
+          retention-days: 30

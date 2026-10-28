@@ -1,0 +1,236 @@
+{
+  "drivers_implementation": "d4c9fe436c5bd6b73e1feac87ac0df7e04ba0bf3",
+  "drivers_prerequisite": "b4334b76124f80d1252eb7dda9e903fd1b7b4d39",
+  "esp_usb": {
+    "commit": "0f6820940f9e8075c0cc1483d9c2f5e89cc5b97a",
+    "tracked_clean": true,
+    "tree": "fe8511cae3cc096a04a370706ca16f24296d7842"
+  },
+  "files": {
+    "Drivers/Drivers/usb_cdc_native/Descriptors.inc": {
+      "bytes": 5069,
+      "sha256": "dc3911ec016ec627d66a2745374a9b1b8ecdde44bd01003ca7f748029a637382"
+    },
+    "Drivers/Drivers/usb_cdc_native/driver.c": {
+      "bytes": 22162,
+      "sha256": "241e7684cdb8321ae4b6a89e492a96b189311a4a25924daca50eb9c998b81977"
+    },
+    "Drivers/Drivers/usb_cdc_native/manifest.json": {
+      "bytes": 358,
+      "sha256": "2102b0cfb2f45d16242022796958e5683d6bfcf6c971791b8ab7797b1cba463f"
+    },
+    "Drivers/Drivers/usb_controller_esp32s3/driver_base.cpp": {
+      "bytes": 31268,
+      "sha256": "ed04b2fcc5485a8d9650ecc4ed4fb694f9fbe6417226def70134ab59b1440cce"
+    },
+    "Drivers/Drivers/usb_host_v2/driver.c": {
+      "bytes": 19794,
+      "sha256": "bf8b3a47ad3f8a71df32c894da7a72c26505637eb6734670aa8a455bddee2d10"
+    },
+    "Drivers/candidates/usb-native-stream/usb-controller-esp32s3.json": {
+      "bytes": 386,
+      "sha256": "aa3d543c127925096944c234ad69888d87b0d198ac5cad2c6be7780777f74c43"
+    },
+    "Drivers/candidates/usb-native-stream/usb-host-v2.json": {
+      "bytes": 366,
+      "sha256": "15f119c2f9f879bf7b7b29dd5b12ae0fab0a899c5f8c6f005471ea5169a9119e"
+    },
+    "Drivers/scripts/build_usb_cdc_native.py": {
+      "bytes": 2518,
+      "sha256": "0475ed1abfb83dd20d068738951d4f8eaf773bc5b80cd22a77139acd5d00798b"
+    },
+    "Drivers/scripts/build_usb_controller_native_stream_idf61.py": {
+      "bytes": 17550,
+      "sha256": "ab3a609fd6129a0f4c8bf1ce4b40853bc35a4fe84ab7f59347955de48d5f10a2"
+    },
+    "Drivers/scripts/build_usb_host_native_stream.py": {
+      "bytes": 2653,
+      "sha256": "4503c0ef61a90614f95473872d2e5dd2293b9adbf744805cbd8e2e5ac6d19440"
+    },
+    "Drivers/sdk/driver/RiscPlatformClockV1.h": {
+      "bytes": 592,
+      "sha256": "41a12f6529f38731ee874f8bc166e1cf89fe376a1448fe5a4dd4c9abac90e5e2"
+    },
+    "Drivers/sdk/driver/RiscProviderV2.h": {
+      "bytes": 4145,
+      "sha256": "62478822fa8943ddfd1607f8923de52d7b5b6fc8a0db2df6ca07c65c95c62d41"
+    },
+    "Drivers/sdk/driver/RiscSerialPortV1.h": {
+      "bytes": 3336,
+      "sha256": "7f00311161a071c6575be8b65e7aba30ebef7a8f1a45f9c0bf9168bc25e05700"
+    },
+    "Drivers/sdk/driver/RiscSerialStreamSessionV1.h": {
+      "bytes": 1165,
+      "sha256": "66d328c2a201625a7be348507c8dbedcaa937dfb46f86b05ecd04d60e3fba0b7"
+    },
+    "Drivers/sdk/driver/RiscStreamProviderV1.h": {
+      "bytes": 1411,
+      "sha256": "0fe306e060321387c816bb70ec4370a501a423f4fe19a20c9be80aa1b98f3432"
+    },
+    "Drivers/sdk/driver/RiscStreamResultV1.h": {
+      "bytes": 498,
+      "sha256": "af140ee9ca4f6286c5f1beeecb0a0952264b14eb40d3ba4f313ff952e8824a6f"
+    },
+    "Drivers/sdk/driver/RiscStreamSessionProviderV1.h": {
+      "bytes": 2371,
+      "sha256": "fe463661530c43ae7d1dd8b9c8227fdc6a7e4380bca3f5c8a13287cb0db9e873"
+    },
+    "Drivers/sdk/driver/RiscUsbControllerV1.h": {
+      "bytes": 5032,
+      "sha256": "226f083493085ecdcaa21a7c3bf1c269640b7d1ebaa099e7217fb64124f1dbed"
+    },
+    "Drivers/sdk/driver/RiscUsbProviderV1.h": {
+      "bytes": 2354,
+      "sha256": "77f67cf5db7ed3fd7c6e148807bc705b5f8443c90d401b546069d756eb997b9a"
+    },
+    "Drivers/test/drivers/usb_cdc_native_legacy_client.c": {
+      "bytes": 749,
+      "sha256": "fd82629a5c86808b6442dd8720b50f85417fd085525538cdbcb2d7e1446baafd"
+    },
+    "Drivers/test/drivers/usb_cdc_native_test.c": {
+      "bytes": 16512,
+      "sha256": "47520902dcb7262f283ba2cc23cb979d274c152508a76e019a2c5e18ca74e673"
+    },
+    "Drivers/test/drivers/usb_cdc_runtime_test.cpp": {
+      "bytes": 3404,
+      "sha256": "27016b93e47bcb7691447224680a5e1df36e8ee328382ee640508fe66ecc0bb4"
+    },
+    "Drivers/test/fixtures/cdc_runtime_app.c": {
+      "bytes": 2439,
+      "sha256": "ee00cf225551774fa9a092a0031ba50a3d6fb0929e03e7612a991ed450426344"
+    },
+    "Drivers/test/fixtures/cdc_runtime_controller.c": {
+      "bytes": 2920,
+      "sha256": "0586ec49ea2a9fd9682e5d3cf72b1b85e4c57c1f0bab459a3b69eb3d31827b0a"
+    },
+    "Drivers/test/lock_usb_native_cdc_sources.py": {
+      "bytes": 3509,
+      "sha256": "85ac9aec5902b00d3e77de314b5a3f2586c90db274568509d1dcea9671d9cc86"
+    },
+    "Drivers/test/run_usb_cdc_native_test.sh": {
+      "bytes": 2014,
+      "sha256": "d3fc2819af8ce8befbd55ab2fd2f5e8baef71ee62e63b135b15fdc4aeb4fee2d"
+    },
+    "Drivers/test/run_usb_cdc_runtime_test.sh": {
+      "bytes": 2711,
+      "sha256": "04f991789b5c04459ca232e190625528cdfbe5c2716578741e35c6b2e02a2c64"
+    },
+    "Drivers/test/usb_cdc_native_negative_test.py": {
+      "bytes": 3258,
+      "sha256": "7ccb9abf92f1c525091aa882f93b4c7c0577bb352dd65257113c7c0dc591d941"
+    },
+    "Drivers/test/usb_native_candidate_versions_test.py": {
+      "bytes": 1482,
+      "sha256": "09a8dc8b863a92487428880849c068ab0323efaea25ade756f54eb3a53ab2eee"
+    },
+    "Reader/Drivers/usb_cdc_v2/driver.c": {
+      "bytes": 16113,
+      "sha256": "b5e6820966994855e3d109540016f82f0ba783bafe6bb0d3ced0fe1b845d254e"
+    },
+    "Reader/sdk/driver/RiscSerialPortV1.h": {
+      "bytes": 3336,
+      "sha256": "7f00311161a071c6575be8b65e7aba30ebef7a8f1a45f9c0bf9168bc25e05700"
+    },
+    "Runtime/sdk/app/RiscRuntimeV1.h": {
+      "bytes": 10029,
+      "sha256": "e8ddeb072831b0951ebe4eb3c68e54c08d778560b866537f86eaf78d2aae34fc"
+    },
+    "Runtime/sdk/app/RiscSerialStreamSessionV1.h": {
+      "bytes": 1165,
+      "sha256": "66d328c2a201625a7be348507c8dbedcaa937dfb46f86b05ecd04d60e3fba0b7"
+    },
+    "Runtime/sdk/app/RiscStreamClientV1.h": {
+      "bytes": 2521,
+      "sha256": "ef5deb9a3bf8d20c0af9859a83977b93acfb8e480a851d0dcf96caf2795babcb"
+    },
+    "Runtime/sdk/driver/RiscPlatformClockV1.h": {
+      "bytes": 592,
+      "sha256": "41a12f6529f38731ee874f8bc166e1cf89fe376a1448fe5a4dd4c9abac90e5e2"
+    },
+    "Runtime/sdk/driver/RiscProviderV2.h": {
+      "bytes": 4145,
+      "sha256": "62478822fa8943ddfd1607f8923de52d7b5b6fc8a0db2df6ca07c65c95c62d41"
+    },
+    "Runtime/sdk/driver/RiscStreamProviderV1.h": {
+      "bytes": 1411,
+      "sha256": "0fe306e060321387c816bb70ec4370a501a423f4fe19a20c9be80aa1b98f3432"
+    },
+    "Runtime/sdk/driver/RiscStreamResultV1.h": {
+      "bytes": 498,
+      "sha256": "af140ee9ca4f6286c5f1beeecb0a0952264b14eb40d3ba4f313ff952e8824a6f"
+    },
+    "Runtime/sdk/driver/RiscStreamSessionProviderV1.h": {
+      "bytes": 2371,
+      "sha256": "fe463661530c43ae7d1dd8b9c8227fdc6a7e4380bca3f5c8a13287cb0db9e873"
+    },
+    "Runtime/src/bootstrap/Board.cpp": {
+      "bytes": 25584,
+      "sha256": "6d1dc67d76764daf70ef250b601a94092f8ea58e2f354ca703742c31cd5415d0"
+    },
+    "Runtime/src/bootstrap/Json.cpp": {
+      "bytes": 2530,
+      "sha256": "754947cab6e34fde87014e1178ab20a335abd3db1a4d53e5185ac2aa20b618a7"
+    },
+    "Runtime/src/bootstrap/Runtime.cpp": {
+      "bytes": 134252,
+      "sha256": "1a7630145d53dda11984564a48ca71733f4fe625de008959497aac3b08901251"
+    },
+    "Runtime/src/runtime/drivers/ProviderGraphV2.cpp": {
+      "bytes": 23970,
+      "sha256": "ca85c18751dc67a8f12cf77f28117b12df238cf6ef85edaf1e15850f5af74981"
+    },
+    "Runtime/src/runtime/drivers/ProviderModuleV2.cpp": {
+      "bytes": 18741,
+      "sha256": "898bd098341d385280d06a10a85714e70c267d53a1413fd86961079612b01185"
+    },
+    "Runtime/src/runtime/packages/PackageIdentity.h": {
+      "bytes": 5106,
+      "sha256": "b9438c33b9575f1198cbe0a32a408f6960a4c3b56724e4828e6b632e35aa8204"
+    },
+    "Runtime/src/runtime/streams/AppStreamSessions.cpp": {
+      "bytes": 10653,
+      "sha256": "517fdec0e58361d7373fb63ba55f753df0ac64630dfe78cdaf4ecc1c6c37866d"
+    },
+    "Runtime/src/runtime/streams/ProviderQueueHost.cpp": {
+      "bytes": 24869,
+      "sha256": "6ade240c39f57fc3ff5976367848280f40a526156fd435b75bae1652b8983257"
+    },
+    "System/lib/PortableApps/SERIAL_CLIENT_PROVENANCE.json": {
+      "bytes": 2248,
+      "sha256": "b4d2d021a8431a90c75d697f607e6438c8f5c633e5958308dade4fa054cc40b1"
+    },
+    "System/lib/PortableApps/include/PortableSerialClient.h": {
+      "bytes": 4168,
+      "sha256": "8af320f976996d4ac19a38d231d5444d312b77f7946c760f575b2b904fe5f42a"
+    },
+    "System/lib/PortableApps/src/PortableSerialClient.c": {
+      "bytes": 12548,
+      "sha256": "e69e7dbac8300a9f57f4f832ef9b99df1b62fa7f8ce79836ff2de3cf12c3c269"
+    },
+    "System/scripts/test_portable_serial_client.py": {
+      "bytes": 6382,
+      "sha256": "23b1ca2f49d8ca7e637b7749b8cbaf3acbc0ec8bbc6443dda5814d0ea7e0f1f8"
+    }
+  },
+  "reader": {
+    "commit": "c98e4222048244b1e729869ed47aa99130025fd3",
+    "tracked_clean": true,
+    "tree": "a5ee3231bf2de0cea3d484765cd5aa639721a4a8"
+  },
+  "runtime": {
+    "commit": "6a3b3d46f5b2857eacc6e9863799dec1f466b036",
+    "tracked_clean": true,
+    "tree": "a5cc849726698c8651aa503af788b938bca28ec2"
+  },
+  "system": {
+    "commit": "f9d55dbeb941ba40fb965f53172ce3e1b85af376",
+    "tracked_clean": true,
+    "tree": "d959bd31c689ea9a038069eb3bf0961a958d8539"
+  },
+  "tools": {
+    "bash": "GNU bash, version 5.2.37(1)-release (x86_64-pc-linux-gnu)",
+    "c++": "c++ (Debian 14.2.0-19) 14.2.0",
+    "cc": "cc (Debian 14.2.0-19) 14.2.0",
+    "python3": "Python 3.12.14"
+  }
+}

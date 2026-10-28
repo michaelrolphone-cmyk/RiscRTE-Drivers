@@ -1,0 +1,10 @@
+PASS actual Runtime/CDC/host/client normal/eager
+PASS actual Runtime/CDC/host/client unknown/eager
+PASS actual Runtime/CDC/host/client detach/eager
+PASS actual Runtime/CDC/host/client close-retained/eager retained
+PASS actual Runtime/CDC/host/client open-retained/eager retained
+PASS actual Runtime/CDC/host/client normal/demand
+PASS actual Runtime/CDC/host/client unknown/demand
+PASS actual Runtime/CDC/host/client detach/demand
+PASS actual Runtime/CDC/host/client close-retained/demand retained
+PASS actual Runtime/CDC/host/client open-retained/demand retained

@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+"""Recover selected source roles and immutable SDK anchors; never use latest refs."""
+import argparse,ast,json,re,subprocess
+from pathlib import Path
+ROLES=[('runtime','runtime','home'),('watch','watch','home'),('controllers','controllers','home'),('system','system','home'),('utilities','utilities','home'),('runtime-prototype','runtime','prototype'),('watch-prototype','watch_bringup','prototype'),('watch-alpha-baseline','watch_alpha_baseline','prototype'),('system-prototype','system','prototype'),('utilities-prototype','utilities','prototype')]
+# Read pin values from their owning selected builders, not duplicated SDK versions.
+ANCHORS=[('runtime','system-prototype/scripts/build_portable_settings.py',['NATIVE_TIME_RUNTIME_COMMIT']),('runtime-prototype','system-prototype/scripts/build_portable_settings.py',['NATIVE_TIME_RUNTIME_COMMIT']),('runtime-prototype','system-prototype/scripts/portable_foreground_idle_build.py',['RUNTIME_COMMIT']),('utilities-prototype','system-prototype/scripts/portable_alarm_build.py',['UTILITIES_COMMIT','CLOCK_EDIT_COMMIT','CATALOG_COMMIT']),('utilities-prototype','utilities-prototype/scripts/build_native_schedules_alarm.py',['BASE']),('watch-prototype','watch-prototype/scripts/test_meridiem_artwork.py',['baseline'])]
+def exact_pin(value):
+ if not isinstance(value,str) or not re.fullmatch('[0-9a-f]{40}',value):raise ValueError('Expected exact commit pin')
+ return value
+def constants(path,names):
+ values={}
+ for node in ast.parse(path.read_text()).body:
+  if isinstance(node,ast.Assign):
+   for target in node.targets:
+    if isinstance(target,ast.Name) and target.id in names:values[target.id]=exact_pin(ast.literal_eval(node.value))
+ if set(values)!=set(names):raise ValueError('Missing owning SDK constants: '+str(path))
+ return values
+def recover(root,run=subprocess.run,output=subprocess.check_output,include_timecard=False):
+ root=Path(root);board=root/'drivers/boards/waveshare-esp32-s3-touch-amoled-1.75c';locks={n:json.loads((board/n/'sources.lock.json').read_text()) for n in ['home','prototype']};records=[]
+ def fetch(path,pin):
+  exact_pin(pin);run(['git','-C',str(path),'fetch','--no-tags','--depth=1','origin',pin],check=True)
+  actual=output(['git','-C',str(path),'rev-parse',pin+'^{commit}'],text=True).strip()
+  if actual!=pin:raise ValueError('Fetched dependency identity mismatch')
+ roles=ROLES+([('productivity-prototype','productivity','prototype')] if include_timecard else [])
+ for label,key,kind in roles:
+  pin=locks[kind][key];repo=pin['repository'];commit=exact_pin(pin['commit']);path=root/label
+  if not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+',repo):raise ValueError('Invalid repository identity')
+  run(['git','init','--quiet',str(path)],check=True);run(['git','-C',str(path),'remote','add','origin','https://github.com/'+repo+'.git'],check=True);fetch(path,commit)
+  run(['git','-C',str(path),'checkout','--quiet','--detach',commit],check=True);records.append({'role':label,'repository':repo,'commit':commit})
+ if include_timecard:
+  profile=json.loads((root/'productivity-prototype/sdk/timecard-current-profile.json').read_text())
+  anchors=[('timecard-productivity-baseline','productivity',profile['authoritative_model_base']),('timecard-system-baseline','system',profile['scene_contract_basis']),('timecard-alarm-sdk','utilities',profile['alarm_sdk'])]
+  for label,key,pin in anchors:
+   path=root/label;repo=locks['prototype'][key]['repository'];pin=exact_pin(pin)
+   if not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+',repo):raise ValueError('Invalid repository identity')
+   run(['git','init','--quiet',str(path)],check=True);run(['git','-C',str(path),'remote','add','origin','https://github.com/'+repo+'.git'],check=True);fetch(path,pin)
+   run(['git','-C',str(path),'checkout','--quiet','--detach',pin],check=True);records.append({'role':label,'repository':repo,'commit':pin,'purpose':'owning selector parity or canonical alarm SDK'})
+ extras=set()
+ for label,path,names in ANCHORS:
+  for name,pin in constants(root/path,names).items():extras.add((label,pin))
+ usb=json.loads((root/'drivers/docs/usb-hid-checked-source-lock.json').read_text());extras.add(('drivers',exact_pin(usb['cohorts']['pr40']['commit'])))
+ for label,pin in sorted(extras):fetch(root/label,pin)
+ receipt={'include_timecard':include_timecard,'roles':records,'extra_refs':[{'role':label,'commit':pin} for label,pin in sorted(extras)],'latest_ref_fallback':False}
+ (root/'source-recovery.json').write_text(json.dumps(receipt,indent=2)+'\n');return receipt
+if __name__=='__main__':
+ p=argparse.ArgumentParser();p.add_argument('--workspace',type=Path,required=True);p.add_argument('--include-timecard',action='store_true');a=p.parse_args();recover(a.workspace,include_timecard=a.include_timecard)
