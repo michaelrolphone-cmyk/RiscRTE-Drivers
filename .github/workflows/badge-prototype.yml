@@ -82,6 +82,7 @@ jobs:
         run: |
           set -euo pipefail
           source "$IDF_PATH/export.sh" >/dev/null
+          python "$BADGE_PROTOTYPE_ROOT/drivers/test/test_badge_native_first.py"
           python "$BADGE_PROTOTYPE_ROOT/drivers/scripts/run_badge_prototype_ci.py" \
             --workspace "$BADGE_PROTOTYPE_ROOT" --idf "$IDF_PATH" \
             --cc "$(command -v xtensa-esp32s3-elf-gcc)" \
@@ -102,6 +103,7 @@ jobs:
             ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/packaged-geometry-*/
             ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/software-evidence/
             ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/native/build-proof.json
+            ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/native/build/riscrte_native.elf
             ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/native/build/qualification/
             ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/target/build.json
             ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/timecard-*/**/receipt.json

@@ -73,6 +73,10 @@ def main():
  def shell(script,mode):
   command=['bash',str(script)];calls.append(command)
   run_logged(command,out/(str(len(calls))+'-'+script.stem+'-'+mode+'.log'),{**env,'SANITIZE':'1' if mode=='sanitized' else '0'})
+ # Native linking is independently useful evidence even if an owning test later fails.
+ # All required tests still run below, and any failure still fails this cohort.
+ native=out/'native';target=out/'target'
+ run('build_badge_native.py','--prototype','--runtime',w/'runtime-prototype','--idf',a.idf,'--cc',a.cc,'--python',sys.executable,'--output',native,*(['--quick-actions'] if a.quick_actions else []),*(['--time-server-sync'] if a.time_server_sync else []),*(['--performance-trace'] if a.native_performance_trace else []),*(['--spiffs-source',a.spiffs_source] if a.spiffs_source else []),*(['--reuse-columns'] if a.reuse_columns else []),*(['--queued-pixels'] if a.queued_pixels else []),'--native-stripe-rows',a.native_stripe_rows,*(['--reuse-unchanged-stripes'] if a.reuse_unchanged_stripes else []))
  external(ROOT/'tests/test_badge_source_pack.py')
  external(w/'runtime-prototype/test/test_native_appdata_layout.py')
  for mode in ['normal','sanitized']:
@@ -147,8 +151,6 @@ def main():
  if a.time_server_sync:
   external(ROOT/'test/test_time_sync_profile.py')
   external(w/'system-prototype/scripts/test_time_server_sync.py','--runtime',w/'runtime-prototype','--utilities',w/'utilities-prototype','--output',out/'time-sync-owning')
- native=out/'native';target=out/'target'
- run('build_badge_native.py','--prototype','--runtime',w/'runtime-prototype','--idf',a.idf,'--cc',a.cc,'--python',sys.executable,'--output',native,*(['--quick-actions'] if a.quick_actions else []),*(['--time-server-sync'] if a.time_server_sync else []),*(['--performance-trace'] if a.native_performance_trace else []),*(['--spiffs-source',a.spiffs_source] if a.spiffs_source else []),*(['--reuse-columns'] if a.reuse_columns else []),*(['--queued-pixels'] if a.queued_pixels else []),'--native-stripe-rows',a.native_stripe_rows,*(['--reuse-unchanged-stripes'] if a.reuse_unchanged_stripes else []))
  run('build_badge_prototype.py','--runtime',w/'runtime-prototype','--runtime-baseline',w/'runtime','--watch',w/'watch','--watch-bringup',w/'watch-prototype','--controllers',w/'controllers','--system',w/'system-prototype','--system-baseline',w/'system','--utilities',w/'utilities-prototype','--utilities-baseline',w/'utilities','--cc',a.cc,'--output',target,*(['--home-system',w/'home-system'] if a.native_alarms else []),*(['--foreground-idle'] if a.foreground_idle else []),*(['--include-files'] if a.include_files else []),*(['--native-daily'] if a.native_daily else []),*(['--native-alarms'] if a.native_alarms else []),*(['--native-alarm-geometry'] if a.native_alarm_geometry else []),*(['--quick-actions'] if a.quick_actions else []),*(['--native-wifi-geometry'] if a.native_wifi_geometry else []),*(['--include-timecard','--productivity',w/'productivity-prototype'] if a.include_timecard else []),*successor_args)
  for mode in ['normal','sanitized']:
   san=['--sanitize'] if mode=='sanitized' else []
