@@ -134,7 +134,13 @@ static void lifecycle(void) {
     /* A failed unlock retains the owner token and pins; a later cleanup
      * retries unlock before attempting to reacquire, release and destroy. */
     assert(start(&m));m.fail_sync_unlock=true;risc_touch_snapshot_v1 snapshot;
-    assert(touch->snapshot(NULL,&snapshot));assert(!driver->quiesce());driver->stop();
+    /* Copying state is not a successful API call when releasing its guard fails.
+     * Retain custody and make subsequent reads terminal until cleanup retries. */
+    assert(!touch->snapshot(NULL,&snapshot));
+    const unsigned locks=m.counts[CST_TEST_LOCK],unlocks=m.counts[CST_TEST_UNLOCK];
+    assert(!touch->snapshot(NULL,&snapshot));
+    assert(m.counts[CST_TEST_LOCK]==locks&&m.counts[CST_TEST_UNLOCK]==unlocks);
+    assert(!driver->quiesce());driver->stop();
     assert(m.sync_held&&m.bus_token&&m.reset_token);finish(&m);retry(&m);
     puts("  teardown: active subscriptions, retained bus/GPIO2/sync custody and retry; independent native GPIO1 untouched PASS");
 }

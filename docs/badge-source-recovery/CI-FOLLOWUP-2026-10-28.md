@@ -1,0 +1,13 @@
+# Badge CI continuation
+
+The reviewed source recovery publication is Runtime 318d77283ba707b6f2820d2833e5d7ea3ff3f7e8 (tree f9bac1666228b9375057885e5a550814f2a86c49). Drivers 52c9a69fd1370f461b644b3db3165babca729ec4 consumes it. A clean GitHub-only restoration passed 15 roles / 15 original pack imports / eight SDK anchors. No local URL rewrite, latest-source substitution or invented parent was used.
+
+That Drivers head passed seven workflows but exposed three distinct remaining failures: prototype USB source preservation, source-inventory parity and the Badge touch cleanup fixture (scoped Home/CO5300). Repairs here change no production provider bytes.
+
+The touch fixture now expects snapshot failure when the provider cannot release its guard, checks that a second read makes no lock/unlock callback, and retains the existing cleanup/retry checks. The production source already enforces this terminal ownership contract. Both normal and ASan/UBSan composition runs passed locally (leak detection disabled under ptrace; CI defaults preserved).
+
+Two additive prototype inventory entries were stale: CST tree f84e42291cdca24c00d4d178e3c22c2607fc30f9 -> faf5ab8b6aee6bcc7ccb028bde881f5f5be3e9cf; GPIO key sleep 6c082fb44410384943c6a8fa32ef5c029b8bdbf0 -> 0858b744d6f84897a1a560ef44d27bdc7cac5770. Full source diffs were reviewed: the existing CST terminal-custody behavior and the existing measured/debounced release interval account for those changes. Only those two inventory digests and their verifier constants refresh. Original PR40 inventory serialization and hashes remain exact after removing strictly pinned additive entries.
+
+The preservation guard now names the already-present TimeSample header addition and the DisplayOutput round-shape flag extension explicitly. Both complete current header hashes are pinned; DisplayOutput's exact historical hash is independently checked. Its sole diff is the new bit-6 flag plus its comment, with no struct or old enum-value change. Every other SDK path still passes the historical git diff guard. Synthetic historical-board tests keep their independent SDK fixture; a new real-header test checks all three mapped headers reject mutation and the historical extension hash cannot drift. All 53 parity tests passed (three preexisting skips), and the actual complete USB preservation gate passed.
+
+These repairs do not claim full cohort CI, target build, hardware qualification, merge readiness or a new firmware release. Points and the remaining source-discovered applications still require integration. Snapshot PR deletions must be reconciled with main before readiness.
