@@ -77,6 +77,12 @@ def recover(root,run=subprocess.run,output=subprocess.check_output,include_timec
  extras=set()
  # Recover the current Drivers pack before resolving its historical SDK anchor.
  fetch(root/'drivers',locks['prototype']['drivers_base'])
+ # A separate original snapshot supplies the untimed parity source. Import
+ # before reading its owning pin; it is not substituted for any selected role.
+ baseline=constants(root/'drivers/scripts/test_portable_alarm_light_sleep.py',['UNTIMED_BASELINE'])['UNTIMED_BASELINE']
+ record=restore(root/'drivers',root/'drivers/docs/badge-source-recovery/untimed-baseline','michaelrolphone-cmyk/RiscRTE-Drivers',run,output)
+ if record['source_commit']!=baseline:raise ValueError('Untimed baseline recovery identity mismatch')
+ record['role']='drivers-untimed-baseline';pack_receipts.append(record);extras.add(('drivers',baseline))
  for label,path,names in ANCHORS:
   for name,pin in constants(root/path,names).items():extras.add((label,pin))
  spiffs=locks['prototype']['spiffs_lookup'];path=root/'spiffs'
