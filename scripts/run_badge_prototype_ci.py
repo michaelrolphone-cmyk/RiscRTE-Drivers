@@ -4,6 +4,16 @@ import argparse,subprocess,sys,json,os,hashlib,shutil
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 SUCCESSOR_FLAGS=['alarm-ready-drain', 'nova-mask-bounds', 'settings-alpha-geometry', 'raster-overwrite-clear', 'raster-underlay-exchange', 'time-server-sync', 'interaction-trace', 'native-glyph-coverage-cache', 'native-stroke-coverage-cache', 'picker-compositor-plan', 'native-damage-replay', 'native-settings-ui', 'round-settings-ui', 'sliced-native-frames', 'native-performance-trace', 'springboard-quick-actions', 'springboard-gesture-diagnostics']
+def run_logged(command,log,env):
+ with log.open('w') as stream:
+  try:subprocess.run(command,check=True,env=env,stdout=stream,stderr=subprocess.STDOUT)
+  except subprocess.CalledProcessError:
+   stream.flush()
+   # Keep the complete immutable log artifact, and expose bounded diagnostics
+   # in the Actions job so a failed child never becomes only an exit status.
+   data=log.read_text(errors='replace')
+   print('FAILED child '+str(log)+'\n'+data[-24000:],file=sys.stderr,flush=True)
+   raise
 def execution_args(w,target,output,sanitize=False,foreground=False):
  args=['--runtime',w/'runtime-prototype','--watch',w/'watch','--watch-bringup',w/'watch-prototype','--controllers',w/'controllers','--system',w/'system-prototype','--system-baseline',w/'system','--utilities',w/'utilities-prototype','--utilities-baseline',w/'utilities','--store',target/'store','--output',output]
  return args+(['--sanitize'] if sanitize else [])+(['--foreground'] if foreground else [])
@@ -56,13 +66,13 @@ def main():
  if a.alarm_ready_drain and not (a.native_alarms and a.foreground_idle):p.error('alarm-ready-drain requires native alarms and foreground lifecycle')
  def run(script,*args):
   command=[sys.executable,str(ROOT/'scripts'/script),*map(str,args)];calls.append(command)
-  with (out/(str(len(calls))+'-'+Path(script).stem+'.log')).open('w') as f:subprocess.run(command,check=True,env=env,stdout=f,stderr=subprocess.STDOUT)
+  run_logged(command,out/(str(len(calls))+'-'+Path(script).stem+'.log'),env)
  def external(script,*args):
   command=[sys.executable,str(script),*map(str,args)];calls.append(command)
-  with (out/(str(len(calls))+'-'+Path(script).stem+'.log')).open('w') as f:subprocess.run(command,check=True,env=env,stdout=f,stderr=subprocess.STDOUT)
+  run_logged(command,out/(str(len(calls))+'-'+Path(script).stem+'.log'),env)
  def shell(script,mode):
   command=['bash',str(script)];calls.append(command)
-  with (out/(str(len(calls))+'-'+script.stem+'-'+mode+'.log')).open('w') as f:subprocess.run(command,check=True,env={**env,'SANITIZE':'1' if mode=='sanitized' else '0'},stdout=f,stderr=subprocess.STDOUT)
+  run_logged(command,out/(str(len(calls))+'-'+script.stem+'-'+mode+'.log'),{**env,'SANITIZE':'1' if mode=='sanitized' else '0'})
  external(ROOT/'tests/test_badge_source_pack.py')
  external(w/'runtime-prototype/test/test_native_appdata_layout.py')
  for mode in ['normal','sanitized']:
