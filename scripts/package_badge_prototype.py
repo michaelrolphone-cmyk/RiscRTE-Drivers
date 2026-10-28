@@ -16,12 +16,17 @@ from package_badge_flash import require,sha,record,inventory,git,IDF,FLASH,BOOTF
 ROOT=Path(__file__).resolve().parents[1];PROFILE=ROOT/'boards/waveshare-esp32-s3-touch-amoled-1.75c/prototype'
 def read(p):return json.loads(p.read_text())
 def write(p,j):p.write_text(json.dumps(j,indent=2)+'\n')
+def spiffs_lookup_selected(proof):
+ lookup=proof.get('spiffs_lookup')
+ if lookup is None:return False  # Native builder's explicit unselected value.
+ require(isinstance(lookup,dict) and lookup.get('enabled') is True,'Malformed selected SPIFFS lookup proof')
+ return True
 def qualify(native,target,normal,sanitized,revision,target_root=None,target_revision=None):
  require(len(revision)==40 and git(ROOT,'rev-parse','HEAD')==revision and not git(ROOT,'status','--porcelain'),'Clean exact Drivers source required')
  proof=read(native/'build-proof.json');store=target/'store';built=read(target/'build.json');lock=read(PROFILE/'sources.lock.json');cfg=read(native/'build/config/sdkconfig.json')
  require(proof['full_link'] and proof['idf_revision']==IDF and proof['runtime_revision']==lock['runtime']['commit'],'Native source cohort mismatch')
  require(built['source_pins']==lock and built['profile']=='round-prototype','Store source cohort mismatch')
- if proof.get('spiffs_lookup',{}).get('enabled'):
+ if spiffs_lookup_selected(proof):
   import stage_spiffs_lookup
   require(stage_spiffs_lookup.verify_compiled(native/'build',proof['spiffs_lookup'])==proof['spiffs_lookup']['compiled_units'],'SPIFFS modified source compile proof mismatch')
  for n,e in proof['artifacts'].items():require(record(native/'build'/n)==e,'Native artifact mismatch: '+n)

@@ -1,10 +1,19 @@
 #!/usr/bin/env python3
 """Selection-proof tests; no device or external checkout required."""
-import importlib.util,json,tempfile,unittest
+import importlib.util,json,tempfile,unittest,sys
 from pathlib import Path
 spec=importlib.util.spec_from_file_location('stage',Path(__file__).parents[1]/'scripts/stage_spiffs_lookup.py')
 m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+sys.path.insert(0,str(Path(__file__).parents[1]/'scripts'))
+import package_badge_prototype as package
 class Proof(unittest.TestCase):
+ def test_native_builder_optional_lookup(self):
+  self.assertFalse(package.spiffs_lookup_selected({'spiffs_lookup':None}))
+  self.assertFalse(package.spiffs_lookup_selected({}))
+  self.assertTrue(package.spiffs_lookup_selected({'spiffs_lookup':{'enabled':True}}))
+  for value in [False,[],{},'selected',{'enabled':1},{'enabled':False}]:
+   with self.subTest(value=value),self.assertRaisesRegex(ValueError,'Malformed selected SPIFFS'):
+    package.spiffs_lookup_selected({'spiffs_lookup':value})
  def test_compile_selection(self):
   with tempfile.TemporaryDirectory() as td:
    b=Path(td);root=b/'component';root.mkdir()
