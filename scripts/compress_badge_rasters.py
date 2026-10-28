@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Losslessly retain completed modeled PPM frames without loose-frame accumulation."""
-import gzip, hashlib, json
+import gzip, hashlib, json, re
 from pathlib import Path
 
 def compress_rasters(directory):
@@ -9,6 +9,9 @@ def compress_rasters(directory):
     records=json.loads(receipt.read_text()) if receipt.exists() else {}
     for raw in sorted(directory.rglob('*.ppm')):
         data=raw.read_bytes()
+        header=re.match(rb'P6\n([1-9][0-9]*) ([1-9][0-9]*)\n255\n',data)
+        if not header or len(data)!=header.end()+int(header[1])*int(header[2])*3:
+            raise ValueError('Incomplete or malformed PPM frame: '+str(raw))
         digest=hashlib.sha256(data).hexdigest()
         packed=raw.with_name(raw.name+'.'+digest[:16]+'.gz')
         if not packed.exists():
