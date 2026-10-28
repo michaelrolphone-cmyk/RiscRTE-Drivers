@@ -109,7 +109,7 @@ def main():
   external(w/'system-prototype/scripts/test_compact_ascii_glyphs.py','--output',out/'compact-ascii-glyphs')
   for sanitizer in [None,'address','undefined']:run('test_portable_alarm_light_sleep.py','--runtime',w/'runtime-prototype','--system',w/'system-prototype',*(['--sanitize',sanitizer] if sanitizer else []))
   external(w/'system-prototype/scripts/test_foreground_alarm.py','--runtime',w/'runtime-prototype','--utilities',w/'utilities-prototype','--output',out/'foreground-alarm')
-  external(w/'watch-prototype/scripts/test_native_alarm.py','--system',w/'system-prototype','--utilities',w/'utilities-prototype','--output',out/'home-alarm','--clock-edit-authority',*(['--native-quick-actions'] if a.quick_actions else []))
+  external(w/'watch-prototype/scripts/test_native_alarm.py','--system',w/'home-system','--utilities',w/'utilities-prototype','--output',out/'home-alarm','--clock-edit-authority',*(['--native-quick-actions'] if a.quick_actions else []))
   revision=json.loads((ROOT/'boards/waveshare-esp32-s3-touch-amoled-1.75c/prototype/sources.lock.json').read_text())['system']['commit']
   for script in ['test_native_schedules_alarm.py','test_badge_native_alarm_apps.py']:
    external(w/'utilities-prototype/scripts'/script,'--runtime',w/'runtime-prototype','--system-apps',w/'system-prototype','--system-revision',revision,'--output',out/script.removesuffix('.py'),'--clock-edit-authority',*(['--foreground-alarm-sleep'] if script=='test_badge_native_alarm_apps.py' else []))

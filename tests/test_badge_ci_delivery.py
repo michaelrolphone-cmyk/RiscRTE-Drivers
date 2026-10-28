@@ -30,6 +30,8 @@ class Runner(unittest.TestCase):
   self.assertTrue(all('--settings-ui' in r for r in by('test_badge_settings_execution.py')))
   self.assertEqual(by('test_badge_wifi_gap_execution.py'),[])
   self.assertEqual(len(by('test_settings_evidence_gate.py')),1)
+  home_alarm=by('test_native_alarm.py')[0]
+  self.assertTrue(home_alarm[home_alarm.index('--system')+1].endswith('/home-system'))
   self.assertEqual(len(by('test_gpio_key_sleep.py')),1);self.assertEqual(len(by('run_cst9217_touch_test.sh')),1)
   package=next(i for i,c in enumerate(calls) if any(x.endswith('/package_badge_prototype.py') for x in c))
   image_check=next(i for i,c in enumerate(calls) if any(x.endswith('/verify_badge_prototype_image.py') for x in c));self.assertGreater(image_check,package)
