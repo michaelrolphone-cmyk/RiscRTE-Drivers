@@ -146,7 +146,74 @@ def classify(base, local, upstream):
     return 'conflict'
 
 
-def validate(root, inventory, trees, source, released, head, release):
+def validate_custody(root, custody, occupied_paths, package_ids):
+    """Validate local-only custody without claiming upstream or release parity.
+
+    Path-scoped candidates may share an existing package ID, but must explicitly
+    name it. Support directories must remain manifestless. Every record pins the
+    entire actual tree, including modes; unknown siblings remain untracked.
+    """
+    if custody is None:
+        return [], []
+    if not isinstance(custody, dict) or custody.get('schema') != 1 or not isinstance(custody.get('sources'), list):
+        raise ValueError('invalid local source custody schema')
+    paths, identities, rows, errors = set(occupied_paths), set(package_ids), [], []
+    for entry in custody['sources']:
+        if not isinstance(entry, dict):
+            raise ValueError('invalid local source custody record')
+        path, kind = entry.get('path'), entry.get('kind')
+        if not isinstance(path, str) or not re.fullmatch(r'Drivers/[A-Za-z0-9_-]+', path) or path in paths:
+            raise ValueError('invalid or duplicate local custody path: ' + str(path))
+        paths.add(path)
+        if kind not in ('support', 'adapter', 'candidate'):
+            raise ValueError('invalid local custody kind: ' + path)
+        provenance = entry.get('provenance', {})
+        if (not isinstance(provenance, dict)
+                or not isinstance(provenance.get('repository'), str)
+                or not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', provenance['repository'])
+                or not isinstance(provenance.get('commit'), str)
+                or not SHA.fullmatch(provenance['commit'])
+                or provenance.get('path') != path
+                or not isinstance(entry.get('tree_sha'), str)
+                or not SHA.fullmatch(entry['tree_sha'])):
+            raise ValueError('invalid local custody provenance: ' + path)
+        if provenance['repository'] != 'michaelrolphone-cmyk/RiscRTE-Drivers':
+            raise ValueError('foreign local custody provenance: ' + path)
+        commit = command(['git', '-C', str(root), 'rev-parse', '--verify',
+                          '--end-of-options', provenance['commit'] + '^{commit}']).strip()
+        recorded = command(['git', '-C', str(root), 'rev-parse', '--verify',
+                            '--end-of-options', commit + ':' + path]).strip()
+        kind_at_origin = command(['git', '-C', str(root), 'cat-file', '-t', recorded]).strip()
+        if commit != provenance['commit'] or kind_at_origin != 'tree' or recorded != entry['tree_sha']:
+            raise ValueError('local custody provenance tree mismatch: ' + path)
+        actual = local_tree(root / path)
+        if actual != entry['tree_sha']:
+            errors.append('local source custody tree mismatch: ' + path)
+        manifest_path = root / path / 'manifest.json'
+        if kind == 'support':
+            if manifest_path.exists() or any(k in entry for k in ('id', 'version', 'candidate_for')):
+                errors.append('local support became a package: ' + path)
+        else:
+            identity, version = entry.get('id'), entry.get('version')
+            if not isinstance(identity, str) or not identity or not isinstance(version, str) or not VERSION.fullmatch(version):
+                raise ValueError('invalid local custody identity/version: ' + path)
+            if kind == 'candidate':
+                if entry.get('candidate_for') != identity or identity not in package_ids:
+                    raise ValueError('invalid local candidate lineage: ' + path)
+            elif identity in identities or 'candidate_for' in entry:
+                raise ValueError('duplicate local adapter identity: ' + identity)
+            identities.add(identity)
+            manifest = json.loads(manifest_path.read_text())
+            if manifest.get('id') != identity or manifest.get('version') != version:
+                errors.append('local source custody manifest mismatch: ' + path)
+        rows.append({'path': path, 'kind': kind, 'local_tree': actual,
+                     'recorded_tree': entry['tree_sha'], 'provenance': provenance,
+                     'state': 'local-custody', 'upstream_parity': False,
+                     'release_qualified': False})
+    return rows, errors
+
+
+def validate(root, inventory, trees, source, released, head, release, custody=None):
     entries = unique(inventory['drivers'] + inventory.get('source_only_drivers', []), 'local')
     local_released = unique(inventory['drivers'], 'local released')
     errors, rows, paths = [], [], set()
@@ -204,6 +271,9 @@ def validate(root, inventory, trees, source, released, head, release):
         if manifest.get('id') != identity or manifest.get('version') != entry['version'] or manifest.get('status') != 'experimental-unpublished' or actual != entry.get('source_tree_sha'):
             errors.append('original driver custody mismatch: ' + identity)
         rows.append({'id':identity,'path':path,'local_tree':actual,'state':'original-experimental','upstream_tree':None})
+    custody_rows, custody_errors = validate_custody(root, custody, paths, set(entries) | set(source) | set(original))
+    errors.extend(custody_errors)
+    paths.update(row['path'] for row in custody_rows)
     for path in (root / 'Drivers').iterdir():
         if (path.is_dir() or path.is_symlink()) and 'Drivers/' + path.name not in paths:
             errors.append('untracked local source directory: ' + path.name)
@@ -211,7 +281,7 @@ def validate(root, inventory, trees, source, released, head, release):
             'release_index_commit': release, 'recorded_source_commit': trees['source_master_sha'],
             'released_count': len(released), 'source_count': len(source), 'original_count': len(original),
             'files_scope': 'actual driver directory bytes and modes; SDK/build/runtime excluded',
-            'drivers': rows, 'errors': errors}
+            'drivers': rows, 'local_sources': custody_rows, 'errors': errors}
 
 
 def main():
@@ -227,7 +297,9 @@ def main():
     try:
         head, release, source, released = snapshot(Source(origin['repository'], args.reader),
             args.source_ref, args.release_ref or origin['branch'], origin['path'])
-        report = validate(ROOT, inventory, trees, source, released, head, release)
+        custody_path = ROOT / 'manifest/local-source-custody.json'
+        custody = json.loads(custody_path.read_text()) if custody_path.exists() else None
+        report = validate(ROOT, inventory, trees, source, released, head, release, custody)
     except (ValueError, KeyError, OSError, subprocess.SubprocessError) as exc:
         print(f'driver parity failed: {exc}', file=sys.stderr)
         return 1

@@ -1,0 +1,104 @@
+{
+  "drivers": [
+    {
+      "id": "board-power-t5s3-v2",
+      "version": "0.1.9"
+    },
+    {
+      "id": "cam-ov3660-profile",
+      "version": "0.1.0"
+    },
+    {
+      "id": "camera-esp32s3-ov3660",
+      "version": "0.1.9"
+    },
+    {
+      "id": "display-epd-video",
+      "version": "0.1.4"
+    },
+    {
+      "id": "gt911-touch",
+      "version": "0.1.1"
+    },
+    {
+      "id": "i2c-esp32s3-v2",
+      "version": "0.1.6"
+    },
+    {
+      "id": "platform-clock-v1",
+      "version": "0.1.0"
+    },
+    {
+      "id": "program-msp",
+      "version": "0.1.0"
+    },
+    {
+      "id": "t5s3-usb-power-profile",
+      "version": "0.1.1"
+    },
+    {
+      "id": "usb-cdc-acm",
+      "version": "0.1.8"
+    },
+    {
+      "id": "usb-ch34x-v2",
+      "version": "0.1.7"
+    },
+    {
+      "id": "usb-controller-esp32s3",
+      "version": "0.1.20"
+    },
+    {
+      "id": "usb-cp210x-v2",
+      "version": "0.1.8"
+    },
+    {
+      "id": "usb-ftdi",
+      "version": "0.1.0"
+    },
+    {
+      "id": "usb-hid",
+      "version": "0.1.2"
+    },
+    {
+      "id": "usb-hid-gamepad",
+      "version": "0.1.4"
+    },
+    {
+      "id": "usb-hid-keyboard",
+      "version": "0.1.1"
+    },
+    {
+      "id": "usb-hid-text-input",
+      "version": "0.1.0"
+    },
+    {
+      "id": "usb-host-v2",
+      "version": "0.1.5"
+    },
+    {
+      "id": "usb-mass-storage",
+      "version": "0.1.1"
+    },
+    {
+      "id": "usb-msp",
+      "version": "0.1.1"
+    },
+    {
+      "id": "usb-serial-witness",
+      "version": "0.1.3"
+    },
+    {
+      "id": "usb-stlink",
+      "version": "0.1.0"
+    },
+    {
+      "id": "usb-ui-navigation",
+      "version": "0.1.2"
+    },
+    {
+      "id": "usb-xinput-gamepad",
+      "version": "0.1.3"
+    }
+  ]
+}
