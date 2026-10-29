@@ -1,10 +1,10 @@
 // Test-only explicit selected foreground app; legacy callers stay Calculator.
+#ifdef BADGE_NATIVE_ALARMS
 static const char* alarmForegroundApp(){
  const char*n=getenv("BADGE_ALARM_FOREGROUND_APP");
  if(!n)return "calculator";
  assert(!strcmp(n,"calculator")||!strcmp(n,"battery"));return n;
 }
-#ifdef BADGE_NATIVE_ALARMS
 static unsigned alarmForegroundCatalog(){
  const char*n=getenv("BADGE_ALARM_FOREGROUND_INDEX");
  if(!n){assert(!strcmp(alarmForegroundApp(),"calculator"));return 2;}
