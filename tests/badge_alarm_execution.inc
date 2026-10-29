@@ -4,11 +4,13 @@ static const char* alarmForegroundApp(){
  if(!n)return "calculator";
  assert(!strcmp(n,"calculator")||!strcmp(n,"battery"));return n;
 }
+#ifdef BADGE_NATIVE_ALARMS
 static unsigned alarmForegroundCatalog(){
  const char*n=getenv("BADGE_ALARM_FOREGROUND_INDEX");
  if(!n){assert(!strcmp(alarmForegroundApp(),"calculator"));return 2;}
  char*end=nullptr;unsigned long index=strtoul(n,&end,10);assert(end&&end!=n&&!*end&&index<32);return (unsigned)index;
 }
+#endif
 bool alarmForegroundTicketCase(){
 #ifdef BADGE_MIXED_POINTS_PRODUCT
  return !am.enabled&&selectedForeground();
