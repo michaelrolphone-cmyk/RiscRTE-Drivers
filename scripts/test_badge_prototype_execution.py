@@ -23,10 +23,16 @@ def verify_native_sdk(record,includes,folder,sources):
 
 def main():
  p=argparse.ArgumentParser(description=__doc__)
+ p.add_argument('--source-recovery',type=Path,help='Verify full receipt-declared Home inputs when historical Git objects are absent; never claim recovered Git identity')
+ p.add_argument('--product-source-pins',action='store_true',help='Use explicit selected mixed Points product source receipts')
+ p.add_argument('--home-system',type=Path);p.add_argument('--home-utilities',type=Path)
+ p.add_argument('--alarm-foreground-app',choices=['calculator','battery'],default='calculator')
  for n in ['runtime','watch','watch-bringup','controllers','system','system-baseline','utilities','utilities-baseline','store','output']:p.add_argument('--'+n,required=True,type=Path)
  p.add_argument('--compress-rasters',action='store_true',help='Verify and losslessly compress completed per-case PPMs');p.add_argument('--sanitize',action='store_true');p.add_argument('--foreground',action='store_true',help='Also execute returning foreground Light cases from target receipts');p.add_argument('--case',type=int,action='append',dest='cases',help='Run selected case indices for focused diagnosis');a=p.parse_args();a.output.unlink(missing_ok=True)
  roots={n:getattr(a,n.replace('-','_')).resolve() for n in ['runtime','watch','watch-bringup','controllers','system','system-baseline','utilities','utilities-baseline']}
  store=a.store.resolve();target=store.parent;record=json.loads((target/'build.json').read_text());assert record['profile']=='round-prototype';files_enabled=record.get('supported_app_increment',{}).get('files',False)
+ points_mode=a.product_source_pins
+ assert points_mode==bool(record.get('include_points',False)),'Explicit product-source-pins required for mixed Points product'
  alarms_enabled=bool(record.get('native_alarms'));clock_edit_authority=bool(record.get('clock_edit_authority'))
  time_server_sync=record.get('time_server_sync',{}).get('enabled',False);assert type(time_server_sync) is bool
  native_wifi_geometry=record.get('native_wifi_geometry',False);assert type(native_wifi_geometry) is bool
@@ -36,13 +42,31 @@ def main():
  assert not quick_actions or (alarms_enabled and a.foreground),'Quick actions require the qualified native-alarm foreground profile'
  assert not native_alarm_geometry or alarms_enabled,'Native alarm geometry requires native alarms'
  assert clock_edit_authority==alarms_enabled,'Clock-edit authority must match native alarm selection'
- assert not alarms_enabled or record.get('alarm_profile')=='native-utc-schedules-clock-edit'
+ assert not alarms_enabled or record.get('alarm_profile')==('native-utc-mixed-points-clock-edit' if points_mode else 'native-utc-schedules-clock-edit')
  assert not alarms_enabled or (a.foreground and files_enabled),'Native alarms require full Files/foreground cohort'
  assert not files_enabled or a.foreground,'Files execution requires full foreground profile'
  assert {str(f.relative_to(store)):{'sha256':sha(f),'bytes':f.stat().st_size} for f in store.rglob('*') if f.is_file()}==record['store_files']
- lock=json.loads((BOARD/'prototype/sources.lock.json').read_text());base=json.loads((BOARD/'home/sources.lock.json').read_text())
+ lock=record['source_pins'] if points_mode else json.loads((BOARD/'prototype/sources.lock.json').read_text());base=json.loads((BOARD/'home/sources.lock.json').read_text())
+ if points_mode:
+  assert a.home_system and a.home_utilities
+  roots['home-system']=a.home_system.resolve();roots['home-utilities']=a.home_utilities.resolve()
+ recovery=json.loads(a.source_recovery.read_text()) if a.source_recovery else None
+ if recovery:
+  assert points_mode and recovery['schema']==1
+  hr=json.loads((target/'shared-home/build.json').read_text());br=json.loads((target/'bringup/build.json').read_text())
+  assert sha(target/'shared-home/build.json')==recovery['home_receipt_sha256']
+  assert sha(target/'bringup/build.json')==recovery['bringup_receipt_sha256']
+  assert set(recovery['roles'])=={'watch-bringup','home-system'}
+  assert all(hr['home_files_sha256'][k]==v for k,v in br['source_sha256'].items() if k in hr['home_files_sha256']), 'Conflicting source receipts'
+  expected_inputs={'watch-bringup':{**hr['home_files_sha256'],**br['source_sha256']},'home-system':hr['verified_dependencies']['system']['files_sha256']}
  for n,r in roots.items():
-  key=n.replace('-baseline','').replace('watch-bringup','watch_bringup');expected=(base if n.endswith('-baseline') else lock)[key]['commit']
+  key=n.replace('-baseline','').replace('watch-bringup','watch_bringup').replace('home-','home_');expected=(base if n.endswith('-baseline') else lock)[key]['commit']
+  if recovery and n in recovery['roles']:
+   entry=recovery['roles'][n]
+   assert entry['expected_commit']==expected and Path(entry['root']).resolve()==r
+   assert entry['sha256']==expected_inputs[n]
+   assert {str(f.relative_to(r)):sha(f) for f in r.rglob('*') if f.is_file()}==expected_inputs[n]
+   continue
   assert subprocess.check_output(['git','-C',str(r),'rev-parse','HEAD'],text=True).strip()==expected
   assert not subprocess.check_output(['git','-C',str(r),'status','--porcelain'])
  W=roots['watch-bringup'];N=roots['runtime'];S=roots['system'];U=roots['utilities'];T=roots['controllers']
@@ -69,6 +93,10 @@ def main():
    if f.is_file():sources[str(f)]=sha(f)
  sources[str(BOARD/'display-profile.h')]=sha(BOARD/'display-profile.h')
  common=[home_watchdog_define(flags),'-pipe','-O1','-g1','-Wall','-Wextra','-Werror','-Wno-misleading-indentation','-Wno-missing-field-initializers'];san=['-fsanitize=address,undefined','-fno-sanitize-recover=all','-fno-omit-frame-pointer'] if a.sanitize else []
+ catalog=json.loads((target/'catalog.json').read_text())['apps']
+ names=[x['file_name'] for x in catalog]
+ assert names.count(a.alarm_foreground_app+'.elf')==1
+ alarm_env={'BADGE_ALARM_FOREGROUND_APP':a.alarm_foreground_app,'BADGE_ALARM_FOREGROUND_INDEX':str(names.index(a.alarm_foreground_app+'.elf'))}
  commands=[];results=[];rasters=a.output.parent/(a.output.stem+'-rasters');rasters.mkdir(parents=True,exist_ok=True)
  def run(xs,**kw):
   xs=list(map(str,xs));commands.append(xs);r=subprocess.run(xs,**kw)
@@ -77,7 +105,7 @@ def main():
   return r
  with tempfile.TemporaryDirectory(prefix='badge-prototype-exec-') as d:
   out=Path(d);host=out/'store';shutil.copytree(store,host)
-  sdk=headers(out,S if alarms_enabled else roots['system-baseline'],U if alarms_enabled else roots['utilities-baseline'],W)
+  sdk=headers(out,roots['home-system'] if points_mode else S if alarms_enabled else roots['system-baseline'],roots['home-utilities'] if points_mode else U if alarms_enabled else roots['utilities-baseline'],W)
   providers=stage_sdk(ROOT,N,out/'provider-sdk')
   for directory in [W/'sdk/app',W/'sdk/driver',T/'include']:
    for h in directory.glob('*.h'):
@@ -247,6 +275,8 @@ def main():
       extra='\n__attribute__((visibility("default"))) unsigned long long badge_foreground_probe(char *out,size_t cap){snprintf(out,cap,"%u/%u/%u %u:%u:%u page=%u field=%u",settings_draft.year,settings_draft.month,settings_draft.day,settings_draft.hour,settings_draft.minute,settings_draft.second,sv_page,editor_field);return sv_page==SV_VALUE&&editor_field==0&&settings_draft.year==2027;}\n'
      if name=='calculator' and f.name=='calculator.c':
       extra='\n#include <stdio.h>\n__attribute__((visibility("default"))) unsigned long long badge_foreground_probe(char *out,size_t cap){snprintf(out,cap,"%s pending=%c accumulator=%lld editing=%u",calculator_state.text,calculator_state.pending?calculator_state.pending:\'0\',(long long)calculator_state.accumulator,(unsigned)calculator_state.editing);return !strcmp(calculator_state.text,"8")&&calculator_state.pending==\'+\'&&calculator_state.accumulator==7000000;}\n'
+     if name=='battery' and f.name=='battery.c':
+      extra='\n__attribute__((visibility("default"))) unsigned long long badge_foreground_probe(char*out,size_t cap){snprintf(out,cap,"selected=%ld rows=%lu",(long)selected_index,(unsigned long)row_count);return row_count>0;}\n'
      if name=='stopwatch' and f.name=='stopwatch.c':
       extra='\n#include <stdio.h>\n__attribute__((visibility("default"))) unsigned long long badge_foreground_probe(char *out,size_t cap){snprintf(out,cap,"running=%u elapsed=%lu uncertain=%u",(unsigned)clock_state.running,(unsigned long)clock_state.elapsed_ms,(unsigned)save_uncertain);return clock_state.running&&!save_uncertain?clock_state.elapsed_ms:0;}\n'
      if name=='file_browser' and f.name=='file_browser.c':
@@ -344,8 +374,12 @@ def main():
   alarm_service_record=None
   if alarms_enabled:
    alarm_service_record=json.loads((target/'alarm-service/build-evidence.json').read_text())
-   assert alarm_service_record['profile']=='native-utc-schedules-clock-edit' and not alarm_service_record['points_selected']
+   if points_mode:
+    from points_product_profile import qualify_service
+    qualify_service(alarm_service_record,json.loads((target/'alarm-service/storage-policy.json').read_text()))
+   else:assert alarm_service_record['profile']=='native-utc-schedules-clock-edit' and not alarm_service_record['points_selected']
    expected_keys={**{k:{'namespace':3,'access':'read'} for k in ['alarm_utc_cfg','timer_utc_cfg']},**{k:{'namespace':4,'access':'read-write'} for k in ['alarm_utc_occ','timer_utc_occ','clock_edit_auth']},**{k:{'namespace':1,'access':'read'} for k in ['alert_mode','alert_dnd']}}
+   if points_mode:expected_keys.update({'points_utc_cfg':{'namespace':5,'access':'read'},'points_utc_occ':{'namespace':4,'access':'read-write'},'time_zone':{'namespace':1,'access':'read'}})
    assert alarm_service_record['bound_keys']==expected_keys
    assert json.loads((target/'alarm-service/storage-policy.json').read_text())==expected_keys
    for path,digest in alarm_service_record['dependencies_sha256'].items():
@@ -355,9 +389,10 @@ def main():
    service_sources=[Path(x) for x in command if str(x).endswith('.c')]
    service_inc=[x for x in command if x.startswith('-I')]
    service_defines=[x for x in command if x.startswith('-D')]
-   assert service_sources==[U/'Services/alarm_service/service.c']
+   assert service_sources==[U/'Services/alarm_service/service.c',*([S/'lib/PortableApps/src/PortableTimeZone.c',S/'lib/PortableApps/src/PortableTimeZoneCatalog.c'] if points_mode else [])]
    assert set(service_defines)=={'-D'+x for x in alarm_service_record['defines']}
-   assert '-DALARM_NATIVE_SCHEDULES_ONLY' in service_defines and '-DALARM_SERVICE_CLOCK_EDIT_V2' in service_defines and not any('POINTS' in x for x in service_defines)
+   assert '-DALARM_SERVICE_CLOCK_EDIT_V2' in service_defines
+   if not points_mode:assert '-DALARM_NATIVE_SCHEDULES_ONLY' in service_defines and not any('POINTS' in x for x in service_defines)
    service_manifest=json.loads((target/'alarm-service/manifest.json').read_text())
    assert [x['api'] for x in service_manifest['requires'] if x['capability']=='storage.key-value.bound']==[2],'Clock-edit marker requires explicit bound KV API2'
    bound_header=N/'sdk/driver/RiscBoundKeyValueV2.h'
@@ -391,7 +426,8 @@ def main():
    # Cut only the negative recovery case after the real service durably grants
    # its clock-edit permit and before Settings can seed RTC. Never callback
    # after retained/failure, and never bypass begin's production persistence.
-   protocol=service_sources[0].parent/'clock_edit_protocol.inc'
+   protocol_name='clock_edit_mixed_protocol.inc' if points_mode else 'clock_edit_protocol.inc'
+   protocol=service_sources[0].parent/protocol_name
    assert str(protocol) in alarm_service_record['dependencies_sha256']
    protocol_text=protocol.read_text()
    begin_decl='static int32_t edit_begin(void*c,uint32_t requested,alarm_clock_edit_permit_v2*out){'
@@ -400,21 +436,22 @@ def main():
    protocol_text=protocol_text.replace(begin_decl,'static int32_t badge_source_edit_begin(void*c,uint32_t requested,alarm_clock_edit_permit_v2*out){')
    protocol_text=protocol_text.replace(begin_next,'extern void badge_clock_edit_begin_result(int);\nstatic int32_t edit_begin(void*c,uint32_t requested,alarm_clock_edit_permit_v2*out){int32_t rc=badge_source_edit_begin(c,requested,out);if(rc==ALARM_OK)badge_clock_edit_begin_result(rc);return rc;}\n'+begin_next)
    protocol_overlay=out/'observed-clock-edit-protocol.inc';protocol_overlay.write_text(protocol_text)
-   assert service_text.count('#include "clock_edit_protocol.inc"')==1
-   service_text=service_text.replace('#include "clock_edit_protocol.inc"','#include '+json.dumps(str(protocol_overlay)))
+   protocol_include='#include '+json.dumps(protocol_name)
+   assert service_text.count(protocol_include)==1
+   service_text=service_text.replace(protocol_include,'#include '+json.dumps(str(protocol_overlay)))
    service_overlay=out/'alarm-service-ticket-fault.c';service_overlay.write_text(service_text)
-   run(['cc','-std=c11',*common,*san,'-fPIC','-shared','-fvisibility=hidden',*service_defines,*service_inc,'-I'+str(service_sources[0].parent),service_overlay,'-o',candidates[0]/'driver.elf'])
+   run(['cc','-std=c11',*common,*san,'-fPIC','-shared','-fvisibility=hidden',*service_defines,*service_inc,'-I'+str(service_sources[0].parent),service_overlay,*service_sources[1:],'-o',candidates[0]/'driver.elf'])
   host_mapper=stage_runtime_mapper(N,out/'host-mapper')
   sources[str(ROOT/'scripts/badge_host_mapper.py')]=sha(ROOT/'scripts/badge_host_mapper.py')
   sources[str(host_mapper/'esp_dlfcn.h')]=sha(host_mapper/'esp_dlfcn.h')
   host_mapper_receipt=json.loads((host_mapper/'staging.json').read_text())
   runtime_sources=[N/x for x in ['src/bootstrap/Json.cpp','src/bootstrap/Board.cpp','src/bootstrap/Runtime.cpp','src/runtime/drivers/ProviderGraphV2.cpp','src/runtime/drivers/ProviderModuleV2.cpp','src/ports/esp32s3/CpuPort.cpp','src/runtime/streams/AppStreamSessions.cpp','src/runtime/streams/ProviderQueueHost.cpp','src/runtime/storage/AppDataFiles.cpp']]
-  exe=out/'execute';run(['c++','-std=c++17',*common,*(['-O0'] if a.sanitize else []),*san,'-rdynamic','-DRISC_STAGE_LOGS=1','-DRISC_APP_REQUIREMENT_ROWS=24',*gesture_runtime_defines(record),*(['-DBADGE_PERFORMANCE_CAPTURE=1','-DRISC_PERFORMANCE_TRACE=1'] if native_performance else []),*(['-DBADGE_QUICK_ACTIONS','-DRISC_RUNTIME_PREFERENCE_STORE=1','-DRISC_RUNTIME_ATOMIC_KEY_VALUE=0'] if quick_actions else []),*(['-DBADGE_TIME_SERVER_SYNC=1'] if time_server_sync else []),*(['-DBADGE_WIFI_NATIVE_GEOMETRY'] if native_wifi_geometry else []),*(['-DBADGE_ALARM_NATIVE_GEOMETRY'] if native_alarm_geometry else []),*(['-DBADGE_NATIVE_ALARMS','-DALARM_NATIVE_UTC','-I'+str(U/'lib/Alarm/include')] if alarms_enabled else []),'-I'+str(host_mapper),*['-I'+str(N/x) for x in ['src','sdk/app','sdk/driver','sdk/hardware','lib/ArduinoJson/src','test','test/drivers/stubs','test/realtime_shim','test/retained_wake_shim']],*runtime_sources,ROOT/'tests/badge_prototype_execution.cpp','-ldl',*(['-no-pie'] if a.sanitize else []),'-o',exe])
+  exe=out/'execute';run(['c++','-std=c++17',*(['-DBADGE_MIXED_POINTS_PRODUCT'] if points_mode else []),*common,*(['-O0'] if a.sanitize else []),*san,'-rdynamic','-DRISC_STAGE_LOGS=1','-DRISC_APP_REQUIREMENT_ROWS=24',*gesture_runtime_defines(record),*(['-DBADGE_PERFORMANCE_CAPTURE=1','-DRISC_PERFORMANCE_TRACE=1'] if native_performance else []),*(['-DBADGE_QUICK_ACTIONS','-DRISC_RUNTIME_PREFERENCE_STORE=1','-DRISC_RUNTIME_ATOMIC_KEY_VALUE=0'] if quick_actions else []),*(['-DBADGE_TIME_SERVER_SYNC=1'] if time_server_sync else []),*(['-DBADGE_WIFI_NATIVE_GEOMETRY'] if native_wifi_geometry else []),*(['-DBADGE_ALARM_NATIVE_GEOMETRY'] if native_alarm_geometry else []),*(['-DBADGE_NATIVE_ALARMS','-DALARM_NATIVE_UTC','-I'+str(U/'lib/Alarm/include')] if alarms_enabled else []),'-I'+str(host_mapper),*['-I'+str(N/x) for x in ['src','sdk/app','sdk/driver','sdk/hardware','lib/ArduinoJson/src','test','test/drivers/stubs','test/realtime_shim','test/retained_wake_shim']],*(['-I'+str(S/'lib/PortableApps/include')] if points_mode else []),*runtime_sources,ROOT/'tests/badge_prototype_execution.cpp','-ldl',*(['-no-pie'] if a.sanitize else []),'-o',exe])
   total_cases=47 if time_server_sync and native_wifi_geometry else 46 if native_wifi_geometry else 42 if quick_actions else 34 if alarms_enabled else 23 if files_enabled else 21 if a.foreground else 11
   selected_cases=a.cases if a.cases else range(total_cases)
   assert all(0<=i<total_cases for i in selected_cases)
   for index in selected_cases:
-   r=run([exe,host,str(index)],text=True,capture_output=True,timeout=120,env={**os.environ,'ASAN_OPTIONS':'detect_leaks=0:halt_on_error=1','UBSAN_OPTIONS':'halt_on_error=1','BADGE_SETTINGS_NATIVE_GEOMETRY_EXPECTED':str(int(settings_native_geometry)),'BADGE_PROTOTYPE_RASTERS':str(rasters.resolve()),**({'BADGE_WATCH_SPRINGBOARD':'1'} if records['springboard'].get('watch_native_ui') else {}),'BADGE_PROTOTYPE_NATIVE_SAFE_CONTENT':','.join(native_geometry_names),'BADGE_PROTOTYPE_SAFE_VIEWPORT':','.join(name for name,(_,defs,_) in source_app.items() if '-DPORTABLE_SAFE_VIEWPORT' in defs)})
+   r=run([exe,host,str(index)],text=True,capture_output=True,timeout=120,env={**os.environ,**alarm_env,'ASAN_OPTIONS':'detect_leaks=0:halt_on_error=1','UBSAN_OPTIONS':'halt_on_error=1','BADGE_SETTINGS_NATIVE_GEOMETRY_EXPECTED':str(int(settings_native_geometry)),'BADGE_PROTOTYPE_RASTERS':str(rasters.resolve()),**({'BADGE_WATCH_SPRINGBOARD':'1'} if records['springboard'].get('watch_native_ui') else {}),'BADGE_PROTOTYPE_NATIVE_SAFE_CONTENT':','.join(native_geometry_names),'BADGE_PROTOTYPE_SAFE_VIEWPORT':','.join(name for name,(_,defs,_) in source_app.items() if '-DPORTABLE_SAFE_VIEWPORT' in defs)})
    assert ('PASS actual Runtime native WiFi' if index>=42 else 'PASS actual Runtime quick actions' if index>=34 else 'PASS actual Runtime alarm' if index>=23 else 'PASS actual Runtime foreground Light' if 11<=index<19 or index==22 else 'PASS actual Runtime navigation' if index<6 or index in (19,21) else 'PASS actual Runtime unsupported inherited sensor mode' if index==10 else 'PASS actual Runtime Home deep entry') in r.stdout;results.append({'target_index':index,'stdout':r.stdout,'stderr':r.stderr});print(r.stdout[-1000:],flush=True)
    if a.compress_rasters:compress_rasters(rasters)
    if interaction_trace and index in (6,34,38):
@@ -423,5 +460,5 @@ def main():
     for phase in phases:assert 'WATCH_INTERACTION phase='+phase+' ' in r.stdout,'Missing actual interaction boundary '+phase
    shutil.rmtree(host/'host-appdata')
   for path,digest in sources.items():assert sha(path)==digest,'Input changed: '+path
- a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text(json.dumps({'passed':True,'time_sample_model':'disconnected native boundary; no sample or UTC mutation' if time_server_sync else None,'springboard_gesture_diagnostics':gesture_diagnostics,'interaction_trace':interaction_trace,'sanitize':a.sanitize,'foreground':a.foreground,'foreground_recipes':foreground_recipes,'native_safe_content_apps':native_geometry_names,'native_daily':bool(record.get('native_daily')),'native_alarms':alarms_enabled,'quick_actions':quick_actions,'native_quick_actions':home_record.get('native_quick_actions',False),'home_recipe':home_record['artifacts']['default'],'host_preference_store':1 if quick_actions else 0,'host_atomic_key_value':0,'native_wifi_geometry':native_wifi_geometry,'wifi_recipe':records['wifi_settings'],'native_wifi_modeled':['physical CST reports from actual dimension-derived native layout; read-only controller/masking probes','modeled scan results, third-scan cancellation refusal retains after actual Back/Home/reopen, and refused radioJoin; no association or hardware qualification','namespace6 writes only through explicit Save/Forget; no restore write','case45 actual production restore phase, durable ACK order, completed circular-aperture content and stable final pixels'] if native_wifi_geometry else [],'native_alarm_geometry':native_alarm_geometry,'clock_edit_authority':clock_edit_authority,'modeled_key_value_blob_max':2048 if alarms_enabled else 64,'alarm_profile':record.get('alarm_profile') if alarms_enabled else None,'alarm_service_recipe':alarm_service_record,'case_count':len(results),'available_case_count':total_cases,'selected_cases':list(selected_cases),'source_pins':lock,'store_files':record['store_files'],'host_recompilation':True,'host_mapper_staging':host_mapper_receipt,'source_sha256':sources,'target_instruction_execution':False,'raster_storage':'lossless verified per-case gzip with hashes' if a.compress_rasters else 'PPM','physical_tested':False,'modeled':['SDK reset/timer/wall clock','native hardware and radio','RAM key-value medium','POSIX application data medium','host ELF instruction mapping','entry observation wrappers; explicit host-only final Home loop completion gate after successful native clock sample, not a product/user exit','read-only real-app state probes and native transaction observations','actual foreground alarm restore entry/exit phase observation; production return value unchanged',*(['fresh Deep process retains SDK wall/eligibility stamp and KV only; optional retained-wake Store absent; Home cold fallback; zero reseed','service dispatch entry observation includes status-only callbacks; exact copied Light ticket resume observed before call and after ALARM_OK only','case29 explicit stale returned-ticket fault; production prepare runs first; happy-path schedule untouched','case33 process crash after real durable clock-edit begin succeeds and before RTC seed; fresh Runtime/service recovery'] if alarms_enabled else [])],'quick_actions_modeled':['pure production Quick layout/state observation including pending/queued input and save status; pre-modal alarm callback observes actual Quick state before cancellation; exact provider submit entry observation; transient cancellation observed before production clears save status','case36 explicit Runtime raw-KV intervening writer after actual capture','case37 unknown provider collect result after actual OK, parsed by unmodified client result validation; selected atomic helper state/get/submit/collect/cancel entries observed; no provider-release coverage implied'] if quick_actions else [],'commands':commands,'results':results},indent=2)+'\n')
+ a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text(json.dumps({'passed':True,'time_sample_model':'disconnected native boundary; no sample or UTC mutation' if time_server_sync else None,'springboard_gesture_diagnostics':gesture_diagnostics,'interaction_trace':interaction_trace,'sanitize':a.sanitize,'foreground':a.foreground,'alarm_foreground_app':a.alarm_foreground_app,'product_source_pins':points_mode,'source_recovery':recovery,'foreground_recipes':foreground_recipes,'native_safe_content_apps':native_geometry_names,'native_daily':bool(record.get('native_daily')),'native_alarms':alarms_enabled,'quick_actions':quick_actions,'native_quick_actions':home_record.get('native_quick_actions',False),'home_recipe':home_record['artifacts']['default'],'host_preference_store':1 if quick_actions else 0,'host_atomic_key_value':0,'native_wifi_geometry':native_wifi_geometry,'wifi_recipe':records['wifi_settings'],'native_wifi_modeled':['physical CST reports from actual dimension-derived native layout; read-only controller/masking probes','modeled scan results, third-scan cancellation refusal retains after actual Back/Home/reopen, and refused radioJoin; no association or hardware qualification','namespace6 writes only through explicit Save/Forget; no restore write','case45 actual production restore phase, durable ACK order, completed circular-aperture content and stable final pixels'] if native_wifi_geometry else [],'native_alarm_geometry':native_alarm_geometry,'clock_edit_authority':clock_edit_authority,'modeled_key_value_blob_max':2048 if alarms_enabled else 64,'alarm_profile':record.get('alarm_profile') if alarms_enabled else None,'alarm_service_recipe':alarm_service_record,'case_count':len(results),'available_case_count':total_cases,'selected_cases':list(selected_cases),'source_pins':lock,'store_files':record['store_files'],'host_recompilation':True,'host_mapper_staging':host_mapper_receipt,'source_sha256':sources,'target_instruction_execution':False,'raster_storage':'lossless verified per-case gzip with hashes' if a.compress_rasters else 'PPM','physical_tested':False,'modeled':['SDK reset/timer/wall clock','native hardware and radio','RAM key-value medium','POSIX application data medium','host ELF instruction mapping','entry observation wrappers; explicit host-only final Home loop completion gate after successful native clock sample, not a product/user exit','read-only real-app state probes and native transaction observations','actual foreground alarm restore entry/exit phase observation; production return value unchanged',*(['fresh Deep process retains SDK wall/eligibility stamp and KV only; optional retained-wake Store absent; Home cold fallback; zero reseed','service dispatch entry observation includes status-only callbacks; exact copied Light ticket resume observed before call and after ALARM_OK only','case29 explicit stale returned-ticket fault; production prepare runs first; happy-path schedule untouched','case33 process crash after real durable clock-edit begin succeeds and before RTC seed; fresh Runtime/service recovery'] if alarms_enabled else [])],'quick_actions_modeled':['pure production Quick layout/state observation including pending/queued input and save status; pre-modal alarm callback observes actual Quick state before cancellation; exact provider submit entry observation; transient cancellation observed before production clears save status','case36 explicit Runtime raw-KV intervening writer after actual capture','case37 unknown provider collect result after actual OK, parsed by unmodified client result validation; selected atomic helper state/get/submit/collect/cancel entries observed; no provider-release coverage implied'] if quick_actions else [],'commands':commands,'results':results},indent=2)+'\n')
 if __name__=='__main__':main()

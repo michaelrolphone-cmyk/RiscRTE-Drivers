@@ -1,3 +1,47 @@
+// Test-only explicit selected foreground app; legacy callers stay Calculator.
+static const char* alarmForegroundApp(){
+ const char*n=getenv("BADGE_ALARM_FOREGROUND_APP");
+ if(!n)return "calculator";
+ assert(!strcmp(n,"calculator")||!strcmp(n,"battery"));return n;
+}
+static unsigned alarmForegroundCatalog(){
+ const char*n=getenv("BADGE_ALARM_FOREGROUND_INDEX");
+ if(!n){assert(!strcmp(alarmForegroundApp(),"calculator"));return 2;}
+ char*end=nullptr;unsigned long index=strtoul(n,&end,10);assert(end&&end!=n&&!*end&&index<32);return (unsigned)index;
+}
+bool alarmForegroundTicketCase(){
+#ifdef BADGE_MIXED_POINTS_PRODUCT
+ return !am.enabled&&selectedForeground();
+#else
+ return false;
+#endif
+}
+void alarmForegroundTimerArm(uint32_t ms){
+#ifdef BADGE_MIXED_POINTS_PRODUCT
+ assert(alarmForegroundTicketCase()&&m.nativeToken&&!am.timer);
+ // No invented schedule: use the same shared default records and calendar
+ // projection with identity UTC, only while no explicit config/zone exists.
+ assert(values.count("5:points_utc_cfg")==0&&values.count("1:time_zone")==0);
+ points_config config=points_default_config();uint32_t day=0,expected=0;
+ assert(points_local_day(am.ticketSeconds,&day));
+ for(unsigned slot=0;slot<POINTS_MAX;slot++)for(unsigned edge=0;edge<POINTS_EDGE_COUNT;edge++){
+  if(!points_notice_enabled(&config.points[slot],edge))continue;
+  for(unsigned offset=0;offset<=8;offset++){
+   points_event event={};unsigned parent=(day>1?day-1:day)+offset;
+   if(points_event_for_day(&config,slot,parent,edge,&event,nullptr)&&event.deadline>am.ticketSeconds&&(!expected||event.deadline<expected))expected=event.deadline;
+  }
+ }
+ assert(expected&&am.ticketDeadline==expected&&expected>am.ticketSeconds);
+ uint32_t delta=expected-am.ticketSeconds;
+ assert(ms==(delta>86400?86400000:delta>1?(delta-1)*1000:1));
+ timeval wall{};wallRead(&wall,nullptr);
+ int64_t remaining=((int64_t)expected+946684800-wall.tv_sec)*1000-wall.tv_usec/1000;
+ assert((int64_t)ms<=remaining+250);
+ printf("FOREGROUND_POINTS_TIMER app=%s deadline=%u duration=%u shared_default=1 early_GPIO_expected=1\n",m.app.c_str(),expected,ms);
+#else
+ (void)ms;assert(false);
+#endif
+}
 void alarmKvWritten(uint32_t ns,const char*k,const void*b,uint32_t n){
 #ifdef BADGE_NATIVE_ALARMS
  if(!am.enabled||ns!=4||strcmp(k,am.kind==1?"alarm_utc_occ":"timer_utc_occ"))return;
@@ -25,11 +69,11 @@ extern "C" void badge_alarm_geometry_observe(unsigned w,unsigned h,unsigned page
 }
 #endif
 extern "C" void badge_alarm_ticket_fault(void*raw,int rc){
- if(am.enabled&&rc==0){auto*t=static_cast<alarm_sleep_v1*>(raw);am.ticketSeconds=t->rtc_seconds;am.ticketDeadline=t->deadline;static_assert(sizeof(*t)==sizeof(am.issuedTicket),"ticket fixture size");memcpy(am.issuedTicket,t,sizeof(*t));}
- if(am.enabled&&m.caseIndex==29&&m.app=="calculator"&&rc==0&&!am.ticketFaults){auto*t=static_cast<alarm_sleep_v1*>(raw);assert(t->snapshot>1);--t->snapshot;++am.ticketFaults;am.faultTransaction=m.transactions;assert(m.nativeToken&&am.faultTransaction);printf("MODELED_SERVICE_FAULT stale snapshot after actual prepare_sleep\n");}
+ if((am.enabled||alarmForegroundTicketCase())&&rc==0){auto*t=static_cast<alarm_sleep_v1*>(raw);am.ticketSeconds=t->rtc_seconds;am.ticketDeadline=t->deadline;static_assert(sizeof(*t)==sizeof(am.issuedTicket),"ticket fixture size");memcpy(am.issuedTicket,t,sizeof(*t));}
+ if(am.enabled&&m.caseIndex==29&&m.app==alarmForegroundApp()&&rc==0&&!am.ticketFaults){auto*t=static_cast<alarm_sleep_v1*>(raw);assert(t->snapshot>1);--t->snapshot;++am.ticketFaults;am.faultTransaction=m.transactions;assert(m.nativeToken&&am.faultTransaction);printf("MODELED_SERVICE_FAULT stale snapshot after actual prepare_sleep\n");}
 }
 extern "C" void badge_alarm_resume_observe(const void*raw,int phase){
- if(!am.enabled)return;assert(!m.terminal&&raw&&m.lightEntries);
+ if(!am.enabled&&!alarmForegroundTicketCase())return;assert(!m.terminal&&raw&&m.lightEntries);
  assert(!memcmp(raw,am.lightTicket,sizeof(am.lightTicket)));
  if(!phase){assert(am.resumeAttempts+1==m.lightEntries&&am.resumeSuccesses==am.resumeAttempts);++am.resumeAttempts;}
  else {assert(am.resumeAttempts==m.lightEntries&&am.resumeSuccesses+1==am.resumeAttempts);++am.resumeSuccesses;}
@@ -72,7 +116,7 @@ static void alarmPass(const char*detail){
    for(uint16_t pixel:m.pixels){unsigned char c[]={uint8_t(((pixel>>11)&31)*255/31),uint8_t(((pixel>>5)&63)*255/63),uint8_t((pixel&31)*255/31)};assert(fwrite(c,1,3,f)==3);}assert(!fclose(f));
   }
  }
- assert(!m.terminal&&!am.retained);printf("PASS actual Runtime alarm case=%u %s config_from_actual_Save=%u timer_wakes=%u gpio_wakes=%u exact_resume_successes=%u fresh_process_deep=%u visible=%u dismissed=%u no_Points hardware_unverified\n",m.caseIndex,detail,am.saved,am.timerWakes,am.gpioWakes,am.resumeSuccesses,am.deepResets,am.visible,am.acked);std::exit(0);
+ assert(!m.terminal&&!am.retained);printf("PASS actual Runtime alarm case=%u %s config_from_actual_Save=%u timer_wakes=%u gpio_wakes=%u exact_resume_successes=%u fresh_process_deep=%u visible=%u dismissed=%u Points_user_edit_and_occurrence_not_exercised hardware_unverified\n",m.caseIndex,detail,am.saved,am.timerWakes,am.gpioWakes,am.resumeSuccesses,am.deepResets,am.visible,am.acked);std::exit(0);
 }
 void alarmObserve(bool completed){
  if(!am.enabled)return;
@@ -108,7 +152,7 @@ void alarmObserve(bool completed){
  if(occ.state==ALARM_OCC_ACKED){assert(am.visible&&am.dismissKey&&am.saved&&occ.revision==cfg.revision&&occ.deadline==cfg.deadline);if(!am.acked){assert(am.ackWriteObserved);am.ackedAtFrame=am.ackWriteFrame;}am.acked=true;}
  if(completed&&am.acked&&(!am.modal||am.restoringModal)&&m.display&&m.nativeFrameComplete&&m.frames>am.ackedAtFrame&&visibleRasterContent()){am.postAckFrame=m.frames;am.postAckPixels=m.pixels;}
  if(am.acked&&(m.app!="default"||am.homeReady)&&!am.modal&&!am.restoringModal&&m.display&&m.nativeFrameComplete&&m.level&&am.postAckFrame>am.ackedAtFrame&&m.frames==am.postAckFrame&&m.pixels==am.postAckPixels&&m.pixels!=am.submittedModalPixels){
-  if((m.caseIndex==25||m.caseIndex==29)){assert(m.app=="calculator"&&m.nativeToken==0&&m.transactions==m.transactionResumes&&am.parkedKv&&am.parkedRealtime);std::string draft;assert(probeState(&draft)==1&&draft==am.draftBefore);}
+  if((m.caseIndex==25||m.caseIndex==29)){assert(m.app==alarmForegroundApp()&&m.nativeToken==0&&m.transactions==m.transactionResumes&&am.parkedKv&&am.parkedRealtime);std::string draft;assert(probeState(&draft)==1&&draft==am.draftBefore);}
   if(m.caseIndex==26)assert(am.gpioWakes&&am.timerWakes);
   if(m.caseIndex==27)assert(am.reset&&am.deepResets==1&&m.visits==1&&!m.seedCalls);
   if(m.caseIndex==28)assert(editedSeed>=1798761600&&cfg.created>=1798761600-946684800);
@@ -124,7 +168,7 @@ unsigned alarmCatalog(){
 #ifdef BADGE_WIFI_EXECUTION
  if(wm.enabled)return m.caseIndex==45&&!am.saved?8:5;
 #endif
- if(qm.enabled)return quickCatalog();if(m.caseIndex==33)return 0;if(m.caseIndex==28&&m.seedCalls<2)return 0;if((m.caseIndex==25||m.caseIndex==29)&&am.saved)return 2;return am.kind==1?7:8;}
+ if(qm.enabled)return quickCatalog();if(m.caseIndex==33)return 0;if(m.caseIndex==28&&m.seedCalls<2)return 0;if((m.caseIndex==25||m.caseIndex==29)&&am.saved)return alarmForegroundCatalog();return am.kind==1?7:8;}
 bool alarmTouch(uint64_t age,bool&down,unsigned&x,unsigned&y){
 #ifdef BADGE_WIFI_EXECUTION
  if(wm.enabled&&m.app=="wifi_settings")return wifiTouch(down,x,y);
@@ -211,7 +255,7 @@ void alarmEnter(const char*n){
  if(wm.enabled&&!strcmp(n,"wifi_settings")){m.foreground=true;m.foregroundApp=n;m.safeViewport=true;m.nativeSafeContent=true;m.selectedSeedCalls=m.seedCalls;wm.nextAt=m.ms+1200;}
 #endif
  assert(m.visits<=12);am.uiKind=0;am.modal=false;am.homeReady=false;am.appReadyAt=m.ms;am.pendingActive=false;am.pendingDismissSent=false;
- if(!strcmp(n,"calculator")&&(m.caseIndex==25||m.caseIndex==29)){m.foreground=true;m.foregroundApp=n;m.safeViewport=true;m.nativeSafeContent=true;m.selectedSeedCalls=m.seedCalls;}
+ if(!strcmp(n,alarmForegroundApp())&&(m.caseIndex==25||m.caseIndex==29)){m.foreground=true;m.foregroundApp=n;m.safeViewport=true;m.nativeSafeContent=true;m.selectedSeedCalls=m.seedCalls;}
  if((!strcmp(n,"alarms")||!strcmp(n,"countdown"))&&(m.caseIndex==31||m.caseIndex==32)){m.foreground=true;m.foregroundApp=n;m.safeViewport=true;m.selectedSeedCalls=m.seedCalls;}
 }
 void alarmExit(const char*n){
