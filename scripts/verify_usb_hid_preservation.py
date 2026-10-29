@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Reject source drift in the preserved raw-HID/checked-host qualification cohort."""
 from pathlib import Path
-import hashlib, json, subprocess
+import hashlib, json, subprocess, importlib.util
 ROOT = Path(__file__).resolve().parents[1]
 # Only this new original-provider entry may be removed for historical comparison.
 # The resulting bytes must still match the unchanged PR40 SHA-256 lock.
@@ -62,6 +62,41 @@ def verify_sdk(root, baseline):
         assert hashlib.sha256((root/path).read_bytes()).hexdigest() == after, 'changed reviewed SDK extension: ' + path
 
 
+# Sole approved additive manifest; not an exemption for future manifest entries.
+ADDITIVE_CUSTODY = 'manifest/local-source-custody.json'
+ADDITIVE_CUSTODY_SHA256 = '57a0d5895ea938f37e48e1ff397930c6ea9994d84687ad267b993c9f78416911'
+
+def verify_additive_custody(root, baseline):
+    # Do not hide a historical file if a caller supplies a different baseline.
+    exists = subprocess.run(['git', 'cat-file', '-e', baseline + ':' + ADDITIVE_CUSTODY],
+                            cwd=root, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if exists.returncode == 0:
+        raise ValueError('custody allowance is additive only')
+    path = root / ADDITIVE_CUSTODY
+    if path.is_symlink() or not path.is_file():
+        raise ValueError('missing or symlinked additive custody manifest')
+    if path.stat().st_mode & 0o111:
+        raise ValueError('executable additive custody manifest')
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != ADDITIVE_CUSTODY_SHA256:
+        raise ValueError('changed approved additive custody manifest')
+    spec = importlib.util.spec_from_file_location('preservation_custody_validator', root/'scripts/check_parity.py')
+    parity = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(parity)
+    inventory = json.loads((root/'manifest/released-drivers.json').read_bytes())
+    entries = inventory.get('drivers', []) + inventory.get('source_only_drivers', []) + inventory.get('original_drivers', [])
+    _, errors = parity.validate_custody(root, json.loads(raw),
+                                      {e['source_path'] for e in entries},
+                                      {e['id'] for e in entries})
+    if errors:
+        raise ValueError('; '.join(errors))
+
+def verify_manifest(root, baseline):
+    verify_additive_custody(root, baseline)
+    subprocess.run(['git', 'diff', '--exit-code', baseline, '--', 'manifest',
+                    ':(exclude,literal)manifest/released-drivers.json',
+                    ':(exclude,literal)' + ADDITIVE_CUSTODY], cwd=root, check=True)
+
 def main():
     lock = json.loads((ROOT / 'docs/usb-hid-checked-source-lock.json').read_text())
     for path, expected in lock['cohorts']['pr40']['files'].items():
@@ -71,6 +106,9 @@ def main():
     verify_sdk(ROOT, lock['cohorts']['pr40']['commit'])
     for prefix in ('Drivers/usb_hid', 'Drivers/usb_host_v2', 'sdk', 'manifest',
                    'candidates', 'boards', 'release'):
+        if prefix == 'manifest':
+            verify_manifest(ROOT, lock['cohorts']['pr40']['commit'])
+            continue
         if prefix == 'boards':
             verify_preserved_board_roots(ROOT, lock['cohorts']['pr40']['commit'])
             continue
