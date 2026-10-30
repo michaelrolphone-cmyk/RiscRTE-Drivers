@@ -63,3 +63,12 @@ CI checks out only declared pinned Reader files, runs the actual composition and
 builds/uploads the separate target candidate. Existing ABI1/-v2/native and frozen
 historical gates remain present. Any target or hosted result must be attributed to
 its exact commit and artifact; this document alone does not assert that they ran.
+
+## Exact source custody
+
+The later path-keyed custody manifest records this candidate tree
+`e3f0169dc0717566faecb82c147c811bf55df6a6` from actual Drivers producer commit
+`dbf925cf85f62cb0027dabe9f2b4f2359ff01160`. This proves source custody only,
+not selected replacement, upstream tree equality, released acceptance or device
+qualification. The original historical custody manifest remains byte-for-byte
+unchanged. Existing current/historical inventory and divergence diagnostics remain.

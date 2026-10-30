@@ -12,6 +12,19 @@
       },
       "id": "time-sample",
       "version": "0.1.0"
+    },
+    {
+      "path": "Drivers/usb_cdc_stream",
+      "kind": "candidate",
+      "id": "usb-cdc-acm",
+      "version": "0.1.8",
+      "candidate_for": "usb-cdc-acm",
+      "tree_sha": "e3f0169dc0717566faecb82c147c811bf55df6a6",
+      "provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "commit": "dbf925cf85f62cb0027dabe9f2b4f2359ff01160",
+        "path": "Drivers/usb_cdc_stream"
+      }
     }
   ]
 }
