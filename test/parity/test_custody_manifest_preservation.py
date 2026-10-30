@@ -6,7 +6,11 @@ spec=importlib.util.spec_from_file_location('custody_preservation',VERIFIER);mod
 class CustodyManifestPreservation(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=pathlib.Path(self.tmp.name)
-  subprocess.run(['git','clone','-q','--shared','--no-checkout',str(ROOT),str(self.root)],check=True)
+  # Prevent background Git maintenance from racing TemporaryDirectory cleanup.
+  # Command configuration covers clone; repository configuration covers later operations.
+  subprocess.run(['git','-c','gc.auto=0','-c','maintenance.auto=false','clone',
+                  '--config','gc.auto=0','--config','maintenance.auto=false',
+                  '-q','--shared','--no-checkout',str(ROOT),str(self.root)],check=True)
   self.baseline=json.loads((ROOT/'docs/usb-hid-checked-source-lock.json').read_text())['cohorts']['pr40']['commit']
   subprocess.run(['git','-C',str(self.root),'checkout',self.baseline,'--','manifest'],check=True)
   for rel in ['manifest/released-drivers.json',mod.ADDITIVE_CUSTODY,'scripts/check_parity.py']:
@@ -14,6 +18,9 @@ class CustodyManifestPreservation(unittest.TestCase):
   self.custody=json.loads((self.root/mod.ADDITIVE_CUSTODY).read_text())
   for row in self.custody['sources']:shutil.copytree(ROOT/row['path'],self.root/row['path'])
   subprocess.run(['git','-C',str(self.root),'add','manifest'],check=True)
+ def test_fixture_disables_background_maintenance(self):
+  for key,value in [('gc.auto',b'0'),('maintenance.auto',b'false')]:
+   self.assertEqual(subprocess.check_output(['git','-C',str(self.root),'config','--local','--get',key]).strip(),value)
  def verify(self):mod.verify_manifest(self.root,self.baseline)
  def test_exact_staged_addition_validated(self):self.verify()
  def test_additive_byte_mutation(self):
