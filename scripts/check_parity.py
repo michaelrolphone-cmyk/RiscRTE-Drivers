@@ -274,6 +274,86 @@ def validate_custody(root, custody, occupied_paths, package_ids):
     return rows, errors
 
 
+def current_packages(root, inventory, source, custody, custody_rows, original_rows):
+    """Path-keyed actual manifests; memberships are references, not equivalence.
+
+    Duplicate logical ids across paths are retained (candidate variants are legal).
+    Acquisition/identity problems are explicit observations, never parity waivers.
+    """
+    paths = {}
+    problems = []
+    def member(path, group, identity):
+        if not isinstance(path, str) or not re.fullmatch(r'Drivers/[A-Za-z0-9_-]+', path):
+            problems.append({'membership': group, 'id': identity, 'error': 'invalid source path'})
+            return
+        row = paths.setdefault(path, {'path': path, 'memberships': []})
+        ref = {'collection': group, 'id': identity}
+        if ref in row['memberships']:
+            problems.append({'path': path, 'membership': group, 'error': 'duplicate path membership'})
+        else:
+            row['memberships'].append(ref)
+    for group in ('drivers', 'source_only_drivers', 'original_drivers'):
+        for entry in inventory.get(group, []):
+            member(entry.get('source_path'), group, entry.get('id'))
+    for entry in (custody or {}).get('sources', []):
+        if entry.get('kind') != 'support':
+            member(entry.get('path'), 'local_custody_declarations', entry.get('id'))
+    for identity, entry in sorted(source.items()):
+        member(entry.get('source_path'), 'upstream_source', identity)
+    drivers = root / 'Drivers'
+    if drivers.is_dir() and not drivers.is_symlink():
+        for directory in sorted(drivers.iterdir()):
+            if (directory / 'manifest.json').exists() or (directory / 'manifest.json').is_symlink():
+                member('Drivers/' + directory.name, 'actual_directory', None)
+    known_trees = {row['path']: row.get('local_tree') for row in list(custody_rows) + list(original_rows) if 'path' in row}
+    identities = {}
+    for path, row in sorted(paths.items()):
+        directory = root / path
+        manifest = directory / 'manifest.json'
+        row.update(current_manifest=None, manifest_sha256=None, local_tree=known_trees.get(path), errors=[])
+        if not directory.exists() and not directory.is_symlink():
+            row['availability'] = 'missing_local'
+            continue
+        try:
+            if drivers.is_symlink() or directory.is_symlink() or not directory.is_dir():
+                raise ValueError('not a regular source directory')
+            row['local_tree'] = local_tree(directory)
+            if manifest.is_symlink() or not manifest.is_file():
+                raise ValueError('not a regular package manifest')
+            raw = manifest.read_bytes()
+            row['manifest_sha256'] = hashlib.sha256(raw).hexdigest()
+            def no_duplicate_keys(pairs):
+                result = {}
+                for key, value in pairs:
+                    if key in result:
+                        raise ValueError('duplicate manifest key: ' + key)
+                    result[key] = value
+                return result
+            data = json.loads(raw, object_pairs_hook=no_duplicate_keys)
+            if not isinstance(data, dict):
+                raise ValueError('manifest is not an object')
+            row['current_manifest'] = data
+            identity, version = data.get('id'), data.get('version')
+            if not isinstance(identity, str) or not identity.strip() or not isinstance(version, str) or not version.strip():
+                raise ValueError('invalid current manifest identity/version')
+            identities.setdefault(identity, []).append(path)
+            local_ids = {m['id'] for m in row['memberships'] if m['collection'] not in ('upstream_source', 'actual_directory')}
+            if local_ids and local_ids != {identity}:
+                row['errors'].append('current manifest identity differs from local declaration')
+            row['availability'] = 'observed'
+        except (OSError, ValueError, UnicodeError) as exc:
+            row['availability'] = 'unresolved'
+            row['errors'].append(str(exc))
+    lineage_ids = set(source) | {entry.get('id') for group in ('drivers', 'source_only_drivers') for entry in inventory.get(group, [])}
+    for row in paths.values():
+        data = row['current_manifest']
+        identity = data.get('id') if isinstance(data, dict) else None
+        row['same_identity_paths'] = identities.get(identity, []) if isinstance(identity, str) else []
+        row['lineage_row_id'] = identity if isinstance(identity, str) and identity in lineage_ids else None
+    return {'schema': 1, 'scope': 'actual path manifests and declared memberships; no inferred equivalence, selection or migration qualification',
+            'rows': [paths[path] for path in sorted(paths)], 'membership_errors': problems}
+
+
 def current_observation(root, inventory, trees, source, released, head, release, custody_rows=(), original_rows=(), custody=None):
     """Separate current source observations from retained release declarations.
 
@@ -333,6 +413,7 @@ def current_observation(root, inventory, trees, source, released, head, release,
             'historical_declaration_sha256': locks,
             'scope': 'source observation, not accepted release replay or behavioral qualification',
             'rows': rows,
+            'current_packages': current_packages(root, inventory, source, custody, custody_rows, original_rows),
             'local_custody_observations': list(custody_rows),
             'local_custody_declarations': custody,
             'original_source_declarations': inventory.get('original_drivers', []),
