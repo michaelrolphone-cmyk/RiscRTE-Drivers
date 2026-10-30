@@ -32,8 +32,13 @@ class NativeFirst(unittest.TestCase):
  def test_owning_parity_and_failure_semantics_remain(self):
   source=(ROOT/'scripts/run_badge_prototype_ci.py').read_text();tree=ast.parse(source)
   native=[n for n in ast.walk(tree) if isinstance(n,ast.Call) and isinstance(n.func,ast.Name) and n.func.id=='run' and n.args and isinstance(n.args[0],ast.Constant) and n.args[0].value=='build_badge_native.py'];self.assertEqual(len(native),1)
-  self.assertIn("external(w/'system-prototype/scripts/test_native_scene.py'",source)
-  self.assertIn("'--baseline',w/'timecard-system-baseline'",source)
+  # Tool implementation, selected source and historical parity are separate roles.
+  self.assertIn("external(w/'scene-qualification-tools/scripts/test_native_scene.py'",source)
+  self.assertIn("'--system-under-test',w/'system-prototype'",source)
+  self.assertIn("'--system-revision',json.loads",source)
+  self.assertIn("'--parity-source',w/'timecard-system-baseline'",source)
+  self.assertIn("'--baseline',w/'timecard-pre-scene-baseline'",source)
   self.assertIn('subprocess.run(command,check=True',source)
   workflow=(ROOT/'.github/workflows/badge-prototype.yml').read_text();self.assertIn('if: always()',workflow);self.assertIn('/native/build/riscrte_native.elf',workflow)
 if __name__=='__main__':unittest.main()
+
