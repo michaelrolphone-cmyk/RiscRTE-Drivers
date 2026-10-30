@@ -1,0 +1,37 @@
+name: Panel lease and lifecycle interlock
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  panel-lease:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: michaelrolphone-cmyk/RiscRTE
+          ref: 13eca114cb58469cf6004fafc3da84fbd9d29beb
+          path: .ci/runtime
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Qualify actual TPS profile lease lifecycle PCA I2C graph
+        run: |
+          python test/run_panel_lease_composition.py --runtime .ci/runtime --output dist/panel-lease/consumer-normal.json
+          python test/run_panel_lease_composition.py --runtime .ci/runtime --output dist/panel-lease/consumer-ubsan.json --sanitize
+      - name: Install existing pinned native compiler
+        run: bash scripts/install_native_driver_toolchain.sh
+      - name: Build current three-provider family with exact input provenance
+        run: python scripts/build_panel_lease.py --runtime .ci/runtime
+      - uses: actions/upload-artifact@v4
+        with:
+          name: panel-lease-${{ github.event.pull_request.head.sha || github.sha }}
+          path: dist/panel-lease/
+          if-no-files-found: error

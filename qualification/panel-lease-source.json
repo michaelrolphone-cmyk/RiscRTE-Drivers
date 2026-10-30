@@ -1,0 +1,176 @@
+{
+  "reader_commit": "9c8783d6f20659a514bfaeb3847a77c7213dc4f6",
+  "original_tps_driver_blob": "6d7445428a6e341c6983b352b376f6f3549922d9",
+  "original_tps_manifest_blob": "207f018cdae14aa0040ce30355d43fbf40b43eef",
+  "runtime_commit": "13eca114cb58469cf6004fafc3da84fbd9d29beb",
+  "drivers_dependency_commit": "e4df638c49c10290d1f44be3179f41c3ee13c78a",
+  "dependency_inputs": {
+    "runtime/sdk/driver/RiscProviderV2.h": {
+      "sha256": "62478822fa8943ddfd1607f8923de52d7b5b6fc8a0db2df6ca07c65c95c62d41",
+      "git_blob": "28dda87545c111c612d87f30337c1db2fe7da0e5"
+    },
+    "runtime/sdk/driver/RiscStreamProviderV1.h": {
+      "sha256": "0fe306e060321387c816bb70ec4370a501a423f4fe19a20c9be80aa1b98f3432",
+      "git_blob": "04f61f2271ea356a1c6bd778767a9f099772ba01"
+    },
+    "runtime/sdk/driver/RiscProviderSyncV1.h": {
+      "sha256": "c0981bde804b20c1b963323f91c4e9804c144c56535160bfd467be7e93028f45",
+      "git_blob": "b80b52407121020204a59c05bf1eaa7650f1f425"
+    },
+    "runtime/sdk/hardware/TWatchHardwareV1.h": {
+      "sha256": "ca48ca21a944565ae185f7c4e8cc0e73bcc18871d79b966f7e7da916e7ab2c99",
+      "git_blob": "3bfa8e7b711343635b9633ba569ad466a4a35124"
+    },
+    "runtime/sdk/hardware/RiscHardwareConfigV1.h": {
+      "sha256": "47fa4cd7d4f09f571a5aedc87376d2f57520ad7873f5556af0a932011633e240",
+      "git_blob": "b2d2e3160f2c6cd8d15825c3d7c84cc7a9f5680d"
+    },
+    "drivers/sdk/driver/RiscGpioExpanderV1.h": {
+      "sha256": "110f0b141842e7cdc6798519cc5cd61c371cfe0d3e0af59a3f19c12598242f55",
+      "git_blob": "1660b562ed1046570542e603e5d891f33af6d786"
+    },
+    "drivers/sdk/driver/RiscI2cBusV1.h": {
+      "sha256": "a6b769efbbf7f3837a6a348689b0aee84bf687ae8e18a31d0296f3bfa6ac2004",
+      "git_blob": "30f33092c57800714f0145063842d90765ed8317"
+    },
+    "runtime/sdk/driver/RiscPlatformClockWaitV1.h": {
+      "sha256": "c09d95c418f930f56c6e66004e07e38cb5726d8c7e5cd49b579bafbeebbe831c",
+      "git_blob": "0f4245039944d1f594217031d3044070eb18da18"
+    },
+    "runtime/sdk/driver/RiscPlatformClockV1.h": {
+      "sha256": "41a12f6529f38731ee874f8bc166e1cf89fe376a1448fe5a4dd4c9abac90e5e2",
+      "git_blob": "33a5b27dcea7e30698d0177ad5db065166082194"
+    },
+    "drivers/sdk/driver/RiscDisplayPowerV1.h": {
+      "sha256": "4ba5303d82c1b9a97ba1abada14456f882e449331bc04bf9caa70ded23d1560b",
+      "git_blob": "6c10664c3be651a7ff0f1f31bcd3025ffb3e4950"
+    },
+    "runtime/sdk/driver/RiscDeepSleepV1.h": {
+      "sha256": "0949cf9591ef0f07b61c1306897287ea2eb1533755b5e569bfe1cb2c9b236161",
+      "git_blob": "3e45758fe9c3127be2483b6f3c3bf58a70cdcede"
+    },
+    "drivers/Drivers/pca9535_gpio/driver.c": {
+      "sha256": "200a19a8aad4b6df8d43bd76292859edc57e072dda1054cf7769e0d9e2904cdc",
+      "git_blob": "636d95471f1725a670c4ffd4957baf059a2005ec"
+    },
+    "drivers/components/i2c-scoped/driver.c": {
+      "sha256": "423c227fde14ed8bcb7cf4c412988605df3ff589085b7fd478e4906d10bfd826",
+      "git_blob": "07fa5b8a321716e2f71170af242e37103fa588c8"
+    },
+    "runtime/sdk/driver/TWatchPlatformV1.h": {
+      "sha256": "88457c6cd36a8d2550c964ede1060b4006b72be5d290cff7cd108087bacc16dd",
+      "git_blob": "0e5827f1c21985f4d4be64cb4664a47b0eabd20d"
+    },
+    "runtime/sdk/driver/GardenPlatformV1.h": {
+      "sha256": "2e8e32f52554b706fafce1af27a5fbaf99187f67ecb55dc0cf333144b48ef9d2",
+      "git_blob": "e983549d4b0b72f1aac24daf95d5e05f909911d0"
+    },
+    "runtime/sdk/driver/RiscLightSleepV1.h": {
+      "sha256": "43cbd671265959ec2db7904bf6185e97a87c4cde9d389cdccf6fbb7c916f3b94",
+      "git_blob": "8ccf341a266f9b21ddd9552a8f29fa6aebc946c4"
+    },
+    "runtime/sdk/driver/RiscTimedSleepV1.h": {
+      "sha256": "475ba9bfaf6c7497ace7baeb93f2bd9a6abe1e3a91f62eed24862a88d60dbf34",
+      "git_blob": "e04f96e04f4213972b46953351dde6f0ed0c6815"
+    },
+    "runtime/sdk/driver/RiscWakeSetV1.h": {
+      "sha256": "0b5a4914ac67d37b420e1ea19b591a71440f6e4c20149ca4324e1049517ba375",
+      "git_blob": "fa7ec204896f658b757ad2db5d7ed2554ce82e98"
+    },
+    "runtime/sdk/driver/RiscRadioScanV1.h": {
+      "sha256": "696227eecfd124f941023673680e0a15917d5b03c8f769756ed12ec34f7ccc9b",
+      "git_blob": "b0f99a78fb02de88da943ddd4aca438dcc1d8679"
+    },
+    "runtime/src/runtime/drivers/ProviderGraphV2.cpp": {
+      "sha256": "194b3c47eb54e184f64a9625286358bade979ec31ebc012d6a84b102cf3b9530",
+      "git_blob": "af6016ef82a8b483732c0db5e767b271d144df3b"
+    },
+    "runtime/src/diagnostics/Performance.h": {
+      "sha256": "a46e8c992b0c7ecf7c43655f2822ba34e1a87794a367877666bb046387aa02c0",
+      "git_blob": "a01ee9bd7c7ca7649955971af85297f12e164f55"
+    },
+    "runtime/src/diagnostics/StageLog.h": {
+      "sha256": "61248a1345e0c48046106ad40194f4d2b091ce08c344a5957de75c32385c7182",
+      "git_blob": "c2b5f5d3b9530959eab550afcd27e68495aa503e"
+    },
+    "runtime/src/runtime/drivers/ProviderGraphV2.h": {
+      "sha256": "963c36f30917936b8c3fc557fd347113d92ea31ac96e011a0f428a1f2cc353d7",
+      "git_blob": "a5454ee21b9000763db745d0d7f584313cd37688"
+    },
+    "runtime/src/runtime/drivers/ProviderModuleV2.h": {
+      "sha256": "5856a067ffb7fbea5e2c0bb44c036e8a3fe3981378665c78a411ee8840f024df",
+      "git_blob": "63b6ed834f9988f60b1a2af9cd30c7f6365cd69f"
+    },
+    "runtime/lib/hal/StorageGeneration.h": {
+      "sha256": "b0f61f618d814ac07c699fb83040d3909a7554b79b0a6d16d21e52e95c30efd5",
+      "git_blob": "7f23ac2367d2a5f538294104c62a9c15655a0f34"
+    },
+    "runtime/sdk/driver/RiscStreamSessionProviderV1.h": {
+      "sha256": "fe463661530c43ae7d1dd8b9c8227fdc6a7e4380bca3f5c8a13287cb0db9e873",
+      "git_blob": "09c382c4440e2827351e7e271248e4e9da94f598"
+    },
+    "runtime/sdk/driver/RiscStreamResultV1.h": {
+      "sha256": "af140ee9ca4f6286c5f1beeecb0a0952264b14eb40d3ba4f313ff952e8824a6f",
+      "git_blob": "4bdf0f5789afe40c55ead97ec3d2ccf9b630efb1"
+    },
+    "runtime/sdk/driver/RiscPackageResourcesV1.h": {
+      "sha256": "8aff53415cf68a46e8e492dd02d12bde802ce2a1d69629dd4f3b0aad5794e459",
+      "git_blob": "c80cc6d7114cebcb600959f8c22ccd8d8b6a626b"
+    },
+    "runtime/src/runtime/packages/PackageIdentity.h": {
+      "sha256": "b9438c33b9575f1198cbe0a32a408f6960a4c3b56724e4828e6b632e35aa8204",
+      "git_blob": "e8c8146acd7bb9ee96c6b39aa6b1d830eaf44d79"
+    },
+    "runtime/src/runtime/drivers/NativeProviderPolicyV1.h": {
+      "sha256": "e5f3ee4a2545e425760442537d87b99f027a3acc8687113e2ac7da29873a641f",
+      "git_blob": "48ccd9b83112472c062342bb45e538f0d1fca5a2"
+    },
+    "runtime/lib/elf_loader/include/private/esp_privileged_cohort.h": {
+      "sha256": "1c31269ab1abca74e016eb02096b3e3d879a9d98b7e4476fd7ebff99c8f70050",
+      "git_blob": "a4167712a60ce537988d5790b141a95cf387b6f9"
+    },
+    "runtime/src/runtime/RuntimeLimits.h": {
+      "sha256": "ab93e61e683f0d496372323d83af5cc5e3cd9ca4b9fac74c7e8f35c77ee23b69",
+      "git_blob": "2745e45282649261239c295d08b15f2e5da14c09"
+    },
+    "runtime/lib/hal/RuntimeFaultRetention.h": {
+      "sha256": "f44b9a1390a0a8d639a7183956d0bd063c213ee8054eff694c4ca26bfc921128",
+      "git_blob": "b66c4d542da67cb91cd5bfc81a63535690970128"
+    },
+    "runtime/src/runtime/drivers/ProviderOwnedSpecV2.h": {
+      "sha256": "59f12aead70bdc3b888f6e8458ab866e1549bf2ce65e7d88d66a4e01c8f264cc",
+      "git_blob": "2fa9e4961cad82bb6ae12ca6a944302c4707e5d4"
+    },
+    "runtime/src/runtime/drivers/NativeProviderPolicyValidationV1.h": {
+      "sha256": "0bf6ebef2f836c5375ae51d4648ce63f79b3ed27f1b82a29a46fdd1df66fc584",
+      "git_blob": "6200c7a93f229daf9d8051b4a022a29b712bd5ea"
+    },
+    "runtime/src/runtime/drivers/ProviderModuleV2.cpp": {
+      "sha256": "898bd098341d385280d06a10a85714e70c267d53a1413fd86961079612b01185",
+      "git_blob": "04aac9028f031e36e8bca62ba9e09202072f02e2"
+    },
+    "runtime/test/drivers/stubs/esp_dlfcn.h": {
+      "sha256": "b3dccf49f0d673560d6793af41f075117711c362c57bc2463db3fe49605a6395",
+      "git_blob": "c67fc3a64cd438cb3243067b37b5ab6dfe5c2e65"
+    },
+    "runtime/lib/elf_loader/include/esp_elf_image.h": {
+      "sha256": "5f8533febe111ec64ac4034fabfc050f5ccfb0d15f713801113db3b2b3cc25d2",
+      "git_blob": "e9b94e345d3a6436d9fcb1aecce73b8f201ccc66"
+    },
+    "drivers/sdk/driver/RiscDisplayOutputV1.h": {
+      "sha256": "11e747aecadcdfd0b37c79d057208ca9249714cb7482ca32b4a7a3296648c619",
+      "git_blob": "402a1629fc4b89a7150cba6416527563ecaf9643"
+    }
+  },
+  "new_contracts": [
+    "display.panel-lease@1",
+    "board.display.tps65185.profile@1"
+  ],
+  "preserved_contracts": [
+    "display.power@1 light-sleep prefix",
+    "display.output@1 ROUND bit6"
+  ],
+  "hardware_tested": false,
+  "deep_sleep_qualified": false,
+  "profile_evidence": "T5 profile masks and VCOM extracted unchanged from original TPS source; driver owns chip sequence, explicit board dependency selects the profile."
+}
