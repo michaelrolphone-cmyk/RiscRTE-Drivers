@@ -134,13 +134,14 @@ def main():
   external(ROOT/'tests/test_badge_timecard_package.py')
   external(ROOT/'tests/test_timecard_evidence_gate.py')
   external(ROOT/'test/test_timecard_product_selection.py')
+  external(w/'scene-qualification-tools/scripts/test_native_scene_provenance.py')
   common=['--system-apps',w/'system-prototype','--runtime',w/'runtime-prototype']
   external(w/'productivity-prototype/scripts/test_timecard_current_build.py',*common,'--utilities',w/'utilities-prototype','--drivers',ROOT)
   for mode in ['normal','sanitized']:
    san=['--sanitize'] if mode=='sanitized' else []
    external(w/'system-prototype/scripts/test_quick_pending_frame.py','--output',out/('quick-pending-helper-'+mode),*san)
    external(w/'system-prototype/scripts/test_quick_pending_input.py','--runtime',w/'runtime-prototype','--alarm-sdk',w/'timecard-alarm-sdk/lib/Alarm/include','--output',out/('quick-pending-input-'+mode),*san)
-   external(w/'system-prototype/scripts/test_native_scene.py','--runtime',w/'runtime-prototype','--alarm-sdk',w/'timecard-alarm-sdk/lib/Alarm/include','--baseline',w/'timecard-system-baseline','--output',out/('timecard-scene-'+mode),*san)
+   external(w/'scene-qualification-tools/scripts/test_native_scene.py','--runtime',w/'runtime-prototype','--alarm-sdk',w/'timecard-alarm-sdk/lib/Alarm/include','--system-under-test',w/'system-prototype','--system-revision',json.loads((ROOT/'boards/waveshare-esp32-s3-touch-amoled-1.75c/prototype/sources.lock.json').read_text())['system']['commit'],'--parity-source',w/'timecard-system-baseline','--baseline',w/'timecard-pre-scene-baseline','--output',out/('timecard-scene-'+mode),*san)
    external(w/'productivity-prototype/scripts/test_timecard_current_contract.py',*common,'--alarm-sdk',w/'timecard-alarm-sdk/lib/Alarm/include','--output',out/('timecard-contract-'+mode),*san)
    external(w/'productivity-prototype/scripts/test_timecard_current_ui.py',*common,'--utilities',w/'utilities-prototype','--drivers',ROOT,'--output',out/('timecard-ui-'+mode),*san)
   external(w/'productivity-prototype/scripts/test_timecard_current_legacy.py','--baseline',w/'timecard-productivity-baseline','--system-apps',w/'system-prototype','--sdk',out/'timecard-contract-normal/include','--output',out/'timecard-legacy.json')

@@ -110,14 +110,25 @@ jobs:
         with:
           name: usb-ch34x-v2-current
           path: dist/usb-ch34x-v2-current
-      - name: Test usb-cp210x-v2 vendor control, bulk, stale tokens and quiescence
+      - name: Test preserved historical CP210x class
         run: |
+          git show 876bba87ab601fafbcd873ae3fd0e14f96151d3b:driver.c > /tmp/historical-cp210x.c
           cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
-            -I sdk/driver Drivers/usb_cp210x_v2/driver.c -o /tmp/usb-cp210x-v2.so
+            -I sdk/driver /tmp/historical-cp210x.c -o /tmp/usb-cp210x-v2.so
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
             test/drivers/usb_cp210x_v2_test.c -ldl -o /tmp/usb-cp210x-v2-test
           /tmp/usb-cp210x-v2-test /tmp/usb-cp210x-v2.so
       - run: python scripts/build_usb_cp210x_v2.py
+      - name: Test current CP210x with retained host and checked-release negative
+        run: |
+          python -m unittest discover -s test -p test_cp210x_source_modes.py -v
+          bash test/run_cp210x_migration.sh normal
+          bash test/run_cp210x_migration.sh sanitized
+      - run: python scripts/build_usb_cp210x_v2.py --current-source
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-cp210x-v2-current
+          path: dist/usb-cp210x-v2-current
       - name: Test usb-ftdi IDs, divisors, status stripping and quiescence
         run: |
           cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
@@ -445,6 +456,14 @@ jobs:
         with:
           name: usb-ch34x-v2-historical-qualification
           path: dist/usb-ch34x-v2-historical-qualification
+      - name: Require exact historical CP210x ELF with retained source snapshot
+        run: |
+          export NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"
+          python scripts/build_usb_cp210x_v2.py --require-byte-parity --output dist/usb-cp210x-v2-historical-qualification
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-cp210x-v2-historical-qualification
+          path: dist/usb-cp210x-v2-historical-qualification
       - name: Require exact historical clock ELF with retained source snapshot
         run: |
           export NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"

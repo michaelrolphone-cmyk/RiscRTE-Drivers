@@ -58,6 +58,11 @@ class Runner(unittest.TestCase):
   for name in ['test_badge_timecard_execution.py','test_native_scene.py','test_quick_pending_frame.py','test_quick_pending_input.py','test_timecard_current_contract.py','test_timecard_current_ui.py']:
    rows=by(name);self.assertEqual(len(rows),2);self.assertNotIn('--sanitize',rows[0]);self.assertIn('--sanitize',rows[1])
   for name in ['test_timecard_current_build.py','test_timecard_current_legacy.py','test_timecard_evidence_gate.py','test_badge_timecard_package.py','test_timecard_product_selection.py']:self.assertEqual(len(by(name)),1)
+  for c in by('test_native_scene.py'):
+   self.assertTrue(c[1].endswith('/scene-qualification-tools/scripts/test_native_scene.py'))
+   for option,suffix in [('--system-under-test','/system-prototype'),('--parity-source','/timecard-system-baseline'),('--baseline','/timecard-pre-scene-baseline')]:self.assertTrue(c[c.index(option)+1].endswith(suffix))
+   self.assertEqual(c[c.index('--system-revision')+1],json.loads((ci.ROOT/'boards/waveshare-esp32-s3-touch-amoled-1.75c/prototype/sources.lock.json').read_text())['system']['commit'])
+  self.assertEqual(len(by('test_native_scene_provenance.py')),1)
   for c in by('test_badge_timecard_execution.py'):self.assertIn('--productivity',c);self.assertIn('--foreground',c)
   for name in ['test_badge_prototype_execution.py','test_badge_hybrid_execution.py','test_badge_springboard_execution.py','test_badge_settings_execution.py','test_badge_wifi_gap_execution.py']:self.assertEqual(len(by(name)),2)
  def test_accepted_successor_keeps_local_quick_and_post_execution_sync_gates(self):
@@ -102,6 +107,23 @@ class Runner(unittest.TestCase):
   for item in ['historical-minimal','selected-full','max-parallel: 1','permissions:\n  contents: read',"Drivers/gpio_key_sleep/**","Drivers/cst9217_touch/**","--native-wifi-geometry","--include-timecard","matrix.recovery_flags","tests/badge_settings*","test/test_settings_evidence_gate.py"]:self.assertIn(item,text)
   self.assertNotIn('contents: write',text);self.assertNotIn('pull_request_target',text)
 class Recovery(unittest.TestCase):
+ def test_scene_roles_are_independent_and_exact(self):
+  proof={'schema':1,'tools':'a'*40,'scene':'b'*40,'before_scene':'c'*40};profile={'scene_contract_basis':'b'*40}
+  self.assertEqual(recovery.scene_qualification_anchors(profile,proof),[('scene-qualification-tools','system','a'*40),('timecard-pre-scene-baseline','system','c'*40)])
+  for key,value in [('tools','main'),('scene','d'*40),('before_scene','b'*40),('schema',True)]:
+   with self.subTest(key=key),self.assertRaises(ValueError):recovery.scene_qualification_anchors(profile,{**proof,key:value})
+  with self.assertRaises(ValueError):recovery.scene_qualification_anchors(profile,{**proof,'unknown':1})
+ def test_scene_role_directories_refused_before_any_fetch(self):
+  for role in ['scene-qualification-tools','timecard-pre-scene-baseline']:
+   with self.subTest(role=role),tempfile.TemporaryDirectory() as d:
+    root=Path(d);board=root/'drivers/boards/waveshare-esp32-s3-touch-amoled-1.75c'
+    for kind in ['home','prototype']:
+     p=board/kind/'sources.lock.json';p.parent.mkdir(parents=True);p.write_text('{}')
+    p=root/'drivers/docs/badge-source-recovery/sources.json';p.parent.mkdir(parents=True);p.write_text('{}')
+    prior=root/role;prior.mkdir();marker=prior/'keep';marker.write_text('owned');calls=[]
+    with self.assertRaisesRegex(ValueError,'Fresh workspace roles required'):recovery.recover(root,run=lambda c,**kw:calls.append(c),include_timecard=True)
+    self.assertEqual(calls,[]);self.assertEqual(marker.read_text(),'owned')
+
  def test_literal_exact_constants_only(self):
   with tempfile.TemporaryDirectory() as d:
    p=Path(d)/'source.py';p.write_text("PIN='"+'a'*40+"'\n");self.assertEqual(recovery.constants(p,['PIN']),{'PIN':'a'*40})

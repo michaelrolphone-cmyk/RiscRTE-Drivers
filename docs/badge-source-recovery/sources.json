@@ -22,6 +22,10 @@
       "40e7222b390023a79288ddc369ffa2f485f85486": {
         "tree": "a7d8a45a356ab3d93a38e4b98d30ab207665c6f7",
         "purpose": "Current owning CI fixes and exact nonforeground native compile metadata; original source/SDK pack preserved"
+      },
+      "eae29c469964d4253ede6e1c9e67679e1aba43b5": {
+        "tree": "6f6f3aa3d43bf278b3ab5ecadbd052a3945d47a4",
+        "purpose": "Explicit scene qualification tools; historical source pairs and current product source remain independent"
       }
     }
   },

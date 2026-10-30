@@ -29,6 +29,12 @@ def fetch_declared_successor(path,pin,spec,run=subprocess.run,output=subprocess.
  if actual!=tree:raise ValueError('Published successor tree mismatch')
  return {'commit':pin,'tree':tree,'role':path.name,'method':'explicit-published-successor','recovery_original':spec['source_commit']}
 
+def scene_qualification_anchors(profile,proof):
+ if set(proof)!={'schema','tools','scene','before_scene'} or type(proof['schema']) is not int or proof['schema']!=1:raise ValueError('Invalid scene qualification lock')
+ pins={key:exact_pin(proof[key]) for key in ['tools','scene','before_scene']}
+ if pins['scene']!=profile['scene_contract_basis'] or len(set(pins.values()))!=3:raise ValueError('Conflated scene qualification roles')
+ return [('scene-qualification-tools','system',pins['tools']),('timecard-pre-scene-baseline','system',pins['before_scene'])]
+
 def recover(root,run=subprocess.run,output=subprocess.check_output,include_timecard=False):
  root=Path(root).resolve();recovery_lock=json.loads((root/'drivers/docs/badge-source-recovery/sources.json').read_text());restored={};pack_receipts=[];published_receipts=[];board=root/'drivers/boards/waveshare-esp32-s3-touch-amoled-1.75c';locks={n:json.loads((board/n/'sources.lock.json').read_text()) for n in ['home','prototype']};records=[]
  def fetch(path,pin):
@@ -59,7 +65,7 @@ def recover(root,run=subprocess.run,output=subprocess.check_output,include_timec
   actual=output(['git','-C',str(path),'rev-parse',pin+'^{commit}'],text=True).strip()
   if actual!=pin:raise ValueError('Fetched dependency identity mismatch')
  roles=ROLES+([('productivity-prototype','productivity','prototype')] if include_timecard else [])
- reserved=[label for label,_,_ in roles]+(['timecard-productivity-baseline','timecard-system-baseline','timecard-alarm-sdk'] if include_timecard else [])+['spiffs']
+ reserved=[label for label,_,_ in roles]+(['timecard-productivity-baseline','timecard-system-baseline','timecard-alarm-sdk','scene-qualification-tools','timecard-pre-scene-baseline'] if include_timecard else [])+['spiffs']
  if any((root/label).exists() for label in reserved):raise ValueError('Fresh workspace roles required; preserve existing checkouts and prior failure logs')
  for label,key,kind in roles:
   pin=locks[kind][key];repo=pin['repository'];commit=exact_pin(pin['commit']);path=root/label
@@ -69,6 +75,8 @@ def recover(root,run=subprocess.run,output=subprocess.check_output,include_timec
  if include_timecard:
   profile=json.loads((root/'productivity-prototype/sdk/timecard-current-profile.json').read_text())
   anchors=[('timecard-productivity-baseline','productivity',profile['authoritative_model_base']),('timecard-system-baseline','system',profile['scene_contract_basis']),('timecard-alarm-sdk','utilities',profile['alarm_sdk'])]
+  proof=json.loads((root/'drivers/docs/badge-source-recovery/native-scene.json').read_text())
+  anchors+=scene_qualification_anchors(profile,proof)
   for label,key,pin in anchors:
    path=root/label;repo=locks['prototype'][key]['repository'];pin=exact_pin(pin)
    if not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+',repo):raise ValueError('Invalid repository identity')
