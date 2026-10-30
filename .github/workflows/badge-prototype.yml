@@ -15,6 +15,8 @@ on:
       - 'scripts/recover_custody_provenance.py'
       - 'test/test_custody_provenance_recovery.py'
       - 'manifest/local-source-custody.json'
+      - 'qualification/local-source-custody.json'
+      - 'scripts/check_parity.py'
       - 'scripts/badge_source_pack.py'
       - 'docs/badge-source-recovery/**'
       - 'tests/test_badge_source_pack.py'

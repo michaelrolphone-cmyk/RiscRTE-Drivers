@@ -52,6 +52,70 @@
         "current_artifact_id": 12946122256,
         "historical_artifact_id": 12945873108
       }
+    },
+    {
+      "id": "usb-ch34x-v2",
+      "path": "Drivers/usb_ch34x_v2",
+      "version": "0.1.7",
+      "tree_sha": "67331de2d735ac5485790dd9761d28e0c0146bd0",
+      "release_index_commit": "19bb3dcb5cb763c4eacd884ad5fc0bcab57ff2ed",
+      "upstream": {
+        "repository": "michaelrolphone-cmyk/T5S3-Reader",
+        "commit": "9c8783d6f20659a514bfaeb3847a77c7213dc4f6",
+        "path": "Drivers/usb_ch34x_v2",
+        "version": "0.1.7",
+        "tree_sha": "8a235071b10203c92c4b37a74563d677ab7d280a"
+      },
+      "historical": {
+        "version": "0.1.0",
+        "source_tree": "6b2dc3c8e1f685d6fdaba58d04a763378f524b1b",
+        "sha256": "8d88d227ac61116116b0ffb7c0e4052b7b547a0a19edc13a13af08792b95d621",
+        "size": 6340
+      },
+      "evidence": {
+        "current_manifest": {
+          "path": "qualification/evidence/usb-ch34x-v2/current_manifest.json",
+          "sha256": "1f6e810ca4b2b8f757f63d837dc4c8dec8bf3d7072d999851159c008454da900"
+        },
+        "historical_manifest": {
+          "path": "qualification/evidence/usb-ch34x-v2/historical_manifest.json",
+          "sha256": "b30df013b6faf1ea0740d9b569db795751468ea5678ff685e5365d34a3a17bb6"
+        },
+        "historical_replay": {
+          "path": "qualification/evidence/usb-ch34x-v2/historical_replay.json",
+          "sha256": "2385d04713af91117f6b46c80757d3eaa8c85acd2eefbc625c8d07109dd3349d"
+        },
+        "current_build": {
+          "path": "qualification/evidence/usb-ch34x-v2/current_build.json",
+          "sha256": "4d94b4653348408ff26a0ff7700862835582680278db6797fb184b24305a9b6d"
+        }
+      },
+      "attribution": "Tasker original task0224; exact hosted current/historical artifacts retained and verified; this metadata linkage is under independent technical review.",
+      "rationale": "Current stream/inventory/custody source is separately built and qualified; historical raw-interface0.1.0 accepted source and bytes remain immutable. Source-preserving explicit SerialPort include differs from upstream and is not a behavioral-equivalence claim.",
+      "limits": [
+        "Only complete source/build-input bindings and historical accepted-byte replay are established by this consumer.",
+        "Current tree conflict remains visible; metadata linkage does not resolve behavioral differences.",
+        "Normal/sanitized host fixtures have fake controller/device boundaries; no physical device or firmware adoption claim.",
+        "Build-input inventory is over-approximate available SDK evidence, not proof every header was consumed or complete compiler/environment closure.",
+        "Hashes bind evidence bytes, not independent authentication of hosted CI."
+      ],
+      "hosted_provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "source_commit": "c16bb4deb491eb6ef7460b446c39706a109865fd",
+        "current_artifact_id": 12949019436,
+        "historical_artifact_id": 12949487131
+      },
+      "historical_acceptance": {
+        "format": "python-literal-producer-lock-v1",
+        "commit": "504403db4ae9a315bb57e3ef98ed18a54de91641",
+        "path": "scripts/build_usb_ch34x_v2.py",
+        "blob": "8835c6a0608df5e03e128e12d62e5fb69733c3ea",
+        "sha256": "e7c4b7a8e3c4a9b067c5caea1126830f822d19d0f4618b131945c143cfd2d57d",
+        "constants": {
+          "sha256": "CANONICAL_SHA256",
+          "size": "CANONICAL_SIZE"
+        }
+      }
     }
   ]
 }

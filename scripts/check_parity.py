@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Read-only parity gate for actual driver bytes and immutable upstream snapshots."""
 import argparse
+import ast
 import base64
 import hashlib
 import json
@@ -182,6 +183,30 @@ def classify(base, local, upstream):
     return 'conflict'
 
 
+def load_custody(root):
+    """Compose historical and later path declarations; validate them as one set.
+
+    Historical declaration bytes are never rewritten. This loader grants no
+    exemptions: validate_custody still checks all provenance, paths and identities.
+    """
+    sources = []
+    found = False
+    for relative in ('manifest/local-source-custody.json',
+                     'qualification/local-source-custody.json'):
+        path = root / relative
+        if path.is_symlink():
+            raise ValueError('symlink local source custody file: ' + relative)
+        if not path.exists():
+            continue
+        document = json.loads(path.read_text())
+        if (not isinstance(document, dict) or document.get('schema') != 1
+                or not isinstance(document.get('sources'), list)):
+            raise ValueError('invalid local source custody schema: ' + relative)
+        sources.extend(document['sources'])
+        found = True
+    return {'schema': 1, 'sources': sources} if found else None
+
+
 def validate_custody(root, custody, occupied_paths, package_ids):
     """Validate local-only custody without claiming upstream or release parity.
 
@@ -338,6 +363,82 @@ def pinned_file(root, path, sha256):
     return data
 
 
+def historical_acceptance(root, item, row, history, released):
+    """Read an optional immutable producer lock, never current builder values."""
+    if 'historical_acceptance' not in item:
+        return released.get(item['id'])
+    ref = item['historical_acceptance']
+    if not isinstance(ref, dict) or ref.get('format') != 'python-literal-producer-lock-v1':
+        raise ValueError('invalid historical acceptance reference')
+    commit, path = ref['commit'], ref['path']
+    if not SHA.fullmatch(str(commit)) or not isinstance(path, str) or not path or path.startswith('/') or any(v in ('', '.', '..') for v in path.split('/')):
+        raise ValueError('invalid historical acceptance locator')
+    if history.get('historical_build_commit') != commit:
+        raise ValueError('historical acceptance producer differs from replay')
+    def git(*args):
+        return subprocess.check_output(['git', '-C', str(root), *args], timeout=60)
+    tree = git('rev-parse', commit + ':' + item['path']).decode().strip()
+    if tree != row['recorded_baseline_tree']:
+        raise ValueError('historical producer source tree mismatch')
+    entry = git('ls-tree', commit, '--', path).decode().strip().split('\t')
+    if len(entry) != 2 or entry[1] != path or entry[0].split()[:2] not in (['100644', 'blob'], ['100755', 'blob']):
+        raise ValueError('historical acceptance must be exact regular blob')
+    blob = entry[0].split()[2]
+    raw = git('show', commit + ':' + path)
+    if blob != ref['blob'] or hashlib.sha256(raw).hexdigest() != ref['sha256']:
+        raise ValueError('historical acceptance bytes changed')
+    names = ref['constants']
+    if not isinstance(names, dict) or set(names) != {'sha256', 'size'} or not all(isinstance(v, str) and v.isidentifier() for v in names.values()) or len(set(names.values())) != 2:
+        raise ValueError('invalid historical acceptance constant names')
+    values = {}
+    try:
+        module = ast.parse(raw)
+        allowed_targets = set()
+        for node in module.body:
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if isinstance(target, ast.Name) and target.id in names.values():
+                        if target.id in values:
+                            raise ValueError('duplicate historical acceptance constant')
+                        values[target.id] = ast.literal_eval(node.value)
+                        allowed_targets.add(id(target))
+        for node in ast.walk(module):
+            if isinstance(node, ast.Name) and node.id in names.values() and isinstance(node.ctx, (ast.Store, ast.Del)) and id(node) not in allowed_targets:
+                raise ValueError('nonliteral or conditional historical acceptance assignment')
+    except (SyntaxError, UnicodeError) as exc:
+        raise ValueError('invalid historical acceptance source') from exc
+    digest, size = values[names['sha256']], values[names['size']]
+    if not isinstance(digest, str) or not re.fullmatch(r'[0-9a-f]{64}', digest) or type(size) is not int or size <= 0:
+        raise ValueError('invalid historical acceptance literal values')
+    original = json.loads(git('show', commit + ':' + item['path'] + '/manifest.json'))
+    historical = row['historical_release_declaration']
+    if not isinstance(original, dict) or not historical or original.get('id') != item['id'] or original.get('version') != historical['version']:
+        raise ValueError('historical producer identity/version mismatch')
+    return {'id':item['id'], 'version':original['version'], 'sha256':digest, 'size':size}
+
+
+def source_manifest_fields(artifact, receipt, accepted):
+    """Separate only verified builder annotations from source manifest fields.
+
+    Optional canonical replay fields are an all-or-none documentary group;
+    unknown fields remain semantic fields and cannot be silently discarded.
+    """
+    fields = {'canonical_sha256', 'canonical_size_bytes', 'byte_parity'}
+    if fields.intersection(artifact):
+        if not fields.issubset(artifact) or not isinstance(accepted, dict):
+            raise ValueError('incomplete canonical artifact annotations')
+        if (artifact['canonical_sha256'], artifact['canonical_size_bytes']) != (accepted['sha256'], accepted['size']):
+            raise ValueError('canonical artifact annotations differ from accepted lock')
+        if type(artifact['canonical_size_bytes']) is not int or type(artifact['byte_parity']) is not bool:
+            raise ValueError('invalid canonical artifact annotation types')
+        if (receipt['accepted_historical_sha256'], receipt['accepted_historical_size']) != (accepted['sha256'], accepted['size']):
+            raise ValueError('build annotation receipt used a different accepted lock')
+        equal = (artifact['sha256'], artifact['size_bytes']) == (accepted['sha256'], accepted['size'])
+        if type(receipt['byte_parity']) is not bool or artifact['byte_parity'] != receipt['byte_parity'] or artifact['byte_parity'] != equal:
+            raise ValueError('canonical artifact parity annotation mismatch')
+    return {k: v for k, v in artifact.items() if k not in {'sha256', 'size_bytes'} | fields}
+
+
 def qualify_sources(root, report, qualifications, inventory, released):
     """Bind reviewed build evidence; resolve only historical/current metadata scope.
 
@@ -383,6 +484,7 @@ def qualify_sources(root, report, qualifications, inventory, released):
                 raise ValueError('qualification evidence documents must be JSON objects')
             current, artifact = evidence['current_build'], evidence['current_manifest']
             history, old_artifact = evidence['historical_replay'], evidence['historical_manifest']
+            accepted = historical_acceptance(root, item, row, history, released)
             source_dir = root / item['path']
             actual_manifest = json.loads((source_dir / 'manifest.json').read_text())
             if actual_manifest['id'] != identity or actual_manifest['version'] != item['version'] or item['version'] != upstream['version']:
@@ -397,7 +499,7 @@ def qualify_sources(root, report, qualifications, inventory, released):
                 raise ValueError('current build input pins missing')
             for path, digest in current['build_inputs'].items():
                 pinned_file(root, path, digest)
-            if {k: v for k, v in artifact.items() if k not in ('sha256', 'size_bytes')} != actual_manifest:
+            if source_manifest_fields(artifact, current, accepted) != actual_manifest:
                 raise ValueError('current artifact/source manifest mismatch')
             for receipt, manifest in ((current, artifact), (history, old_artifact)):
                 compiler_pins = (receipt['compiler_sha256'], receipt['libgcc']['sha256'], receipt['readelf']['sha256'])
@@ -410,7 +512,6 @@ def qualify_sources(root, report, qualifications, inventory, released):
                 if not isinstance(receipt['actual_sha256'], str) or not re.fullmatch(r'[0-9a-f]{64}', receipt['actual_sha256']) or type(receipt['actual_size']) is not int or receipt['actual_size'] <= 0:
                     raise ValueError('invalid artifact identity')
             historical = row['historical_release_declaration']
-            accepted = released.get(identity)
             if not historical or not accepted or item['historical']['version'] != historical['version'] or accepted['version'] != historical['version']:
                 raise ValueError('historical release scope mismatch')
             if item['historical'] != {'version': historical['version'], 'source_tree': row['recorded_baseline_tree'],
@@ -439,7 +540,7 @@ def qualify_sources(root, report, qualifications, inventory, released):
                 raise ValueError('historical source manifest must be a JSON object')
             if old_source_manifest.get('id') != identity or old_source_manifest.get('version') != historical['version']:
                 raise ValueError('historical source identity/version mismatch')
-            if {k: v for k, v in old_artifact.items() if k not in ('sha256', 'size_bytes')} != old_source_manifest:
+            if source_manifest_fields(old_artifact, history, accepted) != old_source_manifest:
                 raise ValueError('historical artifact/source manifest mismatch')
             row['current_source_qualification'] = {'status': 'source-and-build-evidence-bound', 'declaration': item,
                 'evidence': evidence, 'behavioral_equivalence': 'not established',
@@ -557,8 +658,7 @@ def main():
     try:
         head, release, source, released = snapshot(Source(origin['repository'], args.reader),
             args.source_ref, args.release_ref or origin['branch'], origin['path'])
-        custody_path = ROOT / 'manifest/local-source-custody.json'
-        custody = json.loads(custody_path.read_text()) if custody_path.exists() else None
+        custody = load_custody(ROOT)
         qualification_path = ROOT / 'qualification/current-sources.json'
         if qualification_path.is_symlink():
             raise ValueError('symlink current source qualification file')

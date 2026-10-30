@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "sources": [
+    {
+      "path": "Drivers/time_sample",
+      "kind": "adapter",
+      "tree_sha": "3abc62d709d4ece9c27cb66606aa7dc9142ffd38",
+      "provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "commit": "a45497f5df164ace12e3b56b615a3eaa76581f2c",
+        "path": "Drivers/time_sample"
+      },
+      "id": "time-sample",
+      "version": "0.1.0"
+    }
+  ]
+}

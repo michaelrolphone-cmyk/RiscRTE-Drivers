@@ -2,6 +2,7 @@
 """Hydrate declared custody commits before offline validation; never retarget HEAD."""
 import argparse
 import json
+import importlib.util
 from pathlib import Path
 import re
 import subprocess
@@ -16,9 +17,12 @@ def recover(root, repository, run=subprocess.run, output=subprocess.check_output
     origin = output(['git', '-C', str(root), 'remote', 'get-url', 'origin'], text=True).strip()
     if origin.removesuffix('.git') != 'https://github.com/' + repository:
         raise ValueError('Origin does not match custody repository')
-    custody = json.loads((root / 'manifest/local-source-custody.json').read_text())
-    if not isinstance(custody, dict) or custody.get('schema') != 1 or not isinstance(custody.get('sources'), list):
-        raise ValueError('Invalid custody schema')
+    spec = importlib.util.spec_from_file_location('custody_parity_loader', Path(__file__).with_name('check_parity.py'))
+    parity = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(parity)
+    custody = parity.load_custody(root)
+    if custody is None:
+        raise ValueError('Missing custody declaration')
     records = []
     paths = set()
     for entry in custody['sources']:

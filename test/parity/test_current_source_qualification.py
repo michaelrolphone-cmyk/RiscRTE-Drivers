@@ -120,4 +120,53 @@ class QualificationTests(unittest.TestCase):
     def test_other_package_diagnostic_not_resolved(self):
         self.trees['drivers']['other']='1'*40;r=self.audit();self.assertIn('source inventory mismatch: other',r['errors']);self.assertEqual(len(r['metadata_resolutions']),2)
 
+    def annotations(self):
+        for name, parity in [('current_manifest',False),('historical_manifest',True)]:
+            self.rewrite(name,dict(self.evidence[name],canonical_sha256='c'*64,canonical_size_bytes=123,byte_parity=parity))
+        self.rewrite('current_build',dict(self.evidence['current_build'],accepted_historical_sha256='c'*64,accepted_historical_size=123,byte_parity=False))
+    def test_generic_builder_annotations_bound_not_ignored(self):
+        self.annotations();r=self.audit();self.assertEqual(r['qualification_errors'],[]);self.assertEqual(len(r['metadata_resolutions']),2)
+    def test_invalid_annotation_values_and_extra_semantics_rejected(self):
+        self.annotations()
+        for name in ('current_manifest','historical_manifest'):
+            valid=json.loads((self.root/self.item['evidence'][name]['path']).read_text())
+            for key,value in [('canonical_sha256','f'*64),('canonical_size_bytes',124),('canonical_size_bytes',True),('byte_parity',1),('byte_parity',not valid['byte_parity']),('requires',['new semantic field'])]:
+                with self.subTest(name=name,key=key,value=value):self.rewrite(name,{**valid,key:value});self.reject()
+            for key in ('canonical_sha256','canonical_size_bytes','byte_parity'):
+                bad=copy.deepcopy(valid);del bad[key]
+                with self.subTest(name=name,missing=key):self.rewrite(name,bad);self.reject()
+            self.rewrite(name,valid)
+    def producer(self,content=None):
+        # An independent immutable synthetic producer, not current builder text.
+        source=self.src/'manifest.json';old=source.read_bytes();source.write_text(json.dumps(self.old_manifest));program=self.src/'program.c';current=program.read_bytes();program.write_text('old')
+        pth=self.root/'historical-builder.py';pth.write_text(content if content is not None else "OLD_HASH="+repr('c'*64)+"\nOLD_SIZE=123\n")
+        subprocess.run(['git','-C',str(self.root),'add','Drivers','historical-builder.py'],check=True)
+        subprocess.run(['git','-C',str(self.root),'-c','gc.auto=0','-c','maintenance.auto=false','-c','user.name=fixture','-c','user.email=fixture@example.invalid','commit','-qm','synthetic historical producer'],check=True)
+        commit=subprocess.check_output(['git','-C',str(self.root),'rev-parse','HEAD'],text=True).strip();blob=subprocess.check_output(['git','-C',str(self.root),'rev-parse',commit+':historical-builder.py'],text=True).strip()
+        source.write_bytes(old);program.write_bytes(current)
+        self.item['historical_acceptance']={'format':'python-literal-producer-lock-v1','commit':commit,'path':'historical-builder.py','blob':blob,'sha256':hashlib.sha256(pth.read_bytes()).hexdigest(),'constants':{'sha256':'OLD_HASH','size':'OLD_SIZE'}}
+        self.rewrite('historical_replay',dict(self.evidence['historical_replay'],historical_build_commit=commit))
+        self.released['example']={'id':'example','version':'2.0.0','sha256':'f'*64,'size':999}
+        return pth
+    def test_original_producer_lock_separate_from_new_release_index(self):
+        self.producer();self.annotations()
+        # Keep the producer pin when decorating current evidence.
+        r=self.audit();self.assertFalse(r['qualification_errors']);self.assertEqual(len(r['metadata_resolutions']),2)
+        self.assertIn('released version mismatch: example',r['errors']);self.assertIn('example: conflict source drift (preserve/reconcile local edits)',r['errors'])
+    def test_mutable_builder_cannot_replace_immutable_acceptance(self):
+        path=self.producer();path.write_text("OLD_HASH="+repr('f'*64)+"\nOLD_SIZE=999\n")
+        r=self.audit();self.assertFalse(r['qualification_errors'])
+        self.item['historical']['sha256']='f'*64;self.reject()
+    def test_producer_missing_changed_wrong_pins_rejected(self):
+        self.producer();ref=copy.deepcopy(self.item['historical_acceptance'])
+        for key,value in [('commit','0'*40),('path','missing.py'),('path','../escape'),('blob','0'*40),('sha256','0'*64),('format','unknown')]:
+            with self.subTest(key=key):self.item['historical_acceptance']={**ref,key:value};self.reject()
+        self.item['historical_acceptance']=ref
+        self.rewrite('historical_replay',dict(self.evidence['historical_replay'],historical_build_commit='1'*40));self.reject()
+    def test_producer_literal_contract_rejects_ambiguous_assignments(self):
+        variants=["OLD_HASH="+repr('c'*64)+"\n", "OLD_HASH='c'*64\nOLD_SIZE=123\n", "OLD_HASH="+repr('c'*64)+"\nOLD_SIZE=123\nOLD_SIZE=123\n", "OLD_HASH="+repr('c'*64)+"\nOLD_SIZE: int=123\n", "OLD_HASH="+repr('c'*64)+"\nOLD_SIZE=123\nif False: OLD_SIZE=9\n", "OLD_HASH="+repr('c'*64)+"\nOLD_SIZE=True\n", "this is not Python !"]
+        for content in variants:
+            with self.subTest(content=content):
+                self.producer(content);self.reject()
+
 if __name__=='__main__':unittest.main()
