@@ -8,7 +8,7 @@ import unittest
 import yaml
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
-from verify_usb_hid_preservation import preserved_bytes
+from verify_usb_hid_preservation import preserved_bytes, verify_manifest
 
 BASE = 'a7ae39994603c4545a3c014f09051ecfc12084d2'
 class CandidateRoutes(unittest.TestCase):
@@ -17,7 +17,8 @@ class CandidateRoutes(unittest.TestCase):
             path = f'scripts/build_{driver}.py'
             expected = subprocess.check_output(['git', '-C', str(ROOT), 'show', BASE+':'+path])
             self.assertEqual((ROOT/path).read_bytes(), expected)
-        self.assertEqual(subprocess.check_output(['git', '-C', str(ROOT), 'diff', BASE, '--', 'dist', 'release', 'manifest', ':(exclude)manifest/released-drivers.json']), b'')
+        self.assertEqual(subprocess.check_output(['git', '-C', str(ROOT), 'diff', BASE, '--', 'dist', 'release']), b'')
+        verify_manifest(ROOT, BASE)
         path = 'manifest/released-drivers.json'
         baseline = subprocess.check_output(['git', '-C', str(ROOT), 'show', BASE+':'+path])
         # Share the exact allowed addition and canonical serialization checks with
