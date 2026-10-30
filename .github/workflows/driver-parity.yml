@@ -91,6 +91,87 @@ jobs:
             test/drivers/usb_cdc_v2_test.c -ldl -o /tmp/usb-cdc-acm-v2-test
           /tmp/usb-cdc-acm-v2-test /tmp/usb-cdc-acm-v2.so
       - run: python scripts/build_usb_cdc_acm_v2.py
+      - name: Read pinned ordinary serial consumer sources (not native Runtime)
+        uses: actions/checkout@v4
+        with:
+          repository: michaelrolphone-cmyk/T5S3-Reader
+          ref: 9c8783d6f20659a514bfaeb3847a77c7213dc4f6
+          path: .source/cdc-reader
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /lib/NativeApps/include/RiscRteLocationRecords.h
+            /lib/NativeApps/include/T5AppApi.h
+            /lib/NativeApps/include/T5PackageResourceApi.h
+            /lib/NativeApps/include/T5SerialPortApi.h
+            /lib/NativeApps/include/T5StreamApi.h
+            /lib/hal/RuntimeFaultRetention.h
+            /lib/hal/StorageGeneration.h
+            /sdk/driver/RiscPackageResourcesV1.h
+            /src/native/NativeSerialPortBridge.cpp
+            /src/native/NativeSerialPortBridge.h
+            /src/native/NativeSerialPortBridge_implementation.inc
+            /src/native/NativeStreamBridge.cpp
+            /src/native/NativeStreamBridge.h
+            /src/native/NativeStreamBridge.p1.inc
+            /src/native/NativeStreamBridge.p2.inc
+            /src/native/NativeStreamBridge.p3.inc
+            /src/native/NativeStreamBridge.p4.inc
+            /src/network/HttpDownloader.h
+            /src/runtime/capabilities/CapabilityAccess.h
+            /src/runtime/capabilities/DeviceRegistry.h
+            /src/runtime/capabilities/GnssStreamAuthority.h
+            /src/runtime/capabilities/ProviderDevicePublisher.h
+            /src/runtime/capabilities/SerialProviderDevices.h
+            /src/runtime/capabilities/SerialProviderRegistry.h
+            /src/runtime/drivers/InstalledProviderGraph.h
+            /src/runtime/drivers/InstalledSerialInventory.h
+            /src/runtime/drivers/InstalledSerialSession.h
+            /src/runtime/drivers/ProviderGraphV2.cpp
+            /src/runtime/drivers/ProviderGraphV2.h
+            /src/runtime/drivers/ProviderModuleV2.cpp
+            /src/runtime/drivers/ProviderModuleV2.h
+            /src/runtime/drivers/ProviderOwnedSpecV2.h
+            /src/runtime/packages/PackageCdcLineage.h
+            /src/runtime/packages/PackageIdentity.h
+            /src/runtime/packages/PackageJsonGuard.h
+            /src/runtime/packages/PackageOrdinaryManifest.h
+            /src/runtime/packages/PackageOrdinaryStage.h
+            /src/runtime/packages/PackageOrdinaryTransaction.h
+            /src/runtime/packages/PackagePreflight.h
+            /src/runtime/packages/PackageResourcePath.h
+            /src/runtime/packages/PackageUseGate.h
+            /src/runtime/resources/ExecutionContext.h
+            /src/runtime/streams/CooperativeGnssProducer.h
+            /src/runtime/streams/GnssRecordAdapter.h
+            /src/runtime/streams/LiveGnssSession.h
+            /src/runtime/streams/LocationLeaseBinding.h
+            /src/runtime/streams/LocationPositionSubscriptions.h
+            /src/runtime/streams/RecordQueue.h
+            /src/runtime/streams/StreamRuntime.cpp
+            /src/runtime/streams/StreamRuntime.h
+            /test/drivers/installed_serial_inventory_test.cpp
+            /test/drivers/mock_usb_witness_controller_elf.c
+            /test/drivers/stubs/esp_dlfcn.h
+            /test/drivers/usb_witness_provider_graph_test.cpp
+            /test/drivers/witness_controller_fixture.h
+            /test/streams/stubs/Arduino.h
+            /test/streams/stubs/HalStorage.h
+            /test/streams/stubs/freertos/FreeRTOS.h
+            /test/streams/stubs/freertos/semphr.h
+            /test/streams/stubs/freertos/task.h
+      - name: Qualify distinct ordinary CDC through actual installed streams and checked host
+        run: |
+          mkdir -p dist/usb-cdc-acm-ordinary-candidate
+          python test/run_cdc_ordinary.py --reader-root .source/cdc-reader --mode normal --receipt dist/usb-cdc-acm-ordinary-candidate/consumer-normal.json
+          python test/run_cdc_ordinary.py --reader-root .source/cdc-reader --mode sanitized --receipt dist/usb-cdc-acm-ordinary-candidate/consumer-sanitized.json
+      - name: Build separate ordinary CDC candidate with current provenance
+        run: python scripts/build_usb_cdc_stream.py
+      - name: Retain ordinary CDC candidate and exact consumer evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: usb-cdc-acm-ordinary-candidate
+          path: dist/usb-cdc-acm-ordinary-candidate
       - name: Test preserved historical usb-ch34x-v2 matching, serial control and lifecycle
         run: |
           git show 6b2dc3c8e1f685d6fdaba58d04a763378f524b1b:driver.c > /tmp/historical-usb-ch34x-v2.c

@@ -1,0 +1,256 @@
+{
+  "repository": "michaelrolphone-cmyk/T5S3-Reader",
+  "commit": "9c8783d6f20659a514bfaeb3847a77c7213dc4f6",
+  "scope": "pinned historical ordinary consumer and host fixtures; not current native Runtime",
+  "files": {
+    "lib/NativeApps/include/RiscRteLocationRecords.h": {
+      "git_blob": "f7dab9a4cd579550fa3dd391c022cd9df8a0e633",
+      "sha256": "ed5e1b8665f75602433a0d72aaeb5f5ba472cad054957854e56c190ae3b96a81"
+    },
+    "lib/NativeApps/include/T5AppApi.h": {
+      "git_blob": "b5d5cc0162aa6c5caa055563b928c8ceaf3e5cfd",
+      "sha256": "eb0acebe0b1a151916b9f05afd98025e8e516c251337b8fe48fd3961bd58a981"
+    },
+    "lib/NativeApps/include/T5PackageResourceApi.h": {
+      "git_blob": "c96f4ac818600371ef291d5525c2c5df9efe6b88",
+      "sha256": "121a2720290cecc769fefd9d8b0456e426c7e0dda0ec12231e71af715a65dac9"
+    },
+    "lib/NativeApps/include/T5SerialPortApi.h": {
+      "git_blob": "c159ffa53da64381376621ae5fb66bc0fb16dbb1",
+      "sha256": "36fdedb9776220ddf9a4201ca292cc597aaea9703d3ca05737e2a161eb38529f"
+    },
+    "lib/NativeApps/include/T5StreamApi.h": {
+      "git_blob": "12538cd6a097b0f23685d7dbc82c2a9e4211fde3",
+      "sha256": "9f087d8f5446da8ae34b9815ca231285473fbbba0ad43dc6c367208126b554c5"
+    },
+    "lib/hal/RuntimeFaultRetention.h": {
+      "git_blob": "b66c4d542da67cb91cd5bfc81a63535690970128",
+      "sha256": "f44b9a1390a0a8d639a7183956d0bd063c213ee8054eff694c4ca26bfc921128"
+    },
+    "lib/hal/StorageGeneration.h": {
+      "git_blob": "7f23ac2367d2a5f538294104c62a9c15655a0f34",
+      "sha256": "b0f61f618d814ac07c699fb83040d3909a7554b79b0a6d16d21e52e95c30efd5"
+    },
+    "sdk/driver/RiscPackageResourcesV1.h": {
+      "git_blob": "c80cc6d7114cebcb600959f8c22ccd8d8b6a626b",
+      "sha256": "8aff53415cf68a46e8e492dd02d12bde802ce2a1d69629dd4f3b0aad5794e459"
+    },
+    "src/native/NativeSerialPortBridge.cpp": {
+      "git_blob": "c02feffc507d28e9f9f9218dad039ad233c63af4",
+      "sha256": "2a91a042737b14d3f5fd4e73955704388980030f09b063d0975ff0846b3a228d"
+    },
+    "src/native/NativeSerialPortBridge.h": {
+      "git_blob": "1046a758aa035bae60b6e3f45d5de86d453bc5ca",
+      "sha256": "cd3b2f24586f47d30a731ca799e3518caf9ae90bd968e8cecc6df766fd32088f"
+    },
+    "src/native/NativeSerialPortBridge_implementation.inc": {
+      "git_blob": "3352d1ec321dcc5dde24286114e81eee3ecc0689",
+      "sha256": "bebfd38a36ce6464fb37854c1394a042cdd8c4a8d4d23b911607a459296cf9b8"
+    },
+    "src/native/NativeStreamBridge.cpp": {
+      "git_blob": "c0cf511d38da32beeb8ffb15a37aeb47ec618b3b",
+      "sha256": "f41de8d18e2a25e69accca9b190fa0bfc2208a148cf0b1247652cef499c814e3"
+    },
+    "src/native/NativeStreamBridge.h": {
+      "git_blob": "67f4b6583536fbc5aec6f87be1bb3a8dbe577d74",
+      "sha256": "b81a86f765729f43425e33e86a6129aea39edc11bd3834f9f64f8c79b916ce96"
+    },
+    "src/native/NativeStreamBridge.p1.inc": {
+      "git_blob": "d37c6d88849f8deb0a838f2edcdb4fef203f25d0",
+      "sha256": "dbe507addd7761bbf4ab04548366a0c051304c4071450a701458550f7f7a7d64"
+    },
+    "src/native/NativeStreamBridge.p2.inc": {
+      "git_blob": "f990b229696b5d6c190aa2f38f7ee03d9a01b55f",
+      "sha256": "56bb14d78f6e8a94fc24e314baa298e25479cc7ceee1bf4cbeaba6b0810dc94d"
+    },
+    "src/native/NativeStreamBridge.p3.inc": {
+      "git_blob": "1b704d561d892ae5fe0e5e9dfce5d4f25114b052",
+      "sha256": "1224d38635da03ee3f385fda59282af77a097b1c88f5b14e606130d6a80d5317"
+    },
+    "src/native/NativeStreamBridge.p4.inc": {
+      "git_blob": "9ba372393ee53dd68adaaa219dcc8b60995941c9",
+      "sha256": "c17761ba5d229d0a4dcb141a26e3ae2ea4bdac1d68a7588f8a8cc11e5322ca3d"
+    },
+    "src/network/HttpDownloader.h": {
+      "git_blob": "6e0d0887ff192199c232d015f6a72329b8b568bf",
+      "sha256": "329583cca5166e91c67579aa80202d52080532c64196e071e8ba373cf6d6edc3"
+    },
+    "src/runtime/capabilities/CapabilityAccess.h": {
+      "git_blob": "09d01153c398c641a7083106dc3f4f686c6842e7",
+      "sha256": "e0ff09188fa44cef2431f9ffe1988114dc1e084549b86e666b8faf926c57e5bd"
+    },
+    "src/runtime/capabilities/DeviceRegistry.h": {
+      "git_blob": "c74757f3aba52c62d7a4e9120a32a665cfd8bbb2",
+      "sha256": "bafbcedd13267d7c73f1318684688ad626776f1a8cccdcaa6c3c0db7adf65b0e"
+    },
+    "src/runtime/capabilities/GnssStreamAuthority.h": {
+      "git_blob": "ea4af276a3ce1cdef63d345f3b0e67756b586c47",
+      "sha256": "06ed92754b15bd34164ed221ff05f7d4bf20e71d9fdcc03fa4bd3c93b80f2259"
+    },
+    "src/runtime/capabilities/ProviderDevicePublisher.h": {
+      "git_blob": "785fb4e7e71b53951db7a5d5a759ac17bcb1e805",
+      "sha256": "eb3cde3c19e8c8994977aa201a7240aac656681a943078e3e148d93917371c2f"
+    },
+    "src/runtime/capabilities/SerialProviderDevices.h": {
+      "git_blob": "eaf26551b91669b025f7a4383f77afff29c77bfd",
+      "sha256": "f13ba857d4f00520100d004c638cf92c016415a8328ccb55bb7ce990e598aa71"
+    },
+    "src/runtime/capabilities/SerialProviderRegistry.h": {
+      "git_blob": "1da6f5624f9a39fa9ccb148f3f5bafe9ff7629a5",
+      "sha256": "d20eba36d0bda6f371ee83b56e8afb8b740dc2f6cec633d4f8bcb152d5d8486e"
+    },
+    "src/runtime/drivers/InstalledProviderGraph.h": {
+      "git_blob": "27b542360497634b231bcabdb98394e5cf205a94",
+      "sha256": "12c438435d2f12eb97e1bd3c85fbced2bdd93a5a6154a74cddc1fd5ca0a52d2a"
+    },
+    "src/runtime/drivers/InstalledSerialInventory.h": {
+      "git_blob": "380e1528e8cff563a11de1dd9c687fef05dc6a42",
+      "sha256": "8ea510cac8335484063872e4fc7e292737b602be6ca7a8164d8395122efe2be2"
+    },
+    "src/runtime/drivers/InstalledSerialSession.h": {
+      "git_blob": "f02585d0f1773e852b76c9d1ecc1593f1e8e0a16",
+      "sha256": "8f88c13eee61c9bddd45c29cb9fa73aa95da87c6750e6027a92d41dbf5bf4e7a"
+    },
+    "src/runtime/drivers/ProviderGraphV2.cpp": {
+      "git_blob": "460f8aacd3d3a86c31ea61df5632b0cacd0cac57",
+      "sha256": "50cf8f876e966a064e188ff438df2241b34f0568fb145b859180640f353e7efd"
+    },
+    "src/runtime/drivers/ProviderGraphV2.h": {
+      "git_blob": "f6df926daa612f01b7abdabc436afdb2547bfb73",
+      "sha256": "ad6c166a5990a3307211b7be1e1d06ceaf80b6108830a60638fcf182b45df145"
+    },
+    "src/runtime/drivers/ProviderModuleV2.cpp": {
+      "git_blob": "5de1ef4b66a9103a2a4aa7d9e3d4979861138996",
+      "sha256": "54f0c85b0d4a36414f15fe54d7b9e0b3ee41e817e0881acfa3479894001cbe0b"
+    },
+    "src/runtime/drivers/ProviderModuleV2.h": {
+      "git_blob": "30c3d58bdde7863e60e0d2c0774223f1c1eba703",
+      "sha256": "6e2f15c39a06d7e677ede43890d8949e84a9cd34a66471f25c70a17c00f585a9"
+    },
+    "src/runtime/drivers/ProviderOwnedSpecV2.h": {
+      "git_blob": "90d2d297adac2ebfe1484b01bfe74edbb8c59fbd",
+      "sha256": "5de372a8a45f5deacfcefb2ce345675c85cbe728f9bc54e409aa64c4a49708e6"
+    },
+    "src/runtime/packages/PackageCdcLineage.h": {
+      "git_blob": "f161bb705e79a6a75900205aa3cbf405a2dd0d88",
+      "sha256": "4284d5765085268decd62b1689ff95f2df450e1a328bb25e3c546b3227ccbb7e"
+    },
+    "src/runtime/packages/PackageIdentity.h": {
+      "git_blob": "e8c8146acd7bb9ee96c6b39aa6b1d830eaf44d79",
+      "sha256": "b9438c33b9575f1198cbe0a32a408f6960a4c3b56724e4828e6b632e35aa8204"
+    },
+    "src/runtime/packages/PackageJsonGuard.h": {
+      "git_blob": "47c49657b03baad3cb0040d4da4027c1fd6bc3ed",
+      "sha256": "4ac3f21b49a8f224fcf8b73e4748ae505aaefa714b213d90a4b2905bf7f88137"
+    },
+    "src/runtime/packages/PackageOrdinaryManifest.h": {
+      "git_blob": "2bcef4c14bf1c491d660d762762024bc0700b54c",
+      "sha256": "cb70ce5a7d612edbe3b51c53666edb1b3376a6d135c399d2a8da6c55cae76cd9"
+    },
+    "src/runtime/packages/PackageOrdinaryStage.h": {
+      "git_blob": "1428e325ecb7877a02529a779fcb92f3f3a68a6c",
+      "sha256": "24be610fca48e3cfce483d393253870bd82fae6cdd8f9063e073fbf009041d8f"
+    },
+    "src/runtime/packages/PackageOrdinaryTransaction.h": {
+      "git_blob": "e9aefecc9d7c21d7bf30e8131befb9fa479e1c80",
+      "sha256": "f0f859352f7c20a49310dae58e4ab26193b95b403b1026741ec44b106107a4b3"
+    },
+    "src/runtime/packages/PackagePreflight.h": {
+      "git_blob": "ea56d0e2a49c441a88f4da704ce0e192e7568f87",
+      "sha256": "9a4fbdcbac724255103fb483499a3bb7032ed711e5f8e36dd413aa9e29203f62"
+    },
+    "src/runtime/packages/PackageResourcePath.h": {
+      "git_blob": "29d3918a8d256643b99d7e2730c181fdae6c8aed",
+      "sha256": "adc2edccb75e2105b7a5847f1f68aca702f1eecec9c456d3532127b2de55e1ea"
+    },
+    "src/runtime/packages/PackageUseGate.h": {
+      "git_blob": "faa2f25e39137a9a12b9595cc7c021b40ab26bf3",
+      "sha256": "e2c55050fa453fcafa2eda755ecaa1ba34e7c34783b02b976aa4392cffa94ac3"
+    },
+    "src/runtime/resources/ExecutionContext.h": {
+      "git_blob": "ef24c9f591764260ff8ab57070a84b2ef09ab5fb",
+      "sha256": "5f02f8055860a38ed7af965837ed9d57dd967715b6e6dec2064492d27d195a45"
+    },
+    "src/runtime/streams/CooperativeGnssProducer.h": {
+      "git_blob": "b41d9d1a344c43ea944ccdca149d66997829f108",
+      "sha256": "cb71127e2163a2bc15e26c684db3153a11b16aa2e4c527d644290e261d72635a"
+    },
+    "src/runtime/streams/GnssRecordAdapter.h": {
+      "git_blob": "91c387d2dbc392eac479910a68658a3fd35cb5de",
+      "sha256": "85d5430c9df214ffbca658746d7dee1c2a2567c3719f3cc22acd37361d6dccdb"
+    },
+    "src/runtime/streams/LiveGnssSession.h": {
+      "git_blob": "6f7d000d797c71a3ed4636cd082e7d4abf050885",
+      "sha256": "af4c6c4122963f580d156f6c364d8f48745ed28b987e56d5a5b60fb5d593f19f"
+    },
+    "src/runtime/streams/LocationLeaseBinding.h": {
+      "git_blob": "2926b9b88273dd7cadcab137d353f08a8de7aeaa",
+      "sha256": "77a70e5f2e63e9e0e5207e4d4047d4c5ad7a709b4b0a794f61a0dc43e4d433fe"
+    },
+    "src/runtime/streams/LocationPositionSubscriptions.h": {
+      "git_blob": "b21139d9c1d6eaa882a60a17a31b396973ad01a4",
+      "sha256": "c28f5add350e9935a1ab1b29e546c679ad19512ae04540013b1ae364428c7603"
+    },
+    "src/runtime/streams/RecordQueue.h": {
+      "git_blob": "59b426ede90459d839dc42725dce1d38cebd37b0",
+      "sha256": "cb0e5403ca2a7d4e017e1e4936488876a0e090b71684c88c9575c786a75b9ff9"
+    },
+    "src/runtime/streams/StreamRuntime.cpp": {
+      "git_blob": "fc7b0d332989c8d92b88465a2f78cd460daf7e79",
+      "sha256": "b311924a48e64964443702ed6a7484be793ad4056e6a21e6256d7a81f2d5116a"
+    },
+    "src/runtime/streams/StreamRuntime.h": {
+      "git_blob": "6e1a58bf1a49036a042c1fd56a14f629ad338718",
+      "sha256": "7dc3d8fe49f603fd495218edcd03c245afa8b69f4ec99f6b319c404bc204b166"
+    },
+    "test/drivers/installed_serial_inventory_test.cpp": {
+      "git_blob": "ff4eb9044dc83a84d48a83624d8392e535897fb6",
+      "sha256": "b8020f52717cf589c8ab014503a4e0186016f712e8a3ff6d3c9ca188d53e494a"
+    },
+    "test/drivers/mock_usb_witness_controller_elf.c": {
+      "git_blob": "8514f6ddfb2543fc52f4471446db00d36fd122a5",
+      "sha256": "5748cb11909327842e0a1cec6ac43351703b61a2b3fb21cbff1117e3391793dd"
+    },
+    "test/drivers/stubs/esp_dlfcn.h": {
+      "git_blob": "405089f666b7abf1276e2bb704424b2a8f4e9205",
+      "sha256": "45cc5d82bc19154165e25c2caffc954d22c841adea1ac65cca08b0dbf4cdb657"
+    },
+    "test/drivers/usb_witness_provider_graph_test.cpp": {
+      "git_blob": "6d001ac599659b0ddefeaec14ab48667c6ef11b7",
+      "sha256": "7df3dc0f580e10b21aaafd4afa08dcfacf5be78f695de39b3848247f917e5317"
+    },
+    "test/drivers/witness_controller_fixture.h": {
+      "git_blob": "6049056fe116fe6a3deff874681bda4403e161d8",
+      "sha256": "2cd5d5707388d38a118e5216c4ed14438d1220c949d94add24e46d0b24e688da"
+    },
+    "test/streams/stubs/Arduino.h": {
+      "git_blob": "bb14a6dc28cfc08a0c3e2fef6ab86f41122d11a6",
+      "sha256": "37fc71a7c1aebf788e1801f034e003cf14420c33d97e623ca8ae8d21beba0ce7"
+    },
+    "test/streams/stubs/HalStorage.h": {
+      "git_blob": "9791971e38cb365d708a3f2914c1b75584f485a1",
+      "sha256": "b778bb782ba368e9d2b7ba2a1b956707acab2f56042539d5430c1787576aa61b"
+    },
+    "test/streams/stubs/freertos/FreeRTOS.h": {
+      "git_blob": "8b40c26e94409a2c369fb5e8cd1408f090dbf125",
+      "sha256": "c548f830e91b8fd59a6a4ce5d08c0e719fe46a27dee03c9365e992c7ccd89e3a"
+    },
+    "test/streams/stubs/freertos/semphr.h": {
+      "git_blob": "177c9733a0bc04dbe30d4cf823ae7ae9f748f5ae",
+      "sha256": "b3962ed5099d3b5080d1b2050319b72146dbdbec64f2423ff38bbf03e119a0b0"
+    },
+    "test/streams/stubs/freertos/task.h": {
+      "git_blob": "39a52e7c53b1a94870d102642dac285ae2f9affb",
+      "sha256": "fd936d9cdffac070c84aaccf3a9d9c234aacc3e0601f2b66d2317d36799e6129"
+    }
+  },
+  "sdk_additions": [
+    "RiscPackageResourcesV1.h"
+  ],
+  "current_sdk_headers": [
+    "RiscProviderV2.h",
+    "RiscSerialPortV1.h",
+    "RiscStreamProviderV1.h",
+    "T5GpsApi.h"
+  ]
+}
