@@ -321,7 +321,143 @@ def verify_observation(expected, actual):
     return []
 
 
-def validate(root, inventory, trees, source, released, head, release, custody=None, imported_support=None, support_source=None):
+def pinned_file(root, path, sha256):
+    """Read a repository-relative, non-symlink evidence file at an exact digest."""
+    if not isinstance(path, str) or not path or path.startswith('/') or any(p in ('', '.', '..') for p in path.split('/')):
+        raise ValueError('invalid qualification evidence path')
+    if not isinstance(sha256, str) or not re.fullmatch(r'[0-9a-f]{64}', sha256):
+        raise ValueError('invalid qualification evidence digest')
+    target = root
+    for part in path.split('/'):
+        target = target / part
+        if target.is_symlink():
+            raise ValueError('symlink qualification evidence: ' + path)
+    data = target.read_bytes()
+    if hashlib.sha256(data).hexdigest() != sha256:
+        raise ValueError('qualification evidence changed: ' + path)
+    return data
+
+
+def qualify_sources(root, report, qualifications, inventory, released):
+    """Bind reviewed build evidence; resolve only historical/current metadata scope.
+
+    Neither local/upstream byte equality nor behavioral equivalence is inferred.
+    Hashes bind documentary evidence; they do not authenticate its author or CI.
+    """
+    report['legacy_diagnostics'] = list(report['errors'])
+    report['source_qualification_declarations'] = qualifications
+    report['metadata_resolutions'] = []
+    report['qualification_errors'] = []
+    if not isinstance(qualifications, dict) or qualifications.get('schema') != 1 or not isinstance(qualifications.get('sources'), list):
+        report['qualification_errors'].append('invalid current source qualification schema')
+        report['errors'].extend(report['qualification_errors'])
+        return
+    rows = report['current_source_observation']['rows']
+    by_id = {r['id']: r for r in rows}
+    counts = {}
+    for item in qualifications['sources']:
+        identity = item.get('id') if isinstance(item, dict) else None
+        if isinstance(identity, str):
+            counts[identity] = counts.get(identity, 0) + 1
+    for item in qualifications['sources']:
+        identity = item.get('id') if isinstance(item, dict) else None
+        try:
+            if not isinstance(identity, str) or counts[identity] != 1 or identity not in by_id:
+                raise ValueError('unknown or duplicate qualification identity')
+            row = by_id[identity]
+            local, upstream = row['local_declaration'], row['upstream_source']
+            if row['acquisition_error'] or not local or not upstream:
+                raise ValueError('unresolved source acquisition')
+            if item['path'] != local['source_path'] or item['tree_sha'] != row['local_tree']:
+                raise ValueError('qualified local path/tree changed')
+            if item['release_index_commit'] != report['release_index_commit']:
+                raise ValueError('qualified release-index observation changed')
+            if item['upstream'] != {'repository': report['source_repository'], 'commit': report['source_commit'],
+                                    'path': upstream['source_path'], 'version': upstream['version'], 'tree_sha': upstream['tree_sha']}:
+                raise ValueError('qualified upstream observation changed')
+            if not isinstance(item['attribution'], str) or not item['attribution'].strip() or not isinstance(item['rationale'], str) or not item['rationale'].strip() or not isinstance(item['limits'], list) or not item['limits'] or not all(isinstance(v, str) and v.strip() for v in item['limits']):
+                raise ValueError('qualification attribution/rationale/limits missing')
+            evidence = {name: json.loads(pinned_file(root, item['evidence'][name]['path'], item['evidence'][name]['sha256']))
+                        for name in ('current_build', 'current_manifest', 'historical_replay', 'historical_manifest')}
+            if not all(isinstance(value, dict) for value in evidence.values()):
+                raise ValueError('qualification evidence documents must be JSON objects')
+            current, artifact = evidence['current_build'], evidence['current_manifest']
+            history, old_artifact = evidence['historical_replay'], evidence['historical_manifest']
+            source_dir = root / item['path']
+            actual_manifest = json.loads((source_dir / 'manifest.json').read_text())
+            if actual_manifest['id'] != identity or actual_manifest['version'] != item['version'] or item['version'] != upstream['version']:
+                raise ValueError('current source identity/version mismatch')
+            actual_files = {str(p.relative_to(source_dir)): hashlib.sha256(p.read_bytes()).hexdigest()
+                            for p in source_dir.rglob('*') if p.is_file()}
+            if current['mode'] != 'current-source' or current['expected_version'] != item['version'] or current['source_files'] != actual_files:
+                raise ValueError('current build does not bind complete current source')
+            # Current build inputs changing invalidates that qualification even
+            # when the driver directory itself is unchanged.
+            if not isinstance(current['build_inputs'], dict) or not current['build_inputs']:
+                raise ValueError('current build input pins missing')
+            for path, digest in current['build_inputs'].items():
+                pinned_file(root, path, digest)
+            if {k: v for k, v in artifact.items() if k not in ('sha256', 'size_bytes')} != actual_manifest:
+                raise ValueError('current artifact/source manifest mismatch')
+            for receipt, manifest in ((current, artifact), (history, old_artifact)):
+                compiler_pins = (receipt['compiler_sha256'], receipt['libgcc']['sha256'], receipt['readelf']['sha256'])
+                if not all(isinstance(v, str) and re.fullmatch(r'[0-9a-f]{64}', v) for v in compiler_pins):
+                    raise ValueError('compiler/archive/inspection tool pins missing')
+                if not isinstance(receipt['compiler_version'], str) or not receipt['compiler_version'].strip() or not isinstance(receipt['command'], list) or not receipt['command'] or not all(isinstance(v, str) for v in receipt['command']):
+                    raise ValueError('build execution settings missing')
+                if receipt['actual_sha256'] != manifest['sha256'] or receipt['actual_size'] != manifest['size_bytes']:
+                    raise ValueError('artifact/build receipt mismatch')
+                if not isinstance(receipt['actual_sha256'], str) or not re.fullmatch(r'[0-9a-f]{64}', receipt['actual_sha256']) or type(receipt['actual_size']) is not int or receipt['actual_size'] <= 0:
+                    raise ValueError('invalid artifact identity')
+            historical = row['historical_release_declaration']
+            accepted = released.get(identity)
+            if not historical or not accepted or item['historical']['version'] != historical['version'] or accepted['version'] != historical['version']:
+                raise ValueError('historical release scope mismatch')
+            if item['historical'] != {'version': historical['version'], 'source_tree': row['recorded_baseline_tree'],
+                                      'sha256': accepted['sha256'], 'size': accepted['size']}:
+                raise ValueError('historical accepted identity changed')
+            if history['mode'] != 'historical' or history['source_tree'] != row['recorded_baseline_tree'] or history['expected_version'] != historical['version'] or history['byte_parity'] is not True:
+                raise ValueError('historical replay not established')
+            if (history['actual_sha256'], history['actual_size']) != (accepted['sha256'], accepted['size']):
+                raise ValueError('historical replay bytes differ from accepted release')
+            if (history['accepted_historical_sha256'], history['accepted_historical_size']) != (accepted['sha256'], accepted['size']):
+                raise ValueError('historical replay used a different lock')
+            old_files = history['source_files']
+            if not isinstance(old_files, dict) or 'manifest.json' not in old_files or not SHA.fullmatch(str(row['recorded_baseline_tree'])):
+                raise ValueError('historical source pins missing')
+            historical_paths = subprocess.check_output(['git', '-C', str(root), 'ls-tree', '-r', '--name-only', row['recorded_baseline_tree']], timeout=60).decode().splitlines()
+            if set(historical_paths) != set(old_files):
+                raise ValueError('historical source receipt coverage incomplete')
+            for path, digest in old_files.items():
+                if not isinstance(path, str) or path.startswith('/') or any(p in ('', '.', '..') for p in path.split('/')):
+                    raise ValueError('invalid historical source path')
+                data = subprocess.check_output(['git', '-C', str(root), 'show', row['recorded_baseline_tree'] + ':' + path], timeout=60)
+                if hashlib.sha256(data).hexdigest() != digest:
+                    raise ValueError('historical source receipt mismatch')
+            old_source_manifest = json.loads(subprocess.check_output(['git', '-C', str(root), 'show', row['recorded_baseline_tree'] + ':manifest.json'], timeout=60))
+            if not isinstance(old_source_manifest, dict):
+                raise ValueError('historical source manifest must be a JSON object')
+            if old_source_manifest.get('id') != identity or old_source_manifest.get('version') != historical['version']:
+                raise ValueError('historical source identity/version mismatch')
+            if {k: v for k, v in old_artifact.items() if k not in ('sha256', 'size_bytes')} != old_source_manifest:
+                raise ValueError('historical artifact/source manifest mismatch')
+            row['current_source_qualification'] = {'status': 'source-and-build-evidence-bound', 'declaration': item,
+                'evidence': evidence, 'behavioral_equivalence': 'not established',
+                'authentication': 'local bindings checked; external CI execution requires retained independent provenance review'}
+            row['migration_qualification'] = 'current source/build and historical replay evidence bound; conflict and behavioral limits retained'
+            # Retain the old tree as historical, not a stale current baseline.
+            for diagnostic in ('source version mismatch: ' + identity, identity + ': recorded source tree needs refresh'):
+                if diagnostic in report['errors']:
+                    report['errors'].remove(diagnostic)
+                    report['metadata_resolutions'].append({'diagnostic': diagnostic, 'id': identity,
+                        'scope': 'qualified current source distinguished from immutable historical release/source baseline',
+                        'qualification': item})
+        except (KeyError, TypeError, ValueError, OSError, subprocess.SubprocessError) as exc:
+            report['qualification_errors'].append('current source qualification failed for ' + str(identity) + ': ' + str(exc))
+    report['errors'].extend(report['qualification_errors'])
+
+
+def validate(root, inventory, trees, source, released, head, release, custody=None, qualifications=None, imported_support=None, support_source=None):
     entries = unique(inventory['drivers'] + inventory.get('source_only_drivers', []), 'local')
     local_released = unique(inventory['drivers'], 'local released')
     errors, rows, paths = [], [], set()
@@ -401,6 +537,8 @@ def validate(root, inventory, trees, source, released, head, release, custody=No
         report['current_source_observation']['imported_support'] = imported_rows
         report['current_source_observation']['imported_support_declaration'] = imported_support
         report['current_source_observation']['imported_support_errors'] = imported_errors
+    if qualifications is not None:
+        qualify_sources(root, report, qualifications, inventory, released)
     return report
 
 
@@ -421,9 +559,15 @@ def main():
             args.source_ref, args.release_ref or origin['branch'], origin['path'])
         custody_path = ROOT / 'manifest/local-source-custody.json'
         custody = json.loads(custody_path.read_text()) if custody_path.exists() else None
+        qualification_path = ROOT / 'qualification/current-sources.json'
+        if qualification_path.is_symlink():
+            raise ValueError('symlink current source qualification file')
+        qualifications = json.loads(qualification_path.read_text()) if qualification_path.exists() else None
+        if qualification_path.exists() and qualifications is None:
+            raise ValueError('invalid current source qualification schema')
         imported_path = ROOT / 'qualification/imported-support.json'
         imported = json.loads(imported_path.read_text()) if imported_path.exists() else None
-        report = validate(ROOT, inventory, trees, source, released, head, release, custody, imported, Source(origin['repository'], args.reader))
+        report = validate(ROOT, inventory, trees, source, released, head, release, custody, qualifications, imported, Source(origin['repository'], args.reader))
         if args.expected_observation:
             expected = json.loads(args.expected_observation.read_text())
             report['errors'].extend(verify_observation(expected, report['current_source_observation']))

@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "sources": [
+    {
+      "id": "platform-clock-v1",
+      "path": "Drivers/platform_clock_v1",
+      "version": "0.1.1",
+      "tree_sha": "5ab67d06a8da92d6b9b4448d6eae19b3f979784d",
+      "release_index_commit": "19bb3dcb5cb763c4eacd884ad5fc0bcab57ff2ed",
+      "upstream": {
+        "repository": "michaelrolphone-cmyk/T5S3-Reader",
+        "commit": "9c8783d6f20659a514bfaeb3847a77c7213dc4f6",
+        "path": "Drivers/platform_clock_v1",
+        "version": "0.1.1",
+        "tree_sha": "a897b1b3f64b578b600d0024814e06d46da6b6ea"
+      },
+      "historical": {
+        "version": "0.1.0",
+        "source_tree": "594a3affe76fb840c81edc7fa9f09eca645a894f",
+        "sha256": "a5231d3f21931261b10ae82a3e16248d60a678aa6ebc67b61cb702491d6a0ece",
+        "size": 29544
+      },
+      "evidence": {
+        "current_manifest": {
+          "path": "qualification/evidence/platform-clock-v1/current_manifest.json",
+          "sha256": "13cc11f17f900a1811d420699da3c0b581df9f68cd547d13200180c2d32c7e71"
+        },
+        "current_build": {
+          "path": "qualification/evidence/platform-clock-v1/current_build.json",
+          "sha256": "91910c44ed377b2fc2722a550d662f983bdabfe0590050846086d0f7007b0c86"
+        },
+        "historical_manifest": {
+          "path": "qualification/evidence/platform-clock-v1/historical_manifest.json",
+          "sha256": "c952c2072f7c30c27c1482541d101014c3b93e7f5465ebafb71a87799cb3c399"
+        },
+        "historical_replay": {
+          "path": "qualification/evidence/platform-clock-v1/historical_replay.json",
+          "sha256": "c6f85f856ee2df814b11b03f89fdbac8c68947bd2368bfdc28171ae176e6f081"
+        }
+      },
+      "attribution": "Tasker source/release reconciliation task0224; exact hosted qualification independently checked by coordinator; metadata linkage technical review pending",
+      "rationale": "Current0.1.1 ordinary-ELF guard is separately qualified; historical0.1.0 release/tree remain immutable. Local upstream comment correction avoids claiming all native firmware uses time32. No runtime equivalence inferred.",
+      "limits": [
+        "Only current source/build evidence and historical accepted-byte replay are bound.",
+        "Current tree differs from upstream; conflict remains unresolved by this metadata linkage.",
+        "No hardware/runtime behavioral equivalence or complete toolchain closure claim.",
+        "Evidence hashes establish local bindings, not cryptographic authentication of hosted CI execution."
+      ],
+      "hosted_provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "source_commit": "bea07858b9f7e53f36a4b9e6f2241990b8bf832c",
+        "current_artifact_id": 12946122256,
+        "historical_artifact_id": 12945873108
+      }
+    }
+  ]
+}
