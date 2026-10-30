@@ -3,7 +3,7 @@ from execution_source_inputs import validated_inputs
 from pathlib import Path
 import hashlib,re
 EXPECTED=['save','cold-load','light-draft','alarm-draft','quick-shared','quick-retained']
-FIXTURES={'scripts/test_badge_timecard_execution.py','tests/badge_timecard_execution.cpp','tests/badge_timecard_execution.h','tests/badge_timecard_execution.inc','tests/badge_alarm_execution.inc','tests/badge_quick_execution.inc','tests/badge_wifi_execution.inc'}
+FIXTURES={'scripts/test_badge_timecard_execution.py','tests/badge_timecard_execution.cpp','tests/badge_timecard_execution.h','tests/badge_points_execution.h','tests/badge_points_execution.inc','tests/badge_timecard_execution.inc','tests/badge_alarm_execution.inc','tests/badge_quick_execution.inc','tests/badge_wifi_execution.inc'}
 def require(ok,message):
  if not ok:raise ValueError(message)
 def qualify_timecard(built,r,sanitize,files,target_build_sha,root,verify_sources=True):
