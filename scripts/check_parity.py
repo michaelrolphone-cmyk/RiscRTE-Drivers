@@ -213,6 +213,78 @@ def validate_custody(root, custody, occupied_paths, package_ids):
     return rows, errors
 
 
+def current_observation(root, inventory, trees, source, released, head, release, custody_rows=(), original_rows=(), custody=None):
+    """Separate current source observations from retained release declarations.
+
+    'imported' means exact directory bytes/modes only; 'variant' does not assert
+    intent, safety or completion. No observation updates an accepted-byte lock.
+    """
+    entries = unique(inventory['drivers'] + inventory.get('source_only_drivers', []), 'local')
+    historical = unique(inventory['drivers'], 'local released')
+    rows = []
+    path_counts = {}
+    for entry in entries.values():
+        path = entry.get('source_path')
+        if isinstance(path, str):
+            path_counts[path] = path_counts.get(path, 0) + 1
+    for identity in sorted(set(entries) | set(source) | set(released) | set(trees['drivers'])):
+        local, upstream = entries.get(identity), source.get(identity)
+        actual, problem = None, None
+        if local:
+            path = local.get('source_path', '')
+            if not isinstance(path, str) or not re.fullmatch(r'Drivers/[A-Za-z0-9_-]+', path):
+                problem = 'invalid local source path'
+            elif path_counts[path] != 1:
+                problem = 'duplicate local source path'
+            else:
+                try:
+                    actual = local_tree(root / path)
+                except (OSError, ValueError) as exc:
+                    problem = str(exc)
+        if problem:
+            status = 'unresolved'
+        elif not local or actual is None:
+            status = 'missing_local' if upstream else 'unresolved'
+        elif not upstream:
+            status = 'upstream_absent'
+        elif actual == upstream['tree_sha'] and local.get('source_path') == upstream.get('source_path'):
+            status = 'imported'
+        else:
+            status = 'variant'
+        rows.append({'id': identity, 'status': status,
+                     'local_declaration': local, 'local_tree': actual,
+                     'upstream_source': upstream,
+                     'historical_release_declaration': historical.get(identity),
+                     'observed_upstream_release': released.get(identity),
+                     'recorded_baseline_tree': trees['drivers'].get(identity),
+                     'directory_drift_resolved': status == 'imported',
+                     'path_matches_upstream': local.get('source_path') == upstream.get('source_path') if local and upstream else None,
+                     'bytes_match_upstream': actual == upstream['tree_sha'] if actual and upstream else None,
+                     'migration_qualification': 'unknown; SDK, ABI, build and behavior not qualified here',
+                     'intent_and_behavior': 'not established by tree comparison',
+                     'acquisition_error': problem})
+    locks = {}
+    for name in ('released-drivers.json', 'source-trees.json'):
+        path = root / 'manifest' / name
+        locks[name] = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
+    return {'schema': 1, 'source_repository': inventory['parity_source']['repository'],
+            'source_commit': head, 'release_index_commit': release,
+            'historical_declaration_sha256': locks,
+            'scope': 'source observation, not accepted release replay or behavioral qualification',
+            'rows': rows,
+            'local_custody_observations': list(custody_rows),
+            'local_custody_declarations': custody,
+            'original_source_declarations': inventory.get('original_drivers', []),
+            'original_source_observations': list(original_rows)}
+
+
+def verify_observation(expected, actual):
+    """An optional exact frozen observation is a freshness check, never a waiver."""
+    if expected != actual:
+        return ['current source observation differs from frozen observation (pins, bytes or rows)']
+    return []
+
+
 def validate(root, inventory, trees, source, released, head, release, custody=None):
     entries = unique(inventory['drivers'] + inventory.get('source_only_drivers', []), 'local')
     local_released = unique(inventory['drivers'], 'local released')
@@ -281,7 +353,9 @@ def validate(root, inventory, trees, source, released, head, release, custody=No
             'release_index_commit': release, 'recorded_source_commit': trees['source_master_sha'],
             'released_count': len(released), 'source_count': len(source), 'original_count': len(original),
             'files_scope': 'actual driver directory bytes and modes; SDK/build/runtime excluded',
-            'drivers': rows, 'local_sources': custody_rows, 'errors': errors}
+            'drivers': rows, 'local_sources': custody_rows, 'errors': errors,
+            'current_source_observation': current_observation(root, inventory, trees, source, released, head, release,
+                custody_rows, [row for row in rows if row.get('state') == 'original-experimental'], custody)}
 
 
 def main():
@@ -290,6 +364,8 @@ def main():
     parser.add_argument('--source-ref', default='master')
     parser.add_argument('--release-ref', help='Defaults to recorded release-index branch')
     parser.add_argument('--output', type=Path, help='Optional provenance/drift JSON report')
+    parser.add_argument('--expected-observation', type=Path,
+                        help='Compare an exact prior current_source_observation; never suppress drift errors')
     args = parser.parse_args()
     inventory = json.loads((ROOT / 'manifest/released-drivers.json').read_text())
     trees = json.loads((ROOT / 'manifest/source-trees.json').read_text())
@@ -300,6 +376,9 @@ def main():
         custody_path = ROOT / 'manifest/local-source-custody.json'
         custody = json.loads(custody_path.read_text()) if custody_path.exists() else None
         report = validate(ROOT, inventory, trees, source, released, head, release, custody)
+        if args.expected_observation:
+            expected = json.loads(args.expected_observation.read_text())
+            report['errors'].extend(verify_observation(expected, report['current_source_observation']))
     except (ValueError, KeyError, OSError, subprocess.SubprocessError) as exc:
         print(f'driver parity failed: {exc}', file=sys.stderr)
         return 1
