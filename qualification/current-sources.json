@@ -116,6 +116,72 @@
           "size": "CANONICAL_SIZE"
         }
       }
+    },
+    {
+      "id": "usb-cp210x-v2",
+      "path": "Drivers/usb_cp210x_v2",
+      "version": "0.1.8",
+      "tree_sha": "4c7f4db302942a6915a039be4dc7190426e85907",
+      "release_index_commit": "19bb3dcb5cb763c4eacd884ad5fc0bcab57ff2ed",
+      "upstream": {
+        "repository": "michaelrolphone-cmyk/T5S3-Reader",
+        "commit": "9c8783d6f20659a514bfaeb3847a77c7213dc4f6",
+        "path": "Drivers/usb_cp210x_v2",
+        "version": "0.1.8",
+        "tree_sha": "709526e61d0cccfed25aee699e2ed767053ac969"
+      },
+      "historical": {
+        "version": "0.1.0",
+        "source_tree": "876bba87ab601fafbcd873ae3fd0e14f96151d3b",
+        "sha256": "96f22bbb6cc8cf00f138656a910d3078d491d6c117ffc4e23a2842c458481c61",
+        "size": 5788
+      },
+      "evidence": {
+        "current_build": {
+          "path": "qualification/evidence/usb-cp210x-v2/current_build.json",
+          "sha256": "8a293f5ca12fbdd3958cba672b6bdcf629dc6c7354eec4903ed03bc5a11046ca"
+        },
+        "current_manifest": {
+          "path": "qualification/evidence/usb-cp210x-v2/current_manifest.json",
+          "sha256": "7e1b52c3dac0c55dc2063aef064bef0db3dc311a4ae3d7748b6ed70c2c1cc378"
+        },
+        "historical_replay": {
+          "path": "qualification/evidence/usb-cp210x-v2/historical_replay.json",
+          "sha256": "ea242a2d7c9e9c3fdfcb4c0a76d6b6443b451baa373853bd70b4b72a5ec29b24"
+        },
+        "historical_manifest": {
+          "path": "qualification/evidence/usb-cp210x-v2/historical_manifest.json",
+          "sha256": "7f6e7614dde01411e401e730b865ac536ab4f7b8858e08ce09e541c6fedfd2a3"
+        }
+      },
+      "attribution": "Tasker source-convergence task0224; exact hosted current/historical artifacts independently hash-verified against source and original producer locks; metadata linkage under coordinator review.",
+      "rationale": "Current0.1.8 source and build are separately qualified; historical0.1.0 raw-interface source and accepted bytes remain immutable. Generalized existing qualification binds both without declaring behavioral equivalence or physical acceptance.",
+      "limits": [
+        "Only complete source/build-input bindings and historical accepted-byte replay are established by this consumer.",
+        "Current source differs from upstream; conflict remains visible and is not resolved by metadata linkage.",
+        "No physical device, firmware adoption or behavioral-equivalence claim.",
+        "Available SDK inventory is over-approximate, not proof every header was consumed or complete compiler/environment closure.",
+        "Evidence hashes bind bytes, not independent cryptographic authentication of hosted execution."
+      ],
+      "hosted_provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "source_commit": "562a86baff1d6fd4f652ed85d395a27dccaabe32",
+        "retained_archives": {
+          "cp210-current-562a.zip": "4a77547b6568b529fc5b5243fcc3e8874070fc0024c22128c6ef7a148601affe",
+          "cp210-historical-562a.zip": "debe0119f1c361c5ab0159c87996e081d43308d7991ccce4c19e7374cbea193c"
+        }
+      },
+      "historical_acceptance": {
+        "format": "python-literal-producer-lock-v1",
+        "commit": "2fda8da83276a263a5fb902cebf7b5eac21674ee",
+        "path": "scripts/build_usb_cp210x_v2.py",
+        "blob": "b17631f61a3ec0591cbc4e4a238797f7069fe87b",
+        "sha256": "847104fcadd24806870df644160c7e599311ebab242f2d2323d1d257612ddb42",
+        "constants": {
+          "sha256": "CANONICAL_SHA256",
+          "size": "CANONICAL_SIZE"
+        }
+      }
     }
   ]
 }

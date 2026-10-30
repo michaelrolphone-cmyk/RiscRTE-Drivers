@@ -201,19 +201,22 @@ jobs:
             test/drivers/usb_stlink_test.c -ldl -o /tmp/usb-stlink-test
           /tmp/usb-stlink-test /tmp/usb-stlink.so
       - run: python scripts/build_usb_stlink.py
-      - name: Test board-power-t5s3-v2 BQ25896 profile, VBUS and rollback lifecycle
+      - name: Test BQ current source, preserved VBUS prefixes, charger and shutdown custody
         run: |
-          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
-            -Dt5_driver_get=t5_profile_get \
-            -c Drivers/t5s3_usb_power_profile/driver.c -o /tmp/t5s3-usb-power-profile.o
-          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
-            -c Drivers/bq25896/driver.c -o /tmp/board-power-t5s3-v2.o
-          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
-            test/drivers/board_power_t5s3_v2_test.c \
-            /tmp/board-power-t5s3-v2.o /tmp/t5s3-usb-power-profile.o \
-            -o /tmp/board-power-t5s3-v2-test
-          /tmp/board-power-t5s3-v2-test
+          python test/test_bq_source_inputs.py
+          python test/test_bq_source_modes.py
+          python test/run_bq_migration.py
+          python test/run_bq_migration.py --sanitize
       - run: python scripts/build_board_power_t5s3_v2.py
+      - name: Build current BQ separately and compile target prefix assertions
+        run: |
+          python scripts/build_board_power_t5s3_v2.py --current-source
+          CC="$(PYTHONPATH=scripts python -c 'from native_driver_toolchain import compiler; print(compiler())')"
+          python test/run_bq_migration.py --target-cc "$CC"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: board-power-t5s3-v2-current-source
+          path: dist/board-power-t5s3-v2-current
       - name: Test checked MSP consumer composition and legacy ABI
         run: |
           bash test/run_usb_msp_checked_consumer_test.sh
@@ -473,6 +476,14 @@ jobs:
         with:
           name: platform-clock-v1-historical-qualification
           path: dist/platform-clock-v1-historical-qualification
+      - name: Reproduce BQ historical bytes with bound current builder provenance
+        run: |
+          export NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"
+          python scripts/build_board_power_t5s3_v2.py --require-byte-parity --output dist/board-power-t5s3-v2-historical-qualification
+      - uses: actions/upload-artifact@v4
+        with:
+          name: board-power-t5s3-v2-historical-qualification
+          path: dist/board-power-t5s3-v2-historical-qualification
       - name: Require historical GCC8 generic release bytes
         working-directory: .source/legacy-generic
         run: |
