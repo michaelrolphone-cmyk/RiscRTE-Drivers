@@ -1,0 +1,143 @@
+{
+  "reader_commit": "9c8783d6f20659a514bfaeb3847a77c7213dc4f6",
+  "original_driver_blob": "38cfc2373a55dd7608b28d39f4a33a5964707374",
+  "original_manifest_blob": "f6c1a4677771d55192a26886b53d6d74dd8526fb",
+  "adaptation": "hardware.device/peripheral.i2c; platform.sync owner-only guard; selected address; failed-unlock cleanup custody; original register RMW/quarantine preserved",
+  "runtime_commit": "13eca114cb58469cf6004fafc3da84fbd9d29beb",
+  "drivers_dependency_commit": "a66add3c89e5c4ddf73eb27acd2acacb65387e8d",
+  "dependency_inputs": {
+    "drivers/components/i2c-scoped/driver.c": {
+      "git_blob": "07fa5b8a321716e2f71170af242e37103fa588c8",
+      "sha256": "423c227fde14ed8bcb7cf4c412988605df3ff589085b7fd478e4906d10bfd826"
+    },
+    "drivers/sdk/driver/RiscI2cBusV1.h": {
+      "git_blob": "30f33092c57800714f0145063842d90765ed8317",
+      "sha256": "a6b769efbbf7f3837a6a348689b0aee84bf687ae8e18a31d0296f3bfa6ac2004"
+    },
+    "runtime/lib/elf_loader/include/esp_elf_image.h": {
+      "git_blob": "e9b94e345d3a6436d9fcb1aecce73b8f201ccc66",
+      "sha256": "5f8533febe111ec64ac4034fabfc050f5ccfb0d15f713801113db3b2b3cc25d2"
+    },
+    "runtime/lib/elf_loader/include/private/esp_privileged_cohort.h": {
+      "git_blob": "a4167712a60ce537988d5790b141a95cf387b6f9",
+      "sha256": "1c31269ab1abca74e016eb02096b3e3d879a9d98b7e4476fd7ebff99c8f70050"
+    },
+    "runtime/lib/hal/RuntimeFaultRetention.h": {
+      "git_blob": "b66c4d542da67cb91cd5bfc81a63535690970128",
+      "sha256": "f44b9a1390a0a8d639a7183956d0bd063c213ee8054eff694c4ca26bfc921128"
+    },
+    "runtime/lib/hal/StorageGeneration.h": {
+      "git_blob": "7f23ac2367d2a5f538294104c62a9c15655a0f34",
+      "sha256": "b0f61f618d814ac07c699fb83040d3909a7554b79b0a6d16d21e52e95c30efd5"
+    },
+    "runtime/sdk/driver/GardenPlatformV1.h": {
+      "git_blob": "e983549d4b0b72f1aac24daf95d5e05f909911d0",
+      "sha256": "2e8e32f52554b706fafce1af27a5fbaf99187f67ecb55dc0cf333144b48ef9d2"
+    },
+    "runtime/sdk/driver/RiscDeepSleepV1.h": {
+      "git_blob": "3e45758fe9c3127be2483b6f3c3bf58a70cdcede",
+      "sha256": "0949cf9591ef0f07b61c1306897287ea2eb1533755b5e569bfe1cb2c9b236161"
+    },
+    "runtime/sdk/driver/RiscLightSleepV1.h": {
+      "git_blob": "8ccf341a266f9b21ddd9552a8f29fa6aebc946c4",
+      "sha256": "43cbd671265959ec2db7904bf6185e97a87c4cde9d389cdccf6fbb7c916f3b94"
+    },
+    "runtime/sdk/driver/RiscPackageResourcesV1.h": {
+      "git_blob": "c80cc6d7114cebcb600959f8c22ccd8d8b6a626b",
+      "sha256": "8aff53415cf68a46e8e492dd02d12bde802ce2a1d69629dd4f3b0aad5794e459"
+    },
+    "runtime/sdk/driver/RiscProviderSyncV1.h": {
+      "git_blob": "b80b52407121020204a59c05bf1eaa7650f1f425",
+      "sha256": "c0981bde804b20c1b963323f91c4e9804c144c56535160bfd467be7e93028f45"
+    },
+    "runtime/sdk/driver/RiscProviderV2.h": {
+      "git_blob": "28dda87545c111c612d87f30337c1db2fe7da0e5",
+      "sha256": "62478822fa8943ddfd1607f8923de52d7b5b6fc8a0db2df6ca07c65c95c62d41"
+    },
+    "runtime/sdk/driver/RiscRadioScanV1.h": {
+      "git_blob": "b0f99a78fb02de88da943ddd4aca438dcc1d8679",
+      "sha256": "696227eecfd124f941023673680e0a15917d5b03c8f769756ed12ec34f7ccc9b"
+    },
+    "runtime/sdk/driver/RiscStreamProviderV1.h": {
+      "git_blob": "04f61f2271ea356a1c6bd778767a9f099772ba01",
+      "sha256": "0fe306e060321387c816bb70ec4370a501a423f4fe19a20c9be80aa1b98f3432"
+    },
+    "runtime/sdk/driver/RiscStreamResultV1.h": {
+      "git_blob": "4bdf0f5789afe40c55ead97ec3d2ccf9b630efb1",
+      "sha256": "af140ee9ca4f6286c5f1beeecb0a0952264b14eb40d3ba4f313ff952e8824a6f"
+    },
+    "runtime/sdk/driver/RiscStreamSessionProviderV1.h": {
+      "git_blob": "09c382c4440e2827351e7e271248e4e9da94f598",
+      "sha256": "fe463661530c43ae7d1dd8b9c8227fdc6a7e4380bca3f5c8a13287cb0db9e873"
+    },
+    "runtime/sdk/driver/RiscTimedSleepV1.h": {
+      "git_blob": "e04f96e04f4213972b46953351dde6f0ed0c6815",
+      "sha256": "475ba9bfaf6c7497ace7baeb93f2bd9a6abe1e3a91f62eed24862a88d60dbf34"
+    },
+    "runtime/sdk/driver/RiscWakeSetV1.h": {
+      "git_blob": "fa7ec204896f658b757ad2db5d7ed2554ce82e98",
+      "sha256": "0b5a4914ac67d37b420e1ea19b591a71440f6e4c20149ca4324e1049517ba375"
+    },
+    "runtime/sdk/driver/TWatchPlatformV1.h": {
+      "git_blob": "0e5827f1c21985f4d4be64cb4664a47b0eabd20d",
+      "sha256": "88457c6cd36a8d2550c964ede1060b4006b72be5d290cff7cd108087bacc16dd"
+    },
+    "runtime/sdk/hardware/RiscHardwareConfigV1.h": {
+      "git_blob": "b2d2e3160f2c6cd8d15825c3d7c84cc7a9f5680d",
+      "sha256": "47fa4cd7d4f09f571a5aedc87376d2f57520ad7873f5556af0a932011633e240"
+    },
+    "runtime/sdk/hardware/TWatchHardwareV1.h": {
+      "git_blob": "3bfa8e7b711343635b9633ba569ad466a4a35124",
+      "sha256": "ca48ca21a944565ae185f7c4e8cc0e73bcc18871d79b966f7e7da916e7ab2c99"
+    },
+    "runtime/src/diagnostics/Performance.h": {
+      "git_blob": "a01ee9bd7c7ca7649955971af85297f12e164f55",
+      "sha256": "a46e8c992b0c7ecf7c43655f2822ba34e1a87794a367877666bb046387aa02c0"
+    },
+    "runtime/src/diagnostics/StageLog.h": {
+      "git_blob": "c2b5f5d3b9530959eab550afcd27e68495aa503e",
+      "sha256": "61248a1345e0c48046106ad40194f4d2b091ce08c344a5957de75c32385c7182"
+    },
+    "runtime/src/runtime/RuntimeLimits.h": {
+      "git_blob": "2745e45282649261239c295d08b15f2e5da14c09",
+      "sha256": "ab93e61e683f0d496372323d83af5cc5e3cd9ca4b9fac74c7e8f35c77ee23b69"
+    },
+    "runtime/src/runtime/drivers/NativeProviderPolicyV1.h": {
+      "git_blob": "48ccd9b83112472c062342bb45e538f0d1fca5a2",
+      "sha256": "e5f3ee4a2545e425760442537d87b99f027a3acc8687113e2ac7da29873a641f"
+    },
+    "runtime/src/runtime/drivers/NativeProviderPolicyValidationV1.h": {
+      "git_blob": "6200c7a93f229daf9d8051b4a022a29b712bd5ea",
+      "sha256": "0bf6ebef2f836c5375ae51d4648ce63f79b3ed27f1b82a29a46fdd1df66fc584"
+    },
+    "runtime/src/runtime/drivers/ProviderGraphV2.cpp": {
+      "git_blob": "af6016ef82a8b483732c0db5e767b271d144df3b",
+      "sha256": "194b3c47eb54e184f64a9625286358bade979ec31ebc012d6a84b102cf3b9530"
+    },
+    "runtime/src/runtime/drivers/ProviderGraphV2.h": {
+      "git_blob": "a5454ee21b9000763db745d0d7f584313cd37688",
+      "sha256": "963c36f30917936b8c3fc557fd347113d92ea31ac96e011a0f428a1f2cc353d7"
+    },
+    "runtime/src/runtime/drivers/ProviderModuleV2.cpp": {
+      "git_blob": "04aac9028f031e36e8bca62ba9e09202072f02e2",
+      "sha256": "898bd098341d385280d06a10a85714e70c267d53a1413fd86961079612b01185"
+    },
+    "runtime/src/runtime/drivers/ProviderModuleV2.h": {
+      "git_blob": "63b6ed834f9988f60b1a2af9cd30c7f6365cd69f",
+      "sha256": "5856a067ffb7fbea5e2c0bb44c036e8a3fe3981378665c78a411ee8840f024df"
+    },
+    "runtime/src/runtime/drivers/ProviderOwnedSpecV2.h": {
+      "git_blob": "2fa9e4961cad82bb6ae12ca6a944302c4707e5d4",
+      "sha256": "59f12aead70bdc3b888f6e8458ab866e1549bf2ce65e7d88d66a4e01c8f264cc"
+    },
+    "runtime/src/runtime/packages/PackageIdentity.h": {
+      "git_blob": "e8c8146acd7bb9ee96c6b39aa6b1d830eaf44d79",
+      "sha256": "b9438c33b9575f1198cbe0a32a408f6960a4c3b56724e4828e6b632e35aa8204"
+    },
+    "runtime/test/drivers/stubs/esp_dlfcn.h": {
+      "git_blob": "c67fc3a64cd438cb3243067b37b5ab6dfe5c2e65",
+      "sha256": "b3dccf49f0d673560d6793af41f075117711c362c57bc2463db3fe49605a6395"
+    }
+  },
+  "hardware_tested": false
+}
