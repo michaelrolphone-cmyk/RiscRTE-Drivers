@@ -1,4 +1,5 @@
-#include "RiscUsbProviderV1.h"
+#include "RiscUsbControllerV1.h"
+#include "RiscSerialPortV1.h"
 #include <stdint.h>
 #include <stddef.h>
 
@@ -8,11 +9,18 @@
 typedef struct {
     uint64_t token, device, claim;
     uint8_t iface, alt, in_ep, out_ep, version;
+    bool orphaned; /* Failed open: no consumer received a session token. */
+    uint32_t rx, tx;
+    uint32_t rx_size, rx_offset, tx_size, tx_offset;
+    bool failed;
 } ch_session;
 static const risc_usb_host_api_v1 *host;
+static const risc_usb_host_discovery_v1 *discovery;
 static ch_session sessions[RISC_USB_CDC_MAX_SESSIONS];
 static uint8_t descriptor[RISC_USB_CONFIG_LIMIT];
 static uint64_t sequence;
+typedef ch_session serial_session;
+#include "../common/SerialStreamPump.inc"
 
 static bool same(const char *a, const char *b) {
     if (!a || !b) return false;
@@ -31,23 +39,89 @@ static ch_session *lookup(uint64_t token) {
         if (sessions[i].token == token) return &sessions[i];
     return 0;
 }
+static bool release_session(ch_session *s) {
+    if (!host || !discovery || !s || !s->claim ||
+        !discovery->release_checked(host->context, s->claim)) return false;
+    *s = (ch_session){0};
+    return true;
+}
+static const char *start_error;
+static bool last_error(char *destination, size_t capacity) {
+    if (!start_error || !destination || !capacity) return false;
+    size_t i = 0;
+    while (start_error[i] && i + 1 < capacity) {
+        destination[i] = start_error[i];
+        ++i;
+    }
+    destination[i] = 0;
+    return true;
+}
 static bool start(const risc_provider_dependency_v1 *deps, size_t count) {
-    if (host || !deps || count != 1 || !same(deps[0].capability_id, "usb.host") ||
-        deps[0].api_version != RISC_USB_HOST_API_V1 || !deps[0].api) return false;
+    start_error = 0;
+    if (host) {
+        start_error = "start: provider already active";
+        return false;
+    }
+    if (!deps) {
+        start_error = "start: missing dependency table";
+        return false;
+    }
+    if (count != 1) {
+        start_error = "start: expected exactly one dependency";
+        return false;
+    }
+    if (!same(deps[0].capability_id, "usb.host")) {
+        start_error = "start: usb.host dependency missing";
+        return false;
+    }
+    if (deps[0].api_version != RISC_USB_HOST_API_V1) {
+        start_error = "start: usb.host API version mismatch";
+        return false;
+    }
+    if (!deps[0].api) {
+        start_error = "start: usb.host API unavailable";
+        return false;
+    }
     const risc_usb_host_api_v1 *api = (const risc_usb_host_api_v1 *)deps[0].api;
-    if (api->api_version != RISC_USB_HOST_API_V1 || api->struct_size < sizeof(*api) ||
-        !api->configuration || !api->claim || !api->release || !api->control ||
-        !api->bulk_read || !api->bulk_write) return false;
+    if (api->api_version != RISC_USB_HOST_API_V1) {
+        start_error = "start: usb.host descriptor version mismatch";
+        return false;
+    }
+    if (api->struct_size < sizeof(risc_usb_host_discovery_v1)) {
+        start_error = "start: usb.host discovery API too small";
+        return false;
+    }
+    if (!api->configuration || !api->claim || !api->release || !api->control ||
+        !api->bulk_read || !api->bulk_write) {
+        start_error = "start: usb.host base callbacks incomplete";
+        return false;
+    }
+    const risc_usb_host_discovery_v1 *extension =
+        (const risc_usb_host_discovery_v1 *)api;
+    if (!extension->poll || !extension->devices ||
+        !extension->release_checked || !extension->control_claim) {
+        start_error = "start: usb.host discovery callbacks incomplete";
+        return false;
+    }
     host = api;
+    discovery = extension;
     return true;
 }
 static bool quiesce(void) {
-    for (size_t i = 0; i < RISC_USB_CDC_MAX_SESSIONS; ++i)
+    /* Only failed-open orphan claims may be retried autonomously. Never close
+     * a token owned by an app. One pass is bounded by the fixed session table. */
+    for (size_t i = 0; i < RISC_USB_CDC_MAX_SESSIONS; ++i) {
         if (sessions[i].token) return false;
+        if (sessions[i].orphaned && !release_session(&sessions[i])) return false;
+    }
     return true;
 }
 static void stop(void) {
-    if (quiesce()) host = 0;
+    if (!quiesce()) return; /* Uncertain physical state keeps this ELF pinned. */
+    discovery = 0;
+    host = 0;
+    streams = 0;
+    next_session = 0;
 }
 static bool parse(size_t length, ch_session *result) {
     if (!result || length < 9 || length > sizeof(descriptor) ||
@@ -95,15 +169,16 @@ static bool parse(size_t length, ch_session *result) {
         found.iface = iface; found.alt = alt;
         found.in_ep = in_ep; found.out_ep = out_ep;
     }
-    if (candidates != 1) return false; /* No ambiguous multiport binding. */
+    if (candidates != 1) return false;
     *result = found;
     return true;
 }
-static int32_t command(uint64_t device, uint8_t request_type, uint8_t request,
+static int32_t command(uint64_t claim, uint8_t request_type, uint8_t request,
                        uint16_t value, uint16_t index, uint8_t *payload,
                        uint16_t length) {
-    return host->control(host->context, device, request_type, request, value,
-                         index, payload, length, 1000);
+    if (!discovery || !claim) return -1;
+    return discovery->control_claim(host->context, claim, request_type, request, value,
+                                    index, payload, length, 1000);
 }
 static bool divisor(uint32_t speed, uint8_t version, uint16_t *out) {
     if (!out || speed < 300u || speed > 3000000u) return false;
@@ -121,8 +196,8 @@ static bool divisor(uint32_t speed, uint8_t version, uint16_t *out) {
     if (div < 9u || div > 255u) { div /= 2u; clock_div *= 2u; factor = 0; }
     if (div < 2u || div > 256u) return false;
     if (div < 256u) {
-        /* 16 * 48 MHz = 768,000,000 fits uint32_t. Avoid unnecessary libgcc
-         * 64-bit divide helpers that produce unsupported ELF relocations. */
+        /* 16 * 48 MHz fits uint32_t. Avoid Xtensa ELF-incompatible libgcc
+         * 64-bit division helpers and unsupported relocations. */
         const uint32_t actual = (16u * clock_rate) / (clock_div * div);
         const uint32_t next = (16u * clock_rate) / (clock_div * (div + 1u));
         const uint32_t requested = 16u * speed;
@@ -141,11 +216,56 @@ static bool valid_format(uint32_t baud, uint8_t bits, uint8_t parity, uint8_t st
     return baud >= 300u && baud <= 3000000u && bits >= 5 && bits <= 8 &&
            parity <= 4 && (stops == 1 || stops == 2);
 }
+/* Match is read-only: WCH PID policy and descriptor parsing live in this ELF.
+ * No claim, vendor request or UART initialization may occur during probing. */
+static int32_t probe_device(uint64_t device) {
+    if (!host || !device) return -1;
+    size_t length = sizeof(descriptor);
+    uint16_t vid = 0, pid = 0;
+    if (!host->configuration(host->context, device, descriptor, &length,
+                             &vid, &pid)) return -1;
+    if (!supported(vid, pid)) return 0;
+    ch_session candidate = {0};
+    return parse(length, &candidate) ? 1 : 0;
+}
+
+/* The CH34x ELF itself enumerates its matching devices, not compiled core.
+ * The host owns token generations; uncertain identification never produces
+ * an empty healthy inventory or a partial result that could revoke leases. */
+static bool snapshot_devices(risc_serial_device_v1 *out, size_t *inout_count) {
+    if (!host || !discovery || !inout_count) return false;
+    size_t processed = 0;
+    if (!discovery->poll(host->context, 16, &processed)) return false;
+    uint64_t tokens[RISC_USB_HOST_MAX_DEVICES] = {0};
+    size_t count = RISC_USB_HOST_MAX_DEVICES;
+    if (!discovery->devices(host->context, tokens, &count) ||
+        count > RISC_USB_HOST_MAX_DEVICES) return false;
+    risc_serial_device_v1 found[RISC_USB_HOST_MAX_DEVICES] = {{0}};
+    size_t matches = 0;
+    for (size_t i = 0; i < count; ++i) {
+        if (!tokens[i]) return false;
+        const int32_t result = probe_device(tokens[i]);
+        if (result < 0) return false;
+        if (!result) continue;
+        found[matches].provider_device = tokens[i];
+        found[matches].generation = tokens[i];
+        found[matches].transport = RISC_SERIAL_TRANSPORT_USB;
+        ++matches;
+    }
+    if (*inout_count < matches || (matches && !out)) {
+        *inout_count = matches;
+        return false;
+    }
+    reconcile_endpoints(tokens, count);
+    for (size_t i = 0; i < matches; ++i) out[i] = found[i];
+    *inout_count = matches;
+    return true;
+}
 static uint64_t open_device(uint64_t device) {
-    if (!host || !device || sequence == UINT64_MAX) return 0;
+    if (!host || !discovery || !device || sequence == UINT64_MAX) return 0;
     ch_session *slot = 0;
     for (size_t i = 0; i < RISC_USB_CDC_MAX_SESSIONS; ++i)
-        if (!sessions[i].token) { slot = &sessions[i]; break; }
+        if (!sessions[i].token && !sessions[i].claim) { slot = &sessions[i]; break; }
     if (!slot) return 0;
     size_t length = sizeof(descriptor);
     uint16_t vid = 0, pid = 0;
@@ -157,10 +277,14 @@ static uint64_t open_device(uint64_t device) {
     if (!host->claim(host->context, device, candidate.iface, candidate.alt,
                      &candidate.claim) || !candidate.claim) return 0;
     uint8_t version[2] = {0};
-    /* Identical vendor initialization sequence to known-good v1.2.16. */
-    if (command(device, 0xc0u, 0x5fu, 0, 0, version, 2) != 2 ||
-        command(device, 0x40u, 0xa1u, 0, 0, 0, 0) != 0) {
-        host->release(host->context, candidate.claim);
+    if (command(candidate.claim, 0xc0u, 0x5fu, 0, 0, version, 2) != 2 ||
+        command(candidate.claim, 0x40u, 0xa1u, 0, 0, 0, 0) != 0) {
+        /* Claim was acquired, but the open failed before returning a token.
+         * Retain an orphan in this slot if physical release is uncertain. */
+        if (!discovery->release_checked(host->context, candidate.claim)) {
+            candidate.orphaned = true;
+            *slot = candidate;
+        }
         return 0;
     }
     candidate.version = version[0];
@@ -172,25 +296,24 @@ static bool configure(uint64_t token, uint32_t baud, uint8_t bits,
                       uint8_t parity, uint8_t stops) {
     ch_session *s = lookup(token);
     if (!s || !valid_format(baud, bits, parity, stops)) return false;
-    /* Older CH34x revisions accept only the original default framing. */
     if (s->version < 0x30u && (bits != 8 || parity != 0 || stops != 1))
         return false;
     uint16_t value = 0;
     if (!divisor(baud, s->version, &value) ||
-        command(s->device, 0x40u, 0x9au, 0x1312u, value, 0, 0) != 0)
+        command(s->claim, 0x40u, 0x9au, 0x1312u, value, 0, 0) != 0)
         return false;
     if (s->version >= 0x30u) {
         uint8_t lcr = (uint8_t)(0xc0u | (bits - 5u));
         switch (parity) {
-            case 1: lcr |= 0x08u; break; /* odd */
-            case 2: lcr |= 0x18u; break; /* even */
-            case 3: lcr |= 0x28u; break; /* mark */
-            case 4: lcr |= 0x38u; break; /* space */
+            case 1: lcr |= 0x08u; break;
+            case 2: lcr |= 0x18u; break;
+            case 3: lcr |= 0x28u; break;
+            case 4: lcr |= 0x38u; break;
             default: break;
         }
         if (stops == 2) lcr |= 0x04u;
-        if (command(s->device, 0x40u, 0x9au, 0x2518u, lcr, 0, 0) != 0)
-            return false;
+        if (command(s->claim, 0x40u, 0x9au, 0x2518u, lcr, 0, 0)
+            != 0) return false;
     }
     return true;
 }
@@ -200,7 +323,7 @@ static bool control_lines(uint64_t token, bool dtr, bool rts) {
     uint8_t control = 0;
     if (rts) control |= 0x40u;
     if (dtr) control |= 0x20u;
-    return command(s->device, 0x40u, 0xa4u,
+    return command(s->claim, 0x40u, 0xa4u,
                    (uint16_t)~(uint16_t)control, 0, 0, 0) == 0;
 }
 static int32_t read_data(uint64_t token, uint8_t *dst, size_t capacity,
@@ -222,22 +345,23 @@ static int32_t write_data(uint64_t token, const uint8_t *src, size_t length,
 static bool close_device(uint64_t token) {
     ch_session *s = lookup(token);
     if (!s) return false;
-    /* The shared usb.host API releases the physical claim and quarantines
-     * it internally if teardown cannot be proved safe. */
-    host->release(host->context, s->claim);
-    *s = (ch_session){0};
-    return true;
+    close_endpoints(s);
+    /* A false result preserves the caller's exact session and claim, so the
+     * next close retries the same physical token without a second owner. */
+    return release_session(s);
 }
-static const risc_usb_cdc_api_v1 capability = {
-    RISC_USB_CDC_API_V1, sizeof(risc_usb_cdc_api_v1),
-    open_device, configure, control_lines, read_data, write_data, close_device
+static const risc_serial_port_streams_v1 capability = {
+    {{{RISC_USB_CDC_API_V1, sizeof(risc_serial_port_streams_v1),
+       open_device, configure, control_lines, legacy_read, legacy_write, close_device},
+      probe_device}, snapshot_devices}, endpoints
 };
-static const risc_driver_v2 driver = {
-    RISC_PROVIDER_DRIVER_ABI_V2, sizeof(risc_driver_v2),
-    "usb-ch34x-v2", "serial.port", RISC_USB_CDC_API_V1,
-    &capability, start, stop, quiesce
+static const risc_driver_poll_v2 driver = {
+    {{RISC_PROVIDER_DRIVER_ABI_V2, sizeof(risc_driver_poll_v2),
+      "usb-ch34x-v2", "serial.port", RISC_USB_CDC_API_V1,
+      &capability.inventory.discovery.serial, start, stop, quiesce}, last_error, bind_streams},
+    poll_streams
 };
 __attribute__((visibility("default")))
 const risc_driver_v2 *t5_driver_get(uint32_t abi) {
-    return abi == RISC_PROVIDER_DRIVER_ABI_V2 ? &driver : 0;
+    return abi == RISC_PROVIDER_DRIVER_ABI_V2 ? &driver.streams.driver : 0;
 }

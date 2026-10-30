@@ -91,14 +91,25 @@ jobs:
             test/drivers/usb_cdc_v2_test.c -ldl -o /tmp/usb-cdc-acm-v2-test
           /tmp/usb-cdc-acm-v2-test /tmp/usb-cdc-acm-v2.so
       - run: python scripts/build_usb_cdc_acm_v2.py
-      - name: Test usb-ch34x-v2 matching, serial control and lifecycle
+      - name: Test preserved historical usb-ch34x-v2 matching, serial control and lifecycle
         run: |
+          git show 6b2dc3c8e1f685d6fdaba58d04a763378f524b1b:driver.c > /tmp/historical-usb-ch34x-v2.c
           cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
-            -I sdk/driver Drivers/usb_ch34x_v2/driver.c -o /tmp/usb-ch34x-v2.so
+            -I sdk/driver /tmp/historical-usb-ch34x-v2.c -o /tmp/usb-ch34x-v2.so
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
             test/drivers/usb_ch34x_v2_test.c -ldl -o /tmp/usb-ch34x-v2-test
           /tmp/usb-ch34x-v2-test /tmp/usb-ch34x-v2.so
       - run: python scripts/build_usb_ch34x_v2.py
+      - name: Test current CH34x source, retained host and shared pump
+        run: |
+          python -m unittest discover -s test -p test_ch34x_source_modes.py -v
+          bash test/run_ch34x_migration.sh normal
+          bash test/run_ch34x_migration.sh sanitized
+      - run: python scripts/build_usb_ch34x_v2.py --current-source
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-ch34x-v2-current
+          path: dist/usb-ch34x-v2-current
       - name: Test usb-cp210x-v2 vendor control, bulk, stale tokens and quiescence
         run: |
           cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
@@ -426,6 +437,14 @@ jobs:
       - run: python -m pip install platformio==6.1.19
       - name: Install the exact historical S3 compiler only
         run: pio pkg install --global --tool 'espressif/toolchain-xtensa-esp32s3@8.4.0+2021r2-patch5'
+      - name: Require exact historical CH34x ELF with retained source snapshot
+        run: |
+          export NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"
+          python scripts/build_usb_ch34x_v2.py --require-byte-parity --output dist/usb-ch34x-v2-historical-qualification
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-ch34x-v2-historical-qualification
+          path: dist/usb-ch34x-v2-historical-qualification
       - name: Require exact historical clock ELF with retained source snapshot
         run: |
           export NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"

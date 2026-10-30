@@ -9,6 +9,17 @@ import re
 import stat
 import subprocess
 import sys
+# Historical consumers copy/load this script alone without optional support data.
+# Load the exact sibling only when that optional declaration is actually present.
+def validate_imported_support(root, declaration, *args):
+    if declaration is None:
+        return [], []
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('parity_imported_support', Path(__file__).with_name('imported_support.py'))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.validate_imported_support(root, declaration, *args)
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SHA = re.compile(r"[0-9a-f]{40}\Z")
@@ -84,6 +95,31 @@ class Source:
         if payload.get('type') != 'file' or payload.get('encoding') != 'base64':
             raise ValueError('expected JSON file: ' + path)
         return json.loads(base64.b64decode(payload['content']))
+
+    def support_tree(self, commit, path):
+        if self.resolve(commit) != commit:
+            raise ValueError('imported support commit mismatch')
+        if self.reader:
+            tree = self.git('rev-parse', '--verify', '--end-of-options', commit+':'+path).strip()
+            lines = self.git('ls-tree', '-r', tree).splitlines()
+            entries = []
+            for line in lines:
+                meta, name = line.split('\t', 1)
+                mode, kind, sha = meta.split()
+                entries.append({'path':name,'mode':mode,'type':kind,'sha':sha})
+        else:
+            listing = self.api('contents/'+path, commit)
+            if not isinstance(listing, list): raise ValueError('imported support is not directory')
+            parent = self.api('contents/Drivers', commit)
+            matches = [r for r in parent if r.get('path') == path and r.get('type') == 'dir']
+            if len(matches) != 1: raise ValueError('missing imported support directory')
+            tree = matches[0]['sha']
+            result = self.api('git/trees/'+tree+'?recursive=1')
+            if result.get('truncated'): raise ValueError('truncated imported support tree')
+            entries = [e for e in result['tree'] if e['type'] != 'tree']
+        if any(e['type'] != 'blob' or e['mode'] not in ('100644','100755') for e in entries):
+            raise ValueError('nonregular upstream support entry')
+        return tree, {e['path']:{'mode':e['mode'],'sha':e['sha']} for e in entries}
 
     def driver_dirs(self, sha):
         if self.reader:
@@ -285,7 +321,7 @@ def verify_observation(expected, actual):
     return []
 
 
-def validate(root, inventory, trees, source, released, head, release, custody=None):
+def validate(root, inventory, trees, source, released, head, release, custody=None, imported_support=None, support_source=None):
     entries = unique(inventory['drivers'] + inventory.get('source_only_drivers', []), 'local')
     local_released = unique(inventory['drivers'], 'local released')
     errors, rows, paths = [], [], set()
@@ -346,16 +382,26 @@ def validate(root, inventory, trees, source, released, head, release, custody=No
     custody_rows, custody_errors = validate_custody(root, custody, paths, set(entries) | set(source) | set(original))
     errors.extend(custody_errors)
     paths.update(row['path'] for row in custody_rows)
+    imported_rows, imported_errors = validate_imported_support(root, imported_support, paths,
+        origin['repository'], support_source, local_tree, object_hash)
+    errors.extend(imported_errors)
+    paths.update(row['path'] for row in imported_rows)
     for path in (root / 'Drivers').iterdir():
         if (path.is_dir() or path.is_symlink()) and 'Drivers/' + path.name not in paths:
             errors.append('untracked local source directory: ' + path.name)
-    return {'source_repository': origin['repository'], 'source_commit': head,
+    report = {'source_repository': origin['repository'], 'source_commit': head,
             'release_index_commit': release, 'recorded_source_commit': trees['source_master_sha'],
             'released_count': len(released), 'source_count': len(source), 'original_count': len(original),
             'files_scope': 'actual driver directory bytes and modes; SDK/build/runtime excluded',
-            'drivers': rows, 'local_sources': custody_rows, 'errors': errors,
+            'drivers': rows, 'local_sources': custody_rows, 'imported_support': imported_rows,
+            'imported_support_declaration': imported_support, 'errors': errors,
             'current_source_observation': current_observation(root, inventory, trees, source, released, head, release,
                 custody_rows, [row for row in rows if row.get('state') == 'original-experimental'], custody)}
+    if imported_support is not None:
+        report['current_source_observation']['imported_support'] = imported_rows
+        report['current_source_observation']['imported_support_declaration'] = imported_support
+        report['current_source_observation']['imported_support_errors'] = imported_errors
+    return report
 
 
 def main():
@@ -375,7 +421,9 @@ def main():
             args.source_ref, args.release_ref or origin['branch'], origin['path'])
         custody_path = ROOT / 'manifest/local-source-custody.json'
         custody = json.loads(custody_path.read_text()) if custody_path.exists() else None
-        report = validate(ROOT, inventory, trees, source, released, head, release, custody)
+        imported_path = ROOT / 'qualification/imported-support.json'
+        imported = json.loads(imported_path.read_text()) if imported_path.exists() else None
+        report = validate(ROOT, inventory, trees, source, released, head, release, custody, imported, Source(origin['repository'], args.reader))
         if args.expected_observation:
             expected = json.loads(args.expected_observation.read_text())
             report['errors'].extend(verify_observation(expected, report['current_source_observation']))
