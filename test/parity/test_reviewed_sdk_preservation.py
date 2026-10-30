@@ -24,6 +24,15 @@ class ReviewedSdkPreservation(unittest.TestCase):
             '90e7a8faae1a6678a24c92c32f95032b2fbe1e24:'+path],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode, 0)
 
+    def test_panel_additions_match_actual_producer(self):
+        producer = '05896b376a610b1c8788005726bb8a4cb06cfbda'
+        for path, blob in [('sdk/driver/RiscPanelLeaseV1.h', '71c73a80bc5382aac086206c7b8b1c4da7377111'), ('sdk/driver/RiscTps65185ProfileV1.h', 'd6a9960bf10b38af3cb9e56b4b5c7d250ded7d12')]:
+            with self.subTest(path=path):
+                data = (ROOT/path).read_bytes()
+                self.assertEqual(hashlib.sha256(data).hexdigest(), module.ADDITIVE_SDK[path])
+                self.assertEqual(hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest(), blob)
+                self.assertEqual(subprocess.check_output(['git', '-C', ROOT, 'rev-parse', producer+':'+path], text=True).strip(), blob)
+
     def test_exact_additions_and_extension_reject_every_mutated_header(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
