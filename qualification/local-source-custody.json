@@ -25,6 +25,19 @@
         "commit": "dbf925cf85f62cb0027dabe9f2b4f2359ff01160",
         "path": "Drivers/usb_cdc_stream"
       }
+    },
+    {
+      "path": "Drivers/pca9535_gpio",
+      "kind": "candidate",
+      "id": "pca9535-gpio",
+      "version": "0.1.1",
+      "candidate_for": "pca9535-gpio",
+      "tree_sha": "6e5d042952b7686317f33e16ef88e8398288bdcb",
+      "provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "commit": "f2c6353ac049ef158b43cba79e76218b29dae176",
+        "path": "Drivers/pca9535_gpio"
+      }
     }
   ]
 }

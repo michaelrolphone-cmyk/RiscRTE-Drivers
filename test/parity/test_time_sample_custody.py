@@ -54,6 +54,8 @@ class TimeSampleCustodyTests(unittest.TestCase):
 
     def test_composition_rejects_duplicate_or_conflicting_paths(self):
         combined = parity.load_custody(ROOT)
+        fixture = json.loads((Path(__file__).parent / 'fixtures/source.json').read_text())
+        package_ids = set(fixture['source'])
         for kind in ('adapter', 'support'):
             duplicate = copy.deepcopy(combined)
             entry = copy.deepcopy(duplicate['sources'][-1])
@@ -66,7 +68,7 @@ class TimeSampleCustodyTests(unittest.TestCase):
                 (root / 'manifest/local-source-custody.json').write_text(json.dumps(combined))
                 (root / 'qualification/local-source-custody.json').write_text(json.dumps({'schema': 1, 'sources': [entry]}))
                 with self.subTest(kind=kind), self.assertRaisesRegex(ValueError, 'duplicate local custody path'):
-                    parity.validate_custody(ROOT, parity.load_custody(root), set(), {'usb-cdc-acm'})
+                    parity.validate_custody(ROOT, parity.load_custody(root), set(), package_ids)
 
     def test_loader_fail_closed_and_missing_optional_file(self):
         with tempfile.TemporaryDirectory() as temp:
