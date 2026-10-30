@@ -47,7 +47,9 @@ def verify_preserved_board_roots(root, baseline):
             subprocess.run(['git', 'diff', '--exit-code', baseline, '--',
                             b':(literal)boards/' + child], cwd=root, check=True)
 
-ADDITIVE_SDK = {'sdk/driver/RiscPowerKeyNeutralizeV1.h': '5ec7d904b25d8ea8d515ceac88605d1f183cfe48740a30133a16c983d7d7f111', 'sdk/driver/RiscTimeSampleV1.h': '3298d2826a55263a5a5478f6f230030588ad7538aca5076d124d70f3e795eb2b'}
+# PCA9535 header producer f2c6353ac049ef158b43cba79e76218b29dae176,
+# exact blob1660b562ed1046570542e603e5d891f33af6d786; no legacy SDK edits.
+ADDITIVE_SDK = {'sdk/driver/RiscGpioExpanderV1.h': '110f0b141842e7cdc6798519cc5cd61c371cfe0d3e0af59a3f19c12598242f55', 'sdk/driver/RiscPowerKeyNeutralizeV1.h': '5ec7d904b25d8ea8d515ceac88605d1f183cfe48740a30133a16c983d7d7f111', 'sdk/driver/RiscTimeSampleV1.h': '3298d2826a55263a5a5478f6f230030588ad7538aca5076d124d70f3e795eb2b'}
 
 # Reviewed round-shape enum addition; no structure or legacy flag values change.
 EXTENDED_SDK = {'sdk/driver/RiscDisplayOutputV1.h': ('8111c8fb6d28542f3d2f5ae7ce7497891b1c89bd2488735c817542b955bdd726', '11e747aecadcdfd0b37c79d057208ca9249714cb7482ca32b4a7a3296648c619')}

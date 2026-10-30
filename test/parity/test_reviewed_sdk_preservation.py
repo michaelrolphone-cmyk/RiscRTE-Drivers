@@ -13,6 +13,17 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
 class ReviewedSdkPreservation(unittest.TestCase):
+    def test_pca_addition_matches_published_producer_content(self):
+        # Actual producer f2c6353, not a dynamically accepted header digest.
+        path = 'sdk/driver/RiscGpioExpanderV1.h'
+        data = (ROOT/path).read_bytes()
+        self.assertEqual(module.ADDITIVE_SDK[path], '110f0b141842e7cdc6798519cc5cd61c371cfe0d3e0af59a3f19c12598242f55')
+        self.assertEqual(hashlib.sha256(data).hexdigest(), module.ADDITIVE_SDK[path])
+        self.assertEqual(hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest(), '1660b562ed1046570542e603e5d891f33af6d786')
+        self.assertNotEqual(subprocess.run(['git', '-C', ROOT, 'cat-file', '-e',
+            '90e7a8faae1a6678a24c92c32f95032b2fbe1e24:'+path],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode, 0)
+
     def test_exact_additions_and_extension_reject_every_mutated_header(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
