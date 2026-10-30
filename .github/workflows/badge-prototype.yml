@@ -12,6 +12,9 @@ on:
       - 'Drivers/cst9217_touch/**'
       - 'scripts/hybrid_evidence_gate.py'
       - 'scripts/recover_badge_ci_sources.py'
+      - 'scripts/recover_custody_provenance.py'
+      - 'test/test_custody_provenance_recovery.py'
+      - 'manifest/local-source-custody.json'
       - 'scripts/badge_source_pack.py'
       - 'docs/badge-source-recovery/**'
       - 'tests/test_badge_source_pack.py'
@@ -78,6 +81,8 @@ jobs:
           git -C "$root/drivers" fetch --no-tags --depth=1 origin "$SOURCE_SHA"
           git -C "$root/drivers" checkout --quiet --detach FETCH_HEAD
           python "$root/drivers/scripts/recover_badge_ci_sources.py" --workspace "$root" ${{ matrix.recovery_flags }}
+          python "$root/drivers/test/test_custody_provenance_recovery.py"
+          python "$root/drivers/scripts/recover_custody_provenance.py" --root "$root/drivers" --repository "$GITHUB_REPOSITORY" --output "$root/custody-provenance-recovery.json"
       - name: Build, admit, execute, replay and seal matching cohort
         run: |
           set -euo pipefail
@@ -93,6 +98,7 @@ jobs:
           name: badge-prototype-${{ matrix.profile }}-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             ${{ env.BADGE_PROTOTYPE_ROOT }}/source-recovery.json
+            ${{ env.BADGE_PROTOTYPE_ROOT }}/custody-provenance-recovery.json
             ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/local-quick-*
             ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/time-sync-owning/**
             ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/*.log
