@@ -59,7 +59,15 @@ jobs:
         run: |
           cc -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -I sdk/compat/elf-time32 -I sdk/driver -Dclock_gettime=risc_test_clock_gettime -Dusleep=risc_test_usleep Drivers/platform_clock_v1/driver.c test/native_time32_test.c -o /tmp/driver-time32-test
           /tmp/driver-time32-test
+      - run: python -m unittest discover -s test -p test_clock_source_modes.py -v
       - run: python scripts/build_platform_clock_v1.py
+      - name: Qualify current ordinary-ELF clock source separately
+        run: python scripts/build_platform_clock_v1.py --current-source
+      - name: Retain current clock qualification and run provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform-clock-v1-current
+          path: dist/platform-clock-v1-current
       - name: Test i2c-esp32s3-v2 mutex queueing, drain, claims and restart
         run: |
           cc -std=c11 -Wall -Wextra -Werror -pedantic -pthread \
@@ -418,6 +426,15 @@ jobs:
       - run: python -m pip install platformio==6.1.19
       - name: Install the exact historical S3 compiler only
         run: pio pkg install --global --tool 'espressif/toolchain-xtensa-esp32s3@8.4.0+2021r2-patch5'
+      - name: Require exact historical clock ELF with retained source snapshot
+        run: |
+          export NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"
+          python scripts/build_platform_clock_v1.py --require-byte-parity --output dist/platform-clock-v1-historical-qualification
+      - name: Retain historical clock qualification
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform-clock-v1-historical-qualification
+          path: dist/platform-clock-v1-historical-qualification
       - name: Require historical GCC8 generic release bytes
         working-directory: .source/legacy-generic
         run: |
