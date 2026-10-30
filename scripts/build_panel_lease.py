@@ -3,7 +3,7 @@
 import argparse,hashlib,json,shlex,subprocess,tempfile
 from pathlib import Path
 from native_driver_toolchain import compiler
-from normalize_xtensa_relocations import normalize
+from normalize_xtensa_provider_relocations import normalize
 from cst9217_sdk import stage_sdk
 ROOT=Path(__file__).resolve().parents[1]
 PACKAGES={
@@ -59,7 +59,7 @@ def main():
    data=elf.read_bytes()
    if not 52<=len(data)<=256*1024 or data[:7]!=b'\x7fELF\x01\x01\x01' or int.from_bytes(data[16:18],'little')!=3 or int.from_bytes(data[18:20],'little')!=94:raise ValueError('Invalid Xtensa shared provider: '+name)
    manifest.update(size_bytes=len(data),sha256=sha(elf));(out/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n');packages[name]={'bytes':len(data),'sha256':sha(elf),'exports':sorted(exports),'imports':sorted(imports)}
- for path in [*[ROOT/'Drivers'/name/'manifest.json' for name in PACKAGES],ROOT/'qualification/panel-lease-source.json',ROOT/'scripts/build_panel_lease.py',ROOT/'scripts/native_driver_toolchain.py',ROOT/'scripts/normalize_xtensa_relocations.py',ROOT/'scripts/cst9217_sdk.py']:
+ for path in [*[ROOT/'Drivers'/name/'manifest.json' for name in PACKAGES],ROOT/'qualification/panel-lease-source.json',ROOT/'scripts/build_panel_lease.py',ROOT/'scripts/native_driver_toolchain.py',ROOT/'scripts/normalize_xtensa_relocations.py',ROOT/'scripts/normalize_xtensa_provider_relocations.py',ROOT/'scripts/cst9217_sdk.py']:
   inputs['drivers/'+str(path.relative_to(ROOT))]=sha(path)
  receipt={'hardware_tested':False,'deep_sleep_qualified':False,'historical_outputs_modified':False,'inputs':dict(sorted(inputs.items())),'commands':commands,'tools':{k:{'path':v,'sha256':sha(v)} for k,v in [('compiler',cc),('readelf',readelf),('libgcc',libgcc)]},'compiler_version':subprocess.check_output([cc,'--version'],text=True),'packages':packages}
  (a.output/'build-provenance.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps(packages,indent=2))
