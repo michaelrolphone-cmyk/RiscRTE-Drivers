@@ -49,7 +49,9 @@ def main():
      toolroot=Path(cc).resolve().parents[1]
      if not path.is_relative_to(toolroot):raise ValueError('Unexpected external build dependency: '+file)
      inputs['toolchain/'+str(path.relative_to(toolroot))]=sha(path)
-   command=[*common,'-shared','-Wl,--hash-style=sysv','-Wl,--exclude-libs,ALL',str(src),'-lgcc','-o',str(elf)];commands.append(command);subprocess.run(command,check=True);normalize(elf)
+   command=[*common,'-shared','-Wl,--hash-style=sysv','-Wl,--exclude-libs,ALL',str(src),'-lgcc','-o',str(elf)];commands.append(command);subprocess.run(command,check=True)
+   layout=subprocess.check_output([readelf,'--sections','--dynamic','--relocs','--wide',str(elf)],text=True)
+   (out/'elf-layout.txt').write_text(layout);print('Normalizing '+name,flush=True);normalize(elf)
    symbols=subprocess.check_output([readelf,'--dyn-syms','--wide',str(elf)],text=True)
    exports={f[7] for line in symbols.splitlines() if len((f:=line.split()))>=8 and f[4]=='GLOBAL' and f[6]!='UND' and f[3]=='FUNC'}
    imports={f[7] for line in symbols.splitlines() if len((f:=line.split()))>=8 and f[6]=='UND' and f[7]}

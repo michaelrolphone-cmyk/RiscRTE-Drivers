@@ -31,6 +31,7 @@ jobs:
       - name: Build current three-provider family with exact input provenance
         run: python scripts/build_panel_lease.py --runtime .ci/runtime
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: panel-lease-${{ github.event.pull_request.head.sha || github.sha }}
           path: dist/panel-lease/
