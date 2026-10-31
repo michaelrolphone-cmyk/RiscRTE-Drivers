@@ -10,6 +10,8 @@ on:
       - 'Drivers/power_key_navigation/**'
       - 'Drivers/gpio_key_sleep/**'
       - 'Drivers/cst9217_touch/**'
+      - 'scripts/battery_evidence_gate.py'
+      - 'test/test_battery_evidence_gate.py'
       - 'scripts/hybrid_evidence_gate.py'
       - 'scripts/recover_badge_ci_sources.py'
       - 'scripts/recover_custody_provenance.py'

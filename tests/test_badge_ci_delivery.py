@@ -15,12 +15,25 @@ class Runner(unittest.TestCase):
     if any(x.endswith('/build_badge_prototype.py') for x in c):
      target=Path(c[c.index('--output')+1]);target.mkdir();(target/'build.json').write_text(json.dumps({'source_pins':{},'store_files':{}}))
     return type('Result',(),{'returncode':0})()
-   with patch.object(sys,'argv',['runner','--workspace',str(w),'--idf',str(w/'idf'),'--cc','xtensa','--output',str(out),*flags]),patch.object(ci.subprocess,'run',side_effect=fake),patch.object(ci.subprocess,'check_output',return_value='a'*40),patch.object(ci,'copy_recovery_receipts') as copied:
+   with patch.object(sys,'argv',['runner','--workspace',str(w),'--idf',str(w/'idf'),'--cc','xtensa','--output',str(out),*flags]),patch.object(ci.subprocess,'run',side_effect=fake),patch.object(ci.subprocess,'check_output',return_value='a'*40),patch.object(ci,'copy_recovery_receipts') as copied,patch.object(ci,'copy_battery_receipts'):
     ci.main();copy_count=copied.call_count
    return calls,copy_count
+ def test_battery_selector_is_additive_in_both_lanes(self):
+  calls,_=self.invoke(FULL)
+  executions=[c for c in calls if c[1].endswith('/test_badge_prototype_execution.py')]
+  self.assertEqual(len(executions),4)
+  battery=[c for c in executions if '--alarm-foreground-app' in c]
+  self.assertEqual(len(battery),2)
+  for c,lane in zip(battery,['normal','sanitized']):
+   self.assertEqual(c[c.index('--alarm-foreground-app')+1],'battery')
+   self.assertEqual([c[i+1] for i,x in enumerate(c) if x=='--case'],['25','29'])
+   self.assertEqual('--sanitize' in c,lane=='sanitized')
+   self.assertTrue(c[c.index('--output')+1].endswith('battery-alarms-'+lane+'.json'))
+  minimal,_=self.invoke([])
+  self.assertFalse(any('--alarm-foreground-app' in c for c in minimal))
  def test_full_pipeline(self):
   calls,copies=self.invoke(FULL);self.assertEqual(copies,1)
-  by=lambda name:[c for c in calls if any(x.endswith('/'+name) for x in c)]
+  by=lambda name:[c for c in calls if any(x.endswith('/'+name) for x in c) and '--alarm-foreground-app' not in c]
   target=by('build_badge_prototype.py')[0]
   for flag in FULL:self.assertIn(flag,target)
   for name in ['test_badge_prototype_execution.py','test_badge_hybrid_execution.py','test_badge_springboard_execution.py','test_badge_settings_execution.py']:
@@ -39,7 +52,7 @@ class Runner(unittest.TestCase):
   for i,c in replay:self.assertGreater(i,package);self.assertTrue(c[c.index('--appdata-image')+1].endswith('badge-round-prototype/appdata.bin'))
  def test_native_wifi_adds_checks_without_replacing_sleep_navigation(self):
   calls,copies=self.invoke(FULL+['--native-wifi-geometry']);self.assertEqual(copies,1)
-  by=lambda name:[c for c in calls if any(x.endswith('/'+name) for x in c)]
+  by=lambda name:[c for c in calls if any(x.endswith('/'+name) for x in c) and '--alarm-foreground-app' not in c]
   target=by('build_badge_prototype.py')[0]
   self.assertIn('--native-wifi-geometry',target)
   gap=by('test_badge_wifi_gap_execution.py');self.assertEqual(len(gap),2);self.assertNotIn('--sanitize',gap[0]);self.assertIn('--sanitize',gap[1])
@@ -53,7 +66,7 @@ class Runner(unittest.TestCase):
   self.assertEqual(len([c for c in calls if '--appdata-image' in c]),2)
  def test_timecard_selected_pipeline(self):
   calls,copies=self.invoke(FULL+['--native-wifi-geometry','--include-timecard']);self.assertEqual(copies,1)
-  by=lambda name:[c for c in calls if any(x.endswith('/'+name) for x in c)]
+  by=lambda name:[c for c in calls if any(x.endswith('/'+name) for x in c) and '--alarm-foreground-app' not in c]
   target=by('build_badge_prototype.py')[0];self.assertIn('--include-timecard',target);self.assertTrue(target[target.index('--productivity')+1].endswith('/productivity-prototype'))
   for name in ['test_badge_timecard_execution.py','test_native_scene.py','test_quick_pending_frame.py','test_quick_pending_input.py','test_timecard_current_contract.py','test_timecard_current_ui.py']:
    rows=by(name);self.assertEqual(len(rows),2);self.assertNotIn('--sanitize',rows[0]);self.assertIn('--sanitize',rows[1])
@@ -67,7 +80,7 @@ class Runner(unittest.TestCase):
   for name in ['test_badge_prototype_execution.py','test_badge_hybrid_execution.py','test_badge_springboard_execution.py','test_badge_settings_execution.py','test_badge_wifi_gap_execution.py']:self.assertEqual(len(by(name)),2)
  def test_accepted_successor_keeps_local_quick_and_post_execution_sync_gates(self):
   calls,copies=self.invoke(FULL+['--native-wifi-geometry','--include-timecard',*['--'+f for f in ci.SUCCESSOR_FLAGS]])
-  by=lambda name:[c for c in calls if any(x.endswith('/'+name) for x in c)]
+  by=lambda name:[c for c in calls if any(x.endswith('/'+name) for x in c) and '--alarm-foreground-app' not in c]
   self.assertEqual(len(by('qualification_fixture.py')),2)
   for c in by('qualification_fixture.py'):self.assertIn('--run',c);self.assertIn('local-quick',c)
   gates=by('test_time_sync_package.py');self.assertEqual(len(gates),2)

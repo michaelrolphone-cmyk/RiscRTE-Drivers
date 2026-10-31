@@ -17,6 +17,12 @@ def run_logged(command,log,env):
 def execution_args(w,target,output,sanitize=False,foreground=False):
  args=['--runtime',w/'runtime-prototype','--watch',w/'watch','--watch-bringup',w/'watch-prototype','--controllers',w/'controllers','--system',w/'system-prototype','--system-baseline',w/'system','--utilities',w/'utilities-prototype','--utilities-baseline',w/'utilities','--store',target/'store','--output',output]
  return args+(['--sanitize'] if sanitize else [])+(['--foreground'] if foreground else [])
+def copy_battery_receipts(out,evidence):
+ from battery_evidence_gate import qualify
+ for mode in ['normal','sanitized']:
+  source=out/('battery-alarms-'+mode+'.json')
+  qualify(json.loads(source.read_text()),json.loads((out/('execution-'+mode+'.json')).read_text()),mode=='sanitized')
+  shutil.copyfile(source,evidence/source.name)
 def copy_recovery_receipts(target,out,evidence):
  from hybrid_evidence_gate import qualify_hybrid
  from springboard_evidence_gate import qualify_springboard
@@ -159,6 +165,8 @@ def main():
   run('test_badge_prototype_services.py','--runtime',w/'runtime-prototype',*san)
   run('validate_badge_home.py','--prototype','--runtime',w/'runtime-prototype','--controllers',w/'controllers','--store',target/'store','--native-elf',native/'build/riscrte_native.elf','--output',out/('admission-'+mode),*san)
   run('test_badge_prototype_execution.py','--runtime',w/'runtime-prototype','--watch',w/'watch','--watch-bringup',w/'watch-prototype','--controllers',w/'controllers','--system',w/'system-prototype','--system-baseline',w/'system','--utilities',w/'utilities-prototype','--utilities-baseline',w/'utilities','--store',target/'store','--output',out/('execution-'+mode+'.json'),*san,'--compress-rasters',*(['--foreground'] if a.foreground_idle else []))
+  if a.native_alarms:
+   run('test_badge_prototype_execution.py',*execution_args(w,target,out/('battery-alarms-'+mode+'.json'),mode=='sanitized',a.foreground_idle),'--alarm-foreground-app','battery','--case','25','--case','29','--compress-rasters')
   if a.springboard_quick_actions:
    run('qualification_fixture.py','--profile','local-quick','--source',ROOT,'--source-revision',subprocess.check_output(['git','-C',ROOT,'rev-parse','HEAD'],text=True).strip(),'--output',out/('local-quick-fixture-'+mode),'--run','--',*execution_args(w,target,out/('local-quick-'+mode+'.json'),mode=='sanitized',a.foreground_idle),'--compress-rasters')
   if a.native_alarms:
@@ -174,13 +182,16 @@ def main():
  revision=subprocess.check_output(['git','-C',ROOT,'rev-parse','HEAD'],text=True).strip()
  external(ROOT/'tests/test_badge_prototype_package.py','--revision',revision,'--native',native,'--target',target,'--normal',out/'admission-normal/admission.json','--sanitized',out/'admission-sanitized/admission.json')
  if a.native_alarms:
+  external(ROOT/'test/test_battery_evidence_gate.py')
   external(ROOT/'test/test_hybrid_evidence_gate.py')
   external(ROOT/'test/test_springboard_evidence_gate.py')
   external(ROOT/'test/test_settings_evidence_gate.py')
   external(ROOT/'test/test_picker_evidence_gate.py')
   if a.native_wifi_geometry:external(ROOT/'test/test_wifi_gap_evidence_gate.py')
  evidence=out/'software-evidence';evidence.mkdir()
- if a.native_alarms:copy_recovery_receipts(target,out,evidence)
+ if a.native_alarms:
+  copy_recovery_receipts(target,out,evidence)
+  copy_battery_receipts(out,evidence)
  checks=[]
  for log in sorted(out.glob('*.log')):
   shutil.copyfile(log,evidence/log.name);checks.append({'name':log.stem,'result':'passed','log':log.name,'sha256':hashlib.sha256(log.read_bytes()).hexdigest()})
