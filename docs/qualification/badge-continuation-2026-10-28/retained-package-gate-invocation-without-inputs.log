@@ -1,0 +1,3 @@
+usage: test_time_sync_package.py [-h] --target TARGET --native NATIVE
+                                 --execution EXECUTION
+test_time_sync_package.py: error: the following arguments are required: --target, --native, --execution

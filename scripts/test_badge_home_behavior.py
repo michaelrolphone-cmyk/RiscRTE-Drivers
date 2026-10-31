@@ -13,6 +13,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import shutil
 from pathlib import Path
 from cst9217_sdk import stage_sdk
 import shlex
@@ -106,6 +107,11 @@ def main():
         out = Path(tmp)
         sdk = module.headers(out, system, utilities, watch)
         provider_sdk = stage_sdk(ROOT, runtime, out / "provider-sdk")
+        # The current CO5300 facade publishes the additive round-shape flag.
+        # Its complete capability header comes from its owning Drivers tree;
+        # the pinned legacy Home retains its own SDK and ignores unknown bits.
+        shutil.copyfile(ROOT / "sdk/driver/RiscDisplayOutputV1.h",
+                        provider_sdk / "RiscDisplayOutputV1.h")
         includes = [sdk, watch / "include", watch, system / "lib/PortableApps/src",
                     ROOT / "components/co5300/include", runtime / "sdk/hardware", runtime / "sdk/driver",
                     ROOT / "sdk/driver", ROOT / "test/drivers"]
@@ -117,7 +123,8 @@ def main():
             objects.append(obj)
         for name, source, extra, provider_includes in (
             ("display", ROOT / "components/co5300/facade/driver.c",
-             ["-include", str(ROOT / "boards/waveshare-esp32-s3-touch-amoled-1.75c/display-profile.h")], inc),
+             ["-include", str(ROOT / "boards/waveshare-esp32-s3-touch-amoled-1.75c/display-profile.h")],
+             ["-I" + str(provider_sdk), *inc]),
             ("touch", ROOT / "Drivers/cst9217_touch/driver.c", [],
              ["-I" + str(path) for path in (provider_sdk, ROOT / "components/co5300/include")])):
             obj = out / f"{name}.o"

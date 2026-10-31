@@ -59,7 +59,15 @@ jobs:
         run: |
           cc -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -I sdk/compat/elf-time32 -I sdk/driver -Dclock_gettime=risc_test_clock_gettime -Dusleep=risc_test_usleep Drivers/platform_clock_v1/driver.c test/native_time32_test.c -o /tmp/driver-time32-test
           /tmp/driver-time32-test
+      - run: python -m unittest discover -s test -p test_clock_source_modes.py -v
       - run: python scripts/build_platform_clock_v1.py
+      - name: Qualify current ordinary-ELF clock source separately
+        run: python scripts/build_platform_clock_v1.py --current-source
+      - name: Retain current clock qualification and run provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform-clock-v1-current
+          path: dist/platform-clock-v1-current
       - name: Test i2c-esp32s3-v2 mutex queueing, drain, claims and restart
         run: |
           cc -std=c11 -Wall -Wextra -Werror -pedantic -pthread \
@@ -83,22 +91,125 @@ jobs:
             test/drivers/usb_cdc_v2_test.c -ldl -o /tmp/usb-cdc-acm-v2-test
           /tmp/usb-cdc-acm-v2-test /tmp/usb-cdc-acm-v2.so
       - run: python scripts/build_usb_cdc_acm_v2.py
-      - name: Test usb-ch34x-v2 matching, serial control and lifecycle
+      - name: Read pinned ordinary serial consumer sources (not native Runtime)
+        uses: actions/checkout@v4
+        with:
+          repository: michaelrolphone-cmyk/T5S3-Reader
+          ref: 9c8783d6f20659a514bfaeb3847a77c7213dc4f6
+          path: .source/cdc-reader
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /lib/NativeApps/include/RiscRteLocationRecords.h
+            /lib/NativeApps/include/T5AppApi.h
+            /lib/NativeApps/include/T5PackageResourceApi.h
+            /lib/NativeApps/include/T5SerialPortApi.h
+            /lib/NativeApps/include/T5StreamApi.h
+            /lib/hal/RuntimeFaultRetention.h
+            /lib/hal/StorageGeneration.h
+            /sdk/driver/RiscPackageResourcesV1.h
+            /src/native/NativeSerialPortBridge.cpp
+            /src/native/NativeSerialPortBridge.h
+            /src/native/NativeSerialPortBridge_implementation.inc
+            /src/native/NativeStreamBridge.cpp
+            /src/native/NativeStreamBridge.h
+            /src/native/NativeStreamBridge.p1.inc
+            /src/native/NativeStreamBridge.p2.inc
+            /src/native/NativeStreamBridge.p3.inc
+            /src/native/NativeStreamBridge.p4.inc
+            /src/network/HttpDownloader.h
+            /src/runtime/capabilities/CapabilityAccess.h
+            /src/runtime/capabilities/DeviceRegistry.h
+            /src/runtime/capabilities/GnssStreamAuthority.h
+            /src/runtime/capabilities/ProviderDevicePublisher.h
+            /src/runtime/capabilities/SerialProviderDevices.h
+            /src/runtime/capabilities/SerialProviderRegistry.h
+            /src/runtime/drivers/InstalledProviderGraph.h
+            /src/runtime/drivers/InstalledSerialInventory.h
+            /src/runtime/drivers/InstalledSerialSession.h
+            /src/runtime/drivers/ProviderGraphV2.cpp
+            /src/runtime/drivers/ProviderGraphV2.h
+            /src/runtime/drivers/ProviderModuleV2.cpp
+            /src/runtime/drivers/ProviderModuleV2.h
+            /src/runtime/drivers/ProviderOwnedSpecV2.h
+            /src/runtime/packages/PackageCdcLineage.h
+            /src/runtime/packages/PackageIdentity.h
+            /src/runtime/packages/PackageJsonGuard.h
+            /src/runtime/packages/PackageOrdinaryManifest.h
+            /src/runtime/packages/PackageOrdinaryStage.h
+            /src/runtime/packages/PackageOrdinaryTransaction.h
+            /src/runtime/packages/PackagePreflight.h
+            /src/runtime/packages/PackageResourcePath.h
+            /src/runtime/packages/PackageUseGate.h
+            /src/runtime/resources/ExecutionContext.h
+            /src/runtime/streams/CooperativeGnssProducer.h
+            /src/runtime/streams/GnssRecordAdapter.h
+            /src/runtime/streams/LiveGnssSession.h
+            /src/runtime/streams/LocationLeaseBinding.h
+            /src/runtime/streams/LocationPositionSubscriptions.h
+            /src/runtime/streams/RecordQueue.h
+            /src/runtime/streams/StreamRuntime.cpp
+            /src/runtime/streams/StreamRuntime.h
+            /test/drivers/installed_serial_inventory_test.cpp
+            /test/drivers/mock_usb_witness_controller_elf.c
+            /test/drivers/stubs/esp_dlfcn.h
+            /test/drivers/usb_witness_provider_graph_test.cpp
+            /test/drivers/witness_controller_fixture.h
+            /test/streams/stubs/Arduino.h
+            /test/streams/stubs/HalStorage.h
+            /test/streams/stubs/freertos/FreeRTOS.h
+            /test/streams/stubs/freertos/semphr.h
+            /test/streams/stubs/freertos/task.h
+      - name: Qualify distinct ordinary CDC through actual installed streams and checked host
         run: |
+          mkdir -p dist/usb-cdc-acm-ordinary-candidate
+          python test/run_cdc_ordinary.py --reader-root .source/cdc-reader --mode normal --receipt dist/usb-cdc-acm-ordinary-candidate/consumer-normal.json
+          python test/run_cdc_ordinary.py --reader-root .source/cdc-reader --mode sanitized --receipt dist/usb-cdc-acm-ordinary-candidate/consumer-sanitized.json
+      - name: Build separate ordinary CDC candidate with current provenance
+        run: python scripts/build_usb_cdc_stream.py
+      - name: Retain ordinary CDC candidate and exact consumer evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: usb-cdc-acm-ordinary-candidate
+          path: dist/usb-cdc-acm-ordinary-candidate
+      - name: Test preserved historical usb-ch34x-v2 matching, serial control and lifecycle
+        run: |
+          git show 6b2dc3c8e1f685d6fdaba58d04a763378f524b1b:driver.c > /tmp/historical-usb-ch34x-v2.c
           cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
-            -I sdk/driver Drivers/usb_ch34x_v2/driver.c -o /tmp/usb-ch34x-v2.so
+            -I sdk/driver /tmp/historical-usb-ch34x-v2.c -o /tmp/usb-ch34x-v2.so
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
             test/drivers/usb_ch34x_v2_test.c -ldl -o /tmp/usb-ch34x-v2-test
           /tmp/usb-ch34x-v2-test /tmp/usb-ch34x-v2.so
       - run: python scripts/build_usb_ch34x_v2.py
-      - name: Test usb-cp210x-v2 vendor control, bulk, stale tokens and quiescence
+      - name: Test current CH34x source, retained host and shared pump
         run: |
+          python -m unittest discover -s test -p test_ch34x_source_modes.py -v
+          bash test/run_ch34x_migration.sh normal
+          bash test/run_ch34x_migration.sh sanitized
+      - run: python scripts/build_usb_ch34x_v2.py --current-source
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-ch34x-v2-current
+          path: dist/usb-ch34x-v2-current
+      - name: Test preserved historical CP210x class
+        run: |
+          git show 876bba87ab601fafbcd873ae3fd0e14f96151d3b:driver.c > /tmp/historical-cp210x.c
           cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
-            -I sdk/driver Drivers/usb_cp210x_v2/driver.c -o /tmp/usb-cp210x-v2.so
+            -I sdk/driver /tmp/historical-cp210x.c -o /tmp/usb-cp210x-v2.so
           cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
             test/drivers/usb_cp210x_v2_test.c -ldl -o /tmp/usb-cp210x-v2-test
           /tmp/usb-cp210x-v2-test /tmp/usb-cp210x-v2.so
       - run: python scripts/build_usb_cp210x_v2.py
+      - name: Test current CP210x with retained host and checked-release negative
+        run: |
+          python -m unittest discover -s test -p test_cp210x_source_modes.py -v
+          bash test/run_cp210x_migration.sh normal
+          bash test/run_cp210x_migration.sh sanitized
+      - run: python scripts/build_usb_cp210x_v2.py --current-source
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-cp210x-v2-current
+          path: dist/usb-cp210x-v2-current
       - name: Test usb-ftdi IDs, divisors, status stripping and quiescence
         run: |
           cc -std=c11 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -shared \
@@ -171,19 +282,22 @@ jobs:
             test/drivers/usb_stlink_test.c -ldl -o /tmp/usb-stlink-test
           /tmp/usb-stlink-test /tmp/usb-stlink.so
       - run: python scripts/build_usb_stlink.py
-      - name: Test board-power-t5s3-v2 BQ25896 profile, VBUS and rollback lifecycle
+      - name: Test BQ current source, preserved VBUS prefixes, charger and shutdown custody
         run: |
-          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
-            -Dt5_driver_get=t5_profile_get \
-            -c Drivers/t5s3_usb_power_profile/driver.c -o /tmp/t5s3-usb-power-profile.o
-          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
-            -c Drivers/bq25896/driver.c -o /tmp/board-power-t5s3-v2.o
-          cc -std=c11 -Wall -Wextra -Werror -I sdk/driver \
-            test/drivers/board_power_t5s3_v2_test.c \
-            /tmp/board-power-t5s3-v2.o /tmp/t5s3-usb-power-profile.o \
-            -o /tmp/board-power-t5s3-v2-test
-          /tmp/board-power-t5s3-v2-test
+          python test/test_bq_source_inputs.py
+          python test/test_bq_source_modes.py
+          python test/run_bq_migration.py
+          python test/run_bq_migration.py --sanitize
       - run: python scripts/build_board_power_t5s3_v2.py
+      - name: Build current BQ separately and compile target prefix assertions
+        run: |
+          python scripts/build_board_power_t5s3_v2.py --current-source
+          CC="$(PYTHONPATH=scripts python -c 'from native_driver_toolchain import compiler; print(compiler())')"
+          python test/run_bq_migration.py --target-cc "$CC"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: board-power-t5s3-v2-current-source
+          path: dist/board-power-t5s3-v2-current
       - name: Test checked MSP consumer composition and legacy ABI
         run: |
           bash test/run_usb_msp_checked_consumer_test.sh
@@ -338,7 +452,8 @@ jobs:
           mkdir -p qualification
           test "$(git rev-parse HEAD)" = "$DRIVER_SOURCE"
           printf '%s\n' "$DRIVER_SOURCE" > qualification/HEAD.txt
-          git diff --exit-code a7ae39994603c4545a3c014f09051ecfc12084d2 -- dist release manifest ':(exclude)manifest/released-drivers.json'
+          git diff --exit-code a7ae39994603c4545a3c014f09051ecfc12084d2 -- dist release
+          python scripts/verify_manifest_preservation.py --baseline a7ae39994603c4545a3c014f09051ecfc12084d2
           # The next test requires exact baseline inventory plus one pinned CST9217 original entry.
           python test/test_msp_checked_candidate_routes.py 2>&1 | tee qualification/candidate-routes.log
       - name: Preserve original host HID and historical MSP fixtures
@@ -417,6 +532,39 @@ jobs:
       - run: python -m pip install platformio==6.1.19
       - name: Install the exact historical S3 compiler only
         run: pio pkg install --global --tool 'espressif/toolchain-xtensa-esp32s3@8.4.0+2021r2-patch5'
+      - name: Require exact historical CH34x ELF with retained source snapshot
+        run: |
+          export NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"
+          python scripts/build_usb_ch34x_v2.py --require-byte-parity --output dist/usb-ch34x-v2-historical-qualification
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-ch34x-v2-historical-qualification
+          path: dist/usb-ch34x-v2-historical-qualification
+      - name: Require exact historical CP210x ELF with retained source snapshot
+        run: |
+          export NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"
+          python scripts/build_usb_cp210x_v2.py --require-byte-parity --output dist/usb-cp210x-v2-historical-qualification
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb-cp210x-v2-historical-qualification
+          path: dist/usb-cp210x-v2-historical-qualification
+      - name: Require exact historical clock ELF with retained source snapshot
+        run: |
+          export NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"
+          python scripts/build_platform_clock_v1.py --require-byte-parity --output dist/platform-clock-v1-historical-qualification
+      - name: Retain historical clock qualification
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform-clock-v1-historical-qualification
+          path: dist/platform-clock-v1-historical-qualification
+      - name: Reproduce BQ historical bytes with bound current builder provenance
+        run: |
+          export NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc"
+          python scripts/build_board_power_t5s3_v2.py --require-byte-parity --output dist/board-power-t5s3-v2-historical-qualification
+      - uses: actions/upload-artifact@v4
+        with:
+          name: board-power-t5s3-v2-historical-qualification
+          path: dist/board-power-t5s3-v2-historical-qualification
       - name: Require historical GCC8 generic release bytes
         working-directory: .source/legacy-generic
         run: |

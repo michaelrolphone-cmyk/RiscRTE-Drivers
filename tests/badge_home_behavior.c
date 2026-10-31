@@ -35,7 +35,7 @@ static unsigned bh_polls, bh_promotions, bh_confirms, bh_native_reads, bh_launch
 static unsigned bh_first_frame, bh_first_input, bh_optional_refusals, bh_gap_reports;
 static unsigned bh_seen_picker, bh_seen_quick, bh_save_failures, bh_navigation_failures, bh_disabled_hits;
 static bool bh_ready, bh_services, bh_stop, bh_runtime_active, bh_busy_seen;
-static uint8_t bh_level;
+static uint8_t bh_level,bh_requested_level;
 static uint16_t bh_pixels[466u*466u], bh_expected[466u*466u];
 static struct { uint32_t token; const void *api; } bh_grants[64];
 static char bh_refused[64][64];
@@ -83,12 +83,22 @@ static bool bh_backend_row(void *context,uint64_t token,uint32_t y,const uint16_
     assert(y==bh_rows%466u);
     if(bh_case==BH_ROW_FAIL&&y==100)return false;
     memcpy(bh_pixels+y*466u,row,width*sizeof(*row));++bh_rows;
-    if(y==465)++bh_frames;
+    if(y==465){
+        ++bh_frames;
+        /* Match the selected native backend: the facade queues startup
+         * brightness while dark; only a checked complete frame applies it. */
+        if(bh_frames==1&&bh_requested_level){
+            if(bh_case==BH_UNBLANK_FAIL)return false;
+            bh_level=bh_requested_level;++bh_unblanks;
+        }
+    }
     return true;
 }
 static bool bh_backend_level(void *context,uint64_t token,uint8_t level) {
     (void)context;bh_display_guard();assert(token==1&&bh_backend_live);
-    if(level){assert(bh_frames&&bh_rows%466u==0);if(bh_case==BH_UNBLANK_FAIL)return false;++bh_unblanks;}
+    bh_requested_level=level;
+    if(!bh_frames){assert(!bh_level);return true;}
+    if(level){assert(bh_rows%466u==0);if(bh_case==BH_UNBLANK_FAIL)return false;++bh_unblanks;}
     bh_level=level;return true;
 }
 static const risc_platform_clock_api_v1 bh_clock={1,sizeof(bh_clock),NULL,bh_millis,bh_delay};
@@ -267,7 +277,7 @@ static void bh_run(enum bh_case scenario) {
     bh_granted=bh_released=bh_rows=bh_frames=bh_unblanks=bh_polls=bh_promotions=bh_confirms=bh_native_reads=bh_launches=0;
     bh_first_frame=bh_first_input=bh_optional_refusals=bh_gap_reports=bh_refused_count=0;
     bh_seen_picker=bh_seen_quick=bh_save_failures=bh_navigation_failures=bh_disabled_hits=0;
-    bh_ready=bh_services=bh_stop=bh_busy_seen=false;bh_level=0;memset(bh_grants,0,sizeof(bh_grants));
+    bh_ready=bh_services=bh_stop=bh_busy_seen=false;bh_level=bh_requested_level=0;memset(bh_grants,0,sizeof(bh_grants));
     bh_runtime_active=true;app_main();bh_runtime_active=false;
     assert(!bh_live&&bh_granted==bh_released&&!touch.subscription&&!held&&!picker_scratch);
     assert(!native_clock.halted&&!clock_atomic_retained);

@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "sources": [
+    {
+      "path": "Drivers/legacy_display_power",
+      "kind": "adapter",
+      "tree_sha": "866fff20ad9f126d63a81aad9ba610fa06329d46",
+      "provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "commit": "5d94cf2789b34a1b3d4afeb5be5f443510465661",
+        "path": "Drivers/legacy_display_power"
+      },
+      "id": "compat-display-power",
+      "version": "0.1.0"
+    },
+    {
+      "path": "Drivers/legacy_power_compat",
+      "kind": "support",
+      "tree_sha": "5b224e94e13c99ae6f5b3d5fadb73e2ead8330bd",
+      "provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "commit": "5d94cf2789b34a1b3d4afeb5be5f443510465661",
+        "path": "Drivers/legacy_power_compat"
+      }
+    },
+    {
+      "path": "Drivers/legacy_power_key",
+      "kind": "adapter",
+      "tree_sha": "8154e933d8aef683a04c20d68da122249e98f227",
+      "provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "commit": "5d94cf2789b34a1b3d4afeb5be5f443510465661",
+        "path": "Drivers/legacy_power_key"
+      },
+      "id": "compat-power-key",
+      "version": "0.1.0"
+    },
+    {
+      "path": "Drivers/legacy_power_sleep",
+      "kind": "adapter",
+      "tree_sha": "5bd993610005fd0bd7730ee26a9f11393e73f878",
+      "provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "commit": "5d94cf2789b34a1b3d4afeb5be5f443510465661",
+        "path": "Drivers/legacy_power_sleep"
+      },
+      "id": "compat-power-sleep",
+      "version": "0.1.0"
+    },
+    {
+      "path": "Drivers/pcm_audio_common",
+      "kind": "support",
+      "tree_sha": "2d7032a44dff89a270dd63e2f8752fffe170acd8",
+      "provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "commit": "ce6ad2dfbcb78e367dd6b2d45c094e104f97932a",
+        "path": "Drivers/pcm_audio_common"
+      }
+    },
+    {
+      "path": "Drivers/pcm_audio_input",
+      "kind": "adapter",
+      "tree_sha": "073562acf77acca65122c035bda8bba1d12d583f",
+      "provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "commit": "ce6ad2dfbcb78e367dd6b2d45c094e104f97932a",
+        "path": "Drivers/pcm_audio_input"
+      },
+      "id": "pcm-audio-input",
+      "version": "0.1.0"
+    },
+    {
+      "path": "Drivers/pcm_audio_output",
+      "kind": "adapter",
+      "tree_sha": "281e209a2cf042a9418cd910f49412c541dbbdaf",
+      "provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "commit": "ce6ad2dfbcb78e367dd6b2d45c094e104f97932a",
+        "path": "Drivers/pcm_audio_output"
+      },
+      "id": "pcm-audio-output",
+      "version": "0.1.0"
+    },
+    {
+      "path": "Drivers/usb_cdc_native",
+      "kind": "candidate",
+      "tree_sha": "18f9954cf9767ac2d027657b4d9bd95c8028d684",
+      "provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "commit": "6478e98187e6fd13475f04e3799c857b4b855c17",
+        "path": "Drivers/usb_cdc_native"
+      },
+      "id": "usb-cdc-acm",
+      "version": "0.1.9",
+      "candidate_for": "usb-cdc-acm"
+    }
+  ]
+}

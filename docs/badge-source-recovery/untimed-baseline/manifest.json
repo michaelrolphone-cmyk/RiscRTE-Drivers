@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+  "source_commit": "fc88ffd8d8329709bd30a38f27af43e83f29618e",
+  "source_tree": "c47cf6abfc67af285b32829bb9108cb18823f5ec",
+  "object_count": 1055,
+  "pack_sha256": "86f37f627a220426c628dd1bf2f058933be730c9cc10070f05f69535283aa47f",
+  "shallow_boundaries": [
+    "fc88ffd8d8329709bd30a38f27af43e83f29618e"
+  ],
+  "parts": [
+    {
+      "path": "objects-000.packpart",
+      "bytes": 524288,
+      "sha256": "977e79254fe1db329adb1ca2eb96eeb6b6caa81fcbe075a469d314d339b10457"
+    },
+    {
+      "path": "objects-001.packpart",
+      "bytes": 524288,
+      "sha256": "bb0a1f9fb5178a82ec88632bffb21afddfefb69f5e3b9fce9c5af12f5c9300d3"
+    },
+    {
+      "path": "objects-002.packpart",
+      "bytes": 524288,
+      "sha256": "ad66636cd4db5e478cbdf136717c8d1541024c614c214902b7a718491e46012f"
+    },
+    {
+      "path": "objects-003.packpart",
+      "bytes": 524288,
+      "sha256": "e3ef2b00bcd5a54ab18a7e12dfb1e2cc19cf46b972ca7274779b7ee5e08d04a2"
+    },
+    {
+      "path": "objects-004.packpart",
+      "bytes": 64573,
+      "sha256": "273cc3e925405acffcd7d54d363da1608386d71e1b36a36313ebb209cb9a9287"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Read-only parity gate for actual driver bytes and immutable upstream snapshots."""
 import argparse
+import ast
 import base64
 import hashlib
 import json
@@ -9,6 +10,17 @@ import re
 import stat
 import subprocess
 import sys
+# Historical consumers copy/load this script alone without optional support data.
+# Load the exact sibling only when that optional declaration is actually present.
+def validate_imported_support(root, declaration, *args):
+    if declaration is None:
+        return [], []
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('parity_imported_support', Path(__file__).with_name('imported_support.py'))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.validate_imported_support(root, declaration, *args)
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SHA = re.compile(r"[0-9a-f]{40}\Z")
@@ -85,6 +97,31 @@ class Source:
             raise ValueError('expected JSON file: ' + path)
         return json.loads(base64.b64decode(payload['content']))
 
+    def support_tree(self, commit, path):
+        if self.resolve(commit) != commit:
+            raise ValueError('imported support commit mismatch')
+        if self.reader:
+            tree = self.git('rev-parse', '--verify', '--end-of-options', commit+':'+path).strip()
+            lines = self.git('ls-tree', '-r', tree).splitlines()
+            entries = []
+            for line in lines:
+                meta, name = line.split('\t', 1)
+                mode, kind, sha = meta.split()
+                entries.append({'path':name,'mode':mode,'type':kind,'sha':sha})
+        else:
+            listing = self.api('contents/'+path, commit)
+            if not isinstance(listing, list): raise ValueError('imported support is not directory')
+            parent = self.api('contents/Drivers', commit)
+            matches = [r for r in parent if r.get('path') == path and r.get('type') == 'dir']
+            if len(matches) != 1: raise ValueError('missing imported support directory')
+            tree = matches[0]['sha']
+            result = self.api('git/trees/'+tree+'?recursive=1')
+            if result.get('truncated'): raise ValueError('truncated imported support tree')
+            entries = [e for e in result['tree'] if e['type'] != 'tree']
+        if any(e['type'] != 'blob' or e['mode'] not in ('100644','100755') for e in entries):
+            raise ValueError('nonregular upstream support entry')
+        return tree, {e['path']:{'mode':e['mode'],'sha':e['sha']} for e in entries}
+
     def driver_dirs(self, sha):
         if self.reader:
             rows = []
@@ -146,7 +183,463 @@ def classify(base, local, upstream):
     return 'conflict'
 
 
-def validate(root, inventory, trees, source, released, head, release):
+def load_custody(root):
+    """Compose historical and later path declarations; validate them as one set.
+
+    Historical declaration bytes are never rewritten. This loader grants no
+    exemptions: validate_custody still checks all provenance, paths and identities.
+    """
+    sources = []
+    found = False
+    for relative in ('manifest/local-source-custody.json',
+                     'qualification/local-source-custody.json'):
+        path = root / relative
+        if path.is_symlink():
+            raise ValueError('symlink local source custody file: ' + relative)
+        if not path.exists():
+            continue
+        document = json.loads(path.read_text())
+        if (not isinstance(document, dict) or document.get('schema') != 1
+                or not isinstance(document.get('sources'), list)):
+            raise ValueError('invalid local source custody schema: ' + relative)
+        sources.extend(document['sources'])
+        found = True
+    return {'schema': 1, 'sources': sources} if found else None
+
+
+def validate_custody(root, custody, occupied_paths, package_ids):
+    """Validate local-only custody without claiming upstream or release parity.
+
+    Path-scoped candidates may share an existing package ID, but must explicitly
+    name it. Support directories must remain manifestless. Every record pins the
+    entire actual tree, including modes; unknown siblings remain untracked.
+    """
+    if custody is None:
+        return [], []
+    if not isinstance(custody, dict) or custody.get('schema') != 1 or not isinstance(custody.get('sources'), list):
+        raise ValueError('invalid local source custody schema')
+    paths, identities, rows, errors = set(occupied_paths), set(package_ids), [], []
+    for entry in custody['sources']:
+        if not isinstance(entry, dict):
+            raise ValueError('invalid local source custody record')
+        path, kind = entry.get('path'), entry.get('kind')
+        if not isinstance(path, str) or not re.fullmatch(r'Drivers/[A-Za-z0-9_-]+', path) or path in paths:
+            raise ValueError('invalid or duplicate local custody path: ' + str(path))
+        paths.add(path)
+        if kind not in ('support', 'adapter', 'candidate'):
+            raise ValueError('invalid local custody kind: ' + path)
+        provenance = entry.get('provenance', {})
+        if (not isinstance(provenance, dict)
+                or not isinstance(provenance.get('repository'), str)
+                or not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', provenance['repository'])
+                or not isinstance(provenance.get('commit'), str)
+                or not SHA.fullmatch(provenance['commit'])
+                or provenance.get('path') != path
+                or not isinstance(entry.get('tree_sha'), str)
+                or not SHA.fullmatch(entry['tree_sha'])):
+            raise ValueError('invalid local custody provenance: ' + path)
+        if provenance['repository'] != 'michaelrolphone-cmyk/RiscRTE-Drivers':
+            raise ValueError('foreign local custody provenance: ' + path)
+        commit = command(['git', '-C', str(root), 'rev-parse', '--verify',
+                          '--end-of-options', provenance['commit'] + '^{commit}']).strip()
+        recorded = command(['git', '-C', str(root), 'rev-parse', '--verify',
+                            '--end-of-options', commit + ':' + path]).strip()
+        kind_at_origin = command(['git', '-C', str(root), 'cat-file', '-t', recorded]).strip()
+        if commit != provenance['commit'] or kind_at_origin != 'tree' or recorded != entry['tree_sha']:
+            raise ValueError('local custody provenance tree mismatch: ' + path)
+        actual = local_tree(root / path)
+        if actual != entry['tree_sha']:
+            errors.append('local source custody tree mismatch: ' + path)
+        manifest_path = root / path / 'manifest.json'
+        if kind == 'support':
+            if manifest_path.exists() or any(k in entry for k in ('id', 'version', 'candidate_for')):
+                errors.append('local support became a package: ' + path)
+        else:
+            identity, version = entry.get('id'), entry.get('version')
+            if not isinstance(identity, str) or not identity or not isinstance(version, str) or not VERSION.fullmatch(version):
+                raise ValueError('invalid local custody identity/version: ' + path)
+            if kind == 'candidate':
+                if entry.get('candidate_for') != identity or identity not in package_ids:
+                    raise ValueError('invalid local candidate lineage: ' + path)
+            elif identity in identities or 'candidate_for' in entry:
+                raise ValueError('duplicate local adapter identity: ' + identity)
+            identities.add(identity)
+            manifest = json.loads(manifest_path.read_text())
+            if manifest.get('id') != identity or manifest.get('version') != version:
+                errors.append('local source custody manifest mismatch: ' + path)
+        rows.append({'path': path, 'kind': kind, 'local_tree': actual,
+                     'recorded_tree': entry['tree_sha'], 'provenance': provenance,
+                     'state': 'local-custody', 'upstream_parity': False,
+                     'release_qualified': False})
+    return rows, errors
+
+
+def current_packages(root, inventory, source, custody, custody_rows, original_rows):
+    """Path-keyed actual manifests; memberships are references, not equivalence.
+
+    Duplicate logical ids across paths are retained (candidate variants are legal).
+    Acquisition/identity problems are explicit observations, never parity waivers.
+    """
+    paths = {}
+    problems = []
+    def member(path, group, identity):
+        if not isinstance(path, str) or not re.fullmatch(r'Drivers/[A-Za-z0-9_-]+', path):
+            problems.append({'membership': group, 'id': identity, 'error': 'invalid source path'})
+            return
+        row = paths.setdefault(path, {'path': path, 'memberships': []})
+        ref = {'collection': group, 'id': identity}
+        if ref in row['memberships']:
+            problems.append({'path': path, 'membership': group, 'error': 'duplicate path membership'})
+        else:
+            row['memberships'].append(ref)
+    for group in ('drivers', 'source_only_drivers', 'original_drivers'):
+        for entry in inventory.get(group, []):
+            member(entry.get('source_path'), group, entry.get('id'))
+    for entry in (custody or {}).get('sources', []):
+        if entry.get('kind') != 'support':
+            member(entry.get('path'), 'local_custody_declarations', entry.get('id'))
+    for identity, entry in sorted(source.items()):
+        member(entry.get('source_path'), 'upstream_source', identity)
+    drivers = root / 'Drivers'
+    if drivers.is_dir() and not drivers.is_symlink():
+        for directory in sorted(drivers.iterdir()):
+            if (directory / 'manifest.json').exists() or (directory / 'manifest.json').is_symlink():
+                member('Drivers/' + directory.name, 'actual_directory', None)
+    known_trees = {row['path']: row.get('local_tree') for row in list(custody_rows) + list(original_rows) if 'path' in row}
+    identities = {}
+    for path, row in sorted(paths.items()):
+        directory = root / path
+        manifest = directory / 'manifest.json'
+        row.update(current_manifest=None, manifest_sha256=None, local_tree=known_trees.get(path), errors=[])
+        if not directory.exists() and not directory.is_symlink():
+            row['availability'] = 'missing_local'
+            continue
+        try:
+            if drivers.is_symlink() or directory.is_symlink() or not directory.is_dir():
+                raise ValueError('not a regular source directory')
+            row['local_tree'] = local_tree(directory)
+            if manifest.is_symlink() or not manifest.is_file():
+                raise ValueError('not a regular package manifest')
+            raw = manifest.read_bytes()
+            row['manifest_sha256'] = hashlib.sha256(raw).hexdigest()
+            def no_duplicate_keys(pairs):
+                result = {}
+                for key, value in pairs:
+                    if key in result:
+                        raise ValueError('duplicate manifest key: ' + key)
+                    result[key] = value
+                return result
+            data = json.loads(raw, object_pairs_hook=no_duplicate_keys)
+            if not isinstance(data, dict):
+                raise ValueError('manifest is not an object')
+            row['current_manifest'] = data
+            identity, version = data.get('id'), data.get('version')
+            if not isinstance(identity, str) or not identity.strip() or not isinstance(version, str) or not version.strip():
+                raise ValueError('invalid current manifest identity/version')
+            identities.setdefault(identity, []).append(path)
+            local_ids = {m['id'] for m in row['memberships'] if m['collection'] not in ('upstream_source', 'actual_directory')}
+            if local_ids and local_ids != {identity}:
+                row['errors'].append('current manifest identity differs from local declaration')
+            row['availability'] = 'observed'
+        except (OSError, ValueError, UnicodeError) as exc:
+            row['availability'] = 'unresolved'
+            row['errors'].append(str(exc))
+    lineage_ids = set(source) | {entry.get('id') for group in ('drivers', 'source_only_drivers') for entry in inventory.get(group, [])}
+    for row in paths.values():
+        data = row['current_manifest']
+        identity = data.get('id') if isinstance(data, dict) else None
+        row['same_identity_paths'] = identities.get(identity, []) if isinstance(identity, str) else []
+        row['lineage_row_id'] = identity if isinstance(identity, str) and identity in lineage_ids else None
+    return {'schema': 1, 'scope': 'actual path manifests and declared memberships; no inferred equivalence, selection or migration qualification',
+            'rows': [paths[path] for path in sorted(paths)], 'membership_errors': problems}
+
+
+def current_observation(root, inventory, trees, source, released, head, release, custody_rows=(), original_rows=(), custody=None):
+    """Separate current source observations from retained release declarations.
+
+    'imported' means exact directory bytes/modes only; 'variant' does not assert
+    intent, safety or completion. No observation updates an accepted-byte lock.
+    """
+    entries = unique(inventory['drivers'] + inventory.get('source_only_drivers', []), 'local')
+    historical = unique(inventory['drivers'], 'local released')
+    rows = []
+    path_counts = {}
+    for entry in entries.values():
+        path = entry.get('source_path')
+        if isinstance(path, str):
+            path_counts[path] = path_counts.get(path, 0) + 1
+    for identity in sorted(set(entries) | set(source) | set(released) | set(trees['drivers'])):
+        local, upstream = entries.get(identity), source.get(identity)
+        actual, problem = None, None
+        if local:
+            path = local.get('source_path', '')
+            if not isinstance(path, str) or not re.fullmatch(r'Drivers/[A-Za-z0-9_-]+', path):
+                problem = 'invalid local source path'
+            elif path_counts[path] != 1:
+                problem = 'duplicate local source path'
+            else:
+                try:
+                    actual = local_tree(root / path)
+                except (OSError, ValueError) as exc:
+                    problem = str(exc)
+        if problem:
+            status = 'unresolved'
+        elif not local or actual is None:
+            status = 'missing_local' if upstream else 'unresolved'
+        elif not upstream:
+            status = 'upstream_absent'
+        elif actual == upstream['tree_sha'] and local.get('source_path') == upstream.get('source_path'):
+            status = 'imported'
+        else:
+            status = 'variant'
+        rows.append({'id': identity, 'status': status,
+                     'local_declaration': local, 'local_tree': actual,
+                     'upstream_source': upstream,
+                     'historical_release_declaration': historical.get(identity),
+                     'observed_upstream_release': released.get(identity),
+                     'recorded_baseline_tree': trees['drivers'].get(identity),
+                     'directory_drift_resolved': status == 'imported',
+                     'path_matches_upstream': local.get('source_path') == upstream.get('source_path') if local and upstream else None,
+                     'bytes_match_upstream': actual == upstream['tree_sha'] if actual and upstream else None,
+                     'migration_qualification': 'unknown; SDK, ABI, build and behavior not qualified here',
+                     'intent_and_behavior': 'not established by tree comparison',
+                     'acquisition_error': problem})
+    locks = {}
+    for name in ('released-drivers.json', 'source-trees.json'):
+        path = root / 'manifest' / name
+        locks[name] = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
+    return {'schema': 1, 'source_repository': inventory['parity_source']['repository'],
+            'source_commit': head, 'release_index_commit': release,
+            'historical_declaration_sha256': locks,
+            'scope': 'source observation, not accepted release replay or behavioral qualification',
+            'rows': rows,
+            'current_packages': current_packages(root, inventory, source, custody, custody_rows, original_rows),
+            'local_custody_observations': list(custody_rows),
+            'local_custody_declarations': custody,
+            'original_source_declarations': inventory.get('original_drivers', []),
+            'original_source_observations': list(original_rows)}
+
+
+def verify_observation(expected, actual):
+    """An optional exact frozen observation is a freshness check, never a waiver."""
+    if expected != actual:
+        return ['current source observation differs from frozen observation (pins, bytes or rows)']
+    return []
+
+
+def pinned_file(root, path, sha256):
+    """Read a repository-relative, non-symlink evidence file at an exact digest."""
+    if not isinstance(path, str) or not path or path.startswith('/') or any(p in ('', '.', '..') for p in path.split('/')):
+        raise ValueError('invalid qualification evidence path')
+    if not isinstance(sha256, str) or not re.fullmatch(r'[0-9a-f]{64}', sha256):
+        raise ValueError('invalid qualification evidence digest')
+    target = root
+    for part in path.split('/'):
+        target = target / part
+        if target.is_symlink():
+            raise ValueError('symlink qualification evidence: ' + path)
+    data = target.read_bytes()
+    if hashlib.sha256(data).hexdigest() != sha256:
+        raise ValueError('qualification evidence changed: ' + path)
+    return data
+
+
+def historical_acceptance(root, item, row, history, released):
+    """Read an optional immutable producer lock, never current builder values."""
+    if 'historical_acceptance' not in item:
+        return released.get(item['id'])
+    ref = item['historical_acceptance']
+    if not isinstance(ref, dict) or ref.get('format') != 'python-literal-producer-lock-v1':
+        raise ValueError('invalid historical acceptance reference')
+    commit, path = ref['commit'], ref['path']
+    if not SHA.fullmatch(str(commit)) or not isinstance(path, str) or not path or path.startswith('/') or any(v in ('', '.', '..') for v in path.split('/')):
+        raise ValueError('invalid historical acceptance locator')
+    if history.get('historical_build_commit') != commit:
+        raise ValueError('historical acceptance producer differs from replay')
+    def git(*args):
+        return subprocess.check_output(['git', '-C', str(root), *args], timeout=60)
+    tree = git('rev-parse', commit + ':' + item['path']).decode().strip()
+    if tree != row['recorded_baseline_tree']:
+        raise ValueError('historical producer source tree mismatch')
+    entry = git('ls-tree', commit, '--', path).decode().strip().split('\t')
+    if len(entry) != 2 or entry[1] != path or entry[0].split()[:2] not in (['100644', 'blob'], ['100755', 'blob']):
+        raise ValueError('historical acceptance must be exact regular blob')
+    blob = entry[0].split()[2]
+    raw = git('show', commit + ':' + path)
+    if blob != ref['blob'] or hashlib.sha256(raw).hexdigest() != ref['sha256']:
+        raise ValueError('historical acceptance bytes changed')
+    names = ref['constants']
+    if not isinstance(names, dict) or set(names) != {'sha256', 'size'} or not all(isinstance(v, str) and v.isidentifier() for v in names.values()) or len(set(names.values())) != 2:
+        raise ValueError('invalid historical acceptance constant names')
+    values = {}
+    try:
+        module = ast.parse(raw)
+        allowed_targets = set()
+        for node in module.body:
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if isinstance(target, ast.Name) and target.id in names.values():
+                        if target.id in values:
+                            raise ValueError('duplicate historical acceptance constant')
+                        values[target.id] = ast.literal_eval(node.value)
+                        allowed_targets.add(id(target))
+        for node in ast.walk(module):
+            if isinstance(node, ast.Name) and node.id in names.values() and isinstance(node.ctx, (ast.Store, ast.Del)) and id(node) not in allowed_targets:
+                raise ValueError('nonliteral or conditional historical acceptance assignment')
+    except (SyntaxError, UnicodeError) as exc:
+        raise ValueError('invalid historical acceptance source') from exc
+    digest, size = values[names['sha256']], values[names['size']]
+    if not isinstance(digest, str) or not re.fullmatch(r'[0-9a-f]{64}', digest) or type(size) is not int or size <= 0:
+        raise ValueError('invalid historical acceptance literal values')
+    original = json.loads(git('show', commit + ':' + item['path'] + '/manifest.json'))
+    historical = row['historical_release_declaration']
+    if not isinstance(original, dict) or not historical or original.get('id') != item['id'] or original.get('version') != historical['version']:
+        raise ValueError('historical producer identity/version mismatch')
+    return {'id':item['id'], 'version':original['version'], 'sha256':digest, 'size':size}
+
+
+def source_manifest_fields(artifact, receipt, accepted):
+    """Separate only verified builder annotations from source manifest fields.
+
+    Optional canonical replay fields are an all-or-none documentary group;
+    unknown fields remain semantic fields and cannot be silently discarded.
+    """
+    fields = {'canonical_sha256', 'canonical_size_bytes', 'byte_parity'}
+    if fields.intersection(artifact):
+        if not fields.issubset(artifact) or not isinstance(accepted, dict):
+            raise ValueError('incomplete canonical artifact annotations')
+        if (artifact['canonical_sha256'], artifact['canonical_size_bytes']) != (accepted['sha256'], accepted['size']):
+            raise ValueError('canonical artifact annotations differ from accepted lock')
+        if type(artifact['canonical_size_bytes']) is not int or type(artifact['byte_parity']) is not bool:
+            raise ValueError('invalid canonical artifact annotation types')
+        if (receipt['accepted_historical_sha256'], receipt['accepted_historical_size']) != (accepted['sha256'], accepted['size']):
+            raise ValueError('build annotation receipt used a different accepted lock')
+        equal = (artifact['sha256'], artifact['size_bytes']) == (accepted['sha256'], accepted['size'])
+        if type(receipt['byte_parity']) is not bool or artifact['byte_parity'] != receipt['byte_parity'] or artifact['byte_parity'] != equal:
+            raise ValueError('canonical artifact parity annotation mismatch')
+    return {k: v for k, v in artifact.items() if k not in {'sha256', 'size_bytes'} | fields}
+
+
+def qualify_sources(root, report, qualifications, inventory, released):
+    """Bind reviewed build evidence; resolve only historical/current metadata scope.
+
+    Neither local/upstream byte equality nor behavioral equivalence is inferred.
+    Hashes bind documentary evidence; they do not authenticate its author or CI.
+    """
+    report['legacy_diagnostics'] = list(report['errors'])
+    report['source_qualification_declarations'] = qualifications
+    report['metadata_resolutions'] = []
+    report['qualification_errors'] = []
+    if not isinstance(qualifications, dict) or qualifications.get('schema') != 1 or not isinstance(qualifications.get('sources'), list):
+        report['qualification_errors'].append('invalid current source qualification schema')
+        report['errors'].extend(report['qualification_errors'])
+        return
+    rows = report['current_source_observation']['rows']
+    by_id = {r['id']: r for r in rows}
+    counts = {}
+    for item in qualifications['sources']:
+        identity = item.get('id') if isinstance(item, dict) else None
+        if isinstance(identity, str):
+            counts[identity] = counts.get(identity, 0) + 1
+    for item in qualifications['sources']:
+        identity = item.get('id') if isinstance(item, dict) else None
+        try:
+            if not isinstance(identity, str) or counts[identity] != 1 or identity not in by_id:
+                raise ValueError('unknown or duplicate qualification identity')
+            row = by_id[identity]
+            local, upstream = row['local_declaration'], row['upstream_source']
+            if row['acquisition_error'] or not local or not upstream:
+                raise ValueError('unresolved source acquisition')
+            if item['path'] != local['source_path'] or item['tree_sha'] != row['local_tree']:
+                raise ValueError('qualified local path/tree changed')
+            if item['release_index_commit'] != report['release_index_commit']:
+                raise ValueError('qualified release-index observation changed')
+            if item['upstream'] != {'repository': report['source_repository'], 'commit': report['source_commit'],
+                                    'path': upstream['source_path'], 'version': upstream['version'], 'tree_sha': upstream['tree_sha']}:
+                raise ValueError('qualified upstream observation changed')
+            if not isinstance(item['attribution'], str) or not item['attribution'].strip() or not isinstance(item['rationale'], str) or not item['rationale'].strip() or not isinstance(item['limits'], list) or not item['limits'] or not all(isinstance(v, str) and v.strip() for v in item['limits']):
+                raise ValueError('qualification attribution/rationale/limits missing')
+            evidence = {name: json.loads(pinned_file(root, item['evidence'][name]['path'], item['evidence'][name]['sha256']))
+                        for name in ('current_build', 'current_manifest', 'historical_replay', 'historical_manifest')}
+            if not all(isinstance(value, dict) for value in evidence.values()):
+                raise ValueError('qualification evidence documents must be JSON objects')
+            current, artifact = evidence['current_build'], evidence['current_manifest']
+            history, old_artifact = evidence['historical_replay'], evidence['historical_manifest']
+            accepted = historical_acceptance(root, item, row, history, released)
+            source_dir = root / item['path']
+            actual_manifest = json.loads((source_dir / 'manifest.json').read_text())
+            if actual_manifest['id'] != identity or actual_manifest['version'] != item['version'] or item['version'] != upstream['version']:
+                raise ValueError('current source identity/version mismatch')
+            actual_files = {str(p.relative_to(source_dir)): hashlib.sha256(p.read_bytes()).hexdigest()
+                            for p in source_dir.rglob('*') if p.is_file()}
+            if current['mode'] != 'current-source' or current['expected_version'] != item['version'] or current['source_files'] != actual_files:
+                raise ValueError('current build does not bind complete current source')
+            # Current build inputs changing invalidates that qualification even
+            # when the driver directory itself is unchanged.
+            if not isinstance(current['build_inputs'], dict) or not current['build_inputs']:
+                raise ValueError('current build input pins missing')
+            for path, digest in current['build_inputs'].items():
+                pinned_file(root, path, digest)
+            if source_manifest_fields(artifact, current, accepted) != actual_manifest:
+                raise ValueError('current artifact/source manifest mismatch')
+            for receipt, manifest in ((current, artifact), (history, old_artifact)):
+                compiler_pins = (receipt['compiler_sha256'], receipt['libgcc']['sha256'], receipt['readelf']['sha256'])
+                if not all(isinstance(v, str) and re.fullmatch(r'[0-9a-f]{64}', v) for v in compiler_pins):
+                    raise ValueError('compiler/archive/inspection tool pins missing')
+                if not isinstance(receipt['compiler_version'], str) or not receipt['compiler_version'].strip() or not isinstance(receipt['command'], list) or not receipt['command'] or not all(isinstance(v, str) for v in receipt['command']):
+                    raise ValueError('build execution settings missing')
+                if receipt['actual_sha256'] != manifest['sha256'] or receipt['actual_size'] != manifest['size_bytes']:
+                    raise ValueError('artifact/build receipt mismatch')
+                if not isinstance(receipt['actual_sha256'], str) or not re.fullmatch(r'[0-9a-f]{64}', receipt['actual_sha256']) or type(receipt['actual_size']) is not int or receipt['actual_size'] <= 0:
+                    raise ValueError('invalid artifact identity')
+            historical = row['historical_release_declaration']
+            if not historical or not accepted or item['historical']['version'] != historical['version'] or accepted['version'] != historical['version']:
+                raise ValueError('historical release scope mismatch')
+            if item['historical'] != {'version': historical['version'], 'source_tree': row['recorded_baseline_tree'],
+                                      'sha256': accepted['sha256'], 'size': accepted['size']}:
+                raise ValueError('historical accepted identity changed')
+            if history['mode'] != 'historical' or history['source_tree'] != row['recorded_baseline_tree'] or history['expected_version'] != historical['version'] or history['byte_parity'] is not True:
+                raise ValueError('historical replay not established')
+            if (history['actual_sha256'], history['actual_size']) != (accepted['sha256'], accepted['size']):
+                raise ValueError('historical replay bytes differ from accepted release')
+            if (history['accepted_historical_sha256'], history['accepted_historical_size']) != (accepted['sha256'], accepted['size']):
+                raise ValueError('historical replay used a different lock')
+            old_files = history['source_files']
+            if not isinstance(old_files, dict) or 'manifest.json' not in old_files or not SHA.fullmatch(str(row['recorded_baseline_tree'])):
+                raise ValueError('historical source pins missing')
+            historical_paths = subprocess.check_output(['git', '-C', str(root), 'ls-tree', '-r', '--name-only', row['recorded_baseline_tree']], timeout=60).decode().splitlines()
+            if set(historical_paths) != set(old_files):
+                raise ValueError('historical source receipt coverage incomplete')
+            for path, digest in old_files.items():
+                if not isinstance(path, str) or path.startswith('/') or any(p in ('', '.', '..') for p in path.split('/')):
+                    raise ValueError('invalid historical source path')
+                data = subprocess.check_output(['git', '-C', str(root), 'show', row['recorded_baseline_tree'] + ':' + path], timeout=60)
+                if hashlib.sha256(data).hexdigest() != digest:
+                    raise ValueError('historical source receipt mismatch')
+            old_source_manifest = json.loads(subprocess.check_output(['git', '-C', str(root), 'show', row['recorded_baseline_tree'] + ':manifest.json'], timeout=60))
+            if not isinstance(old_source_manifest, dict):
+                raise ValueError('historical source manifest must be a JSON object')
+            if old_source_manifest.get('id') != identity or old_source_manifest.get('version') != historical['version']:
+                raise ValueError('historical source identity/version mismatch')
+            if source_manifest_fields(old_artifact, history, accepted) != old_source_manifest:
+                raise ValueError('historical artifact/source manifest mismatch')
+            row['current_source_qualification'] = {'status': 'source-and-build-evidence-bound', 'declaration': item,
+                'evidence': evidence, 'behavioral_equivalence': 'not established',
+                'authentication': 'local bindings checked; external CI execution requires retained independent provenance review'}
+            row['migration_qualification'] = 'current source/build and historical replay evidence bound; conflict and behavioral limits retained'
+            # Retain the old tree as historical, not a stale current baseline.
+            for diagnostic in ('source version mismatch: ' + identity, identity + ': recorded source tree needs refresh'):
+                if diagnostic in report['errors']:
+                    report['errors'].remove(diagnostic)
+                    report['metadata_resolutions'].append({'diagnostic': diagnostic, 'id': identity,
+                        'scope': 'qualified current source distinguished from immutable historical release/source baseline',
+                        'qualification': item})
+        except (KeyError, TypeError, ValueError, OSError, subprocess.SubprocessError) as exc:
+            report['qualification_errors'].append('current source qualification failed for ' + str(identity) + ': ' + str(exc))
+    report['errors'].extend(report['qualification_errors'])
+
+
+def validate(root, inventory, trees, source, released, head, release, custody=None, qualifications=None, imported_support=None, support_source=None):
     entries = unique(inventory['drivers'] + inventory.get('source_only_drivers', []), 'local')
     local_released = unique(inventory['drivers'], 'local released')
     errors, rows, paths = [], [], set()
@@ -204,14 +697,31 @@ def validate(root, inventory, trees, source, released, head, release):
         if manifest.get('id') != identity or manifest.get('version') != entry['version'] or manifest.get('status') != 'experimental-unpublished' or actual != entry.get('source_tree_sha'):
             errors.append('original driver custody mismatch: ' + identity)
         rows.append({'id':identity,'path':path,'local_tree':actual,'state':'original-experimental','upstream_tree':None})
+    custody_rows, custody_errors = validate_custody(root, custody, paths, set(entries) | set(source) | set(original))
+    errors.extend(custody_errors)
+    paths.update(row['path'] for row in custody_rows)
+    imported_rows, imported_errors = validate_imported_support(root, imported_support, paths,
+        origin['repository'], support_source, local_tree, object_hash)
+    errors.extend(imported_errors)
+    paths.update(row['path'] for row in imported_rows)
     for path in (root / 'Drivers').iterdir():
         if (path.is_dir() or path.is_symlink()) and 'Drivers/' + path.name not in paths:
             errors.append('untracked local source directory: ' + path.name)
-    return {'source_repository': origin['repository'], 'source_commit': head,
+    report = {'source_repository': origin['repository'], 'source_commit': head,
             'release_index_commit': release, 'recorded_source_commit': trees['source_master_sha'],
             'released_count': len(released), 'source_count': len(source), 'original_count': len(original),
             'files_scope': 'actual driver directory bytes and modes; SDK/build/runtime excluded',
-            'drivers': rows, 'errors': errors}
+            'drivers': rows, 'local_sources': custody_rows, 'imported_support': imported_rows,
+            'imported_support_declaration': imported_support, 'errors': errors,
+            'current_source_observation': current_observation(root, inventory, trees, source, released, head, release,
+                custody_rows, [row for row in rows if row.get('state') == 'original-experimental'], custody)}
+    if imported_support is not None:
+        report['current_source_observation']['imported_support'] = imported_rows
+        report['current_source_observation']['imported_support_declaration'] = imported_support
+        report['current_source_observation']['imported_support_errors'] = imported_errors
+    if qualifications is not None:
+        qualify_sources(root, report, qualifications, inventory, released)
+    return report
 
 
 def main():
@@ -220,6 +730,8 @@ def main():
     parser.add_argument('--source-ref', default='master')
     parser.add_argument('--release-ref', help='Defaults to recorded release-index branch')
     parser.add_argument('--output', type=Path, help='Optional provenance/drift JSON report')
+    parser.add_argument('--expected-observation', type=Path,
+                        help='Compare an exact prior current_source_observation; never suppress drift errors')
     args = parser.parse_args()
     inventory = json.loads((ROOT / 'manifest/released-drivers.json').read_text())
     trees = json.loads((ROOT / 'manifest/source-trees.json').read_text())
@@ -227,7 +739,19 @@ def main():
     try:
         head, release, source, released = snapshot(Source(origin['repository'], args.reader),
             args.source_ref, args.release_ref or origin['branch'], origin['path'])
-        report = validate(ROOT, inventory, trees, source, released, head, release)
+        custody = load_custody(ROOT)
+        qualification_path = ROOT / 'qualification/current-sources.json'
+        if qualification_path.is_symlink():
+            raise ValueError('symlink current source qualification file')
+        qualifications = json.loads(qualification_path.read_text()) if qualification_path.exists() else None
+        if qualification_path.exists() and qualifications is None:
+            raise ValueError('invalid current source qualification schema')
+        imported_path = ROOT / 'qualification/imported-support.json'
+        imported = json.loads(imported_path.read_text()) if imported_path.exists() else None
+        report = validate(ROOT, inventory, trees, source, released, head, release, custody, qualifications, imported, Source(origin['repository'], args.reader))
+        if args.expected_observation:
+            expected = json.loads(args.expected_observation.read_text())
+            report['errors'].extend(verify_observation(expected, report['current_source_observation']))
     except (ValueError, KeyError, OSError, subprocess.SubprocessError) as exc:
         print(f'driver parity failed: {exc}', file=sys.stderr)
         return 1

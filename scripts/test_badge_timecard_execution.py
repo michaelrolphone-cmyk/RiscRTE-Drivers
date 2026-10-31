@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Execute installed Timecard via actual launcher and Runtime with exact production recipes.
+"""Execute installed Timecard or explicit Points via the shared actual launcher/Runtime.
+Use exact production recipes; the default preserves all Timecard scenarios.
 Host instruction mapping, SDK/hardware and durable storage medium are modeled.
 Target import/ELF admission is qualified separately; no physical device is used.
 """
@@ -17,15 +18,25 @@ LAUNCHER_OBSERVE='int centers[19][2]={{0}};for(unsigned i=0;i<s->n&&i<19;i++){in
 QUICK_PROBE='\n#include "PortableQuickLayout.h"\nextern void badge_timecard_quick_observe(const int*,const int*);\n__attribute__((visibility("default"))) void badge_timecard_quick_probe(void){\n pqa_layout l=pqa_layout_for(&quick.ui);const pqa_state*u=&quick.ui;\n int state[24]={pqa_visible(u),pqa_capture(u),u->position_q8,u->target_q8,u->brightness,quick.brightness,u->torch,u->dnd_valid,u->dnd_enabled,u->error_flags,u->wifi_valid,u->bluetooth_valid,u->radios_valid,u->contexts_available,u->audio_available,quick.retained,l.slider_left,l.slider_right,l.slider_y[0],l.slider_y[1],(int)u->pending,(int)quick_atomic_queue_count,u->save_pending,u->save_cancelled};\n const pqa_rect r[]={l.slider_hit[0],l.slider_hit[1],l.tiles[0],l.tiles[1],l.tiles[2],l.tiles[3],l.tiles[4],l.tiles[5],l.contexts,l.handle};int rects[10][4];for(unsigned i=0;i<10;i++){rects[i][0]=r[i].x;rects[i][1]=r[i].y;rects[i][2]=r[i].w;rects[i][3]=r[i].h;}\n badge_timecard_quick_observe(state,&rects[0][0]);\n}\n'
 def main():
  p=argparse.ArgumentParser(description=__doc__)
+ p.add_argument('--app',choices=['timecard','points'],default='timecard',help='Explicit selected application; Timecard cases remain the default')
+ p.add_argument('--scenario',action='append',help='Selected scenario(s) for this app; default runs its full preserved suite')
+ p.add_argument('--home-system',type=Path,help='Exact separately pinned Home producer, required for Points successor')
+ p.add_argument('--home-utilities',type=Path,help='Exact separately pinned Home SDK producer, required for Points successor')
  for n in ['runtime','watch','watch-bringup','controllers','system','system-baseline','utilities','utilities-baseline','productivity','store','output']:p.add_argument('--'+n,required=True,type=Path)
  p.add_argument('--compress-rasters',action='store_true',help='Verify and losslessly compress completed per-case PPMs');p.add_argument('--sanitize',action='store_true');p.add_argument('--foreground',action='store_true',help='Also execute returning foreground Light cases from target receipts');p.add_argument('--case',type=int,action='append',dest='cases',help='Run selected case indices for focused diagnosis');a=p.parse_args();a.output.unlink(missing_ok=True)
  roots={n:getattr(a,n.replace('-','_')).resolve() for n in ['runtime','watch','watch-bringup','controllers','system','system-baseline','utilities','utilities-baseline','productivity']}
  store=a.store.resolve();target=store.parent;record=json.loads((target/'build.json').read_text());assert record['profile']=='round-prototype';files_enabled=record.get('supported_app_increment',{}).get('files',False)
+ points_mode=a.app=='points';points_enabled=record.get('include_points',False)
+ assert type(points_enabled) is bool
+ assert not points_mode or points_enabled,'Points mode requires selected mixed Points product'
+ assert points_mode or not points_enabled,'Use explicit Points mode for the successor product'
  assert record.get('include_timecard') is True,'Selected Timecard product required'
  catalog_path=target/'catalog.json';launcher_catalog=json.loads(catalog_path.read_text())['apps']
  launcher_names=[x['file_name'] for x in launcher_catalog]
  assert len(launcher_names)==len(set(launcher_names)) and launcher_names.count('timecard.elf')==launcher_names.count('settings.elf')==1
- launcher_env={'TIMECARD_CATALOG_COUNT':str(len(launcher_names)),'TIMECARD_CATALOG_INDEX':str(launcher_names.index('timecard.elf')),'TIMECARD_SETTINGS_INDEX':str(launcher_names.index('settings.elf'))}
+ selected_executable='points_in_time.elf' if points_mode else 'timecard.elf'
+ assert launcher_names.count(selected_executable)==1
+ launcher_env={'TIMECARD_CATALOG_COUNT':str(len(launcher_names)),'TIMECARD_CATALOG_INDEX':str(launcher_names.index(selected_executable)),'TIMECARD_SETTINGS_INDEX':str(launcher_names.index('settings.elf'))}
  alarms_enabled=bool(record.get('native_alarms'));clock_edit_authority=bool(record.get('clock_edit_authority'))
  native_wifi_geometry=record.get('native_wifi_geometry',False);assert type(native_wifi_geometry) is bool
  native_alarm_geometry=bool(record.get('native_alarm_geometry'));quick_actions=record.get('quick_actions',False)
@@ -34,13 +45,16 @@ def main():
  assert not quick_actions or (alarms_enabled and a.foreground),'Quick actions require the qualified native-alarm foreground profile'
  assert not native_alarm_geometry or alarms_enabled,'Native alarm geometry requires native alarms'
  assert clock_edit_authority==alarms_enabled,'Clock-edit authority must match native alarm selection'
- assert not alarms_enabled or record.get('alarm_profile')=='native-utc-schedules-clock-edit'
+ assert not alarms_enabled or record.get('alarm_profile')==('native-utc-mixed-points-clock-edit' if points_mode else 'native-utc-schedules-clock-edit')
  assert not alarms_enabled or (a.foreground and files_enabled),'Native alarms require full Files/foreground cohort'
  assert not files_enabled or a.foreground,'Files execution requires full foreground profile'
  assert {str(f.relative_to(store)):{'sha256':sha(f),'bytes':f.stat().st_size} for f in store.rglob('*') if f.is_file()}==record['store_files']
- lock=json.loads((BOARD/'prototype/sources.lock.json').read_text());base=json.loads((BOARD/'home/sources.lock.json').read_text())
+ lock=record['source_pins'] if points_mode else json.loads((BOARD/'prototype/sources.lock.json').read_text());base=json.loads((BOARD/'home/sources.lock.json').read_text())
+ if points_mode:
+  assert a.home_system and a.home_utilities,'Points requires explicit preserved Home producer roots'
+  roots['home-system']=a.home_system.resolve();roots['home-utilities']=a.home_utilities.resolve()
  for n,r in roots.items():
-  key=n.replace('-baseline','').replace('watch-bringup','watch_bringup');expected=(base if n.endswith('-baseline') else lock)[key]['commit']
+  key=n.replace('-baseline','').replace('watch-bringup','watch_bringup').replace('home-','home_');expected=(base if n.endswith('-baseline') else lock)[key]['commit']
   assert subprocess.check_output(['git','-C',str(r),'rev-parse','HEAD'],text=True).strip()==expected
   assert not subprocess.check_output(['git','-C',str(r),'status','--porcelain'])
  W=roots['watch-bringup'];N=roots['runtime'];S=roots['system'];U=roots['utilities'];T=roots['controllers']
@@ -52,7 +66,7 @@ def main():
   assert (flag in flags)==quick_actions,'Home/product Quick compile flag mismatch: '+flag
  if alarms_enabled:assert '-DWATCH_NATIVE_ALARM_V2' in flags and '-DALARM_SERVICE_CLOCK_EDIT_V2' in flags and '-DWATCH_CLOCK_POINTS' not in flags
  sources={str(f):sha(f) for r in roots.values() for directory in ['Apps','apps','include','lib/PortableApps','sdk','src'] if (r/directory).exists() for f in (r/directory).rglob('*') if f.is_file()}
- for f in [ROOT/'tests/badge_timecard_execution.h',ROOT/'tests/badge_timecard_execution.inc',Path(__file__).resolve(),ROOT/'tests/badge_timecard_execution.cpp',ROOT/'tests/badge_wifi_execution.inc']:sources[str(f)]=sha(f)
+ for f in [ROOT/'tests/badge_timecard_execution.h',ROOT/'tests/badge_points_execution.h',ROOT/'tests/badge_points_execution.inc',ROOT/'tests/badge_timecard_execution.inc',Path(__file__).resolve(),ROOT/'tests/badge_timecard_execution.cpp',ROOT/'tests/badge_wifi_execution.inc']:sources[str(f)]=sha(f)
  if alarms_enabled:
   fixture=ROOT/'tests/badge_alarm_execution.inc';sources[str(fixture)]=sha(fixture)
  if quick_actions:
@@ -62,18 +76,22 @@ def main():
    if f.is_file():sources[str(f)]=sha(f)
  sources[str(BOARD/'display-profile.h')]=sha(BOARD/'display-profile.h')
  sources[str(catalog_path)]=sha(catalog_path)
+ if points_mode:
+  for relative in ['scripts/badge_points_execution.py','scripts/points_product_profile.py','tests/badge_points_execution.h','tests/badge_points_execution.inc']:
+   sources[str(ROOT/relative)]=sha(ROOT/relative)
  common=[home_watchdog_define(flags),'-pipe','-O1','-g1','-Wall','-Wextra','-Werror','-Wno-misleading-indentation','-Wno-missing-field-initializers'];san=['-fsanitize=address,undefined','-fno-sanitize-recover=all','-fno-omit-frame-pointer'] if a.sanitize else []
  if record.get('time_server_sync',{}).get('enabled',False):common+=['-DBADGE_TIME_SERVER_SYNC=1']
  sources[str(TRACE/'badge_time_sample_fixture.h')]=sha(TRACE/'badge_time_sample_fixture.h')
  commands=[];results=[];rasters=a.output.parent/(a.output.stem+'-rasters');rasters.mkdir(parents=True,exist_ok=True)
  def run(xs,**kw):
+  check_result=kw.pop('check_result',True)
   xs=list(map(str,xs));commands.append(xs);r=subprocess.run(xs,**kw)
-  if r.returncode:
+  if r.returncode and check_result:
    print(getattr(r,'stdout','') or '');print(getattr(r,'stderr','') or '',file=sys.stderr);r.check_returncode()
   return r
  with tempfile.TemporaryDirectory(prefix='badge-prototype-exec-') as d:
   out=Path(d);host=out/'store';shutil.copytree(store,host)
-  sdk=headers(out,S if alarms_enabled else roots['system-baseline'],U if alarms_enabled else roots['utilities-baseline'],W)
+  sdk=headers(out,roots['home-system'] if points_mode else S if alarms_enabled else roots['system-baseline'],roots['home-utilities'] if points_mode else U if alarms_enabled else roots['utilities-baseline'],W)
   providers=stage_sdk(ROOT,N,out/'provider-sdk')
   for directory in [W/'sdk/app',W/'sdk/driver',T/'include']:
    for h in directory.glob('*.h'):
@@ -164,7 +182,11 @@ def main():
    assert sha(path)==digest,'Changed Timecard dependency: '+path
    sources[path]=digest
   records['timecard']=rec
-  for name in ['timecard','settings','springboard','wifi_settings','calculator','stopwatch','battery',*(['file_browser'] if files_enabled else []),*(['alarms','countdown'] if alarms_enabled else [])]:
+  if points_mode:
+   from badge_points_execution import selected_recipe
+   records['points_in_time']=selected_recipe(target,store,record,sha)
+   sources.update(records['points_in_time']['consumed_source_sha256'])
+  for name in ['timecard',*(['points_in_time'] if points_mode else []),'settings','springboard','wifi_settings','calculator','stopwatch','battery',*(['file_browser'] if files_enabled else []),*(['alarms','countdown'] if alarms_enabled else [])]:
    rec=records[name];receipt=rec.get('foreground_idle',daily.get('foreground_idle') if name in ['calculator','stopwatch','battery'] else None)
    if not receipt or not receipt.get('enabled'):
     assert not a.foreground,'Missing foreground receipt for '+name
@@ -200,7 +222,8 @@ def main():
     sources[str(header)]=sha(header)
    neutral=ROOT/'sdk/driver/RiscPowerKeyNeutralizeV1.h';sources[str(neutral)]=sha(neutral)
    for f in paths:
-    assert sha(f)==recipe['source_sha256'][str(f)],'Changed compiler input: '+str(f)
+    digest=rec['consumed_source_sha256'][str(f)] if name=='points_in_time' else recipe['source_sha256'][str(f)]
+    assert sha(f)==digest,'Changed compiler input: '+str(f)
     sources[str(f)]=sha(f)
    source_app[name]=(paths,defines,inc);foreground_recipes[name]={'compile_inputs':recipe,'foreground_idle':receipt}
    if name=='wifi_settings' and native_wifi_geometry:
@@ -217,9 +240,9 @@ def main():
      assert sha(Path(header))==digest,'Changed native geometry source: '+header
      sources[header]=digest
     native_geometry_names.append(name)
-  if a.foreground:assert len(foreground_recipes)==(7 if files_enabled else 6)+(2 if alarms_enabled else 0)+1
+  if a.foreground:assert len(foreground_recipes)==(7 if files_enabled else 6)+(2 if alarms_enabled else 0)+1+(1 if points_mode else 0)
   if alarms_enabled:
-   assert len(foreground_recipes)==10
+   assert len(foreground_recipes)==10+int(points_mode)
    for name in ['default',*foreground_recipes]:
     assert '-DALARM_SERVICE_CLOCK_EDIT_V2' in source_app[name][1],'Missing exact clock-edit client recipe flag: '+name
   settings_native_geometry='-DPORTABLE_SETTINGS_NATIVE_GEOMETRY' in source_app['settings'][1]
@@ -228,7 +251,9 @@ def main():
   sources[str(ROOT/'scripts/badge_home_fixture_clock.py')]=sha(ROOT/'scripts/badge_home_fixture_clock.py')
   for fixture_name in ['badge_settings_geometry_fixture.inc','badge_settings_geometry_probe.inc']:
    sources[str(TRACE/fixture_name)]=sha(TRACE/fixture_name)
+  exercised_apps={'default','springboard','points_in_time'} if points_mode else set(source_app)
   for name,(paths,defines,inc) in source_app.items():
+   if name not in exercised_apps:continue
    objects=[]
    for i,f in enumerate(paths):
     rename=['-Dapp_main=badge_source_main']
@@ -236,6 +261,9 @@ def main():
      original=f;text=f.read_text();assert text.count('void app_main(void)')==1
      f=out/'timecard-entry-observed.c';f.write_text(text.replace('void app_main(void)','void badge_source_main(void)')+APP_PROBE)
      rename=[];inc=[*inc,original.parent]
+    if name=='points_in_time' and f.name=='points_in_time.c':
+     from badge_points_execution import APP_PROBE as POINTS_PROBE
+     original=f;f=out/'points-entry-observed.c';f.write_text('#include '+json.dumps(str(original))+'\n'+POINTS_PROBE);inc=[*inc,original.parent]
     if name=='springboard' and f.name=='springboard.c':
      original=f;partial=S/'Apps/springboard_nova.inc';text=partial.read_text();needle='    api->present(false);s->visible_x='
      assert text.count(needle)==1
@@ -378,18 +406,27 @@ def main():
    observer_declarations='';observer_enter='';observer_exit=''
    if alarms_enabled:
     observer_declarations='extern void badge_alarm_ui_probe(void) __attribute__((weak));extern void badge_alarm_adapter_probe(void) __attribute__((weak));extern void badge_alarm_ui_register(void(*)(void));extern void badge_timecard_ui_probe(void) __attribute__((weak));extern void badge_timecard_quick_probe(void) __attribute__((weak));static void badge_ui_observe(void){if(badge_timecard_ui_probe)badge_timecard_ui_probe();if(badge_timecard_quick_probe)badge_timecard_quick_probe();if(badge_alarm_adapter_probe)badge_alarm_adapter_probe();if(badge_alarm_ui_probe)badge_alarm_ui_probe();}'
+    if points_mode:observer_declarations=observer_declarations.replace('static void badge_ui_observe(void){','extern void badge_points_ui_probe(void) __attribute__((weak));static void badge_ui_observe(void){if(badge_points_ui_probe)badge_points_ui_probe();')
     observer_enter='badge_alarm_ui_register(badge_ui_observe);';observer_exit='badge_alarm_ui_register(0);'
    observer_declarations+='extern void badge_settings_geometry_probe(int*) __attribute__((weak));extern void badge_settings_geometry_register(void(*)(int*));'
    wrapper=out/(name+'-entry.c');wrapper.write_text(observer_declarations+'\n#include <stddef.h>\nextern void badge_source_main(void);extern void badge_app_enter(const char*);extern void badge_app_exit(const char*);extern unsigned long long badge_foreground_probe(char*,size_t) __attribute__((weak));extern void badge_probe_register(unsigned long long (*)(char*,size_t));__attribute__((visibility("default"))) void app_main(void){badge_app_enter('+json.dumps(name)+');badge_probe_register(badge_foreground_probe);badge_settings_geometry_register(badge_settings_geometry_probe);'+observer_enter+'badge_source_main();badge_app_exit('+json.dumps(name)+');badge_probe_register(0);badge_settings_geometry_register(0);'+observer_exit+'}\n')
    run(['cc',*san,'-shared',*objects,wrapper,'-o',host/(name+'.elf')])
+   # Every app has a distinct host object set. Once its module is linked,
+   # release only completed attempt-owned objects (never target/source inputs).
+   for obj in objects:
+    if obj.parent==out and obj.suffix=='.o':obj.unlink()
   driver_sources={'sensor-idle':ROOT/'Drivers/qmi8658_idle/driver.c','wake-key':ROOT/'Drivers/wake_key_filter/driver.c','sleep':ROOT/'Drivers/gpio_key_sleep/driver.c','i2c':ROOT/'components/i2c-scoped/driver.c','display':ROOT/'components/co5300/facade/driver.c','supply':BOARD/'supply/driver.c','touch':ROOT/'Drivers/cst9217_touch/driver.c','battery':ROOT/'Drivers/axp2101_observer/driver.c','key':ROOT/'Drivers/axp2101_power_key/driver.c','navigation':ROOT/'Drivers/power_key_navigation/driver.c','display-power':ROOT/'Drivers/legacy_display_power/driver.c','wifi':T/'drivers/twatch_wifi/driver.c'}
   if record.get('time_server_sync',{}).get('enabled',False):driver_sources['time-sample']=ROOT/'Drivers/time_sample/driver.c'
   for name,f in driver_sources.items():run(['cc','-std=c11',*common,*san,'-fPIC','-shared','-fvisibility=hidden',*['-I'+str(x) for x in [providers,ROOT/'components/co5300/include',W/'include',T/'include']],*(['-include',BOARD/'display-profile.h'] if name=='display' else []),f,'-o',host/name/'driver.elf'])
   alarm_service_record=None
   if alarms_enabled:
    alarm_service_record=json.loads((target/'alarm-service/build-evidence.json').read_text())
-   assert alarm_service_record['profile']=='native-utc-schedules-clock-edit' and not alarm_service_record['points_selected']
+   if points_mode:
+    from points_product_profile import qualify_service
+    qualify_service(alarm_service_record,json.loads((target/'alarm-service/storage-policy.json').read_text()))
+   else:assert alarm_service_record['profile']=='native-utc-schedules-clock-edit' and not alarm_service_record['points_selected']
    expected_keys={**{k:{'namespace':3,'access':'read'} for k in ['alarm_utc_cfg','timer_utc_cfg']},**{k:{'namespace':4,'access':'read-write'} for k in ['alarm_utc_occ','timer_utc_occ','clock_edit_auth']},**{k:{'namespace':1,'access':'read'} for k in ['alert_mode','alert_dnd']}}
+   if points_mode:expected_keys.update({'points_utc_cfg':{'namespace':5,'access':'read'},'points_utc_occ':{'namespace':4,'access':'read-write'},'time_zone':{'namespace':1,'access':'read'}})
    assert alarm_service_record['bound_keys']==expected_keys
    assert json.loads((target/'alarm-service/storage-policy.json').read_text())==expected_keys
    for path,digest in alarm_service_record['dependencies_sha256'].items():
@@ -399,9 +436,10 @@ def main():
    service_sources=[Path(x) for x in command if str(x).endswith('.c')]
    service_inc=[x for x in command if x.startswith('-I')]
    service_defines=[x for x in command if x.startswith('-D')]
-   assert service_sources==[U/'Services/alarm_service/service.c']
+   assert service_sources==[U/'Services/alarm_service/service.c',*([S/'lib/PortableApps/src/PortableTimeZone.c',S/'lib/PortableApps/src/PortableTimeZoneCatalog.c'] if points_mode else [])]
    assert set(service_defines)=={'-D'+x for x in alarm_service_record['defines']}
-   assert '-DALARM_NATIVE_SCHEDULES_ONLY' in service_defines and '-DALARM_SERVICE_CLOCK_EDIT_V2' in service_defines and not any('POINTS' in x for x in service_defines)
+   assert '-DALARM_SERVICE_CLOCK_EDIT_V2' in service_defines
+   if not points_mode:assert '-DALARM_NATIVE_SCHEDULES_ONLY' in service_defines and not any('POINTS' in x for x in service_defines)
    service_manifest=json.loads((target/'alarm-service/manifest.json').read_text())
    assert [x['api'] for x in service_manifest['requires'] if x['capability']=='storage.key-value.bound']==[2],'Clock-edit marker requires explicit bound KV API2'
    bound_header=N/'sdk/driver/RiscBoundKeyValueV2.h'
@@ -435,7 +473,8 @@ def main():
    # Cut only the negative recovery case after the real service durably grants
    # its clock-edit permit and before Settings can seed RTC. Never callback
    # after retained/failure, and never bypass begin's production persistence.
-   protocol=service_sources[0].parent/'clock_edit_protocol.inc'
+   protocol_name='clock_edit_mixed_protocol.inc' if points_mode else 'clock_edit_protocol.inc'
+   protocol=service_sources[0].parent/protocol_name
    assert str(protocol) in alarm_service_record['dependencies_sha256']
    protocol_text=protocol.read_text()
    begin_decl='static int32_t edit_begin(void*c,uint32_t requested,alarm_clock_edit_permit_v2*out){'
@@ -444,26 +483,34 @@ def main():
    protocol_text=protocol_text.replace(begin_decl,'static int32_t badge_source_edit_begin(void*c,uint32_t requested,alarm_clock_edit_permit_v2*out){')
    protocol_text=protocol_text.replace(begin_next,'extern void badge_clock_edit_begin_result(int);\nstatic int32_t edit_begin(void*c,uint32_t requested,alarm_clock_edit_permit_v2*out){int32_t rc=badge_source_edit_begin(c,requested,out);if(rc==ALARM_OK)badge_clock_edit_begin_result(rc);return rc;}\n'+begin_next)
    protocol_overlay=out/'observed-clock-edit-protocol.inc';protocol_overlay.write_text(protocol_text)
-   assert service_text.count('#include "clock_edit_protocol.inc"')==1
-   service_text=service_text.replace('#include "clock_edit_protocol.inc"','#include '+json.dumps(str(protocol_overlay)))
+   protocol_include='#include '+json.dumps(protocol_name)
+   assert service_text.count(protocol_include)==1
+   service_text=service_text.replace(protocol_include,'#include '+json.dumps(str(protocol_overlay)))
    service_overlay=out/'alarm-service-ticket-fault.c';service_overlay.write_text(service_text)
-   run(['cc','-std=c11',*common,*san,'-fPIC','-shared','-fvisibility=hidden',*service_defines,*service_inc,'-I'+str(service_sources[0].parent),service_overlay,'-o',candidates[0]/'driver.elf'])
+   run(['cc','-std=c11',*common,*san,'-fPIC','-shared','-fvisibility=hidden',*service_defines,*service_inc,'-I'+str(service_sources[0].parent),service_overlay,*service_sources[1:],'-o',candidates[0]/'driver.elf'])
   host_mapper=stage_runtime_mapper(N,out/'host-mapper')
   sources[str(ROOT/'scripts/badge_host_mapper.py')]=sha(ROOT/'scripts/badge_host_mapper.py')
   sources[str(host_mapper/'esp_dlfcn.h')]=sha(host_mapper/'esp_dlfcn.h')
   host_mapper_receipt=json.loads((host_mapper/'staging.json').read_text())
   runtime_sources=[N/x for x in ['src/bootstrap/Json.cpp','src/bootstrap/Board.cpp','src/bootstrap/Runtime.cpp','src/runtime/drivers/ProviderGraphV2.cpp','src/runtime/drivers/ProviderModuleV2.cpp','src/ports/esp32s3/CpuPort.cpp','src/runtime/streams/AppStreamSessions.cpp','src/runtime/streams/ProviderQueueHost.cpp','src/runtime/storage/AppDataFiles.cpp']]
-  exe=out/'execute';run(['c++','-std=c++17',*common,*(['-O0'] if a.sanitize else []),*san,'-rdynamic','-DRISC_STAGE_LOGS=1','-DRISC_APP_REQUIREMENT_ROWS=24',*(['-DBADGE_QUICK_ACTIONS','-DRISC_RUNTIME_PREFERENCE_STORE=1','-DRISC_RUNTIME_ATOMIC_KEY_VALUE=0'] if quick_actions else []),*(['-DBADGE_WIFI_NATIVE_GEOMETRY'] if native_wifi_geometry else []),*(['-DBADGE_ALARM_NATIVE_GEOMETRY'] if native_alarm_geometry else []),*(['-DBADGE_NATIVE_ALARMS','-DALARM_NATIVE_UTC','-I'+str(U/'lib/Alarm/include')] if alarms_enabled else []),'-I'+str(host_mapper),*['-I'+str(N/x) for x in ['src','sdk/app','sdk/driver','sdk/hardware','lib/ArduinoJson/src','test','test/drivers/stubs','test/realtime_shim','test/retained_wake_shim']],*runtime_sources,ROOT/'tests/badge_timecard_execution.cpp','-ldl',*(['-no-pie'] if a.sanitize else []),'-o',exe])
+  exe=out/'execute';run(['c++','-std=c++17',*common,*(['-O0'] if a.sanitize else []),*san,'-rdynamic','-DRISC_STAGE_LOGS=1','-DRISC_APP_REQUIREMENT_ROWS=24',*(['-DBADGE_POINTS_EXECUTION'] if points_mode else []),*(['-DBADGE_QUICK_ACTIONS','-DRISC_RUNTIME_PREFERENCE_STORE=1','-DRISC_RUNTIME_ATOMIC_KEY_VALUE=0'] if quick_actions else []),*(['-DBADGE_WIFI_NATIVE_GEOMETRY'] if native_wifi_geometry else []),*(['-DBADGE_ALARM_NATIVE_GEOMETRY'] if native_alarm_geometry else []),*(['-DBADGE_NATIVE_ALARMS','-DALARM_NATIVE_UTC','-I'+str(U/'lib/Alarm/include')] if alarms_enabled else []),'-I'+str(host_mapper),*['-I'+str(N/x) for x in ['src','sdk/app','sdk/driver','sdk/hardware','lib/ArduinoJson/src','test','test/drivers/stubs','test/realtime_shim','test/retained_wake_shim']],*runtime_sources,ROOT/'tests/badge_timecard_execution.cpp','-ldl',*(['-no-pie'] if a.sanitize else []),'-o',exe])
   scenarios=['save','cold-load','light-draft','alarm-draft','quick-shared','quick-retained']
+  if points_mode:
+   from badge_points_execution import SCENARIOS
+   scenarios=SCENARIOS
+  if a.scenario:
+   assert len(a.scenario)==len(set(a.scenario)) and set(a.scenario)<=set(scenarios),'Unknown/duplicate selected scenario'
+   scenarios=a.scenario
   for scenario in scenarios:
    env={**os.environ,**launcher_env,'TIMECARD_SCENARIO':scenario,'ASAN_OPTIONS':'detect_leaks=0:halt_on_error=1','UBSAN_OPTIONS':'halt_on_error=1','BADGE_SETTINGS_NATIVE_GEOMETRY_EXPECTED':str(int(settings_native_geometry)),'BADGE_PROTOTYPE_RASTERS':str(rasters.resolve()),'BADGE_WATCH_SPRINGBOARD':'1','BADGE_PROTOTYPE_NATIVE_SAFE_CONTENT':','.join(native_geometry_names),'BADGE_PROTOTYPE_SAFE_VIEWPORT':','.join(name for name,(_,defs,_) in source_app.items() if '-DPORTABLE_SAFE_VIEWPORT' in defs)}
-   r=run([exe,host,'0'],text=True,capture_output=True,timeout=300,env=env)
+   r=run([exe,host,'0'],text=True,capture_output=True,timeout=300,env=env,check_result=False)
    a.output.with_name(a.output.stem+'-'+scenario+'.log').write_text(r.stdout+'\nSTDERR\n'+r.stderr)
-   assert 'PASS actual Runtime Timecard' in r.stdout,(scenario,r.stdout,r.stderr)
+   r.check_returncode()
+   assert ('PASS actual Runtime Points' if points_mode else 'PASS actual Runtime Timecard') in r.stdout,(scenario,r.stdout,r.stderr)
    results.append({'target_index':0,'scenario':scenario,'returncode':r.returncode,'stdout':r.stdout,'stderr':r.stderr});print(scenario,r.returncode,flush=True)
    if a.compress_rasters:compress_rasters(rasters)
    if scenario!='save' and (host/'host-appdata').exists():shutil.rmtree(host/'host-appdata')
   for path,digest in sources.items():assert sha(path)==digest,'Input changed: '+path
  a.output.parent.mkdir(parents=True,exist_ok=True)
- a.output.write_text(json.dumps({'schema':1,'qualification':'badge-timecard','launcher_catalog':launcher_catalog,'launcher_catalog_path':str(catalog_path),'launcher_catalog_sha256':sha(catalog_path),'passed':True,'sanitize':a.sanitize,'foreground':a.foreground,'include_timecard':True,'timecard_recipe':records['timecard'],'foreground_recipes':foreground_recipes,'source_pins':lock,'store_files':record['store_files'],'target_build_sha256':sha(target/'build.json'),'driver_revision':subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD'],text=True).strip(),'fixture_sha256':{str(f.relative_to(ROOT)):sha(f) for f in [Path(__file__).resolve(),ROOT/'tests/badge_timecard_execution.cpp',ROOT/'tests/badge_timecard_execution.h',ROOT/'tests/badge_timecard_execution.inc',ROOT/'tests/badge_alarm_execution.inc',ROOT/'tests/badge_quick_execution.inc',ROOT/'tests/badge_wifi_execution.inc']},'host_preference_store':1,'host_atomic_key_value':0,'native_alarms':alarms_enabled,'quick_actions':quick_actions,'native_wifi_geometry':native_wifi_geometry,'case_count':len(results),'host_recompilation':True,'host_mapper_staging':host_mapper_receipt,'source_sha256':sources,'target_instruction_execution':False,'physical_tested':False,'modeled':['Actual Runtime graph and selected app/provider sources with host instruction mapping','SDK hardware/time/input and POSIX AppData medium','Read-only actual Timecard scene/control/Quick layout and launcher centers','One negative-case provider collect result changed only after actual OK; production client guards unmodified; preference callback entries observed','Separate target ELF/admission qualification required'],'commands':commands,'results':results},indent=2)+'\n')
+ a.output.write_text(json.dumps({'schema':1,'qualification':'badge-points' if points_mode else 'badge-timecard','selected_application':a.app,'host_compiled_apps':sorted(exercised_apps),'points_recipe':records.get('points_in_time'),'alarm_service_recipe':alarm_service_record,'launcher_catalog':launcher_catalog,'launcher_catalog_path':str(catalog_path),'launcher_catalog_sha256':sha(catalog_path),'passed':True,'sanitize':a.sanitize,'foreground':a.foreground,'include_timecard':True,'timecard_recipe':records['timecard'],'foreground_recipes':foreground_recipes,'source_pins':lock,'store_files':record['store_files'],'target_build_sha256':sha(target/'build.json'),'driver_revision':None if points_mode else subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD'],text=True).strip(),'driver_source_identity':'captured source_sha256; local snapshot, not a fabricated commit' if points_mode else 'git HEAD plus source_sha256','fixture_sha256':{str(f.relative_to(ROOT)):sha(f) for f in [Path(__file__).resolve(),ROOT/'tests/badge_timecard_execution.cpp',ROOT/'tests/badge_timecard_execution.h',ROOT/'tests/badge_points_execution.h',ROOT/'tests/badge_points_execution.inc',ROOT/'tests/badge_timecard_execution.inc',ROOT/'tests/badge_alarm_execution.inc',ROOT/'tests/badge_quick_execution.inc',ROOT/'tests/badge_wifi_execution.inc']},'host_preference_store':1,'host_atomic_key_value':0,'native_alarms':alarms_enabled,'quick_actions':quick_actions,'native_wifi_geometry':native_wifi_geometry,'case_count':len(results),'host_recompilation':True,'host_mapper_staging':host_mapper_receipt,'source_sha256':sources,'target_instruction_execution':False,'physical_tested':False,'modeled':['Actual Runtime graph and selected app/provider sources with host instruction mapping','SDK hardware/time/input and POSIX AppData medium',*(['Read-only Points scene/control maps and launcher centers','Synthetic preexisting Points configuration/time; edits and occurrence ACKs use production app/service'] if points_mode else ['Read-only actual Timecard scene/control/Quick layout and launcher centers','One negative-case provider collect result changed only after actual OK; production client guards unmodified; preference callback entries observed']),'Separate target ELF/admission qualification required'],'commands':commands,'results':results},indent=2)+'\n')
 if __name__=='__main__':main()

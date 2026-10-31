@@ -6,6 +6,16 @@
 #include <stdint.h>
 #include <time.h>
 #include <unistd.h>
+#include <stddef.h>
+
+/* This ordinary loadable ELF consumes the exported time32 clock_gettime ABI.
+ * Its layout is separate from native ESP-IDF provider/firmware time types.
+ * A mismatched consumer timespec can link but receive the wrong layout. */
+#if defined(__XTENSA__)
+_Static_assert(sizeof(time_t) == 4, "platform.clock requires firmware time32 ABI");
+_Static_assert(sizeof(struct timespec) == 8 && offsetof(struct timespec, tv_nsec) == 4,
+               "platform.clock timespec ABI mismatch");
+#endif
 
 static bool running;
 

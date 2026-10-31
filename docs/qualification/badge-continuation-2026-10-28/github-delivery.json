@@ -1,0 +1,951 @@
+{
+  "observed_at": "2026-10-28T02:30:23Z",
+  "prs": [
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE",
+      "number": 102,
+      "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/pull/102",
+      "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+      "base": "13eca114cb58469cf6004fafc3da84fbd9d29beb",
+      "draft": true,
+      "changed_files": 42,
+      "additions": 1151,
+      "deletions": 34,
+      "scope": "Existing published Timecard snapshot; reconciliation required before integration"
+    },
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE-Productivity",
+      "number": 28,
+      "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Productivity/pull/28",
+      "head": "652fe571bba7f0cd4750af82f4e8b255a1934756",
+      "base": "bb8d0d99b3a857103d2b01e6b4c756b913aa14d3",
+      "draft": true,
+      "changed_files": 14,
+      "additions": 1057,
+      "deletions": 3,
+      "scope": "Existing published Timecard snapshot; reconciliation required before integration"
+    },
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE-System-Apps",
+      "number": 162,
+      "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/pull/162",
+      "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+      "base": "7270a10ed9cefba6ec1368060196a13bb3370985",
+      "draft": true,
+      "changed_files": 693,
+      "additions": 18598,
+      "deletions": 63019,
+      "scope": "Existing published Timecard snapshot; reconciliation required before integration"
+    },
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE-Watch",
+      "number": 16,
+      "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Watch/pull/16",
+      "head": "5a727ca0037e0e39c6dfd578965d2bd6d1f87f49",
+      "base": "401fcfd360825ec1cf4ad89e736093aa6ac4c5cc",
+      "draft": true,
+      "changed_files": 178,
+      "additions": 10474,
+      "deletions": 250,
+      "scope": "Existing published Timecard snapshot; reconciliation required before integration"
+    },
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE-Utilities",
+      "number": 102,
+      "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/pull/102",
+      "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+      "base": "6b2047500905f8f45087cb49989103a926fc5c63",
+      "draft": true,
+      "changed_files": 326,
+      "additions": 3679,
+      "deletions": 27455,
+      "scope": "Existing published Timecard snapshot; reconciliation required before integration"
+    },
+    {
+      "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+      "number": 45,
+      "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/pull/45",
+      "head": "a45497f5df164ace12e3b56b615a3eaa76581f2c",
+      "base": "a7ae39994603c4545a3c014f09051ecfc12084d2",
+      "draft": true,
+      "changed_files": 518,
+      "additions": 50264,
+      "deletions": 238,
+      "scope": "Existing published Timecard snapshot; reconciliation required before integration"
+    }
+  ],
+  "ci": [
+    {
+      "repository": "RiscRTE",
+      "total": 23,
+      "runs": [
+        {
+          "id": 40621189158,
+          "attempt": 1,
+          "name": "Entropy radio readiness",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189158",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621189189,
+          "attempt": 1,
+          "name": "Generic preference provider qualification",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189189",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "id": 40621189163,
+          "attempt": 1,
+          "name": "Optional native serial files",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189163",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621189184,
+          "attempt": 1,
+          "name": "Policy fixture regressions",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189184",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621189152,
+          "attempt": 1,
+          "name": "Explicit native platform capacity",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189152",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621189228,
+          "attempt": 1,
+          "name": "Accepted STAT observation qualification",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189228",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621189117,
+          "attempt": 1,
+          "name": "RiscRTE integration",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189117",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621189130,
+          "attempt": 1,
+          "name": "Display startup regression",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189130",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621189241,
+          "attempt": 1,
+          "name": "Read-only app catalog host qualification",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189241",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621189131,
+          "attempt": 1,
+          "name": "X4 serial runtime candidate and heartbeat",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189131",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621189080,
+          "attempt": 1,
+          "name": "Experimental settings contracts",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189080",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "id": 40621189100,
+          "attempt": 1,
+          "name": "Native Quad SPI",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189100",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "id": 40621189081,
+          "attempt": 1,
+          "name": "ESP32-CAM candidate and hardware heartbeat",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189081",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "id": 40621189108,
+          "attempt": 1,
+          "name": "Exact-source runtime hardware results",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189108",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "id": 40621189083,
+          "attempt": 1,
+          "name": "Provider-backed Runtime ELF",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189083",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621189150,
+          "attempt": 1,
+          "name": "Optional generic file Runtime integration",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189150",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621189097,
+          "attempt": 1,
+          "name": "Provider-backed Runtime settings",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189097",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621189181,
+          "attempt": 1,
+          "name": "Crown recovery qualification",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189181",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621189079,
+          "attempt": 1,
+          "name": "Provider-backed Runtime metadata",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189079",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621189120,
+          "attempt": 1,
+          "name": "Generic PSRAM metadata qualification",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189120",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "id": 40621189133,
+          "attempt": 1,
+          "name": "HTTPS PSRAM regressions",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189133",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 40621189141,
+          "attempt": 1,
+          "name": "Native service sleep transaction",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189141",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "id": 40621189118,
+          "attempt": 1,
+          "name": "Shared SD settings regression",
+          "head": "07e982c27b9e584fcba6b49d1c84cacaa558d24f",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189118",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "repository": "RiscRTE-Productivity",
+      "total": 6,
+      "runs": [
+        {
+          "id": 40621193207,
+          "attempt": 1,
+          "name": "Timecard native UI software qualification",
+          "head": "652fe571bba7f0cd4750af82f4e8b255a1934756",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Productivity/actions/runs/40621193207",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193196,
+          "attempt": 1,
+          "name": "Lists shared scene build",
+          "head": "652fe571bba7f0cd4750af82f4e8b255a1934756",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Productivity/actions/runs/40621193196",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193510,
+          "attempt": 1,
+          "name": "Independent productivity app build",
+          "head": "652fe571bba7f0cd4750af82f4e8b255a1934756",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Productivity/actions/runs/40621193510",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193199,
+          "attempt": 1,
+          "name": "Reader NOVA-7 qualification",
+          "head": "652fe571bba7f0cd4750af82f4e8b255a1934756",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Productivity/actions/runs/40621193199",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193198,
+          "attempt": 1,
+          "name": "Points in Time development build",
+          "head": "652fe571bba7f0cd4750af82f4e8b255a1934756",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Productivity/actions/runs/40621193198",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193262,
+          "attempt": 1,
+          "name": "Timecard portable UI and model",
+          "head": "652fe571bba7f0cd4750af82f4e8b255a1934756",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Productivity/actions/runs/40621193262",
+          "status": "queued",
+          "conclusion": null
+        }
+      ]
+    },
+    {
+      "repository": "RiscRTE-System-Apps",
+      "total": 25,
+      "runs": [
+        {
+          "id": 40621193181,
+          "attempt": 1,
+          "name": "Sparse Clock RTC reconciliation",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193181",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193158,
+          "attempt": 1,
+          "name": "Scene telemetry qualification",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193158",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193253,
+          "attempt": 1,
+          "name": "Offline sharing entropy",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193253",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193186,
+          "attempt": 1,
+          "name": "Prospective U1 package witness (non-live)",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193186",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193162,
+          "attempt": 1,
+          "name": "Alarm startup BUSY adapter",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193162",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193214,
+          "attempt": 1,
+          "name": "Isolated portable timezone core",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193214",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193142,
+          "attempt": 1,
+          "name": "Opt-in timezone Settings",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193142",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193275,
+          "attempt": 1,
+          "name": "Shared text input checkpoint",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193275",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193220,
+          "attempt": 1,
+          "name": "X4 Files Reader handoff",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193220",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193250,
+          "attempt": 1,
+          "name": "NOVA scene components",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193250",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193131,
+          "attempt": 1,
+          "name": "Portable App Store",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193131",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193264,
+          "attempt": 1,
+          "name": "Nova7 paper clock",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193264",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193132,
+          "attempt": 1,
+          "name": "Quick Controls asynchronous close",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193132",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193168,
+          "attempt": 1,
+          "name": "Watch verified RTC change",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193168",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193122,
+          "attempt": 1,
+          "name": "Wi-Fi paper and Watch validation",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193122",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193213,
+          "attempt": 1,
+          "name": "Mounted Files browser",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193213",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193283,
+          "attempt": 1,
+          "name": "Shared settings SD safety",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193283",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193191,
+          "attempt": 1,
+          "name": "Watch crown profile cleanup",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193191",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193288,
+          "attempt": 1,
+          "name": "Portable Firmware Update",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193288",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193149,
+          "attempt": 1,
+          "name": "Watch first-attempt RTC composition",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193149",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193192,
+          "attempt": 1,
+          "name": "Native SDK 6.1 shared components",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193192",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193133,
+          "attempt": 1,
+          "name": "Watch color profile contract",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193133",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193223,
+          "attempt": 1,
+          "name": "Shared app custody regression",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193223",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621193185,
+          "attempt": 1,
+          "name": "Independent system app build",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193185",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "id": 40621193245,
+          "attempt": 1,
+          "name": "Reader NOVA-7 scene qualification",
+          "head": "d0aaeb79f150a57e2ed91a46d746cb0cb23770b6",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193245",
+          "status": "in_progress",
+          "conclusion": null
+        }
+      ]
+    },
+    {
+      "repository": "RiscRTE-Watch",
+      "total": 4,
+      "runs": [
+        {
+          "id": 40621197349,
+          "attempt": 1,
+          "name": "Visible RTC synchronization",
+          "head": "5a727ca0037e0e39c6dfd578965d2bd6d1f87f49",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Watch/actions/runs/40621197349",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621197373,
+          "attempt": 1,
+          "name": "Universal watch application",
+          "head": "5a727ca0037e0e39c6dfd578965d2bd6d1f87f49",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Watch/actions/runs/40621197373",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621197347,
+          "attempt": 1,
+          "name": "Home serial-session navigation",
+          "head": "5a727ca0037e0e39c6dfd578965d2bd6d1f87f49",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Watch/actions/runs/40621197347",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621197435,
+          "attempt": 1,
+          "name": "Shared native-height layout",
+          "head": "5a727ca0037e0e39c6dfd578965d2bd6d1f87f49",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Watch/actions/runs/40621197435",
+          "status": "queued",
+          "conclusion": null
+        }
+      ]
+    },
+    {
+      "repository": "RiscRTE-Utilities",
+      "total": 18,
+      "runs": [
+        {
+          "id": 40621201180,
+          "attempt": 1,
+          "name": "Contexts shared input",
+          "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40621201180",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621200497,
+          "attempt": 1,
+          "name": "Independent utility build",
+          "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40621200497",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621200688,
+          "attempt": 1,
+          "name": "Watch Spectrum shared input",
+          "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40621200688",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621200606,
+          "attempt": 1,
+          "name": "Portable Model Viewer and Hollow Trail",
+          "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40621200606",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621200615,
+          "attempt": 1,
+          "name": "Nova7 paper utilities",
+          "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40621200615",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621200503,
+          "attempt": 1,
+          "name": "BLE HID Utilities",
+          "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40621200503",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621200548,
+          "attempt": 1,
+          "name": "Shared color alarm sleep retry",
+          "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40621200548",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621200538,
+          "attempt": 1,
+          "name": "Watch Scanner shared input",
+          "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40621200538",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621200614,
+          "attempt": 1,
+          "name": "Contexts service and editor",
+          "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40621200614",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621200624,
+          "attempt": 1,
+          "name": "Spectrum storage lifecycle",
+          "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40621200624",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621200560,
+          "attempt": 1,
+          "name": "Alarm first-attempt profiles",
+          "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40621200560",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621200504,
+          "attempt": 1,
+          "name": "BLE Scanner",
+          "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40621200504",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621200516,
+          "attempt": 1,
+          "name": "Alarm tagged ABI reconciliation",
+          "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40621200516",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621200592,
+          "attempt": 1,
+          "name": "SDR Waterfall",
+          "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40621200592",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621200546,
+          "attempt": 1,
+          "name": "Native UTC visual alarm profile",
+          "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40621200546",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621200681,
+          "attempt": 1,
+          "name": "NOVA battery power screens",
+          "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40621200681",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621200553,
+          "attempt": 1,
+          "name": "Spectrum modal policy",
+          "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40621200553",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40566508652,
+          "attempt": 1,
+          "name": "Nova7 paper utilities",
+          "head": "2e3fb04c17119a6371a3f286efbdf178ab9673eb",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40566508652",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "repository": "RiscRTE-Drivers",
+      "total": 13,
+      "runs": [
+        {
+          "id": 40621204600,
+          "attempt": 1,
+          "name": "Badge prototype cohort",
+          "head": "a45497f5df164ace12e3b56b615a3eaa76581f2c",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/40621204600",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621204595,
+          "attempt": 1,
+          "name": "Badge scoped Home and native link",
+          "head": "a45497f5df164ace12e3b56b615a3eaa76581f2c",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/40621204595",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621204538,
+          "attempt": 1,
+          "name": "Generic BLE sensors and telemetry",
+          "head": "a45497f5df164ace12e3b56b615a3eaa76581f2c",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/40621204538",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621204472,
+          "attempt": 1,
+          "name": "Raw HID checked custody qualification",
+          "head": "a45497f5df164ace12e3b56b615a3eaa76581f2c",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/40621204472",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621204508,
+          "attempt": 1,
+          "name": "Native USB controller SDK qualification",
+          "head": "a45497f5df164ace12e3b56b615a3eaa76581f2c",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/40621204508",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621204519,
+          "attempt": 1,
+          "name": "CST9217 touch provider",
+          "head": "a45497f5df164ace12e3b56b615a3eaa76581f2c",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/40621204519",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621204433,
+          "attempt": 1,
+          "name": "Guarded S3 IQ driver",
+          "head": "a45497f5df164ace12e3b56b615a3eaa76581f2c",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/40621204433",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621204488,
+          "attempt": 1,
+          "name": "Generic BLE HID peripheral",
+          "head": "a45497f5df164ace12e3b56b615a3eaa76581f2c",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/40621204488",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621204428,
+          "attempt": 1,
+          "name": "Generic power capability adapters",
+          "head": "a45497f5df164ace12e3b56b615a3eaa76581f2c",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/40621204428",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621204444,
+          "attempt": 1,
+          "name": "Native CDC bounded qualification",
+          "head": "a45497f5df164ace12e3b56b615a3eaa76581f2c",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/40621204444",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621204450,
+          "attempt": 1,
+          "name": "Driver parity and build",
+          "head": "a45497f5df164ace12e3b56b615a3eaa76581f2c",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/40621204450",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621204468,
+          "attempt": 1,
+          "name": "Badge board preparation",
+          "head": "a45497f5df164ace12e3b56b615a3eaa76581f2c",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/40621204468",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "id": 40621204571,
+          "attempt": 1,
+          "name": "Badge shared CO5300 integration",
+          "head": "a45497f5df164ace12e3b56b615a3eaa76581f2c",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/40621204571",
+          "status": "queued",
+          "conclusion": null
+        }
+      ]
+    }
+  ],
+  "registrations": [
+    {
+      "repo": "RiscRTE-Drivers",
+      "run": 40621204600,
+      "error": false
+    },
+    {
+      "repo": "RiscRTE-Productivity",
+      "run": 40621193207,
+      "error": false
+    },
+    {
+      "repo": "RiscRTE",
+      "run": 40621189117,
+      "error": false
+    },
+    {
+      "repo": "RiscRTE-System-Apps",
+      "run": 40621193192,
+      "error": false
+    },
+    {
+      "repo": "RiscRTE-Watch",
+      "run": 40621197435,
+      "error": false
+    },
+    {
+      "repo": "RiscRTE-Utilities",
+      "run": 40621200546,
+      "error": false
+    }
+  ],
+  "runtime_recovery_publication": "DENIED; e125ae9 not present remotely",
+  "new_driver_code_publication": "LOCAL ONLY; not pushed",
+  "limit": "Queued/running snapshots do not qualify final CI or full migration"
+}

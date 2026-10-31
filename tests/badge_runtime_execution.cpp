@@ -31,7 +31,7 @@ struct Model {
     unsigned probeInit=0,probeFini=0,probeProgress=0,launchRefusals=0;
     bool pins[49]{},levels[49]{},i2c=false,display=false,ready=false,services=false;
     bool badSupplyOnce=false,rejectCloseOnce=false;
-    uint16_t reg=0;uint8_t level=0;
+    uint16_t reg=0;uint8_t level=0,requestedLevel=0,touchMode=0;bool frameComplete=false,touchSleeping=false;
     std::vector<uint16_t> pixels=std::vector<uint16_t>(466*466);
     std::vector<std::string> stages,unloaded;
     std::map<void*,std::string> mapped;
@@ -90,7 +90,12 @@ bool gpioOpen(uint8_t pin,bool output,bool initial,bool pullup){
     ++m.io;assert((pin==1||pin==2)&&output&&!initial&&!pullup&&!m.pins[pin]);
     m.pins[pin]=true;m.levels[pin]=initial;if(pin==2)m.resetAt=m.ms;return true;
 }
-bool gpioWrite(uint8_t pin,bool high){++m.io;assert(pin==2&&m.pins[pin]&&high&&!m.levels[pin]&&m.ms-m.resetAt>=10);m.levels[pin]=high;return true;}
+bool gpioWrite(uint8_t pin,bool high){
+    ++m.io;assert(pin==2&&m.pins[pin]);
+    if(high){assert(!m.levels[pin]&&m.ms-m.resetAt>=10);m.touchMode=0;m.touchSleeping=false;}
+    else m.resetAt=m.ms;
+    m.levels[pin]=high;return true;
+}
 bool gpioRead(uint8_t pin,bool* out){++m.io;assert(pin==2&&m.pins[pin]);*out=m.levels[pin];return true;}
 bool gpioPwm(uint8_t,uint32_t,uint16_t,uint16_t){assert(false);return false;}
 bool gpioClose(uint8_t pin){++m.io;assert((pin==1||pin==2)&&m.pins[pin]);m.pins[pin]=false;return true;}
@@ -115,8 +120,9 @@ bool i2cTransfer(uint8_t physical,uint8_t address,const uint8_t* tx,size_t tn,ui
     }
     assert(address==0x5a&&m.pins[2]&&m.levels[2]&&m.ms-m.resetAt>=60);
     assert(!(tn&&rn));
-    if(tn){assert(tx&&tn==2&&!rx);m.reg=uint16_t((tx[0]<<8)|tx[1]);m.selectedAt=m.ms;return true;}
+    if(tn){assert(tx&&tn==2&&!rx);m.reg=uint16_t((tx[0]<<8)|tx[1]);if(m.reg==0xd11e)m.touchMode=0x1e;if(m.reg==0xd101)m.touchMode=1;if(m.reg==0xd105)m.touchSleeping=true;m.selectedAt=m.ms;return true;}
     assert(!tx&&rx&&m.ms-m.selectedAt>=2);
+    if(m.reg==0x0002){assert(rn==4||rn==2);memset(rx,0,rn);rx[1]=m.touchMode;return true;}
     if(m.reg==0xd1f8){assert(rn==4);unsigned width=m.mode=="home-touch-failure"?465:466;rx[0]=width;rx[1]=width>>8;rx[2]=466&255;rx[3]=466>>8;return true;}
     if(m.reg==0xd1fc||m.reg==0xd204){assert(rn==4);memset(rx,0,rn);return true;}
     assert(m.reg==0xd000&&rn==10);++m.touchReads;memset(rx,0,rn);rx[6]=0xab;
@@ -134,14 +140,24 @@ bool displayAccepts(const risc_hardware_device_v1& d,uint8_t physical){
         c.base.reset==1&&c.base.bus.sclk==38&&c.base.bus.mosi==4&&c.base.bus.miso==5&&c.data2==6&&c.data3==7&&c.base.cs==12;
 }
 bool displayOpen(const risc_hardware_device_v1& d,uint8_t physical){
-    ++m.io;++m.displayOpens;assert(displayAccepts(d,physical)&&!m.display&&!m.pins[1]);m.display=true;
+    ++m.io;++m.displayOpens;assert(displayAccepts(d,physical)&&!m.display&&!m.pins[1]);m.display=true;m.frameComplete=false;m.level=m.requestedLevel=0;
     return m.mode!="home-display-failure"&&m.mode!="probe-start-retained";
 }
 bool displayRow(uint32_t y,const uint16_t* row,size_t width){
     ++m.io;assert(m.display&&row&&width==466&&y==m.rows%466);
-    std::copy(row,row+width,m.pixels.begin()+y*width);++m.rows;if(y==465)++m.frames;return true;
+    std::copy(row,row+width,m.pixels.begin()+y*width);++m.rows;if(y==465){
+        ++m.frames;
+        if(!m.frameComplete){m.frameComplete=true;m.level=m.requestedLevel;if(m.level)++m.unblanks;}
+    }return true;
 }
-bool displayBrightness(uint8_t level){++m.io;assert(m.display);if(level){assert(m.frames&&m.rows%466==0);++m.unblanks;}m.level=level;return true;}
+bool displayBrightness(uint8_t level){
+    ++m.io;assert(m.display);m.requestedLevel=level;
+    // Selected native backend queues nonzero startup brightness until the
+    // first complete checked frame, preserving the dark-start contract.
+    if(!m.frameComplete&&level){assert(!m.level);return true;}
+    if(level){assert(m.frames&&m.rows%466==0);++m.unblanks;}
+    m.level=level;return true;
+}
 bool displayClose(){
     ++m.io;++m.displayCloses;assert(m.display);
     if(m.mode=="probe-start-retained"||m.mode=="home-shutdown-retained")return false;

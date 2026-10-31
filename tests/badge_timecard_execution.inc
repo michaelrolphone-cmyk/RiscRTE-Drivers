@@ -10,7 +10,11 @@ extern "C" void badge_timecard_launcher_observe(unsigned count,unsigned first,un
 }
 static void tcRaster(const char*label){
  const char*dir=getenv("BADGE_PROTOTYPE_RASTERS");if(!dir||!*dir)return;
+#ifdef BADGE_POINTS_EXECUTION
+ std::string path=std::string(dir)+"/"+m.foregroundApp+"-"+tc.scenario+"-"+label+".ppm";
+#else
  std::string path=std::string(dir)+"/timecard-"+tc.scenario+"-"+label+".ppm";
+#endif
  FILE*f=fopen(path.c_str(),"wb");assert(f);fprintf(f,"P6\n466 466\n255\n");
  for(auto p:m.pixels){unsigned char c[3]={uint8_t(((p>>11)&31)*255/31),uint8_t(((p>>5)&63)*255/63),uint8_t((p&31)*255/31)};assert(fwrite(c,1,3,f)==3);}assert(!fclose(f));
 }

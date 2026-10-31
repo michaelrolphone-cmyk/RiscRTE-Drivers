@@ -124,7 +124,10 @@ class BoardCohortPreservation(unittest.TestCase):
         }))
         self.write('boards/new-board/source.c', 'new\n')
         self.git('add', '.')
-        with patch.object(module, 'ROOT', self.root):
+        with patch.object(module, 'ROOT', self.root), patch.object(module, 'ADDITIVE_SDK', {}), patch.object(module, 'EXTENDED_SDK', {}), patch.object(module, 'verify_additive_custody'):
+            # This synthetic board-only fixture has no custody cohort. The new
+            # additive validation has its own real-tree negative tests; retain
+            # the actual manifest prefix diff here, including historical drift.
             module.main()
             for path in ('Drivers/usb_host_v2/driver.c', 'sdk/locked.h',
                          'manifest/source-trees.json', 'candidates/old/source.c',

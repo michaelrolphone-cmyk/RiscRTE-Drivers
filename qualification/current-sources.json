@@ -1,0 +1,254 @@
+{
+  "schema": 1,
+  "sources": [
+    {
+      "id": "platform-clock-v1",
+      "path": "Drivers/platform_clock_v1",
+      "version": "0.1.1",
+      "tree_sha": "5ab67d06a8da92d6b9b4448d6eae19b3f979784d",
+      "release_index_commit": "19bb3dcb5cb763c4eacd884ad5fc0bcab57ff2ed",
+      "upstream": {
+        "repository": "michaelrolphone-cmyk/T5S3-Reader",
+        "commit": "9c8783d6f20659a514bfaeb3847a77c7213dc4f6",
+        "path": "Drivers/platform_clock_v1",
+        "version": "0.1.1",
+        "tree_sha": "a897b1b3f64b578b600d0024814e06d46da6b6ea"
+      },
+      "historical": {
+        "version": "0.1.0",
+        "source_tree": "594a3affe76fb840c81edc7fa9f09eca645a894f",
+        "sha256": "a5231d3f21931261b10ae82a3e16248d60a678aa6ebc67b61cb702491d6a0ece",
+        "size": 29544
+      },
+      "evidence": {
+        "current_manifest": {
+          "path": "qualification/evidence/platform-clock-v1/current_manifest.json",
+          "sha256": "13cc11f17f900a1811d420699da3c0b581df9f68cd547d13200180c2d32c7e71"
+        },
+        "current_build": {
+          "path": "qualification/evidence/platform-clock-v1/current_build.json",
+          "sha256": "91910c44ed377b2fc2722a550d662f983bdabfe0590050846086d0f7007b0c86"
+        },
+        "historical_manifest": {
+          "path": "qualification/evidence/platform-clock-v1/historical_manifest.json",
+          "sha256": "c952c2072f7c30c27c1482541d101014c3b93e7f5465ebafb71a87799cb3c399"
+        },
+        "historical_replay": {
+          "path": "qualification/evidence/platform-clock-v1/historical_replay.json",
+          "sha256": "c6f85f856ee2df814b11b03f89fdbac8c68947bd2368bfdc28171ae176e6f081"
+        }
+      },
+      "attribution": "Tasker source/release reconciliation task0224; exact hosted qualification independently checked by coordinator; metadata linkage technical review pending",
+      "rationale": "Current0.1.1 ordinary-ELF guard is separately qualified; historical0.1.0 release/tree remain immutable. Local upstream comment correction avoids claiming all native firmware uses time32. No runtime equivalence inferred.",
+      "limits": [
+        "Only current source/build evidence and historical accepted-byte replay are bound.",
+        "Current tree differs from upstream; conflict remains unresolved by this metadata linkage.",
+        "No hardware/runtime behavioral equivalence or complete toolchain closure claim.",
+        "Evidence hashes establish local bindings, not cryptographic authentication of hosted CI execution."
+      ],
+      "hosted_provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "source_commit": "bea07858b9f7e53f36a4b9e6f2241990b8bf832c",
+        "current_artifact_id": 12946122256,
+        "historical_artifact_id": 12945873108
+      }
+    },
+    {
+      "id": "usb-ch34x-v2",
+      "path": "Drivers/usb_ch34x_v2",
+      "version": "0.1.7",
+      "tree_sha": "67331de2d735ac5485790dd9761d28e0c0146bd0",
+      "release_index_commit": "19bb3dcb5cb763c4eacd884ad5fc0bcab57ff2ed",
+      "upstream": {
+        "repository": "michaelrolphone-cmyk/T5S3-Reader",
+        "commit": "9c8783d6f20659a514bfaeb3847a77c7213dc4f6",
+        "path": "Drivers/usb_ch34x_v2",
+        "version": "0.1.7",
+        "tree_sha": "8a235071b10203c92c4b37a74563d677ab7d280a"
+      },
+      "historical": {
+        "version": "0.1.0",
+        "source_tree": "6b2dc3c8e1f685d6fdaba58d04a763378f524b1b",
+        "sha256": "8d88d227ac61116116b0ffb7c0e4052b7b547a0a19edc13a13af08792b95d621",
+        "size": 6340
+      },
+      "evidence": {
+        "current_manifest": {
+          "path": "qualification/evidence/usb-ch34x-v2/current_manifest.json",
+          "sha256": "1f6e810ca4b2b8f757f63d837dc4c8dec8bf3d7072d999851159c008454da900"
+        },
+        "historical_manifest": {
+          "path": "qualification/evidence/usb-ch34x-v2/historical_manifest.json",
+          "sha256": "b30df013b6faf1ea0740d9b569db795751468ea5678ff685e5365d34a3a17bb6"
+        },
+        "historical_replay": {
+          "path": "qualification/evidence/usb-ch34x-v2/historical_replay.json",
+          "sha256": "2385d04713af91117f6b46c80757d3eaa8c85acd2eefbc625c8d07109dd3349d"
+        },
+        "current_build": {
+          "path": "qualification/evidence/usb-ch34x-v2/current_build.json",
+          "sha256": "4d94b4653348408ff26a0ff7700862835582680278db6797fb184b24305a9b6d"
+        }
+      },
+      "attribution": "Tasker original task0224; exact hosted current/historical artifacts retained and verified; this metadata linkage is under independent technical review.",
+      "rationale": "Current stream/inventory/custody source is separately built and qualified; historical raw-interface0.1.0 accepted source and bytes remain immutable. Source-preserving explicit SerialPort include differs from upstream and is not a behavioral-equivalence claim.",
+      "limits": [
+        "Only complete source/build-input bindings and historical accepted-byte replay are established by this consumer.",
+        "Current tree conflict remains visible; metadata linkage does not resolve behavioral differences.",
+        "Normal/sanitized host fixtures have fake controller/device boundaries; no physical device or firmware adoption claim.",
+        "Build-input inventory is over-approximate available SDK evidence, not proof every header was consumed or complete compiler/environment closure.",
+        "Hashes bind evidence bytes, not independent authentication of hosted CI."
+      ],
+      "hosted_provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "source_commit": "c16bb4deb491eb6ef7460b446c39706a109865fd",
+        "current_artifact_id": 12949019436,
+        "historical_artifact_id": 12949487131
+      },
+      "historical_acceptance": {
+        "format": "python-literal-producer-lock-v1",
+        "commit": "504403db4ae9a315bb57e3ef98ed18a54de91641",
+        "path": "scripts/build_usb_ch34x_v2.py",
+        "blob": "8835c6a0608df5e03e128e12d62e5fb69733c3ea",
+        "sha256": "e7c4b7a8e3c4a9b067c5caea1126830f822d19d0f4618b131945c143cfd2d57d",
+        "constants": {
+          "sha256": "CANONICAL_SHA256",
+          "size": "CANONICAL_SIZE"
+        }
+      }
+    },
+    {
+      "id": "usb-cp210x-v2",
+      "path": "Drivers/usb_cp210x_v2",
+      "version": "0.1.8",
+      "tree_sha": "4c7f4db302942a6915a039be4dc7190426e85907",
+      "release_index_commit": "19bb3dcb5cb763c4eacd884ad5fc0bcab57ff2ed",
+      "upstream": {
+        "repository": "michaelrolphone-cmyk/T5S3-Reader",
+        "commit": "9c8783d6f20659a514bfaeb3847a77c7213dc4f6",
+        "path": "Drivers/usb_cp210x_v2",
+        "version": "0.1.8",
+        "tree_sha": "709526e61d0cccfed25aee699e2ed767053ac969"
+      },
+      "historical": {
+        "version": "0.1.0",
+        "source_tree": "876bba87ab601fafbcd873ae3fd0e14f96151d3b",
+        "sha256": "96f22bbb6cc8cf00f138656a910d3078d491d6c117ffc4e23a2842c458481c61",
+        "size": 5788
+      },
+      "evidence": {
+        "current_build": {
+          "path": "qualification/evidence/usb-cp210x-v2/current_build.json",
+          "sha256": "8a293f5ca12fbdd3958cba672b6bdcf629dc6c7354eec4903ed03bc5a11046ca"
+        },
+        "current_manifest": {
+          "path": "qualification/evidence/usb-cp210x-v2/current_manifest.json",
+          "sha256": "7e1b52c3dac0c55dc2063aef064bef0db3dc311a4ae3d7748b6ed70c2c1cc378"
+        },
+        "historical_replay": {
+          "path": "qualification/evidence/usb-cp210x-v2/historical_replay.json",
+          "sha256": "ea242a2d7c9e9c3fdfcb4c0a76d6b6443b451baa373853bd70b4b72a5ec29b24"
+        },
+        "historical_manifest": {
+          "path": "qualification/evidence/usb-cp210x-v2/historical_manifest.json",
+          "sha256": "7f6e7614dde01411e401e730b865ac536ab4f7b8858e08ce09e541c6fedfd2a3"
+        }
+      },
+      "attribution": "Tasker source-convergence task0224; exact hosted current/historical artifacts independently hash-verified against source and original producer locks; metadata linkage under coordinator review.",
+      "rationale": "Current0.1.8 source and build are separately qualified; historical0.1.0 raw-interface source and accepted bytes remain immutable. Generalized existing qualification binds both without declaring behavioral equivalence or physical acceptance.",
+      "limits": [
+        "Only complete source/build-input bindings and historical accepted-byte replay are established by this consumer.",
+        "Current source differs from upstream; conflict remains visible and is not resolved by metadata linkage.",
+        "No physical device, firmware adoption or behavioral-equivalence claim.",
+        "Available SDK inventory is over-approximate, not proof every header was consumed or complete compiler/environment closure.",
+        "Evidence hashes bind bytes, not independent cryptographic authentication of hosted execution."
+      ],
+      "hosted_provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "source_commit": "562a86baff1d6fd4f652ed85d395a27dccaabe32",
+        "retained_archives": {
+          "cp210-current-562a.zip": "4a77547b6568b529fc5b5243fcc3e8874070fc0024c22128c6ef7a148601affe",
+          "cp210-historical-562a.zip": "debe0119f1c361c5ab0159c87996e081d43308d7991ccce4c19e7374cbea193c"
+        }
+      },
+      "historical_acceptance": {
+        "format": "python-literal-producer-lock-v1",
+        "commit": "2fda8da83276a263a5fb902cebf7b5eac21674ee",
+        "path": "scripts/build_usb_cp210x_v2.py",
+        "blob": "b17631f61a3ec0591cbc4e4a238797f7069fe87b",
+        "sha256": "847104fcadd24806870df644160c7e599311ebab242f2d2323d1d257612ddb42",
+        "constants": {
+          "sha256": "CANONICAL_SHA256",
+          "size": "CANONICAL_SIZE"
+        }
+      }
+    },
+    {
+      "id": "board-power-t5s3-v2",
+      "path": "Drivers/bq25896",
+      "version": "0.1.9",
+      "tree_sha": "e88cc7840f245a853a9b374472a665285e3f4709",
+      "release_index_commit": "19bb3dcb5cb763c4eacd884ad5fc0bcab57ff2ed",
+      "upstream": {
+        "repository": "michaelrolphone-cmyk/T5S3-Reader",
+        "commit": "9c8783d6f20659a514bfaeb3847a77c7213dc4f6",
+        "path": "Drivers/bq25896",
+        "version": "0.1.9",
+        "tree_sha": "9aa7bab20180f34984b551e29359e7c86472d5f7"
+      },
+      "historical": {
+        "version": "0.1.6",
+        "source_tree": "17c99241a5606380a3ce5755e35f2f4a28b1ab1a",
+        "sha256": "5f50b5eb048085e3128939b6bed3693a9a44ebe27c9e2cae3b40dd725aa6a4c4",
+        "size": 12660
+      },
+      "evidence": {
+        "current_build": {
+          "path": "qualification/evidence/board-power-t5s3-v2/current_build.json",
+          "sha256": "077753d0db17ab3edd6250f39a2afe308cf56e27a87af9ea3ca06642019ff48e"
+        },
+        "current_manifest": {
+          "path": "qualification/evidence/board-power-t5s3-v2/current_manifest.json",
+          "sha256": "ac40560834c7cad51a8a7f44b35774043174c5b596c821c9de25e8e2028bafcd"
+        },
+        "historical_replay": {
+          "path": "qualification/evidence/board-power-t5s3-v2/historical_replay.json",
+          "sha256": "dfdd1da865e9094fd5578699541003be5feae8006610c21e6c40498ef9366fb7"
+        },
+        "historical_manifest": {
+          "path": "qualification/evidence/board-power-t5s3-v2/historical_manifest.json",
+          "sha256": "3c03863631865cdd91dd8c62a22e272401e4ce511a8dd78e309843ab1663ec5c"
+        }
+      },
+      "attribution": "Tasker source-convergence task0224; exact hosted current/historical artifacts independently hash-verified against source and original producer locks; metadata linkage under coordinator review.",
+      "rationale": "Current0.1.9 source and build are separately qualified; historical0.1.6 source and accepted bytes remain immutable. Generalized existing qualification binds both without declaring behavioral equivalence or physical acceptance.",
+      "limits": [
+        "Only complete source/build-input bindings and historical accepted-byte replay are established by this consumer.",
+        "Current source adds the exact upstream SDK VBUS header as an explicit package overlay; whole-directory conflict remains visible and is not resolved by metadata linkage.",
+        "No physical device, firmware adoption or behavioral-equivalence claim.",
+        "Available SDK inventory is over-approximate, not proof every header was consumed or complete compiler/environment closure.",
+        "Evidence hashes bind bytes, not independent cryptographic authentication of hosted execution."
+      ],
+      "hosted_provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "source_commit": "172fb54e52561de579182c9e8d5331717ae262e2",
+        "retained_archives": {
+          "source-parity.zip": "2efe0b775f3511d6587464037633846a385a8a776247a1730e169e2b7aea9ead",
+          "bq-historical.zip": "f9ca758fa68ee58118eb18f10a04c661d14498ceed153ec608169c58432acb0b",
+          "bq-current.zip": "0017f7284145a24c9928d86966c9f2f62d6bd26a68172e97e9344e3999a7dfd7"
+        }
+      },
+      "historical_acceptance": {
+        "format": "python-literal-producer-lock-v1",
+        "commit": "a7ae39994603c4545a3c014f09051ecfc12084d2",
+        "path": "scripts/build_board_power_t5s3_v2.py",
+        "blob": "4b83fc2eb719680260de821d34b537c855395bb1",
+        "sha256": "260e6dd88268c25884ef1bd7cdba0b3f29f4ee005080f9b15d1d9fb1ffdf41cb",
+        "constants": {
+          "sha256": "CANONICAL_SHA256",
+          "size": "CANONICAL_SIZE"
+        }
+      }
+    }
+  ]
+}

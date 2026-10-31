@@ -1,0 +1,34 @@
+{
+  "type": "driver",
+  "id": "board-power-t5s3-v2",
+  "version": "0.1.9",
+  "driver_abi": 2,
+  "architecture": "xtensa-esp32s3",
+  "file_name": "driver.elf",
+  "requires": [
+    {
+      "capability": "i2c.bus",
+      "api": 1
+    },
+    {
+      "capability": "platform.clock",
+      "api": 1
+    },
+    {
+      "capability": "board.power.bq25896.profile",
+      "api": 1
+    }
+  ],
+  "provides": [
+    {
+      "capability": "board.power.vbus",
+      "api": 1
+    }
+  ],
+  "status": "experimental-unpublished",
+  "size_bytes": 14680,
+  "sha256": "db5074826c02a0531565aa0eea3cd597092402f6e3bcd2dcbe17e14156cc86c2",
+  "canonical_size_bytes": 12660,
+  "canonical_sha256": "5f50b5eb048085e3128939b6bed3693a9a44ebe27c9e2cae3b40dd725aa6a4c4",
+  "byte_parity": false
+}

@@ -35,11 +35,18 @@
 #ifdef BADGE_NATIVE_ALARMS
 #include "AlarmRecords.h"
 #include <RiscKeyValueV2.h>
+#ifdef BADGE_MIXED_POINTS_PRODUCT
+#define _Static_assert static_assert
+#include "PointsSchedule.h"
+#undef _Static_assert
+#endif
 #endif
 
 void alarmObserve(bool completed=false);
 void alarmKvWritten(uint32_t,const char*,const void*,uint32_t);
 void alarmTimerArm(uint32_t);
+bool alarmForegroundTicketCase();
+void alarmForegroundTimerArm(uint32_t);
 bool alarmTouch(uint64_t age,bool&down,unsigned&x,unsigned&y);
 void alarmKeys(uint8_t reg);
 unsigned alarmCatalog();
@@ -153,6 +160,7 @@ static void foregroundComplete(){
  if(m.foregroundApp=="stopwatch"){assert(progress>=m.firstElapsed+m.totalSlept);assert(m.kvWrites==1);}
  if(m.foregroundApp=="wifi_settings"){assert(!progress&&!m.kvWrites);}
  if(m.caseIndex==18)assert(m.maintenanceRefusals);
+ if(alarmForegroundTicketCase())assert(am.timerArms==m.lightEntries&&am.timerClears==am.timerArms&&!am.timer&&am.resumeSuccesses==m.lightEntries);
  printf("PASS actual Runtime foreground Light case=%u app=%s cycles=%u same_invocation=passed native_transactions=%u fresh_visibility=passed native_dark_until_complete=passed pixels_466x466=restored touch_reopens=%u late_latches=%u elapsed=%llu active_maintenance_refusal=%s no_deep_Save_Cancel_or_Home hardware_unverified\n",m.caseIndex,m.app.c_str(),m.lightEntries,m.transactionResumes,m.touchOpens,m.lateLatches,progress,m.caseIndex==18?"passed":"not-in-case");
  std::exit(0);
 }
@@ -337,7 +345,7 @@ bool displayRow(uint32_t y,const uint16_t* row,size_t width){
  fixtureBoundaryObserve();
  if(m.app=="file_browser")probeState();
  const char*dir=getenv("BADGE_PROTOTYPE_RASTERS");const std::string picture=am.enabled&&am.modal?m.app+"-alarm-visible":am.enabled&&am.acked&&!am.modal?m.app+"-alarm-dismissed":selectedForeground()?m.app+(m.lightEntries?"-wake-"+std::to_string(m.lightEntries):(m.probe&&probeState()?"-active":"-initial")):m.app=="settings"&&m.seedCalls?"settings-saved":m.app;
- if(dir&&*dir&&(!m.captured[picture]||(m.app=="default"&&m.visits==4)||(!navigationTarget()&&m.visibleClock&&!m.captured["visible-clock"]))){m.captured[picture]=true;if(!navigationTarget()&&m.visibleClock)m.captured["visible-clock"]=true;std::string path=std::string(dir)+"/"+std::to_string(m.caseIndex)+"-"+picture+".ppm";FILE*f=fopen(path.c_str(),"wb");assert(f);fprintf(f,"P6\n466 466\n255\n");for(uint16_t p:m.pixels){unsigned char c[3]={uint8_t(((p>>11)&31)*255/31),uint8_t(((p>>5)&63)*255/63),uint8_t((p&31)*255/31)};assert(fwrite(c,1,3,f)==3);}assert(!fclose(f));}
+ if(dir&&*dir&&(!m.captured[picture]||(m.app=="default"&&m.visits==4)||(!navigationTarget()&&m.visibleClock&&!m.captured["visible-clock"]))){m.captured[picture]=true;if(!navigationTarget()&&m.visibleClock)m.captured["visible-clock"]=true;std::string path=std::string(dir)+"/"+std::to_string(m.caseIndex)+"-"+picture+".ppm";std::string temporary=path+".tmp";FILE*f=fopen(temporary.c_str(),"wb");assert(f);fprintf(f,"P6\n466 466\n255\n");for(uint16_t p:m.pixels){unsigned char c[3]={uint8_t(((p>>11)&31)*255/31),uint8_t(((p>>5)&63)*255/63),uint8_t((p&31)*255/31)};assert(fwrite(c,1,3,f)==3);}assert(!fclose(f));assert(!std::rename(temporary.c_str(),path.c_str()));}
  }return true;
 }
 bool displayBrightness(uint8_t level){
@@ -443,7 +451,7 @@ int main(int argc,char**argv){
  am.enabled=m.caseIndex>=23;m.foreground=(m.caseIndex>=11&&m.caseIndex<19)||m.caseIndex==22;m.target=m.caseIndex;m.mode="prototype";m.watchSpringboard=getenv("BADGE_WATCH_SPRINGBOARD")!=nullptr;if(m.caseIndex==19)m.target=0;if(m.caseIndex==20)m.target=6;
  if(m.foreground&&m.caseIndex!=22){const unsigned selected[]={0,2,3,0,4,5,2,4};const char*names[]={"settings","calculator","stopwatch","springboard","battery","wifi_settings","calculator","battery"};m.target=selected[m.caseIndex-11];m.foregroundApp=names[m.caseIndex-11];const char*safe=getenv("BADGE_PROTOTYPE_SAFE_VIEWPORT");m.safeViewport=safe&&(std::string(",")+safe+",").find(","+m.foregroundApp+",")!=std::string::npos;}
  if(m.caseIndex==22){m.target=21;m.foregroundApp="file_browser";}
- const char*native=getenv("BADGE_PROTOTYPE_NATIVE_SAFE_CONTENT");m.nativeSafeContent=native&&(std::string(",")+native+",").find(","+m.foregroundApp+",")!=std::string::npos;
+ const char*native=getenv("BADGE_PROTOTYPE_NATIVE_SAFE_CONTENT");m.nativeSafeContent=!m.foregroundApp.empty()&&native&&(std::string(",")+native+",").find(","+m.foregroundApp+",")!=std::string::npos;
  if(m.nativeSafeContent)assert(m.safeViewport);
  m.qmi[0]=5;m.qmi[0x2e]=1;m.qmi[0x36]=0x20; m.pmic[3]=0x4a;m.pmic[0x80]=1;m.pmic[0x82]=18;m.pmic[0]=0x28;m.pmic[1]=0x20;m.pmic[0x18]=0x0a;m.pmic[0x68]=1;m.pmic[0xa4]=42;m.pmic[0x34]=0x10;m.pmic[0x35]=4;
  if(m.target==9){m.qmi[8]=3;m.qmi[3]=0x16;m.qmi[4]=0x26;}
@@ -465,6 +473,7 @@ int main(int argc,char**argv){
  h.lightSleep=[](uint32_t*cause){if(qm.enabled||wm.enabled)assert(!m.terminal);
   if(am.enabled)return alarmLight(cause);
   assert(selectedForeground()&&!m.terminal&&!m.display&&!m.pins[2]&&!m.hold&&m.nativeToken);
+  if(alarmForegroundTicketCase()){assert(am.timer>7000&&am.timerArms==m.lightEntries+1&&am.timerClears==m.lightEntries&&am.resumeSuccesses==m.lightEntries);memcpy(am.lightTicket,am.issuedTicket,sizeof(am.lightTicket));}
   assert(!(m.qmi[8]&3)&&(m.qmi[2]&1)&&!m.motionReads&&m.savedBrightness&&m.freshForegroundVisible);
   if(!m.lightEntries){assert(m.touchCloses>m.selectedTouchCloses);m.firstCycleTouchOpens=m.touchOpens;m.firstCycleTouchCloses=m.touchCloses;}
   else assert(m.touchOpens==m.firstCycleTouchOpens+m.lightEntries&&m.touchCloses==m.firstCycleTouchCloses+m.lightEntries);
@@ -479,7 +488,7 @@ int main(int argc,char**argv){
   m.levels[3]=true;m.pmic[0x49]|=8;m.restoreExpected=true;*cause=RISC_LIGHT_SLEEP_WAKE_GPIO;return true;
  };
  h.wakeClear=[](uint8_t pin){if(qm.enabled||wm.enabled)assert(!m.terminal);assert((am.enabled||selectedForeground())&&pin==3);++m.wakeClears;if(m.caseIndex==17){m.terminal=true;m.terminalIo=m.io;return false;}return true;};
- h.timerArm=[](uint32_t ms){if(qm.enabled||wm.enabled)assert(!m.terminal);assert(am.enabled&&!m.terminal&&ms&&ms<=86400000);if(m.caseIndex==29&&am.ticketFaults){assert(m.transactions>am.faultTransaction&&m.transactionResumes>=am.faultTransaction);}alarmTimerArm(ms);am.timer=ms;++am.timerArms;return true;};h.timerClear=[](){if(qm.enabled||wm.enabled)assert(!m.terminal);assert(am.enabled&&!m.terminal);am.timer=0;++am.timerClears;return true;};
+ h.timerArm=[](uint32_t ms){if(qm.enabled||wm.enabled)assert(!m.terminal);assert((am.enabled||alarmForegroundTicketCase())&&!m.terminal&&ms&&ms<=86400000);if(m.caseIndex==29&&am.ticketFaults){assert(m.transactions>am.faultTransaction&&m.transactionResumes>=am.faultTransaction);}if(am.enabled)alarmTimerArm(ms);else alarmForegroundTimerArm(ms);am.timer=ms;++am.timerArms;return true;};h.timerClear=[](){if(qm.enabled||wm.enabled)assert(!m.terminal);assert((am.enabled||alarmForegroundTicketCase())&&!m.terminal);if(alarmForegroundTicketCase())assert(am.timer&&am.timerArms==am.timerClears+1);am.timer=0;++am.timerClears;return true;};
  h.maintenanceIdle=[](){if(qm.enabled||wm.enabled)assert(!m.terminal);if(selectedForeground()&&m.caseIndex==18&&m.ms-m.entered<badge_fixture_idle_fault_end_ms()){++m.maintenanceRefusals;return false;}return true;};
  h.deepWakeValid=[](uint8_t pin){if(qm.enabled||wm.enabled)assert(!m.terminal);return pin==3;};h.deepReady=[](){if(qm.enabled||wm.enabled)assert(!m.terminal);return true;};
  h.deepWakeArm=[](uint8_t pin,bool high,bool pull){if(qm.enabled||wm.enabled)assert(!m.terminal);assert(pin==3&&high&&!pull);++m.deepArms;if(m.target==8&&m.deepArms==1)m.levels[3]=true;return true;};

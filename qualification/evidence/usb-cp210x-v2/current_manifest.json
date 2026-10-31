@@ -1,0 +1,26 @@
+{
+  "type": "driver",
+  "id": "usb-cp210x-v2",
+  "version": "0.1.8",
+  "driver_abi": 2,
+  "architecture": "xtensa-esp32s3",
+  "file_name": "driver.elf",
+  "requires": [
+    {
+      "capability": "usb.host",
+      "api": 1
+    }
+  ],
+  "provides": [
+    {
+      "capability": "serial.port",
+      "api": 1
+    }
+  ],
+  "status": "u1-class-functional",
+  "size_bytes": 10348,
+  "sha256": "097b67b120885a68f0780b20b29aac0f95060b7dd7714f76bbf9dfe742193e64",
+  "canonical_size_bytes": 5788,
+  "canonical_sha256": "96f22bbb6cc8cf00f138656a910d3078d491d6c117ffc4e23a2842c458481c61",
+  "byte_parity": false
+}

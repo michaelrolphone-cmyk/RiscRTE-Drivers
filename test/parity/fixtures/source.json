@@ -1,0 +1,248 @@
+{
+  "pins": {
+    "master": "9c8783d6f20659a514bfaeb3847a77c7213dc4f6",
+    "release-index": "19bb3dcb5cb763c4eacd884ad5fc0bcab57ff2ed"
+  },
+  "source": {
+    "t5s3-frontlight": {
+      "id": "t5s3-frontlight",
+      "version": "0.1.0",
+      "source_path": "Drivers/t5s3_frontlight",
+      "tree_sha": "6ba4cdb7203e9ca7a1649ab2fd274b8ceb6949a8"
+    },
+    "platform-clock-v1": {
+      "id": "platform-clock-v1",
+      "version": "0.1.1",
+      "source_path": "Drivers/platform_clock_v1",
+      "tree_sha": "a897b1b3f64b578b600d0024814e06d46da6b6ea"
+    },
+    "spi-esp32s3-v1": {
+      "id": "spi-esp32s3-v1",
+      "version": "0.1.0",
+      "source_path": "Drivers/spi_esp32s3",
+      "tree_sha": "19a25f744d3e9a4b5d96962ab80da57953a9507b"
+    },
+    "gt911-touch": {
+      "id": "gt911-touch",
+      "version": "0.1.1",
+      "source_path": "Drivers/gt911_touch",
+      "tree_sha": "917adb535504b77d831f6dfc09445fc1070164df"
+    },
+    "board-power-t5s3-v2": {
+      "id": "board-power-t5s3-v2",
+      "version": "0.1.9",
+      "source_path": "Drivers/bq25896",
+      "tree_sha": "9aa7bab20180f34984b551e29359e7c86472d5f7"
+    },
+    "cam-ov3660-profile": {
+      "id": "cam-ov3660-profile",
+      "version": "0.1.0",
+      "source_path": "Drivers/cam_ov3660_profile",
+      "tree_sha": "5296a7cea3321a4058854af1e3c7b7eb3f90ecbb"
+    },
+    "program-msp": {
+      "id": "program-msp",
+      "version": "0.1.0",
+      "source_path": "Drivers/program_msp",
+      "tree_sha": "fe046f4c538efbd003ddd176b4d4b44b5d3de281"
+    },
+    "usb-cp210x-v2": {
+      "id": "usb-cp210x-v2",
+      "version": "0.1.8",
+      "source_path": "Drivers/usb_cp210x_v2",
+      "tree_sha": "709526e61d0cccfed25aee699e2ed767053ac969"
+    },
+    "usb-serial-witness": {
+      "id": "usb-serial-witness",
+      "version": "0.1.3",
+      "source_path": "Drivers/usb_serial_witness_v2",
+      "tree_sha": "32e46efa820f1cb09810947c1e0360c5bbec54e0"
+    },
+    "gps-nmea": {
+      "id": "gps-nmea",
+      "version": "1.0.0",
+      "source_path": "Drivers/gps_nmea",
+      "tree_sha": "ec07d533aa91f1e2444a5c8060eb5b651b16fa0a"
+    },
+    "i2c-esp32s3-v2": {
+      "id": "i2c-esp32s3-v2",
+      "version": "0.1.6",
+      "source_path": "Drivers/i2c_esp32s3_v2",
+      "tree_sha": "788ca9625e27f0fd8d07bed86cc90d2bf3c32bc7"
+    },
+    "usb-ftdi": {
+      "id": "usb-ftdi",
+      "version": "0.1.0",
+      "source_path": "Drivers/usb_ftdi",
+      "tree_sha": "e181559f4024d4db1da8f128562f7805a5c21e2c"
+    },
+    "usb-controller-esp32s3": {
+      "id": "usb-controller-esp32s3",
+      "version": "0.1.20",
+      "source_path": "Drivers/usb_controller_esp32s3",
+      "tree_sha": "e3570d12d7cd8b5a40bfc001b54682a9f4feb5db"
+    },
+    "pca9535-gpio": {
+      "id": "pca9535-gpio",
+      "version": "0.1.0",
+      "source_path": "Drivers/pca9535_gpio",
+      "tree_sha": "720649b7e04a4bd1d91fc288c674f827f06dd9b0"
+    },
+    "usb-host-v2": {
+      "id": "usb-host-v2",
+      "version": "0.1.5",
+      "source_path": "Drivers/usb_host_v2",
+      "tree_sha": "0b188e95d9734fb7e5787be39e92d418f88df206"
+    },
+    "usb-hid-gamepad": {
+      "id": "usb-hid-gamepad",
+      "version": "0.1.4",
+      "source_path": "Drivers/usb_hid_gamepad",
+      "tree_sha": "ef229494933a41fb8215cae58cc7896d0d680630"
+    },
+    "usb-hid-keyboard": {
+      "id": "usb-hid-keyboard",
+      "version": "0.1.1",
+      "source_path": "Drivers/usb_hid_keyboard",
+      "tree_sha": "64fe4961c973555eafb1a8ddd035455b934c7f1e"
+    },
+    "usb-hid": {
+      "id": "usb-hid",
+      "version": "0.1.2",
+      "source_path": "Drivers/usb_hid",
+      "tree_sha": "56fc7707ffa7896ea5a0ea0ebc2e755c20edb520"
+    },
+    "usb-stlink": {
+      "id": "usb-stlink",
+      "version": "0.1.0",
+      "source_path": "Drivers/usb_stlink",
+      "tree_sha": "dc392f6d1125f8a55de6660ae19e281e4f27098c"
+    },
+    "usb-ch34x-v2": {
+      "id": "usb-ch34x-v2",
+      "version": "0.1.7",
+      "source_path": "Drivers/usb_ch34x_v2",
+      "tree_sha": "8a235071b10203c92c4b37a74563d677ab7d280a"
+    },
+    "tps65185-power": {
+      "id": "tps65185-power",
+      "version": "0.1.0",
+      "source_path": "Drivers/tps65185_power",
+      "tree_sha": "cb450cddc46b10819cfe047f44f434768c7b5f09"
+    },
+    "camera-esp32s3-ov3660": {
+      "id": "camera-esp32s3-ov3660",
+      "version": "0.1.9",
+      "source_path": "Drivers/camera_esp32s3",
+      "tree_sha": "ed91c7201f8a67e6be55261832e6a20915584eac"
+    },
+    "usb-ui-navigation": {
+      "id": "usb-ui-navigation",
+      "version": "0.1.2",
+      "source_path": "Drivers/usb_ui_navigation",
+      "tree_sha": "3ed2c8aa90ea25a052ef914c09b6a913fa5b4d8c"
+    },
+    "x4pro-buttons": {
+      "id": "x4pro-buttons",
+      "version": "0.1.5",
+      "source_path": "Drivers/x4pro_buttons",
+      "tree_sha": "fc524e79a5351826ad4035df59844b2101e59a0f"
+    },
+    "x4pro-frontlight": {
+      "id": "x4pro-frontlight",
+      "version": "0.1.3",
+      "source_path": "Drivers/x4pro_frontlight",
+      "tree_sha": "aa3caf2b81c5570cdd2830d403e71af747368808"
+    },
+    "x4pro-panel": {
+      "id": "x4pro-panel",
+      "version": "0.1.14",
+      "source_path": "Drivers/x4pro_panel",
+      "tree_sha": "74ddb4688a919075020f5f7de449b490ec9dc09e"
+    },
+    "usb-device-msc-esp32s3": {
+      "id": "usb-device-msc-esp32s3",
+      "version": "0.1.8",
+      "source_path": "Drivers/usb_device_msc_esp32s3",
+      "tree_sha": "95fa09974d0c1457f17ba4dbab8671c2c3c932aa"
+    },
+    "x4pro-sd": {
+      "id": "x4pro-sd",
+      "version": "0.2.3",
+      "source_path": "Drivers/x4pro_sd",
+      "tree_sha": "0a71487500030f6a1e3cd73268d6c95429a19e61"
+    },
+    "x4pro-i2c": {
+      "id": "x4pro-i2c",
+      "version": "0.1.4",
+      "source_path": "Drivers/x4pro_i2c",
+      "tree_sha": "4b7f199fa40bd58984be1cc5e2d1cda6294aedd5"
+    },
+    "x4pro-rtc": {
+      "id": "x4pro-rtc",
+      "version": "0.1.0",
+      "source_path": "Drivers/x4pro_rtc",
+      "tree_sha": "0a3c8f2d39e68bf328439627a5439eb4dd1a2158"
+    },
+    "usb-cdc-acm": {
+      "id": "usb-cdc-acm",
+      "version": "0.1.8",
+      "source_path": "Drivers/usb_cdc_v2",
+      "tree_sha": "443996c727c13891971f8d47c310079558fd494d"
+    },
+    "t5s3-usb-power-profile": {
+      "id": "t5s3-usb-power-profile",
+      "version": "0.1.1",
+      "source_path": "Drivers/t5s3_usb_power_profile",
+      "tree_sha": "1ba351fb2ae0efae1d1b100087f93805d77e50f4"
+    },
+    "x4pro-battery": {
+      "id": "x4pro-battery",
+      "version": "0.1.2",
+      "source_path": "Drivers/x4pro_battery",
+      "tree_sha": "a5796517a27211a2ecb4d352514cb5d313998d43"
+    },
+    "t5s3-sd": {
+      "id": "t5s3-sd",
+      "version": "0.1.2",
+      "source_path": "Drivers/t5s3_sd",
+      "tree_sha": "f548bc9ef83cebace3bd1d55abb98cf5f5350cd9"
+    },
+    "display-epd-video": {
+      "id": "display-epd-video",
+      "version": "0.1.5",
+      "source_path": "Drivers/display_epd_video",
+      "tree_sha": "90ff7464be01a8bdc6d502cf722e8a0758b3e974"
+    },
+    "usb-mass-storage": {
+      "id": "usb-mass-storage",
+      "version": "0.1.1",
+      "source_path": "Drivers/usb_mass_storage",
+      "tree_sha": "f1e1184823b0257a61c4c3c9d35c9091068674f5"
+    },
+    "usb-hid-text-input": {
+      "id": "usb-hid-text-input",
+      "version": "0.1.0",
+      "source_path": "Drivers/usb_hid_text_input",
+      "tree_sha": "4eccdb8fb91295ff905f92142301e999819d4805"
+    },
+    "usb-xinput-gamepad": {
+      "id": "usb-xinput-gamepad",
+      "version": "0.1.3",
+      "source_path": "Drivers/usb_xinput_gamepad",
+      "tree_sha": "b84a41ad08114f0a6e0aa744582056d1a13879c4"
+    },
+    "usb-msp": {
+      "id": "usb-msp",
+      "version": "0.1.1",
+      "source_path": "Drivers/usb_msp",
+      "tree_sha": "3f1f8cfe260d8faa072d21e52a0ddc0f7b29b1dc"
+    },
+    "x4pro-gt911": {
+      "id": "x4pro-gt911",
+      "version": "0.1.5",
+      "source_path": "Drivers/x4pro_gt911",
+      "tree_sha": "83426126a549df4f96fd444f94d32aaabbddbe9c"
+    }
+  }
+}

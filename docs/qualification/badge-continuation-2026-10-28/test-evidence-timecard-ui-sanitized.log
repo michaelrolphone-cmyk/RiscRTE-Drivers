@@ -1,0 +1,300 @@
+native weeks/day/edit/key pages/delete/done/cancel, current punch and unchanged worked-time arithmetic
+PASS Timecard native 240x240 scenario0 latency0 frames32
+native weeks/day/edit/key pages/delete/done/cancel, current punch and unchanged worked-time arithmetic
+PASS Timecard native 240x240 scenario0 latency100 frames32
+native failed/commit-unknown save retains draft and old displayed snapshot; explicit reload/retry reconciles
+PASS Timecard native 240x240 scenario1 latency0 frames8
+native failed/commit-unknown save retains draft and old displayed snapshot; explicit reload/retry reconciles
+PASS Timecard native 240x240 scenario1 latency100 frames8
+native cancelled/held/out-and-back contacts, all 20 weeks reachable, crown cancels keyboard
+PASS Timecard native 240x240 scenario2 latency0 frames27
+native cancelled/held/out-and-back contacts, all 20 weeks reachable, crown cancels keyboard
+PASS Timecard native 240x240 scenario2 latency100 frames27
+native unavailable clock never writes or creates a 1970 record
+PASS Timecard native 240x240 scenario3 latency0 frames5
+native unavailable clock never writes or creates a 1970 record
+PASS Timecard native 240x240 scenario3 latency100 frames5
+native Alarm interruption cancels held save, preserves draft and accepts only fresh post-return input
+PASS Timecard native 240x240 scenario4 latency0 frames9
+native Alarm interruption cancels held save, preserves draft and accepts only fresh post-return input
+PASS Timecard native 240x240 scenario4 latency100 frames9
+native Quick actual top-edge drag/modal/dismiss restores draft and native readiness
+PASS Timecard native 240x240 scenario5 latency0 frames77
+native Quick actual top-edge drag/modal/dismiss restores draft and native readiness
+PASS Timecard native 240x240 scenario5 latency100 frames11
+native retained storage forbids later display,input,release or launch calls
+native retained storage forbids later display,input,release or launch calls
+actual app_main native raw weeks/day/keyboard/Done/nested/root Back and clean exit
+actual app_main native raw weeks/day/keyboard/Done/nested/root Back and clean exit
+actual app_main physical Home and repeated native invocation
+actual app_main physical Home and repeated native invocation
+native shared keyboard all ASCII pages/cells, 12-character limit, invalid input refusal and blank clear
+PASS Timecard native 240x240 scenario9 latency0 frames205
+native shared keyboard all ASCII pages/cells, 12-character limit, invalid input refusal and blank clear
+PASS Timecard native 240x240 scenario9 latency100 frames205
+native read failure/retry, 400-day no eviction, empty-day reclamation and new punch
+PASS Timecard native 240x240 scenario10 latency0 frames16
+native read failure/retry, 400-day no eviction, empty-day reclamation and new punch
+PASS Timecard native 240x240 scenario10 latency100 frames16
+native changed pending hit map cancels held save until a fresh visible press/release
+PASS Timecard native 240x240 scenario11 latency0 frames7
+native changed pending hit map cancels held save until a fresh visible press/release
+PASS Timecard native 240x240 scenario11 latency100 frames7
+native 12/24-hour preference presentation and fresh year-midnight punch snapshot
+PASS Timecard native 240x240 scenario12 latency0 frames2
+native 12/24-hour preference presentation and fresh year-midnight punch snapshot
+PASS Timecard native 240x240 scenario12 latency100 frames2
+actual Quick Wi-Fi Setup routes to wifi_settings.elf; accepted handoff never saves draft ledger
+PASS Timecard native 240x240 scenario13 latency0 frames260
+actual Quick Wi-Fi Setup routes to wifi_settings.elf; accepted handoff never saves draft ledger
+PASS Timecard native 240x240 scenario13 latency100 frames16
+native weeks/day/edit/key pages/delete/done/cancel, current punch and unchanged worked-time arithmetic
+PASS Timecard native 320x320 scenario0 latency0 frames30
+native weeks/day/edit/key pages/delete/done/cancel, current punch and unchanged worked-time arithmetic
+PASS Timecard native 320x320 scenario0 latency100 frames30
+native failed/commit-unknown save retains draft and old displayed snapshot; explicit reload/retry reconciles
+PASS Timecard native 320x320 scenario1 latency0 frames8
+native failed/commit-unknown save retains draft and old displayed snapshot; explicit reload/retry reconciles
+PASS Timecard native 320x320 scenario1 latency100 frames8
+native cancelled/held/out-and-back contacts, all 20 weeks reachable, crown cancels keyboard
+PASS Timecard native 320x320 scenario2 latency0 frames25
+native cancelled/held/out-and-back contacts, all 20 weeks reachable, crown cancels keyboard
+PASS Timecard native 320x320 scenario2 latency100 frames25
+native unavailable clock never writes or creates a 1970 record
+PASS Timecard native 320x320 scenario3 latency0 frames5
+native unavailable clock never writes or creates a 1970 record
+PASS Timecard native 320x320 scenario3 latency100 frames5
+native Alarm interruption cancels held save, preserves draft and accepts only fresh post-return input
+PASS Timecard native 320x320 scenario4 latency0 frames9
+native Alarm interruption cancels held save, preserves draft and accepts only fresh post-return input
+PASS Timecard native 320x320 scenario4 latency100 frames9
+native Quick actual top-edge drag/modal/dismiss restores draft and native readiness
+PASS Timecard native 320x320 scenario5 latency0 frames77
+native Quick actual top-edge drag/modal/dismiss restores draft and native readiness
+PASS Timecard native 320x320 scenario5 latency100 frames11
+native retained storage forbids later display,input,release or launch calls
+native retained storage forbids later display,input,release or launch calls
+actual app_main native raw weeks/day/keyboard/Done/nested/root Back and clean exit
+actual app_main native raw weeks/day/keyboard/Done/nested/root Back and clean exit
+actual app_main physical Home and repeated native invocation
+actual app_main physical Home and repeated native invocation
+native shared keyboard all ASCII pages/cells, 12-character limit, invalid input refusal and blank clear
+PASS Timecard native 320x320 scenario9 latency0 frames205
+native shared keyboard all ASCII pages/cells, 12-character limit, invalid input refusal and blank clear
+PASS Timecard native 320x320 scenario9 latency100 frames205
+native read failure/retry, 400-day no eviction, empty-day reclamation and new punch
+PASS Timecard native 320x320 scenario10 latency0 frames14
+native read failure/retry, 400-day no eviction, empty-day reclamation and new punch
+PASS Timecard native 320x320 scenario10 latency100 frames14
+native changed pending hit map cancels held save until a fresh visible press/release
+PASS Timecard native 320x320 scenario11 latency0 frames7
+native changed pending hit map cancels held save until a fresh visible press/release
+PASS Timecard native 320x320 scenario11 latency100 frames7
+native 12/24-hour preference presentation and fresh year-midnight punch snapshot
+PASS Timecard native 320x320 scenario12 latency0 frames2
+native 12/24-hour preference presentation and fresh year-midnight punch snapshot
+PASS Timecard native 320x320 scenario12 latency100 frames2
+actual Quick Wi-Fi Setup routes to wifi_settings.elf; accepted handoff never saves draft ledger
+PASS Timecard native 320x320 scenario13 latency0 frames260
+actual Quick Wi-Fi Setup routes to wifi_settings.elf; accepted handoff never saves draft ledger
+PASS Timecard native 320x320 scenario13 latency100 frames16
+native weeks/day/edit/key pages/delete/done/cancel, current punch and unchanged worked-time arithmetic
+PASS Timecard native 466x466 scenario0 latency0 frames30
+native weeks/day/edit/key pages/delete/done/cancel, current punch and unchanged worked-time arithmetic
+PASS Timecard native 466x466 scenario0 latency100 frames30
+native failed/commit-unknown save retains draft and old displayed snapshot; explicit reload/retry reconciles
+PASS Timecard native 466x466 scenario1 latency0 frames8
+native failed/commit-unknown save retains draft and old displayed snapshot; explicit reload/retry reconciles
+PASS Timecard native 466x466 scenario1 latency100 frames8
+native cancelled/held/out-and-back contacts, all 20 weeks reachable, crown cancels keyboard
+PASS Timecard native 466x466 scenario2 latency0 frames25
+native cancelled/held/out-and-back contacts, all 20 weeks reachable, crown cancels keyboard
+PASS Timecard native 466x466 scenario2 latency100 frames25
+native unavailable clock never writes or creates a 1970 record
+PASS Timecard native 466x466 scenario3 latency0 frames5
+native unavailable clock never writes or creates a 1970 record
+PASS Timecard native 466x466 scenario3 latency100 frames5
+native Alarm interruption cancels held save, preserves draft and accepts only fresh post-return input
+PASS Timecard native 466x466 scenario4 latency0 frames9
+native Alarm interruption cancels held save, preserves draft and accepts only fresh post-return input
+PASS Timecard native 466x466 scenario4 latency100 frames9
+native Quick actual top-edge drag/modal/dismiss restores draft and native readiness
+PASS Timecard native 466x466 scenario5 latency0 frames77
+native Quick actual top-edge drag/modal/dismiss restores draft and native readiness
+PASS Timecard native 466x466 scenario5 latency100 frames11
+native retained storage forbids later display,input,release or launch calls
+native retained storage forbids later display,input,release or launch calls
+actual app_main native raw weeks/day/keyboard/Done/nested/root Back and clean exit
+actual app_main native raw weeks/day/keyboard/Done/nested/root Back and clean exit
+actual app_main physical Home and repeated native invocation
+actual app_main physical Home and repeated native invocation
+native shared keyboard all ASCII pages/cells, 12-character limit, invalid input refusal and blank clear
+PASS Timecard native 466x466 scenario9 latency0 frames205
+native shared keyboard all ASCII pages/cells, 12-character limit, invalid input refusal and blank clear
+PASS Timecard native 466x466 scenario9 latency100 frames205
+native read failure/retry, 400-day no eviction, empty-day reclamation and new punch
+PASS Timecard native 466x466 scenario10 latency0 frames14
+native read failure/retry, 400-day no eviction, empty-day reclamation and new punch
+PASS Timecard native 466x466 scenario10 latency100 frames14
+native changed pending hit map cancels held save until a fresh visible press/release
+PASS Timecard native 466x466 scenario11 latency0 frames7
+native changed pending hit map cancels held save until a fresh visible press/release
+PASS Timecard native 466x466 scenario11 latency100 frames7
+native 12/24-hour preference presentation and fresh year-midnight punch snapshot
+PASS Timecard native 466x466 scenario12 latency0 frames2
+native 12/24-hour preference presentation and fresh year-midnight punch snapshot
+PASS Timecard native 466x466 scenario12 latency100 frames2
+actual Quick Wi-Fi Setup routes to wifi_settings.elf; accepted handoff never saves draft ledger
+PASS Timecard native 466x466 scenario13 latency0 frames260
+actual Quick Wi-Fi Setup routes to wifi_settings.elf; accepted handoff never saves draft ledger
+PASS Timecard native 466x466 scenario13 latency100 frames16
+native weeks/day/edit/key pages/delete/done/cancel, current punch and unchanged worked-time arithmetic
+PASS Timecard native 410x502 scenario0 latency0 frames28
+native weeks/day/edit/key pages/delete/done/cancel, current punch and unchanged worked-time arithmetic
+PASS Timecard native 410x502 scenario0 latency100 frames28
+native failed/commit-unknown save retains draft and old displayed snapshot; explicit reload/retry reconciles
+PASS Timecard native 410x502 scenario1 latency0 frames8
+native failed/commit-unknown save retains draft and old displayed snapshot; explicit reload/retry reconciles
+PASS Timecard native 410x502 scenario1 latency100 frames8
+native cancelled/held/out-and-back contacts, all 20 weeks reachable, crown cancels keyboard
+PASS Timecard native 410x502 scenario2 latency0 frames22
+native cancelled/held/out-and-back contacts, all 20 weeks reachable, crown cancels keyboard
+PASS Timecard native 410x502 scenario2 latency100 frames22
+native unavailable clock never writes or creates a 1970 record
+PASS Timecard native 410x502 scenario3 latency0 frames5
+native unavailable clock never writes or creates a 1970 record
+PASS Timecard native 410x502 scenario3 latency100 frames5
+native Alarm interruption cancels held save, preserves draft and accepts only fresh post-return input
+PASS Timecard native 410x502 scenario4 latency0 frames9
+native Alarm interruption cancels held save, preserves draft and accepts only fresh post-return input
+PASS Timecard native 410x502 scenario4 latency100 frames9
+native Quick actual top-edge drag/modal/dismiss restores draft and native readiness
+PASS Timecard native 410x502 scenario5 latency0 frames77
+native Quick actual top-edge drag/modal/dismiss restores draft and native readiness
+PASS Timecard native 410x502 scenario5 latency100 frames11
+native retained storage forbids later display,input,release or launch calls
+native retained storage forbids later display,input,release or launch calls
+actual app_main native raw weeks/day/keyboard/Done/nested/root Back and clean exit
+actual app_main native raw weeks/day/keyboard/Done/nested/root Back and clean exit
+actual app_main physical Home and repeated native invocation
+actual app_main physical Home and repeated native invocation
+native shared keyboard all ASCII pages/cells, 12-character limit, invalid input refusal and blank clear
+PASS Timecard native 410x502 scenario9 latency0 frames205
+native shared keyboard all ASCII pages/cells, 12-character limit, invalid input refusal and blank clear
+PASS Timecard native 410x502 scenario9 latency100 frames205
+native read failure/retry, 400-day no eviction, empty-day reclamation and new punch
+PASS Timecard native 410x502 scenario10 latency0 frames12
+native read failure/retry, 400-day no eviction, empty-day reclamation and new punch
+PASS Timecard native 410x502 scenario10 latency100 frames12
+native changed pending hit map cancels held save until a fresh visible press/release
+PASS Timecard native 410x502 scenario11 latency0 frames7
+native changed pending hit map cancels held save until a fresh visible press/release
+PASS Timecard native 410x502 scenario11 latency100 frames7
+native 12/24-hour preference presentation and fresh year-midnight punch snapshot
+PASS Timecard native 410x502 scenario12 latency0 frames2
+native 12/24-hour preference presentation and fresh year-midnight punch snapshot
+PASS Timecard native 410x502 scenario12 latency100 frames2
+actual Quick Wi-Fi Setup routes to wifi_settings.elf; accepted handoff never saves draft ledger
+PASS Timecard native 410x502 scenario13 latency0 frames260
+actual Quick Wi-Fi Setup routes to wifi_settings.elf; accepted handoff never saves draft ledger
+PASS Timecard native 410x502 scenario13 latency100 frames16
+native weeks/day/edit/key pages/delete/done/cancel, current punch and unchanged worked-time arithmetic
+PASS Timecard native 502x410 scenario0 latency0 frames29
+native weeks/day/edit/key pages/delete/done/cancel, current punch and unchanged worked-time arithmetic
+PASS Timecard native 502x410 scenario0 latency100 frames29
+native failed/commit-unknown save retains draft and old displayed snapshot; explicit reload/retry reconciles
+PASS Timecard native 502x410 scenario1 latency0 frames8
+native failed/commit-unknown save retains draft and old displayed snapshot; explicit reload/retry reconciles
+PASS Timecard native 502x410 scenario1 latency100 frames8
+native cancelled/held/out-and-back contacts, all 20 weeks reachable, crown cancels keyboard
+PASS Timecard native 502x410 scenario2 latency0 frames23
+native cancelled/held/out-and-back contacts, all 20 weeks reachable, crown cancels keyboard
+PASS Timecard native 502x410 scenario2 latency100 frames23
+native unavailable clock never writes or creates a 1970 record
+PASS Timecard native 502x410 scenario3 latency0 frames5
+native unavailable clock never writes or creates a 1970 record
+PASS Timecard native 502x410 scenario3 latency100 frames5
+native Alarm interruption cancels held save, preserves draft and accepts only fresh post-return input
+PASS Timecard native 502x410 scenario4 latency0 frames9
+native Alarm interruption cancels held save, preserves draft and accepts only fresh post-return input
+PASS Timecard native 502x410 scenario4 latency100 frames9
+native Quick actual top-edge drag/modal/dismiss restores draft and native readiness
+PASS Timecard native 502x410 scenario5 latency0 frames77
+native Quick actual top-edge drag/modal/dismiss restores draft and native readiness
+PASS Timecard native 502x410 scenario5 latency100 frames11
+native retained storage forbids later display,input,release or launch calls
+native retained storage forbids later display,input,release or launch calls
+actual app_main native raw weeks/day/keyboard/Done/nested/root Back and clean exit
+actual app_main native raw weeks/day/keyboard/Done/nested/root Back and clean exit
+actual app_main physical Home and repeated native invocation
+actual app_main physical Home and repeated native invocation
+native shared keyboard all ASCII pages/cells, 12-character limit, invalid input refusal and blank clear
+PASS Timecard native 502x410 scenario9 latency0 frames205
+native shared keyboard all ASCII pages/cells, 12-character limit, invalid input refusal and blank clear
+PASS Timecard native 502x410 scenario9 latency100 frames205
+native read failure/retry, 400-day no eviction, empty-day reclamation and new punch
+PASS Timecard native 502x410 scenario10 latency0 frames13
+native read failure/retry, 400-day no eviction, empty-day reclamation and new punch
+PASS Timecard native 502x410 scenario10 latency100 frames13
+native changed pending hit map cancels held save until a fresh visible press/release
+PASS Timecard native 502x410 scenario11 latency0 frames7
+native changed pending hit map cancels held save until a fresh visible press/release
+PASS Timecard native 502x410 scenario11 latency100 frames7
+native 12/24-hour preference presentation and fresh year-midnight punch snapshot
+PASS Timecard native 502x410 scenario12 latency0 frames2
+native 12/24-hour preference presentation and fresh year-midnight punch snapshot
+PASS Timecard native 502x410 scenario12 latency100 frames2
+actual Quick Wi-Fi Setup routes to wifi_settings.elf; accepted handoff never saves draft ledger
+PASS Timecard native 502x410 scenario13 latency0 frames260
+actual Quick Wi-Fi Setup routes to wifi_settings.elf; accepted handoff never saves draft ledger
+PASS Timecard native 502x410 scenario13 latency100 frames16
+native weeks/day/edit/key pages/delete/done/cancel, current punch and unchanged worked-time arithmetic
+PASS Timecard native 160x160 scenario0 latency0 frames32
+native weeks/day/edit/key pages/delete/done/cancel, current punch and unchanged worked-time arithmetic
+PASS Timecard native 160x160 scenario0 latency100 frames32
+native failed/commit-unknown save retains draft and old displayed snapshot; explicit reload/retry reconciles
+PASS Timecard native 160x160 scenario1 latency0 frames8
+native failed/commit-unknown save retains draft and old displayed snapshot; explicit reload/retry reconciles
+PASS Timecard native 160x160 scenario1 latency100 frames8
+native cancelled/held/out-and-back contacts, all 20 weeks reachable, crown cancels keyboard
+PASS Timecard native 160x160 scenario2 latency0 frames28
+native cancelled/held/out-and-back contacts, all 20 weeks reachable, crown cancels keyboard
+PASS Timecard native 160x160 scenario2 latency100 frames28
+native unavailable clock never writes or creates a 1970 record
+PASS Timecard native 160x160 scenario3 latency0 frames5
+native unavailable clock never writes or creates a 1970 record
+PASS Timecard native 160x160 scenario3 latency100 frames5
+native Alarm interruption cancels held save, preserves draft and accepts only fresh post-return input
+PASS Timecard native 160x160 scenario4 latency0 frames9
+native Alarm interruption cancels held save, preserves draft and accepts only fresh post-return input
+PASS Timecard native 160x160 scenario4 latency100 frames9
+native Quick actual top-edge drag/modal/dismiss restores draft and native readiness
+PASS Timecard native 160x160 scenario5 latency0 frames77
+native Quick actual top-edge drag/modal/dismiss restores draft and native readiness
+PASS Timecard native 160x160 scenario5 latency100 frames11
+native retained storage forbids later display,input,release or launch calls
+native retained storage forbids later display,input,release or launch calls
+actual app_main native raw weeks/day/keyboard/Done/nested/root Back and clean exit
+actual app_main native raw weeks/day/keyboard/Done/nested/root Back and clean exit
+actual app_main physical Home and repeated native invocation
+actual app_main physical Home and repeated native invocation
+native shared keyboard all ASCII pages/cells, 12-character limit, invalid input refusal and blank clear
+PASS Timecard native 160x160 scenario9 latency0 frames205
+native shared keyboard all ASCII pages/cells, 12-character limit, invalid input refusal and blank clear
+PASS Timecard native 160x160 scenario9 latency100 frames205
+native read failure/retry, 400-day no eviction, empty-day reclamation and new punch
+PASS Timecard native 160x160 scenario10 latency0 frames16
+native read failure/retry, 400-day no eviction, empty-day reclamation and new punch
+PASS Timecard native 160x160 scenario10 latency100 frames16
+native changed pending hit map cancels held save until a fresh visible press/release
+PASS Timecard native 160x160 scenario11 latency0 frames7
+native changed pending hit map cancels held save until a fresh visible press/release
+PASS Timecard native 160x160 scenario11 latency100 frames7
+native 12/24-hour preference presentation and fresh year-midnight punch snapshot
+PASS Timecard native 160x160 scenario12 latency0 frames2
+native 12/24-hour preference presentation and fresh year-midnight punch snapshot
+PASS Timecard native 160x160 scenario12 latency100 frames2
+actual Quick Wi-Fi Setup routes to wifi_settings.elf; accepted handoff never saves draft ledger
+PASS Timecard native 160x160 scenario13 latency0 frames260
+actual Quick Wi-Fi Setup routes to wifi_settings.elf; accepted handoff never saves draft ledger
+PASS Timecard native 160x160 scenario13 latency100 frames16

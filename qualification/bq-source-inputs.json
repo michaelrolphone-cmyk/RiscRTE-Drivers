@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "repository": "michaelrolphone-cmyk/T5S3-Reader",
+  "commit": "9c8783d6f20659a514bfaeb3847a77c7213dc4f6",
+  "driver_tree": "9aa7bab20180f34984b551e29359e7c86472d5f7",
+  "sdk_tree": "532851284bc96f6a2ee9309f2ad3755131ae2123",
+  "files": [
+    {
+      "path": "Drivers/bq25896/BqChargerProfile.h",
+      "upstream_path": "Drivers/bq25896/BqChargerProfile.h",
+      "sha256": "5af65ce79244c087e072aa1d39d4ec6ddbb38dc006509e39752e1a3b2442b153",
+      "blob": "3af3d329dd5eafb41db45377c3dd275fba7a2882",
+      "mode": "100644"
+    },
+    {
+      "path": "Drivers/bq25896/BqShutdownPolicy.h",
+      "upstream_path": "Drivers/bq25896/BqShutdownPolicy.h",
+      "sha256": "96d26d25b5e27cb440ae15114e5a3e8c6cd0b475bb4faed380c7da208d6b2df5",
+      "blob": "7eadb7b7cc140ac38fa4eeec2d9a5f8d17ae8cf9",
+      "mode": "100644"
+    },
+    {
+      "path": "Drivers/bq25896/driver.c",
+      "upstream_path": "Drivers/bq25896/driver.c",
+      "sha256": "639e7de0c98117bfc2d6e60beae07429c2e3e2c3acf69a7770ace18a56d2afd2",
+      "blob": "68a4e01c580d023a5cdd8e57603a2ed5cf9d5d07",
+      "mode": "100644"
+    },
+    {
+      "path": "Drivers/bq25896/manifest.json",
+      "upstream_path": "Drivers/bq25896/manifest.json",
+      "sha256": "81cce660b98eb68df4605e3382730ab1046312b55ff8fbd202be73beb116d1cd",
+      "blob": "81a9de37ced0bb8da75f8ce8a7cb0e095b19e28d",
+      "mode": "100644"
+    },
+    {
+      "path": "Drivers/bq25896/RiscUsbVbusV1.h",
+      "upstream_path": "sdk/driver/RiscUsbVbusV1.h",
+      "sha256": "9936cde4d585e7ff6ae2d5441d746b47e14cf800806ce49c5a269d37eb84e110",
+      "blob": "8a58c88bc678ae5042ba8c941225b2797be5d18c",
+      "mode": "100644",
+      "role": "exact package-scoped dependency overlay; shared SDK unchanged"
+    },
+    {
+      "path": "test/drivers/board_power_shutdown_test.c",
+      "upstream_path": "test/drivers/board_power_shutdown_test.c",
+      "sha256": "cdc08e0e4ed922f9f1f43d581976e814b43accb691b84c3875c09b8f04446b2d",
+      "blob": "e689b6105989ebdfe8b8aacc826a54d510f9193b",
+      "mode": "100644"
+    }
+  ],
+  "shared_header": {
+    "path": "sdk/driver/RiscUsbVbusV1.h",
+    "sha256": "27efb8b327d38c3ca6a97d5f2936094659f67d69e89b49afcba9fc4ee5db6a6a"
+  },
+  "scope": "Exact retained upstream source/dependency attribution; not authenticated project ownership, hardware qualification or full upstream repository migration."
+}

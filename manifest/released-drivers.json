@@ -191,7 +191,7 @@
       "id": "cst9217-touch",
       "version": "0.1.0",
       "source_path": "Drivers/cst9217_touch",
-      "source_tree_sha": "f84e42291cdca24c00d4d178e3c22c2607fc30f9"
+      "source_tree_sha": "faf5ab8b6aee6bcc7ccb028bde881f5f5be3e9cf"
     },
     {
       "id": "axp2101-observer",
@@ -221,7 +221,7 @@
       "id": "gpio-key-sleep",
       "version": "0.1.0",
       "source_path": "Drivers/gpio_key_sleep",
-      "source_tree_sha": "6c082fb44410384943c6a8fa32ef5c029b8bdbf0"
+      "source_tree_sha": "0858b744d6f84897a1a560ef44d27bdc7cac5770"
     },
     {
       "id": "wake-key-filter",

@@ -1,0 +1,336 @@
+{
+  "observed_at": "2026-10-28T02:36:09Z",
+  "repositories": [
+    {
+      "repository": "RiscRTE-Watch",
+      "total": 4,
+      "counts": {
+        "queued": 1,
+        "failure": 1,
+        "success": 2
+      },
+      "failed": [
+        {
+          "id": 40621197373,
+          "name": "Universal watch application",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Watch/actions/runs/40621197373"
+        }
+      ],
+      "primary": [
+        {
+          "id": 40621197435,
+          "name": "Shared native-height layout",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Watch/actions/runs/40621197435"
+        }
+      ]
+    },
+    {
+      "repository": "RiscRTE-Productivity",
+      "total": 6,
+      "counts": {
+        "in_progress": 1,
+        "success": 2,
+        "queued": 3
+      },
+      "failed": [],
+      "primary": [
+        {
+          "id": 40621193207,
+          "name": "Timecard native UI software qualification",
+          "status": "queued",
+          "conclusion": null,
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Productivity/actions/runs/40621193207"
+        }
+      ]
+    },
+    {
+      "repository": "RiscRTE-Drivers",
+      "total": 13,
+      "counts": {
+        "queued": 5,
+        "failure": 2,
+        "success": 4,
+        "in_progress": 2
+      },
+      "failed": [
+        {
+          "id": 40621204595,
+          "name": "Badge scoped Home and native link",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/40621204595"
+        },
+        {
+          "id": 40621204571,
+          "name": "Badge shared CO5300 integration",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/40621204571"
+        }
+      ],
+      "primary": [
+        {
+          "id": 40621204600,
+          "name": "Badge prototype cohort",
+          "status": "queued",
+          "conclusion": null,
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Drivers/actions/runs/40621204600"
+        }
+      ]
+    },
+    {
+      "repository": "RiscRTE-Utilities",
+      "total": 18,
+      "counts": {
+        "queued": 10,
+        "success": 8
+      },
+      "failed": [],
+      "primary": [
+        {
+          "id": 40621200546,
+          "name": "Native UTC visual alarm profile",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-Utilities/actions/runs/40621200546"
+        }
+      ]
+    },
+    {
+      "repository": "RiscRTE",
+      "total": 23,
+      "counts": {
+        "queued": 4,
+        "in_progress": 5,
+        "success": 13,
+        "failure": 1
+      },
+      "failed": [
+        {
+          "id": 40621189141,
+          "name": "Native service sleep transaction",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189141"
+        }
+      ],
+      "primary": [
+        {
+          "id": 40621189117,
+          "name": "RiscRTE integration",
+          "status": "queued",
+          "conclusion": null,
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE/actions/runs/40621189117"
+        }
+      ]
+    },
+    {
+      "repository": "RiscRTE-System-Apps",
+      "total": 25,
+      "counts": {
+        "queued": 2,
+        "in_progress": 1,
+        "failure": 5,
+        "success": 17
+      },
+      "failed": [
+        {
+          "id": 40621193245,
+          "name": "Reader NOVA-7 scene qualification",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193245"
+        },
+        {
+          "id": 40621193158,
+          "name": "Scene telemetry qualification",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193158"
+        },
+        {
+          "id": 40621193223,
+          "name": "Shared app custody regression",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193223"
+        },
+        {
+          "id": 40621193133,
+          "name": "Watch color profile contract",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193133"
+        },
+        {
+          "id": 40621193275,
+          "name": "Shared text input checkpoint",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193275"
+        }
+      ],
+      "primary": [
+        {
+          "id": 40621193192,
+          "name": "Native SDK 6.1 shared components",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/michaelrolphone-cmyk/RiscRTE-System-Apps/actions/runs/40621193192"
+        }
+      ]
+    }
+  ],
+  "failure_excerpts": [
+    {
+      "repository": "RiscRTE",
+      "run": 40621189141,
+      "job": 122595361307,
+      "evidence": [
+        "2026-10-28T02:30:05.5198946Z In file included from /home/runner/work/RiscRTE/RiscRTE/dist/native-sleep/serial_sd_deep_repro.cpp:137:",
+        "2026-10-28T02:30:05.5200722Z /home/runner/work/RiscRTE/RiscRTE/dist/native-sleep/deep_ready_exact.inc: In function ‘bool deepReady()’:",
+        "2026-10-28T02:30:05.5203019Z /home/runner/work/RiscRTE/RiscRTE/dist/native-sleep/deep_ready_exact.inc:22:7: error: ‘RiscAppData’ has not been declared",
+        "2026-10-28T02:30:05.5209250Z    22 |   if(!RiscAppData::exitSafe())return false;",
+        "2026-10-28T02:30:05.5209829Z       |       ^~~~~~~~~~~",
+        "2026-10-28T02:30:05.7426589Z Verified ESP LittleFS 1.14.1 / LittleFS 2.9 pins; staged native ABI and mtime32 port",
+        "2026-10-28T02:30:05.7957744Z Traceback (most recent call last):",
+        "2026-10-28T02:30:05.7958795Z   File \"/home/runner/work/RiscRTE/RiscRTE/test/native_sleep_transaction.py\", line 163, in <module>",
+        "2026-10-28T02:30:05.7968428Z                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "2026-10-28T02:30:05.7969315Z   File \"/usr/lib/python3.12/subprocess.py\", line 571, in run",
+        "2026-10-28T02:30:05.7969993Z     raise CalledProcessError(retcode, process.args,",
+        "2026-10-28T02:30:05.7992151Z subprocess.CalledProcessError: Command '['c++', '-std=c++17', '-O0', '-g', '-Wall', '-Wextra', '-Werror', '-Wno-overflow', '-Wno-unused-function', '-Wno-missing-field-initializers', '-Wno-misleading-indentation', '-I/home/runner/work/RiscRTE/RiscRTE/dist/native-sleep', '-I/home/runner/work/RiscRTE/RiscRTE/dist/native-sleep/sdk', '-I/home/runner/work/RiscRTE/RiscRTE', '-I/home/runner/work/RiscRTE/RiscRTE/src', '-I/home/runner/work/RiscRTE/RiscRTE/test', '-I/home/runner/work/RiscRTE/RiscRTE/test/native_sdmmc_shim', '-I/home/runner/work/RiscRTE/RiscRTE/test/drivers/stubs', '-I/home/runner/work/RiscRTE/RiscRTE/test/native_sleep_diagnostics_idf6_shim', '-I/home/runner/work/RiscRTE/RiscRTE/test/native_platform_shim', '-I/home/runner/work/RiscRTE/RiscRTE/lib/ArduinoJs",
+        "2026-10-28T02:30:05.8130138Z ##[error]Process completed with exit code 1.",
+        "2026-10-28T02:30:05.8217295Z ##[group]Run actions/upload-artifact@v4"
+      ]
+    },
+    {
+      "repository": "RiscRTE-System-Apps",
+      "run": 40621193158,
+      "job": 122595374916,
+      "evidence": [
+        "2026-10-28T02:32:37.8834677Z  static const uint8_t tmfont_1_0_33[]={109,182,195,96};",
+        "2026-10-28T02:32:37.8834978Z  static const uint8_t tmfont_1_0_34[]={123,192,0,0,0,0};",
+        "2026-10-28T02:32:37.9335766Z ##[error]Process completed with exit code 1.",
+        "2026-10-28T02:32:37.9438619Z Post job cleanup."
+      ]
+    },
+    {
+      "repository": "RiscRTE-Drivers",
+      "run": 40621204571,
+      "job": 122595411575,
+      "evidence": [
+        "2026-10-28T02:35:04.5281171Z CST_SLEEP stage=sleep-command result=acknowledged",
+        "2026-10-28T02:35:04.5281337Z CST_SLEEP stage=sleep-command result=acknowledged",
+        "2026-10-28T02:35:04.6046177Z Traceback (most recent call last):",
+        "2026-10-28T02:35:04.6046682Z   File \"/__w/_temp/badge-display/drivers/tests/test_badge_touch_composition.py\", line 53, in <module>",
+        "2026-10-28T02:35:04.6056380Z     subprocess.run([str(binary)], env=environment, check=True)",
+        "2026-10-28T02:35:04.6056687Z   File \"/usr/lib/python3.12/subprocess.py\", line 571, in run",
+        "2026-10-28T02:35:04.6056974Z     raise CalledProcessError(retcode, process.args,",
+        "2026-10-28T02:35:04.6057498Z subprocess.CalledProcessError: Command '['/tmp/badge-touch-composition-h13in01y/badge-touch-composition']' died with <Signals.SIGABRT: 6>.",
+        "2026-10-28T02:35:04.6151595Z CST_SLEEP stage=sleep-command resul",
+        "2026-10-28T02:35:04.6161609Z ##[error]Process completed with exit code 1.",
+        "2026-10-28T02:35:04.6286203Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+      ]
+    },
+    {
+      "repository": "RiscRTE-System-Apps",
+      "run": 40621193133,
+      "job": 122595375106,
+      "evidence": [
+        "2026-10-28T02:33:36.5098669Z FAIL: test_incompatible_panels_rejected (__main__.WatchColorProfile.test_incompatible_panels_rejected)",
+        "2026-10-28T02:33:36.5099266Z ----------------------------------------------------------------------",
+        "2026-10-28T02:33:36.5099999Z Traceback (most recent call last):",
+        "2026-10-28T02:33:36.5105549Z   File \"/home/runner/work/RiscRTE-System-Apps/RiscRTE-System-Apps/scripts/test_watch_color_profile.py\", line 17, in test_incompatible_panels_rejected",
+        "2026-10-28T02:33:36.5106507Z     self.assertIn('#ifdef PORTABLE_WATCH_COLOR_ONLY\\n  if(info.width!=240 || info.height!=240 ||',s)",
+        "2026-10-28T02:33:36.5130726Z AssertionError: '#ifdef PORTABLE_WATCH_COLOR_ONLY\\n  if(info.width!=240 || info.height!=240 ||' not found in '#ifdef PORTABLE_BLE_BROADCAST\\n  if(!portable_broadcast_stop())return -1;\\n#endif\\n/* Included at the legacy init point or explicit native Settings app_main start. */\\n  if (!rt->acquire(\"display.output\", 1, 0, &dg))\\n    return -1;\\n  display = dg.api;\\n  if (!display || display->api_version != 1 ||\\n      display->struct_size < sizeof(*display) || !display->get_info ||\\n      !display->acquire || !display->release || !display->submit ||\\n      !display->present_status)\\n    return -1;\\n  if (!display->get_info(display->context, &info) || info.width < 160 ||\\n      info.height < 160 || info.width > 1024 || info.height > 1024 ||\\n      !(info.supported_",
+        "2026-10-28T02:33:36.5151873Z ",
+        "2026-10-28T02:33:36.5152633Z ",
+        "2026-10-28T02:33:36.5152766Z FAILED (failures=1)",
+        "2026-10-28T02:33:36.5182193Z ##[error]Process completed with exit code 1.",
+        "2026-10-28T02:33:36.5309370Z Post job cleanup."
+      ]
+    },
+    {
+      "repository": "RiscRTE-System-Apps",
+      "run": 40621193275,
+      "job": 122595375635,
+      "evidence": [
+        "2026-10-28T02:35:23.8702743Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib",
+        "2026-10-28T02:35:23.8703078Z ##[endgroup]",
+        "2026-10-28T02:35:24.5814051Z Traceback (most recent call last):",
+        "2026-10-28T02:35:24.5815248Z review checkpoint abi PASS (callbacks=2 configures=0 pauses=0 resumes=0)",
+        "2026-10-28T02:35:24.5836504Z                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "2026-10-28T02:35:24.5839577Z   File \"/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/subprocess.py\", line 502, in check_returncode",
+        "2026-10-28T02:35:24.6694189Z     raise CalledProcessError(self.returncode, self.args, self.stdout,",
+        "2026-10-28T02:35:24.6695729Z subprocess.CalledProcessError: Command '['/tmp/text-checkpoint-review-n3xznq8o/test', 'usb-queue']' died with <Signals.SIGABRT: 6>.",
+        "2026-10-28T02:35:24.6780687Z ##[error]Process completed with exit code 1.",
+        "2026-10-28T02:35:24.6864911Z ##[group]Run actions/upload-artifact@v4",
+        "2026-10-28T02:35:24.8779552Z Multiple search paths detected. Calculating the least common ancestor of all paths",
+        "2026-10-28T02:35:24.8783657Z The least common ancestor is /home/runner/work/RiscRTE-System-Apps/RiscRTE-System-Apps/build. This will be the root directory of the artifact",
+        "2026-10-28T02:35:24.8802016Z ##[error]No files were found with the provided path: build/checkpoint/*results.json",
+        "build/continuity/*results.json. No artifacts will be uploaded."
+      ]
+    },
+    {
+      "repository": "RiscRTE-System-Apps",
+      "run": 40621193223,
+      "job": 122595375358,
+      "evidence": [
+        "2026-10-28T02:32:52.8272735Z                  from /home/runner/work/RiscRTE-System-Apps/RiscRTE-System-Apps/test/native_apps/shared_initial_brightness_test.c:3:",
+        "2026-10-28T02:32:52.8274016Z /home/runner/work/RiscRTE-System-Apps/RiscRTE-System-Apps/test/native_apps/shared_initial_brightness_test.c: In function ‘main’:",
+        "2026-10-28T02:32:52.8274893Z /home/runner/work/RiscRTE-System-Apps/RiscRTE-System-Apps/test/native_apps/shared_initial_brightness_test.c:77:79: error: implicit declaration of function ‘alarm_output_modes’; did you mean ‘quick_alarm_output_modes’? [-Werror=implicit-function-declaration]",
+        "2026-10-28T02:32:52.8275546Z    77 |  assert(app_module_init()==0&&!test_sets&&!test_completes&&!retained);assert(!alarm_output_modes());",
+        "2026-10-28T02:32:52.8275823Z       |                                                                               ^~~~~~~~~~~~~~~~~~",
+        "2026-10-28T02:32:53.4110187Z cc1: all warnings being treated as errors",
+        "2026-10-28T02:32:53.8576018Z Traceback (most recent call last):",
+        "2026-10-28T02:32:53.8576421Z   File \"/home/runner/work/RiscRTE-System-Apps/RiscRTE-System-Apps/scripts/test_shared_initial_brightness.py\", line 33, in <module>",
+        "2026-10-28T02:32:53.8576954Z                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "2026-10-28T02:32:53.8577142Z   File \"/usr/lib/python3.12/subprocess.py\", line 571, in run",
+        "2026-10-28T02:32:53.8625229Z     raise CalledProcessError(retcode, process.args,",
+        "2026-10-28T02:32:53.8628040Z subprocess.CalledProcessError: Command '['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror', '-DPORTABLE_NATIVE_TIME_TOOLBAR', '-DPORTABLE_NATIVE_CUSTODY_FENCE', '-DTEST_NATIVE_TOOLBAR_QUICK', '-DALARM_SERVICE_TAGGED_V2', '-DPORTABLE_PAPER_PREFERENCES', '-DTOOLBAR_FIXTURE=\"/home/runner/work/RiscRTE-System-Apps/RiscRTE-System-Apps/test/native_apps/portable_native_toolbar_test.c\"', '-I/tmp/shared-brightness-xho8uy5r/include', '-I/home/runner/work/RiscRTE-System-Apps/RiscRTE-System-Apps/lib/NativeApps/include', '-I/home/runner/work/RiscRTE-System-Apps/RiscRTE-System-Apps/test/native_apps', '-I.deps/shared-custody-utilities/Apps', '-I.deps/shared-custody-utilities/lib/Alarm/include', '-DBRIGHTNESS_RGB_WIDTH=240', '-DBRIGHTNESS_RGB_HEIGHT=240', '-DPORTABLE",
+        "2026-10-28T02:32:53.8769059Z ##[error]Process completed with exit code 1.",
+        "2026-10-28T02:32:53.8827955Z ##[group]Run actions/upload-artifact@v4"
+      ]
+    },
+    {
+      "repository": "RiscRTE-Watch",
+      "run": 40621197373,
+      "job": 122595388817,
+      "evidence": [
+        "2026-10-28T02:33:18.2435598Z ##[endgroup]",
+        "2026-10-28T02:33:18.3134556Z usage: python3 -m unittest [-h] --system SYSTEM --utilities UTILITIES",
+        "2026-10-28T02:33:18.3135955Z python3 -m unittest: error: the following arguments are required: --system, --utilities",
+        "2026-10-28T02:33:18.3435021Z test_home_version_checkpoint (test_build_inputs.Inputs.test_home_version_checkpoint) ... ok",
+        "2026-10-28T02:33:18.4887639Z ERROR: test_sleep_defaults (unittest.loader._FailedTest.test_sleep_defaults)",
+        "2026-10-28T02:33:18.4888060Z ----------------------------------------------------------------------",
+        "2026-10-28T02:33:18.4888453Z ImportError: Failed to import test module: test_sleep_defaults",
+        "2026-10-28T02:33:18.4888801Z Traceback (most recent call last):",
+        "2026-10-28T02:33:18.4889175Z   File \"/usr/lib/python3.12/unittest/loader.py\", line 394, in _find_test_path",
+        "2026-10-28T02:33:18.4895030Z     self.error(_('the following arguments are required: %s') %",
+        "2026-10-28T02:33:18.4895396Z   File \"/usr/lib/python3.12/argparse.py\", line 2677, in error",
+        "2026-10-28T02:33:18.4895748Z     self.exit(2, _('%(prog)s: error: %(message)s\\n') % args)",
+        "2026-10-28T02:33:18.4896109Z   File \"/usr/lib/python3.12/argparse.py\", line 2664, in exit",
+        "2026-10-28T02:33:18.4897772Z ",
+        "2026-10-28T02:33:18.4897867Z FAILED (errors=1)",
+        "2026-10-28T02:33:18.5003310Z ##[error]Process completed with exit code 1.",
+        "2026-10-28T02:33:18.5124077Z Post job cleanup."
+      ]
+    },
+    {
+      "repository": "RiscRTE-System-Apps",
+      "run": 40621193245,
+      "job": 122595375196,
+      "evidence": [
+        "2026-10-28T02:30:00.9459932Z  static const uint8_t tmfont_1_0_33[]={109,182,195,96};",
+        "2026-10-28T02:30:00.9460342Z  static const uint8_t tmfont_1_0_34[]={123,192,0,0,0,0};",
+        "2026-10-28T02:30:01.0193616Z ##[error]Process completed with exit code 1.",
+        "2026-10-28T02:30:01.0334601Z Post job cleanup."
+      ]
+    },
+    {
+      "repository": "RiscRTE-Drivers",
+      "run": 40621204595,
+      "job": 122595411477,
+      "evidence": [
+        "2026-10-28T02:35:25.5127507Z CST_SLEEP stage=sleep-command result=acknowledged",
+        "2026-10-28T02:35:25.5127716Z CST_SLEEP stage=sleep-command result=acknowledged",
+        "2026-10-28T02:35:25.6099985Z Traceback (most recent call last):",
+        "2026-10-28T02:35:25.6102631Z   File \"/__w/_temp/badge-native/drivers/tests/test_badge_touch_composition.py\", line 53, in <module>",
+        "2026-10-28T02:35:25.6103904Z     subprocess.run([str(binary)], env=environment, check=True)",
+        "2026-10-28T02:35:25.6104572Z   File \"/usr/lib/python3.12/subprocess.py\", line 571, in run",
+        "2026-10-28T02:35:25.6104959Z     raise CalledProcessError(retcode, process.args,",
+        "2026-10-28T02:35:25.6105689Z subprocess.CalledProcessError: Command '['/tmp/badge-touch-composition-oedmmml2/badge-touch-composition']' died with <Signals.SIGABRT: 6>.",
+        "2026-10-28T02:35:25.6200539Z CST_SLEEP stage=sleep-command resul",
+        "2026-10-28T02:35:25.6214194Z ##[error]Process completed with exit code 1.",
+        "2026-10-28T02:35:25.6293526Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+      ]
+    }
+  ],
+  "limit": "Partial current-run observation; pending jobs remain. Failures retained, not fixed or rerun in this increment. No final CI success claim."
+}

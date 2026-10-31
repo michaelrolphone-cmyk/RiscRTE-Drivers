@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "sources": [
+    {
+      "path": "Drivers/common",
+      "tree_sha": "78d730223a2e3317c19d033513b5350d544a612f",
+      "upstream_tree": "5e45fd2944a203711b8a604a11ebc0d45abd6bc8",
+      "provenance": {
+        "repository": "michaelrolphone-cmyk/T5S3-Reader",
+        "commit": "9c8783d6f20659a514bfaeb3847a77c7213dc4f6",
+        "path": "Drivers/common"
+      },
+      "files": [
+        {
+          "path": "SerialStreamPump.inc",
+          "mode": "100644",
+          "sha": "4fd25b7fba9e059069523921632921b77bbd7a8d"
+        }
+      ]
+    }
+  ]
+}

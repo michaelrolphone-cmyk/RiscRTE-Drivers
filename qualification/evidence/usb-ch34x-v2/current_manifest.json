@@ -1,0 +1,26 @@
+{
+  "type": "driver",
+  "id": "usb-ch34x-v2",
+  "version": "0.1.7",
+  "driver_abi": 2,
+  "architecture": "xtensa-esp32s3",
+  "file_name": "driver.elf",
+  "requires": [
+    {
+      "capability": "usb.host",
+      "api": 1
+    }
+  ],
+  "provides": [
+    {
+      "capability": "serial.port",
+      "api": 1
+    }
+  ],
+  "status": "experimental-unpublished",
+  "size_bytes": 10860,
+  "sha256": "c27adc61871de35989b9ead8b10bc2ba72e83e242f0c9cf2f3d9c1beaa75a0c1",
+  "canonical_size_bytes": 6340,
+  "canonical_sha256": "8d88d227ac61116116b0ffb7c0e4052b7b547a0a19edc13a13af08792b95d621",
+  "byte_parity": false
+}

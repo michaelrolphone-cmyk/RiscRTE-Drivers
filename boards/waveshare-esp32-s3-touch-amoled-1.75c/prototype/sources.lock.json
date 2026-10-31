@@ -15,7 +15,7 @@
   },
   "system": {
     "repository": "michaelrolphone-cmyk/RiscRTE-System-Apps",
-    "commit": "50684639efd155042d599ba8edc10c3268aac82d"
+    "commit": "40e7222b390023a79288ddc369ffa2f485f85486"
   },
   "utilities": {
     "repository": "michaelrolphone-cmyk/RiscRTE-Utilities",
@@ -51,5 +51,9 @@
     "path": "sdk/app/RiscRuntimeClockV1.h",
     "sha256": "76584fdab224b184918d9f9cf675d5c4443adef7161e8518d456bc25277dc30f",
     "native_runtime_unchanged": false
+  },
+  "home_system": {
+    "repository": "michaelrolphone-cmyk/RiscRTE-System-Apps",
+    "commit": "50684639efd155042d599ba8edc10c3268aac82d"
   }
 }

@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "sources": [
+    {
+      "path": "Drivers/time_sample",
+      "kind": "adapter",
+      "tree_sha": "3abc62d709d4ece9c27cb66606aa7dc9142ffd38",
+      "provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "commit": "a45497f5df164ace12e3b56b615a3eaa76581f2c",
+        "path": "Drivers/time_sample"
+      },
+      "id": "time-sample",
+      "version": "0.1.0"
+    },
+    {
+      "path": "Drivers/usb_cdc_stream",
+      "kind": "candidate",
+      "id": "usb-cdc-acm",
+      "version": "0.1.8",
+      "candidate_for": "usb-cdc-acm",
+      "tree_sha": "e3f0169dc0717566faecb82c147c811bf55df6a6",
+      "provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "commit": "dbf925cf85f62cb0027dabe9f2b4f2359ff01160",
+        "path": "Drivers/usb_cdc_stream"
+      }
+    },
+    {
+      "path": "Drivers/pca9535_gpio",
+      "kind": "candidate",
+      "id": "pca9535-gpio",
+      "version": "0.1.1",
+      "candidate_for": "pca9535-gpio",
+      "tree_sha": "6e5d042952b7686317f33e16ef88e8398288bdcb",
+      "provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "commit": "f2c6353ac049ef158b43cba79e76218b29dae176",
+        "path": "Drivers/pca9535_gpio"
+      }
+    },
+    {
+      "path": "Drivers/tps65185_power",
+      "kind": "candidate",
+      "id": "tps65185-power",
+      "version": "0.1.1",
+      "tree_sha": "aec2ad4b852ae2a252fccb91cf2926473205f647",
+      "provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "commit": "05896b376a610b1c8788005726bb8a4cb06cfbda",
+        "path": "Drivers/tps65185_power"
+      },
+      "candidate_for": "tps65185-power"
+    },
+    {
+      "path": "Drivers/t5s3_panel_profile",
+      "kind": "adapter",
+      "id": "t5s3-panel-profile",
+      "version": "0.1.0",
+      "tree_sha": "d7feaf80a513b1498914e8821ea5f8b37d7ce3e1",
+      "provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "commit": "05896b376a610b1c8788005726bb8a4cb06cfbda",
+        "path": "Drivers/t5s3_panel_profile"
+      }
+    },
+    {
+      "path": "Drivers/panel_lease_lifecycle",
+      "kind": "adapter",
+      "id": "panel-lease-lifecycle",
+      "version": "0.1.0",
+      "tree_sha": "c67198fbeaba460a84ca89aa9a7cb96201898ba7",
+      "provenance": {
+        "repository": "michaelrolphone-cmyk/RiscRTE-Drivers",
+        "commit": "05896b376a610b1c8788005726bb8a4cb06cfbda",
+        "path": "Drivers/panel_lease_lifecycle"
+      }
+    }
+  ]
+}

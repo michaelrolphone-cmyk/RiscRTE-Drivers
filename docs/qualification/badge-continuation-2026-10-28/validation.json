@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "checks": [
+    {
+      "name": "timecard-contract-normal",
+      "receipt": "timecard-contract-normal.json",
+      "receipt_sha256": "1f981ceddcb59c4a74d5c52f6833b802020b968dd8a7bc0cd27c8a54364891f4",
+      "case_executions": 20,
+      "exit_code": 0,
+      "log": "test-evidence-timecard-contract-normal.log",
+      "log_sha256": "5bdf57636b00b3fc61bc0b4dddc1e39c8efe420353d3901377d6516c4a73fabe",
+      "hardware_tested": false
+    },
+    {
+      "name": "timecard-contract-sanitized",
+      "receipt": "timecard-contract-sanitized.json",
+      "receipt_sha256": "3bd5722cece3760a58625b40da0d0ea5c89b7b506df7e4b3415392d0c51b94c8",
+      "case_executions": 20,
+      "exit_code": 0,
+      "log": "test-evidence-timecard-contract-sanitized.log",
+      "log_sha256": "5bdf57636b00b3fc61bc0b4dddc1e39c8efe420353d3901377d6516c4a73fabe",
+      "hardware_tested": false
+    },
+    {
+      "name": "timecard-ui-normal",
+      "receipt": "timecard-ui-normal.json",
+      "receipt_sha256": "3b74cbb9d8d64b08574b4fe96a85ad504dfe4f26d76b305571437d1e4c808d82",
+      "case_executions": 168,
+      "exit_code": 0,
+      "log": "test-evidence-timecard-ui-normal.log",
+      "log_sha256": "f03cbfdad0b8ae3f23c68cbd3e1ade1b591d74febe2f131f48da01891bf29e18",
+      "hardware_tested": false
+    },
+    {
+      "name": "timecard-ui-sanitized",
+      "receipt": "timecard-ui-sanitized.json",
+      "receipt_sha256": "185e2023d304366a020319ed7bf10627eb9937c78fee871a828c03a7441ce336",
+      "case_executions": 168,
+      "exit_code": 0,
+      "log": "test-evidence-timecard-ui-sanitized.log",
+      "log_sha256": "f03cbfdad0b8ae3f23c68cbd3e1ade1b591d74febe2f131f48da01891bf29e18",
+      "hardware_tested": false
+    },
+    {
+      "name": "time-sync",
+      "receipt": "time-sync.json",
+      "receipt_sha256": "55bce4be9e6db3f8503c7a5c7a432726562617de90bd42b0af4b983e8e3d6e49",
+      "case_executions": 48,
+      "exit_code": 0,
+      "log": "test-evidence-time-sync.log",
+      "log_sha256": "ccdb2c4f47f04a80c15d55ef6bc45a29ca6710427aa6692ec44d6164fe1f2f4f",
+      "hardware_tested": false
+    }
+  ],
+  "host_test_scope": "Timecard unit/controller/native UI and time sync owning host fixtures on restored original source tuple; these are not composed Badge Runtime or target/hardware results.",
+  "distinct_timecard_ui_cases": 168,
+  "timecard_ui_executions": 336,
+  "distinct_timecard_contract_cases": 20,
+  "timecard_contract_executions": 40,
+  "distinct_time_sync_cases": 24,
+  "time_sync_executions": 48,
+  "recovery_tests": {
+    "methods": 5,
+    "negative_inputs": 9,
+    "result": "passed"
+  },
+  "ci_dispatch_tests": {
+    "methods": 1,
+    "result": "passed",
+    "scope": "mocked command dispatch from actual workflow flags, no target build"
+  },
+  "target_build": "not_run",
+  "hosted_ci": "not_run; Runtime source publication denied",
+  "physical_tested": false,
+  "visual_inspection": "Fresh saved Timecard week and keyboard pixels inspected at410x502,502x410,160x160; host renderer only.",
+  "ci_delivery_tests": {
+    "methods": 16,
+    "result": "passed",
+    "scope": "mocked full pipeline, selection/custody/receipt/image unit tests; no target build"
+  },
+  "time_sync_profile_tests": {
+    "methods": 4,
+    "result": "passed"
+  }
+}

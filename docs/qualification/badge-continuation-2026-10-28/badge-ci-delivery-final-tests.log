@@ -1,0 +1,50 @@
+........usage: x [-h] [--alarm-ready-drain] [--nova-mask-bounds]
+         [--settings-alpha-geometry] [--raster-overwrite-clear]
+         [--raster-underlay-exchange] [--time-server-sync]
+         [--interaction-trace] [--native-glyph-coverage-cache]
+         [--native-stroke-coverage-cache] [--picker-compositor-plan]
+         [--native-damage-replay] [--native-settings-ui] [--round-settings-ui]
+         [--sliced-native-frames] [--native-performance-trace]
+         [--springboard-quick-actions] [--springboard-gesture-diagnostics]
+         [--spiffs-source SPIFFS_SOURCE] [--reuse-columns] [--queued-pixels]
+         [--reuse-unchanged-stripes] [--native-stripe-rows {4,8,16,32}]
+         [--foreground-idle] [--include-files] [--native-daily]
+         [--native-alarms] [--native-alarm-geometry] [--native-wifi-geometry]
+         [--quick-actions] [--include-timecard] --workspace WORKSPACE --idf
+         IDF --cc CC --output OUTPUT
+x: error: native-alarms requires native-daily, foreground-idle and include-files
+..usage: x [-h] [--alarm-ready-drain] [--nova-mask-bounds]
+         [--settings-alpha-geometry] [--raster-overwrite-clear]
+         [--raster-underlay-exchange] [--time-server-sync]
+         [--interaction-trace] [--native-glyph-coverage-cache]
+         [--native-stroke-coverage-cache] [--picker-compositor-plan]
+         [--native-damage-replay] [--native-settings-ui] [--round-settings-ui]
+         [--sliced-native-frames] [--native-performance-trace]
+         [--springboard-quick-actions] [--springboard-gesture-diagnostics]
+         [--spiffs-source SPIFFS_SOURCE] [--reuse-columns] [--queued-pixels]
+         [--reuse-unchanged-stripes] [--native-stripe-rows {4,8,16,32}]
+         [--foreground-idle] [--include-files] [--native-daily]
+         [--native-alarms] [--native-alarm-geometry] [--native-wifi-geometry]
+         [--quick-actions] [--include-timecard] --workspace WORKSPACE --idf
+         IDF --cc CC --output OUTPUT
+x: error: native-wifi-geometry requires the quick-actions product cohort
+...usage: x [-h] [--alarm-ready-drain] [--nova-mask-bounds]
+         [--settings-alpha-geometry] [--raster-overwrite-clear]
+         [--raster-underlay-exchange] [--time-server-sync]
+         [--interaction-trace] [--native-glyph-coverage-cache]
+         [--native-stroke-coverage-cache] [--picker-compositor-plan]
+         [--native-damage-replay] [--native-settings-ui] [--round-settings-ui]
+         [--sliced-native-frames] [--native-performance-trace]
+         [--springboard-quick-actions] [--springboard-gesture-diagnostics]
+         [--spiffs-source SPIFFS_SOURCE] [--reuse-columns] [--queued-pixels]
+         [--reuse-unchanged-stripes] [--native-stripe-rows {4,8,16,32}]
+         [--foreground-idle] [--include-files] [--native-daily]
+         [--native-alarms] [--native-alarm-geometry] [--native-wifi-geometry]
+         [--quick-actions] [--include-timecard] --workspace WORKSPACE --idf
+         IDF --cc CC --output OUTPUT
+x: error: include-timecard requires selected Quick cohort
+...
+----------------------------------------------------------------------
+Ran 16 tests in 0.111s
+
+OK

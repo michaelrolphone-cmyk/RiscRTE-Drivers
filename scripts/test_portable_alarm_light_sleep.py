@@ -8,6 +8,8 @@ import subprocess
 import tempfile
 
 
+UNTIMED_BASELINE='fc88ffd8d8329709bd30a38f27af43e83f29618e'
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--runtime', required=True, type=Path)
@@ -59,7 +61,7 @@ def main():
         # Explicit omission preserves machine-code behavior, not just examples.
         old = out / 'baseline.c'
         old.write_text(subprocess.check_output(['git','-C',str(root),'show',
-            'fc88ffd8d8329709bd30a38f27af43e83f29618e:components/portable-light-sleep/foreground_light_sleep.c'],text=True))
+            UNTIMED_BASELINE+':components/portable-light-sleep/foreground_light_sleep.c'],text=True))
         images=[]
         for source,label in [(old,'baseline'),(root/'components/portable-light-sleep/foreground_light_sleep.c','candidate')]:
             obj=out/(label+'.o');raw=out/(label+'.text')

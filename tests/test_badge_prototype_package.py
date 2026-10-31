@@ -12,7 +12,7 @@ class Rejections(unittest.TestCase):
     dest=native/'build'/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(A.native/'build'/name,dest)
    # The selected SPIFFS override is qualified from its exact compile commands
    # as well as the native artifact. Mutation copies retain that required input.
-   if p.read(A.native/'build-proof.json').get('spiffs_lookup',{}).get('enabled'):
+   if p.spiffs_lookup_selected(p.read(A.native/'build-proof.json')):
     shutil.copyfile(A.native/'build/compile_commands.json',native/'build/compile_commands.json')
    shutil.copyfile(A.target/'build.json',target/'build.json');shutil.copytree(A.target/'store',target/'store');(target/'shared-home').mkdir(parents=True);shutil.copyfile(A.target/'shared-home/default.elf',target/'shared-home/default.elf');shutil.copyfile(A.target/'shared-home/build.json',target/'shared-home/build.json')
    for name in ('wifi/wifi_settings-build-record.json','springboard/springboard-build-record.json'):

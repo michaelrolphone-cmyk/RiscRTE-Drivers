@@ -10,8 +10,18 @@ on:
       - 'Drivers/power_key_navigation/**'
       - 'Drivers/gpio_key_sleep/**'
       - 'Drivers/cst9217_touch/**'
+      - 'scripts/battery_evidence_gate.py'
+      - 'test/test_battery_evidence_gate.py'
       - 'scripts/hybrid_evidence_gate.py'
       - 'scripts/recover_badge_ci_sources.py'
+      - 'scripts/recover_custody_provenance.py'
+      - 'test/test_custody_provenance_recovery.py'
+      - 'manifest/local-source-custody.json'
+      - 'qualification/local-source-custody.json'
+      - 'scripts/check_parity.py'
+      - 'scripts/badge_source_pack.py'
+      - 'docs/badge-source-recovery/**'
+      - 'tests/test_badge_source_pack.py'
       - 'scripts/test_gpio_key_sleep.py'
       - 'scripts/cst9217_sdk.py'
       - 'tests/test_gpio_key_sleep.c'
@@ -50,7 +60,7 @@ jobs:
             flags: ''
             recovery_flags: ''
           - profile: selected-full
-            flags: '--foreground-idle --include-files --native-daily --native-alarms --native-alarm-geometry --quick-actions --native-wifi-geometry --include-timecard'
+            flags: '--foreground-idle --include-files --native-daily --native-alarms --alarm-ready-drain --nova-mask-bounds --settings-alpha-geometry --raster-overwrite-clear --raster-underlay-exchange --native-alarm-geometry --quick-actions --native-wifi-geometry --time-server-sync --interaction-trace --native-glyph-coverage-cache --native-stroke-coverage-cache --picker-compositor-plan --native-damage-replay --native-settings-ui --round-settings-ui --sliced-native-frames --native-performance-trace --springboard-quick-actions --springboard-gesture-diagnostics --include-timecard --reuse-columns --queued-pixels --native-stripe-rows 16 --reuse-unchanged-stripes'
             recovery_flags: '--include-timecard'
     runs-on: ubuntu-24.04
     timeout-minutes: 120
@@ -75,20 +85,26 @@ jobs:
           git -C "$root/drivers" fetch --no-tags --depth=1 origin "$SOURCE_SHA"
           git -C "$root/drivers" checkout --quiet --detach FETCH_HEAD
           python "$root/drivers/scripts/recover_badge_ci_sources.py" --workspace "$root" ${{ matrix.recovery_flags }}
+          python "$root/drivers/test/test_custody_provenance_recovery.py"
+          python "$root/drivers/scripts/recover_custody_provenance.py" --root "$root/drivers" --repository "$GITHUB_REPOSITORY" --output "$root/custody-provenance-recovery.json"
       - name: Build, admit, execute, replay and seal matching cohort
         run: |
           set -euo pipefail
           source "$IDF_PATH/export.sh" >/dev/null
+          python "$BADGE_PROTOTYPE_ROOT/drivers/test/test_badge_native_first.py"
           python "$BADGE_PROTOTYPE_ROOT/drivers/scripts/run_badge_prototype_ci.py" \
             --workspace "$BADGE_PROTOTYPE_ROOT" --idf "$IDF_PATH" \
             --cc "$(command -v xtensa-esp32s3-elf-gcc)" \
-            --output "$BADGE_PROTOTYPE_ROOT/prototype-evidence" ${{ matrix.flags }}
+            --output "$BADGE_PROTOTYPE_ROOT/prototype-evidence" ${{ matrix.flags }} ${{ matrix.profile == 'selected-full' && '--spiffs-source' || '' }} ${{ matrix.profile == 'selected-full' && format('{0}/spiffs', env.BADGE_PROTOTYPE_ROOT) || '' }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: badge-prototype-${{ matrix.profile }}-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             ${{ env.BADGE_PROTOTYPE_ROOT }}/source-recovery.json
+            ${{ env.BADGE_PROTOTYPE_ROOT }}/custody-provenance-recovery.json
+            ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/local-quick-*
+            ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/time-sync-owning/**
             ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/*.log
             ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/*.json
             ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/*.zip
@@ -97,6 +113,7 @@ jobs:
             ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/packaged-geometry-*/
             ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/software-evidence/
             ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/native/build-proof.json
+            ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/native/build/riscrte_native.elf
             ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/native/build/qualification/
             ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/target/build.json
             ${{ env.BADGE_PROTOTYPE_ROOT }}/prototype-evidence/timecard-*/**/receipt.json

@@ -15,12 +15,25 @@ class Runner(unittest.TestCase):
     if any(x.endswith('/build_badge_prototype.py') for x in c):
      target=Path(c[c.index('--output')+1]);target.mkdir();(target/'build.json').write_text(json.dumps({'source_pins':{},'store_files':{}}))
     return type('Result',(),{'returncode':0})()
-   with patch.object(sys,'argv',['runner','--workspace',str(w),'--idf',str(w/'idf'),'--cc','xtensa','--output',str(out),*flags]),patch.object(ci.subprocess,'run',side_effect=fake),patch.object(ci.subprocess,'check_output',return_value='a'*40),patch.object(ci,'copy_recovery_receipts') as copied:
+   with patch.object(sys,'argv',['runner','--workspace',str(w),'--idf',str(w/'idf'),'--cc','xtensa','--output',str(out),*flags]),patch.object(ci.subprocess,'run',side_effect=fake),patch.object(ci.subprocess,'check_output',return_value='a'*40),patch.object(ci,'copy_recovery_receipts') as copied,patch.object(ci,'copy_battery_receipts'):
     ci.main();copy_count=copied.call_count
    return calls,copy_count
+ def test_battery_selector_is_additive_in_both_lanes(self):
+  calls,_=self.invoke(FULL)
+  executions=[c for c in calls if c[1].endswith('/test_badge_prototype_execution.py')]
+  self.assertEqual(len(executions),4)
+  battery=[c for c in executions if '--alarm-foreground-app' in c]
+  self.assertEqual(len(battery),2)
+  for c,lane in zip(battery,['normal','sanitized']):
+   self.assertEqual(c[c.index('--alarm-foreground-app')+1],'battery')
+   self.assertEqual([c[i+1] for i,x in enumerate(c) if x=='--case'],['25','29'])
+   self.assertEqual('--sanitize' in c,lane=='sanitized')
+   self.assertTrue(c[c.index('--output')+1].endswith('battery-alarms-'+lane+'.json'))
+  minimal,_=self.invoke([])
+  self.assertFalse(any('--alarm-foreground-app' in c for c in minimal))
  def test_full_pipeline(self):
   calls,copies=self.invoke(FULL);self.assertEqual(copies,1)
-  by=lambda name:[c for c in calls if any(x.endswith('/'+name) for x in c)]
+  by=lambda name:[c for c in calls if any(x.endswith('/'+name) for x in c) and '--alarm-foreground-app' not in c]
   target=by('build_badge_prototype.py')[0]
   for flag in FULL:self.assertIn(flag,target)
   for name in ['test_badge_prototype_execution.py','test_badge_hybrid_execution.py','test_badge_springboard_execution.py','test_badge_settings_execution.py']:
@@ -30,6 +43,8 @@ class Runner(unittest.TestCase):
   self.assertTrue(all('--settings-ui' in r for r in by('test_badge_settings_execution.py')))
   self.assertEqual(by('test_badge_wifi_gap_execution.py'),[])
   self.assertEqual(len(by('test_settings_evidence_gate.py')),1)
+  home_alarm=by('test_native_alarm.py')[0]
+  self.assertTrue(home_alarm[home_alarm.index('--system')+1].endswith('/home-system'))
   self.assertEqual(len(by('test_gpio_key_sleep.py')),1);self.assertEqual(len(by('run_cst9217_touch_test.sh')),1)
   package=next(i for i,c in enumerate(calls) if any(x.endswith('/package_badge_prototype.py') for x in c))
   image_check=next(i for i,c in enumerate(calls) if any(x.endswith('/verify_badge_prototype_image.py') for x in c));self.assertGreater(image_check,package)
@@ -37,7 +52,7 @@ class Runner(unittest.TestCase):
   for i,c in replay:self.assertGreater(i,package);self.assertTrue(c[c.index('--appdata-image')+1].endswith('badge-round-prototype/appdata.bin'))
  def test_native_wifi_adds_checks_without_replacing_sleep_navigation(self):
   calls,copies=self.invoke(FULL+['--native-wifi-geometry']);self.assertEqual(copies,1)
-  by=lambda name:[c for c in calls if any(x.endswith('/'+name) for x in c)]
+  by=lambda name:[c for c in calls if any(x.endswith('/'+name) for x in c) and '--alarm-foreground-app' not in c]
   target=by('build_badge_prototype.py')[0]
   self.assertIn('--native-wifi-geometry',target)
   gap=by('test_badge_wifi_gap_execution.py');self.assertEqual(len(gap),2);self.assertNotIn('--sanitize',gap[0]);self.assertIn('--sanitize',gap[1])
@@ -51,13 +66,30 @@ class Runner(unittest.TestCase):
   self.assertEqual(len([c for c in calls if '--appdata-image' in c]),2)
  def test_timecard_selected_pipeline(self):
   calls,copies=self.invoke(FULL+['--native-wifi-geometry','--include-timecard']);self.assertEqual(copies,1)
-  by=lambda name:[c for c in calls if any(x.endswith('/'+name) for x in c)]
+  by=lambda name:[c for c in calls if any(x.endswith('/'+name) for x in c) and '--alarm-foreground-app' not in c]
   target=by('build_badge_prototype.py')[0];self.assertIn('--include-timecard',target);self.assertTrue(target[target.index('--productivity')+1].endswith('/productivity-prototype'))
   for name in ['test_badge_timecard_execution.py','test_native_scene.py','test_quick_pending_frame.py','test_quick_pending_input.py','test_timecard_current_contract.py','test_timecard_current_ui.py']:
    rows=by(name);self.assertEqual(len(rows),2);self.assertNotIn('--sanitize',rows[0]);self.assertIn('--sanitize',rows[1])
   for name in ['test_timecard_current_build.py','test_timecard_current_legacy.py','test_timecard_evidence_gate.py','test_badge_timecard_package.py','test_timecard_product_selection.py']:self.assertEqual(len(by(name)),1)
+  for c in by('test_native_scene.py'):
+   self.assertTrue(c[1].endswith('/scene-qualification-tools/scripts/test_native_scene.py'))
+   for option,suffix in [('--system-under-test','/system-prototype'),('--parity-source','/timecard-system-baseline'),('--baseline','/timecard-pre-scene-baseline')]:self.assertTrue(c[c.index(option)+1].endswith(suffix))
+   self.assertEqual(c[c.index('--system-revision')+1],json.loads((ci.ROOT/'boards/waveshare-esp32-s3-touch-amoled-1.75c/prototype/sources.lock.json').read_text())['system']['commit'])
+  self.assertEqual(len(by('test_native_scene_provenance.py')),1)
   for c in by('test_badge_timecard_execution.py'):self.assertIn('--productivity',c);self.assertIn('--foreground',c)
   for name in ['test_badge_prototype_execution.py','test_badge_hybrid_execution.py','test_badge_springboard_execution.py','test_badge_settings_execution.py','test_badge_wifi_gap_execution.py']:self.assertEqual(len(by(name)),2)
+ def test_accepted_successor_keeps_local_quick_and_post_execution_sync_gates(self):
+  calls,copies=self.invoke(FULL+['--native-wifi-geometry','--include-timecard',*['--'+f for f in ci.SUCCESSOR_FLAGS]])
+  by=lambda name:[c for c in calls if any(x.endswith('/'+name) for x in c) and '--alarm-foreground-app' not in c]
+  self.assertEqual(len(by('qualification_fixture.py')),2)
+  for c in by('qualification_fixture.py'):self.assertIn('--run',c);self.assertIn('local-quick',c)
+  gates=by('test_time_sync_package.py');self.assertEqual(len(gates),2)
+  executions=by('test_badge_prototype_execution.py')
+  self.assertEqual(len(executions),2)
+  for gate,lane in zip(gates,['normal','sanitized']):
+   self.assertIn('--target',gate);self.assertIn('--native',gate);self.assertIn('--execution',gate)
+   self.assertTrue(gate[-1].endswith('execution-'+lane+'.json'))
+   self.assertGreater(calls.index(gate),calls.index(executions[-1]))
  def test_timecard_invalid_profile_before_work(self):
   with tempfile.TemporaryDirectory() as d,patch.object(sys,'argv',['x','--workspace',d,'--idf',d,'--cc','cc','--output',d+'/out','--include-timecard']),patch.object(ci.subprocess,'run') as run:
    with self.assertRaises(SystemExit):ci.main()
@@ -88,6 +120,23 @@ class Runner(unittest.TestCase):
   for item in ['historical-minimal','selected-full','max-parallel: 1','permissions:\n  contents: read',"Drivers/gpio_key_sleep/**","Drivers/cst9217_touch/**","--native-wifi-geometry","--include-timecard","matrix.recovery_flags","tests/badge_settings*","test/test_settings_evidence_gate.py"]:self.assertIn(item,text)
   self.assertNotIn('contents: write',text);self.assertNotIn('pull_request_target',text)
 class Recovery(unittest.TestCase):
+ def test_scene_roles_are_independent_and_exact(self):
+  proof={'schema':1,'tools':'a'*40,'scene':'b'*40,'before_scene':'c'*40};profile={'scene_contract_basis':'b'*40}
+  self.assertEqual(recovery.scene_qualification_anchors(profile,proof),[('scene-qualification-tools','system','a'*40),('timecard-pre-scene-baseline','system','c'*40)])
+  for key,value in [('tools','main'),('scene','d'*40),('before_scene','b'*40),('schema',True)]:
+   with self.subTest(key=key),self.assertRaises(ValueError):recovery.scene_qualification_anchors(profile,{**proof,key:value})
+  with self.assertRaises(ValueError):recovery.scene_qualification_anchors(profile,{**proof,'unknown':1})
+ def test_scene_role_directories_refused_before_any_fetch(self):
+  for role in ['scene-qualification-tools','timecard-pre-scene-baseline']:
+   with self.subTest(role=role),tempfile.TemporaryDirectory() as d:
+    root=Path(d);board=root/'drivers/boards/waveshare-esp32-s3-touch-amoled-1.75c'
+    for kind in ['home','prototype']:
+     p=board/kind/'sources.lock.json';p.parent.mkdir(parents=True);p.write_text('{}')
+    p=root/'drivers/docs/badge-source-recovery/sources.json';p.parent.mkdir(parents=True);p.write_text('{}')
+    prior=root/role;prior.mkdir();marker=prior/'keep';marker.write_text('owned');calls=[]
+    with self.assertRaisesRegex(ValueError,'Fresh workspace roles required'):recovery.recover(root,run=lambda c,**kw:calls.append(c),include_timecard=True)
+    self.assertEqual(calls,[]);self.assertEqual(marker.read_text(),'owned')
+
  def test_literal_exact_constants_only(self):
   with tempfile.TemporaryDirectory() as d:
    p=Path(d)/'source.py';p.write_text("PIN='"+'a'*40+"'\n");self.assertEqual(recovery.constants(p,['PIN']),{'PIN':'a'*40})
@@ -97,33 +146,28 @@ class Recovery(unittest.TestCase):
   with tempfile.TemporaryDirectory() as d:
    p=Path(d)/'source.py';p.write_text('x=1')
    with self.assertRaises(ValueError):recovery.constants(p,['PIN'])
- def test_complete_fetch_plan(self):
+ def test_existing_roles_refused_before_git_and_preserved(self):
   with tempfile.TemporaryDirectory() as d:
-   root=Path(d);board=root/'drivers/boards/waveshare-esp32-s3-touch-amoled-1.75c';pin='a'*40
+   root=Path(d);board=root/'drivers/boards/waveshare-esp32-s3-touch-amoled-1.75c'
    for kind in ['home','prototype']:
-    p=board/kind/'sources.lock.json';p.parent.mkdir(parents=True);p.write_text(json.dumps({key:{'repository':'owner/repo','commit':pin} for _,key,k in recovery.ROLES if k==kind}))
-   for _,rel,names in recovery.ANCHORS:
-    p=root/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('\n'.join(n+'='+repr(pin) for n in names))
-   p=root/'drivers/docs/usb-hid-checked-source-lock.json';p.parent.mkdir();p.write_text(json.dumps({'cohorts':{'pr40':{'commit':pin}}}))
-   calls=[];receipt=recovery.recover(root,run=lambda c,**kw:calls.append(c),output=lambda c,**kw:pin)
-   self.assertEqual(len(receipt['roles']),len(recovery.ROLES));self.assertFalse(receipt['latest_ref_fallback']);self.assertTrue(any(x['role']=='drivers' for x in receipt['extra_refs']))
-   for c in calls:
-    if 'fetch' in c:self.assertEqual(c[-1],pin);self.assertIn('--depth=1',c)
- def test_timecard_recovery_roles_and_owning_anchors(self):
+    p=board/kind/'sources.lock.json';p.parent.mkdir(parents=True);p.write_text('{}')
+   p=root/'drivers/docs/badge-source-recovery/sources.json';p.parent.mkdir(parents=True);p.write_text('{}')
+   prior=root/'runtime';prior.mkdir();marker=prior/'uncommitted.txt';marker.write_text('preserve')
+   calls=[]
+   with self.assertRaisesRegex(ValueError,'Fresh workspace roles required'):
+    recovery.recover(root,run=lambda c,**kw:calls.append(c))
+   self.assertEqual(calls,[]);self.assertEqual(marker.read_text(),'preserve')
+ def test_timecard_baseline_directory_refused_before_git(self):
   with tempfile.TemporaryDirectory() as d:
-   root=Path(d);board=root/'drivers/boards/waveshare-esp32-s3-touch-amoled-1.75c';pin='a'*40
+   root=Path(d);board=root/'drivers/boards/waveshare-esp32-s3-touch-amoled-1.75c'
    for kind in ['home','prototype']:
-    p=board/kind/'sources.lock.json';p.parent.mkdir(parents=True);keys={key for _,key,k in recovery.ROLES if k==kind}|({'productivity'} if kind=='prototype' else set());p.write_text(json.dumps({key:{'repository':'owner/repo','commit':pin} for key in keys}))
-   for _,rel,names in recovery.ANCHORS:
-    p=root/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('\n'.join(n+'='+repr(pin) for n in names))
-   p=root/'drivers/docs/usb-hid-checked-source-lock.json';p.parent.mkdir();p.write_text(json.dumps({'cohorts':{'pr40':{'commit':pin}}}))
-   p=root/'productivity-prototype/sdk/timecard-current-profile.json';p.parent.mkdir(parents=True);p.write_text(json.dumps({'authoritative_model_base':pin,'scene_contract_basis':pin,'alarm_sdk':pin}))
-   calls=[];receipt=recovery.recover(root,run=lambda c,**kw:calls.append(c),output=lambda c,**kw:pin,include_timecard=True)
-   self.assertEqual(len(receipt['roles']),14);self.assertTrue(receipt['include_timecard'])
-   self.assertTrue({'watch-alpha-baseline','productivity-prototype','timecard-productivity-baseline','timecard-system-baseline','timecard-alarm-sdk'}<=set(x['role'] for x in receipt['roles']))
-   self.assertFalse(receipt['latest_ref_fallback'])
-   for c in calls:
-    if 'fetch' in c:self.assertEqual(c[-1],pin)
+    p=board/kind/'sources.lock.json';p.parent.mkdir(parents=True);p.write_text('{}')
+   p=root/'drivers/docs/badge-source-recovery/sources.json';p.parent.mkdir(parents=True);p.write_text('{}')
+   prior=root/'timecard-alarm-sdk';prior.mkdir();marker=prior/'sdk.h';marker.write_text('canonical')
+   calls=[]
+   with self.assertRaisesRegex(ValueError,'Fresh workspace roles required'):
+    recovery.recover(root,run=lambda c,**kw:calls.append(c),include_timecard=True)
+   self.assertEqual(calls,[]);self.assertEqual(marker.read_text(),'canonical')
 class Image(unittest.TestCase):
  def test_truncated_image_refused(self):
   with tempfile.TemporaryDirectory() as d:

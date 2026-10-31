@@ -1,5 +1,8 @@
-import copy,importlib.util,pathlib,unittest
+import ast,copy,importlib.util,pathlib,unittest,sys,os,subprocess,tempfile,hashlib
 p=pathlib.Path(__file__).resolve().parents[1]/'scripts/timecard_evidence_gate.py'
+# File-based module loading does not add its directory for sibling imports.
+# Resolve from this checkout, never the caller's cwd or ambient PYTHONPATH.
+sys.path.insert(0,str(p.parent))
 spec=importlib.util.spec_from_file_location('timecard_evidence_gate',p);g=importlib.util.module_from_spec(spec);spec.loader.exec_module(g)
 class TimecardGateTests(unittest.TestCase):
  def good(self):
@@ -10,7 +13,58 @@ class TimecardGateTests(unittest.TestCase):
   r['results']=[dict(target_index=0,scenario=k,returncode=0,stderr='',stdout='PASS actual Runtime Timecard scenario='+k+' launcher_item=10 catalog=10 actual_scroll=1 data_reads=1 data_writes='+str(int(k=='save'))+' light=1 restored=1 pending_frames=12 copied_preference_writes='+str(int(k.startswith('quick-')))+' retained='+str(int(k=='quick-retained'))+' no_after_retained=passed modeled_not_device') for k in g.EXPECTED]
   return r
  def run_gate(self,r):g.qualify_timecard({'source_pins':{'system':'pin'},'foreground_idle':{'apps':[str(i) for i in range(9)]+['timecard']}},r,False,{'timecard.elf':'hash'},'target',p.parents[1],False)
+ def test_real_producer_fixture_inventory_matches_gate(self):
+  # Inspect actual producer declaration rather than a second mock inventory.
+  producer=p.with_name('test_badge_timecard_execution.py')
+  tree=ast.parse(producer.read_text())
+  inventories=[value for node in ast.walk(tree) if isinstance(node,ast.Dict)
+   for key,value in zip(node.keys,node.values)
+   if isinstance(key,ast.Constant) and key.value=='fixture_sha256']
+  self.assertEqual(len(inventories),1)
+  inv=inventories[0];self.assertIsInstance(inv,ast.DictComp)
+  self.assertEqual(len(inv.generators),1)
+  declared=inv.generators[0].iter;self.assertIsInstance(declared,ast.List)
+  names=[]
+  for item in declared.elts:
+   if ast.dump(item)==ast.dump(ast.parse('Path(__file__).resolve()',mode='eval').body):
+    names.append('scripts/'+producer.name)
+   else:
+    self.assertIsInstance(item,ast.BinOp);self.assertIsInstance(item.op,ast.Div)
+    self.assertIsInstance(item.left,ast.Name);self.assertEqual(item.left.id,'ROOT')
+    self.assertIsInstance(item.right,ast.Constant);self.assertIsInstance(item.right.value,str)
+    names.append(item.right.value)
+  self.assertEqual(len(names),len(set(names)))
+  self.assertEqual(set(names),g.FIXTURES)
+ def test_each_fixture_required_and_unexpected_fixture_refused(self):
+  for name in g.FIXTURES:
+   with self.subTest(missing=name):
+    r=self.good();del r['fixture_sha256'][name]
+    with self.assertRaisesRegex(ValueError,'Missing Timecard source provenance'):self.run_gate(r)
+  r=self.good();r['fixture_sha256']['tests/unrelated.cpp']='hash'
+  with self.assertRaisesRegex(ValueError,'Missing Timecard source provenance'):self.run_gate(r)
  def test_valid(self):self.run_gate(self.good())
+ def test_standalone_entrypoint_without_ambient_imports(self):
+  with tempfile.TemporaryDirectory() as cwd:
+   for isolated in (False,True):
+    command=[sys.executable,'-B']+(['-I'] if isolated else [])+[str(pathlib.Path(__file__).resolve()),'TimecardGateTests.test_valid']
+    result=subprocess.run(command,cwd=cwd,env={k:v for k,v in os.environ.items() if k!='PYTHONPATH'},capture_output=True,text=True)
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    self.assertIn('Ran 1 test',result.stderr)
+ def test_real_source_verification_remains_enforced(self):
+  with tempfile.TemporaryDirectory() as directory:
+   root=pathlib.Path(directory);r=self.good()
+   for name in g.FIXTURES:
+    fixture=root/name;fixture.parent.mkdir(parents=True,exist_ok=True);fixture.write_text('fixture '+name)
+   r['fixture_sha256']={name:hashlib.sha256((root/name).read_bytes()).hexdigest() for name in g.FIXTURES}
+   catalog=root/'catalog.json';catalog.write_text('catalog')
+   source=root/'source.c';source.write_text('original input')
+   r['launcher_catalog_path']=str(catalog);r['launcher_catalog_sha256']=hashlib.sha256(catalog.read_bytes()).hexdigest()
+   r['source_sha256']={str(f):hashlib.sha256(f.read_bytes()).hexdigest() for f in (catalog,source)}
+   args=({'source_pins':{'system':'pin'},'foreground_idle':{'apps':list(r['foreground_recipes'])}},r,False,{'timecard.elf':'hash'},'target',root)
+   g.qualify_timecard(*args)
+   source.write_text('changed input')
+   with self.assertRaisesRegex(ValueError,'Execution source changed'):
+    g.qualify_timecard(*args)
  def test_manifest_position_is_not_assumed(self):
   r=self.good();r['launcher_catalog'].insert(1,r['launcher_catalog'].pop())
   for row in r['results']:row['stdout']=row['stdout'].replace('launcher_item=10','launcher_item=2')
