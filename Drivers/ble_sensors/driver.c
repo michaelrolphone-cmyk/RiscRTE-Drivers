@@ -3,17 +3,24 @@
 #include "RiscBluetoothHostV1.h"
 #include "RiscPlatformClockV1.h"
 #include "ble_scan_core.h"
+#include "RiscBluetoothSensorLinkV1.h"
 #include <stdatomic.h>
 static const portable_bluetooth_host_v1 *host;
 static const risc_platform_clock_api_v1 *clock_api;
 static atomic_flag guard=ATOMIC_FLAG_INIT;
-static bool started,restore_failed;
-static uint64_t lease,token,serial;
+static bool started,restore_failed,closing,clock_valid,scan_started_valid;
+static uint64_t lease,token,serial,clock_seen,scan_started_ms;
 static ble_scan scan;
 static bool enter(void){return !atomic_flag_test_and_set_explicit(&guard,memory_order_acquire);}
 static void leave(void){atomic_flag_clear_explicit(&guard,memory_order_release);}
+static uint64_t checked_clock(void){
+ uint64_t now=clock_api->monotonic_ms(clock_api->context);
+ if(now==UINT64_MAX||(clock_valid&&now<clock_seen)){scan.link_uncertain=true;return UINT64_MAX;}
+ clock_valid=true;clock_seen=now;return now;
+}
 static bool close_impl(uint64_t t){
  if(!started||!token||t!=token)return false;
+ closing=true;
  if(lease){int32_t rc=host->release(host->controls.context,lease);if(rc<0)return false;lease=0;restore_failed=rc==0;}
  token=0;if(scan.phase==BLE_STARTING||scan.phase==BLE_SCANNING)scan.phase=BLE_COMPLETE;return true;
 }
@@ -21,7 +28,7 @@ static bool open_scan(void*c,uint64_t*out){
  (void)c;if(!out)return false;*out=0;if(!enter())return false;
  bool ok=false;
  if(started&&!token&&serial!=UINT64_MAX){
-  ble_begin(&scan);restore_failed=false;token=++serial;*out=token;
+  ble_begin(&scan);restore_failed=false;closing=false;clock_valid=scan_started_valid=false;token=++serial;*out=token;
   if(host->claim(host->controls.context,&lease)&&lease)ok=true;else ble_fail(&scan,"Bluetooth busy - retry");
  }
  leave();return ok;
@@ -30,7 +37,7 @@ static bool poll_scan(void*c,uint64_t t,uint32_t limit){
  (void)c;if(!enter())return false;
  if(!started||!token||t!=token||!lease||!limit||limit>16){leave();return false;}
  if(scan.phase!=BLE_STARTING&&scan.phase!=BLE_SCANNING){bool ok=scan.phase==BLE_COMPLETE;leave();return ok;}
- uint64_t wide=clock_api->monotonic_ms(clock_api->context);uint32_t now=(uint32_t)wide;
+ uint64_t wide=checked_clock();uint32_t now=(uint32_t)wide;
  if(wide==UINT64_MAX){ble_fail(&scan,"Clock unavailable");leave();return false;}
  uint8_t command[16];size_t size=ble_command(&scan,command,now);
  if(size&&!host->send_owned(host->controls.context,lease,1,command,size))ble_fail(&scan,"Send failed - retry");
@@ -40,6 +47,7 @@ static bool poll_scan(void*c,uint64_t t,uint32_t limit){
   if(rc<0||count>sizeof(packet)){ble_fail(&scan,"Receive failed - retry");break;}if(!rc)break;
   ble_event(&scan,type,packet,count,now);
  }
+ if(scan.phase==BLE_SCANNING&&!scan_started_valid){scan_started_ms=wide;scan_started_valid=true;}
  (void)ble_expired(&scan,now);bool ok=scan.phase!=BLE_ERROR;leave();return ok;
 }
 static bool status_scan(void*c,risc_ble_sensor_status_v1*out){
@@ -50,7 +58,29 @@ static bool status_scan(void*c,risc_ble_sensor_status_v1*out){
  leave();return ok;
 }
 static bool device_scan(void*c,uint32_t index,risc_ble_sensor_device_v1*out){
- (void)c;if(!out||!enter())return false;bool ok=started&&index<scan.count;if(ok){uint64_t now=clock_api->monotonic_ms(clock_api->context);if(now==UINT64_MAX)ok=false;else{*out=scan.devices[index];out->seen_age_ms=(uint32_t)now-out->seen;out->measurement_age_ms=(uint32_t)now-out->measurement_seen;}}leave();return ok;
+ (void)c;if(!out||!enter())return false;bool ok=started&&index<scan.count;if(ok){uint64_t now=checked_clock();if(now==UINT64_MAX){scan.link_uncertain=true;ok=false;}else{*out=scan.devices[index];out->seen_age_ms=(uint32_t)now-out->seen;out->measurement_age_ms=(uint32_t)now-out->measurement_seen;}}leave();return ok;
+}
+static bool link_scan(void*c,uint64_t t,const uint8_t address[6],uint8_t address_type,risc_ble_sensor_link_state_v1*out){
+ (void)c;
+ if(!address||address_type>3||!out||out->struct_size!=sizeof(*out)||!enter())return false;
+ if(!started||!token||t!=token){leave();return false;}
+ risc_ble_sensor_link_state_v1 value={.struct_size=sizeof(value),.address_type=address_type};
+ memcpy(value.address,address,6);
+ bool known=false;
+ for(uint32_t i=0;i<scan.count;i++)if(scan.devices[i].address_type==address_type&&!memcmp(scan.devices[i].address,address,6)){known=true;break;}
+ if(known&&lease&&!closing&&scan.phase==BLE_SCANNING&&scan.command==5&&!scan.link_uncertain&&host->controls.status){
+  uint64_t now=checked_clock();
+  if(now==UINT64_MAX){leave();return false;}
+  if(!scan_started_valid||now<scan_started_ms||now-scan_started_ms>=BLE_SCAN_MS){
+   scan.link_uncertain=true;*out=value;leave();return true;
+  }
+  uint8_t state=PORTABLE_BLUETOOTH_RETAINED;
+  if(!host->controls.status(host->controls.context,&state)||state!=PORTABLE_BLUETOOTH_ON){
+   scan.link_uncertain=true;ble_fail(&scan,"Controller observation unavailable");leave();return false;
+  }
+  value.state=RISC_BLE_LINK_NOT_CONNECTED;value.generation=token;value.observed_ms=now;
+ }
+ *out=value;leave();return true;
 }
 static bool close_scan(void*c,uint64_t t){(void)c;if(!enter())return false;bool ok=close_impl(t);leave();return ok;}
 static bool start(const risc_provider_dependency_v1*d,size_t n){
@@ -69,6 +99,6 @@ static bool start(const risc_provider_dependency_v1*d,size_t n){
 }
 static bool quiesce(void){if(!enter())return false;bool ok=!token||close_impl(token);leave();return ok;}
 static void stop(void){if(!enter())return;if(!token){started=false;host=NULL;clock_api=NULL;memset(&scan,0,sizeof(scan));}leave();}
-static const risc_bluetooth_sensors_v1 api={1,sizeof(api),NULL,open_scan,poll_scan,status_scan,device_scan,close_scan};
+static const risc_bluetooth_sensor_link_api_v1 api={{1,sizeof(api),NULL,open_scan,poll_scan,status_scan,device_scan,close_scan},RISC_BLUETOOTH_SENSOR_LINK_TAG,RISC_BLUETOOTH_SENSOR_LINK_VERSION,sizeof(api),link_scan};
 static const risc_driver_v2 driver={2,sizeof(driver),"ble-sensors",RISC_BLUETOOTH_SENSORS_CAPABILITY,1,&api,start,stop,quiesce};
 __attribute__((visibility("default"))) const risc_driver_v2*t5_driver_get(uint32_t abi){return abi==2?&driver:NULL;}
