@@ -1,0 +1,16 @@
+usage: build_usb_controller_native_stream_idf61.py [-h] --compile-commands
+                                                   COMPILE_COMMANDS --idf IDF
+                                                   --usb USB --output OUTPUT
+
+Build only the provider-private USB source closure for the pinned native SDK.
+No PlatformIO, downloads, firmware build, release-package mutation, or
+publication. Unknown imports and unsupported loader mappings fail
+qualification after evidence is written. The generated ELF is an experimental
+native candidate, not v0.1.19.
+
+options:
+  -h, --help            show this help message and exit
+  --compile-commands COMPILE_COMMANDS
+  --idf IDF
+  --usb USB             Official esp-usb checkout root
+  --output OUTPUT

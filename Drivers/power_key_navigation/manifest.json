@@ -1,0 +1,23 @@
+{
+  "type": "driver",
+  "id": "power-key-navigation",
+  "version": "0.1.0",
+  "driver_abi": 2,
+  "architecture": "xtensa-esp32s3",
+  "file_name": "driver.elf",
+  "requires": [
+    {
+      "capability": "input.power-key",
+      "api": 1
+    }
+  ],
+  "provides": [
+    {
+      "capability": "input.navigation",
+      "api": 1
+    }
+  ],
+  "notes": "Short=Back,long=Home; neutral gate after context/foreground changes. No device operations.",
+  "physical_verification": "pending",
+  "status": "experimental-unpublished"
+}

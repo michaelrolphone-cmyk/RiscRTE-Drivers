@@ -1,5 +1,10 @@
 # usb-controller-esp32s3
 
+Local source candidate: the separately versioned checked-cleanup work is documented in
+[USB checked cleanup qualification](../USB_CHECKED_CLEANUP_2026-10-21.md).
+The historical release/replay evidence below is preserved and does not qualify
+that unpublished native candidate.
+
 The separately pinned, unreleased native SDK candidate is documented in
 [Native USB producer qualification](usb-controller-native-idf61.md).
 

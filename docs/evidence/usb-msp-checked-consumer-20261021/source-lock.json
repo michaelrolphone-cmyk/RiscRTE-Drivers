@@ -1,0 +1,109 @@
+{
+  "base": "b4334b76124f80d1252eb7dda9e903fd1b7b4d39",
+  "programmer_safety_checkpoint": "1f86a08db75a98247bab47f0f1800c64a4e2075f",
+  "negative_fixture_checkpoint": "4db1ca4f189ff5c227b9e8f2a14069cec149fe80",
+  "negative_source_ref": "a7ae39994603c4545a3c014f09051ecfc12084d2",
+  "prerequisite_lock_sha256": "f8319a109bcd2b60806887c4611dc1985cbcaa7d9cb5fc206713d0dd637398d5",
+  "files": {
+    "Drivers/usb_msp/driver.c": {
+      "sha256": "acd48d0d4a812c9b306e4392f448b86c0677989d506c97ffd817bfdd81eb3597",
+      "bytes": 28756
+    },
+    "Drivers/usb_msp/manifest.json": {
+      "sha256": "d2db2713278953cb35392e33d5e359dc3b0e74e5b39b16e196fa53b63f3dc035",
+      "bytes": 452
+    },
+    "Drivers/program_msp/driver.c": {
+      "sha256": "594d1ba6660514f390a6f4698ee75f1b526679c51b7952b19f18af13c05d2fbf",
+      "bytes": 17601
+    },
+    "Drivers/program_msp/manifest.json": {
+      "sha256": "d02cd614f0b2613008fbaa291de2baf96ed58ab2e8b7f0bba5398623230cb0c4",
+      "bytes": 393
+    },
+    "Drivers/usb_host_v2/driver.c": {
+      "sha256": "7728ce7fbd37aae22af93988b5e25a1ae8876f9086476daf90e2023040e76fd4",
+      "bytes": 19638
+    },
+    "Drivers/usb_controller_esp32s3/driver.cpp": {
+      "sha256": "d3e52f4eff3b8b0f54d9023c1d39197c5ca761870cfd77e3af58b7f646a6ae92",
+      "bytes": 5412
+    },
+    "Drivers/usb_controller_esp32s3/driver_base.cpp": {
+      "sha256": "ed04b2fcc5485a8d9650ecc4ed4fb694f9fbe6417226def70134ab59b1440cce",
+      "bytes": 31268
+    },
+    "sdk/driver/RiscUsbProviderV1.h": {
+      "sha256": "77f67cf5db7ed3fd7c6e148807bc705b5f8443c90d401b546069d756eb997b9a",
+      "bytes": 2354
+    },
+    "sdk/driver/RiscUsbControllerV1.h": {
+      "sha256": "226f083493085ecdcaa21a7c3bf1c269640b7d1ebaa099e7217fb64124f1dbed",
+      "bytes": 5032
+    },
+    "sdk/driver/RiscMspFetV1.h": {
+      "sha256": "883879ee0ce2ac3ff5df42eb549a856557132a4da5a1dfe22edff8ad8c4e015b",
+      "bytes": 2419
+    },
+    "sdk/driver/RiscProgramMspV1.h": {
+      "sha256": "fd1a7c6ebdfdaeb951c3b82abf2baca6f84f4a4e533841c12d2eb81ff2e0166f",
+      "bytes": 1672
+    },
+    "scripts/build_usb_msp_checked_consumer.py": {
+      "sha256": "38957d349649670c8f18cea6225976df3437b58f3fdc6c9abc28f2040895a7c1",
+      "bytes": 2763
+    },
+    "scripts/build_program_msp_checked_consumer.py": {
+      "sha256": "9a4518659ec0cddf9728c708a737aa800855e2db8bf623279ee09d6ac4c4e69e",
+      "bytes": 2170
+    },
+    "test/drivers/usb_msp_checked_consumer_test.c": {
+      "sha256": "f6f2e7d21843716ac1fd616100df48b13b0b70e197658e6ff4cc8418dca22a38",
+      "bytes": 13174
+    },
+    "test/drivers/usb_msp_legacy_contract_test.c": {
+      "sha256": "201f6fbed53af348284e81ae72376971c670571df39fa10650d79a662bb0aeb8",
+      "bytes": 3879
+    },
+    "test/drivers/program_msp_test.c": {
+      "sha256": "b7f1a17478cb8a6d57710cf26bd594c45f51edb3b75b172e16ac9c98089a9aaf",
+      "bytes": 11457
+    },
+    "test/run_usb_msp_checked_consumer_test.sh": {
+      "sha256": "aa5ab6cac4fc1b1342772e77de69358d5cd6e483afa1714a7441c080a5a2ff27",
+      "bytes": 1052
+    },
+    "test/run_program_msp_test.sh": {
+      "sha256": "48a497af4d449ba3589f18f9a493136c956b38bb714ffa8619a985202bdf6cb2",
+      "bytes": 778
+    },
+    "test/run_usb_msp_detach_contract_test.sh": {
+      "sha256": "4322c62f8f768fc33d606423dcce325d76d24fb1343dd1d4245f890b6b3ef364",
+      "bytes": 1056
+    },
+    "test/usb_msp_checked_mutation_test.py": {
+      "sha256": "2a4c52dd53ec79e40c8bb0aac0acc591d7cfab074adea798941a4b9167992ba8",
+      "bytes": 2506
+    },
+    "test/test_msp_checked_candidate_routes.py": {
+      "sha256": "94eb8edae079b1bd6188f57e0a5791824363026d726ed93aa56fbfe3c7370498",
+      "bytes": 2815
+    },
+    ".github/workflows/driver-parity.yml": {
+      "sha256": "20751ba2b5db0fd93026c653acc5a88e715553937759750b02cce7e515131891",
+      "bytes": 16930
+    }
+  },
+  "unmodified_accepted_paths": [
+    "dist",
+    "release",
+    "manifest"
+  ],
+  "acceptance": {
+    "source_simulation": true,
+    "target_build": false,
+    "hardware": false,
+    "publication": false,
+    "native_flashing_ui_product": false
+  }
+}

@@ -1,0 +1,147 @@
+name: Native USB controller SDK qualification
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/usb-native-controller.yml'
+      - 'scripts/build_usb_controller_native_stream_idf61.py'
+      - 'scripts/native_usb_*.py'
+      - 'scripts/verify_usb_controller_loader_map.py'
+      - 'Drivers/usb_controller_esp32s3/**'
+      - 'sdk/driver/**'
+      - 'candidates/usb-native-stream/usb-controller-esp32s3.json'
+      - 'test/drivers/native_usb_sdk_abi_probe.cpp'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  controller:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    container: espressif/idf:v6.1@sha256:81893c71bb5e570088901f21def8684c25cd2a9020281bd01b843a7655edb18c
+    env:
+      DRIVER_SOURCE: ${{ github.event.pull_request.head.sha || github.sha }}
+      RUNTIME_SOURCE: 6a3b3d46f5b2857eacc6e9863799dec1f466b036
+      SDK_SOURCE: fff9895c82d744c7237be8847347bdd1b07c6643
+      USB_SOURCE: 0f6820940f9e8075c0cc1483d9c2f5e89cc5b97a
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONNOUSERSITE: '1'
+      CCACHE_DISABLE: '1'
+      IDF_CCACHE_ENABLE: '0'
+      CMAKE_BUILD_PARALLEL_LEVEL: '1'
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Clone exact source inputs without changing Git trust
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/usb-native-controller"
+          echo "QUALIFICATION_ROOT=$ROOT" >> "$GITHUB_ENV"
+          test ! -e "$ROOT"
+          mkdir -p "$ROOT"/{sources,evidence/logs}
+          exec > >(tee "$ROOT/evidence/logs/source-setup.log") 2>&1
+          apt-get update
+          apt-get install -y --no-install-recommends ca-certificates git libssl-dev
+          clone_source() {
+            local repository="$1" revision="$2" destination="$3"
+            [[ "$revision" =~ ^[0-9a-f]{40}$ ]]
+            git init --quiet "$destination"
+            git -C "$destination" remote add origin "https://github.com/$repository.git"
+            git -C "$destination" fetch --no-tags --depth=1 origin "$revision"
+            git -C "$destination" checkout --quiet --detach FETCH_HEAD
+            test "$(git -C "$destination" rev-parse HEAD)" = "$revision"
+            git -C "$destination" submodule update --init --recursive --depth=1
+          }
+          clone_source "$GITHUB_REPOSITORY" "$DRIVER_SOURCE" "$ROOT/sources/drivers"
+          clone_source michaelrolphone-cmyk/RiscRTE "$RUNTIME_SOURCE" "$ROOT/sources/runtime"
+          clone_source espressif/esp-usb "$USB_SOURCE" "$ROOT/sources/esp-usb"
+      - name: Verify preserved cohort and official SDK toolchain
+        run: |
+          set -euo pipefail
+          . "$IDF_PATH/export.sh"
+          ROOT="$QUALIFICATION_ROOT"
+          exec > >(tee "$ROOT/evidence/logs/cohort.log") 2>&1
+          python - "$ROOT/sources/drivers" <<'PY'
+          import hashlib, importlib.util, json, os, pathlib, sys
+          root = pathlib.Path(sys.argv[1])
+          lock = json.loads((root / "docs/evidence/usb-checked-cleanup-20261021/source-lock.json").read_text())
+          assert lock["repositories"]["native_runtime"]["commit"] == os.environ["RUNTIME_SOURCE"]
+          assert lock["repositories"]["esp_usb"]["commit"] == os.environ["USB_SOURCE"]
+          assert lock["idf_commit"] == os.environ["SDK_SOURCE"]
+          script = root / "scripts/build_usb_controller_native_stream_idf61.py"
+          spec = importlib.util.spec_from_file_location("controller_builder", script)
+          builder = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(builder)
+          assert builder.IDF_COMMIT == os.environ["SDK_SOURCE"]
+          assert builder.USB_COMMIT == os.environ["USB_SOURCE"]
+          assert builder.COMPILER_DISTRIBUTION == lock["compiler_distribution"] == "esp-15.2.0_20251204"
+          print("Unchanged controller builder SHA-256:", hashlib.sha256(script.read_bytes()).hexdigest())
+          PY
+          test "$(git -C "$IDF_PATH" rev-parse HEAD)" = "$SDK_SOURCE"
+          compiler="$(command -v xtensa-esp-elf-gcc)"
+          "$compiler" --version | tee "$ROOT/evidence/compiler-version.txt"
+          grep -F 'esp-15.2.0_20251204' "$ROOT/evidence/compiler-version.txt"
+          test "$("$compiler" -dumpfullversion)" = 15.2.0
+          sha256sum "$compiler" > "$ROOT/evidence/compiler-SHA256SUMS"
+          cp "$IDF_PATH/tools/tools.json" "$ROOT/evidence/sdk-tools.json"
+          cp "$ROOT/sources/drivers/.github/workflows/usb-native-controller.yml" "$ROOT/evidence/workflow.yml"
+          python "$ROOT/sources/runtime/scripts/native_idf61_ci.py" sources \
+            --source "drivers=$ROOT/sources/drivers@$DRIVER_SOURCE" \
+            --source "runtime=$ROOT/sources/runtime@$RUNTIME_SOURCE" \
+            --source "sdk=$IDF_PATH@$SDK_SOURCE" \
+            --source "usb=$ROOT/sources/esp-usb@$USB_SOURCE" \
+            --output "$ROOT/evidence/sources-before.json"
+      - name: Generate native Runtime compile database without building firmware
+        run: |
+          set -euo pipefail
+          . "$IDF_PATH/export.sh"
+          ROOT="$QUALIFICATION_ROOT"
+          exec > >(tee "$ROOT/evidence/logs/configure.log") 2>&1
+          test ! -e "$ROOT/sources/runtime/build"
+          idf.py -C "$ROOT/sources/runtime/idf" -B "$ROOT/sources/runtime/build" \
+            -D "RISC_SOURCE_SHA=$RUNTIME_SOURCE" -D CCACHE_ENABLE=0 reconfigure
+          test -s "$ROOT/sources/runtime/build/compile_commands.json"
+      - name: Qualify full native controller translation units and loader closure
+        run: |
+          set -euo pipefail
+          . "$IDF_PATH/export.sh"
+          ROOT="$QUALIFICATION_ROOT"
+          exec > >(tee "$ROOT/evidence/logs/controller.log") 2>&1
+          python "$ROOT/sources/drivers/scripts/build_usb_controller_native_stream_idf61.py" \
+            --compile-commands "$ROOT/sources/runtime/build/compile_commands.json" \
+            --idf "$IDF_PATH" --usb "$ROOT/sources/esp-usb" \
+            --output "$ROOT/evidence/controller"
+          python "$ROOT/sources/drivers/scripts/verify_usb_controller_loader_map.py" \
+            "$ROOT/evidence/controller/driver.elf" | tee "$ROOT/evidence/loader-map.json"
+      - name: Record source custody and evidence hashes
+        if: always()
+        run: |
+          set -euo pipefail
+          . "$IDF_PATH/export.sh"
+          ROOT="$QUALIFICATION_ROOT"
+          python "$ROOT/sources/runtime/scripts/native_idf61_ci.py" sources \
+            --source "drivers=$ROOT/sources/drivers@$DRIVER_SOURCE" \
+            --source "runtime=$ROOT/sources/runtime@$RUNTIME_SOURCE" \
+            --source "sdk=$IDF_PATH@$SDK_SOURCE" \
+            --source "usb=$ROOT/sources/esp-usb@$USB_SOURCE" \
+            --output "$ROOT/evidence/sources-after.json"
+          printf '%s\n' "$DRIVER_SOURCE" > "$ROOT/evidence/HEAD.txt"
+          printf '%s\n' 'Native controller source/ABI/import/ELF-loader qualification only. No firmware build, product selection, physical USB, measured callback timing, electrical acceptance, release or merge.' > "$ROOT/evidence/SCOPE.txt"
+          find "$ROOT/evidence" -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > "$ROOT/evidence/SHA256SUMS"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-usb-controller-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ env.QUALIFICATION_ROOT }}/evidence/
+            ${{ env.QUALIFICATION_ROOT }}/sources/runtime/build/compile_commands.json
+            ${{ env.QUALIFICATION_ROOT }}/sources/runtime/build/sdkconfig
+            ${{ env.QUALIFICATION_ROOT }}/sources/runtime/build/config/
+            ${{ env.QUALIFICATION_ROOT }}/sources/runtime/build/toolchain/
+            ${{ env.QUALIFICATION_ROOT }}/sources/runtime/build/project_description.json
+            ${{ env.QUALIFICATION_ROOT }}/sources/runtime/build/CMakeCache.txt
+            ${{ env.QUALIFICATION_ROOT }}/sources/runtime/build/esp-idf/runtime/RiscBuildIdentity.h
+          if-no-files-found: error

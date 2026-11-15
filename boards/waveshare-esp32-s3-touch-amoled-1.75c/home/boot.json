@@ -1,0 +1,50 @@
+{
+  "board": "board.json",
+  "default_app": "default.elf",
+  "provider_activation": "demand-retained",
+  "drivers": [
+    {
+      "manifest": "i2c/manifest.json",
+      "instance_id": 2
+    },
+    {
+      "manifest": "display/manifest.json",
+      "instance_id": 5
+    },
+    {
+      "manifest": "touch/manifest.json",
+      "instance_id": 6
+    },
+    {
+      "manifest": "supply/manifest.json",
+      "instance_id": 13
+    }
+  ],
+  "app_capabilities": [
+    {
+      "manifest": "default.json",
+      "grants": [
+        {
+          "capability": "display.output",
+          "api": 1,
+          "instance_id": 5
+        },
+        {
+          "capability": "input.touch.raw",
+          "api": 1,
+          "instance_id": 6
+        },
+        {
+          "capability": "runtime.realtime-control",
+          "api": 1,
+          "instance_id": 0
+        },
+        {
+          "capability": "runtime.provider-promotion",
+          "api": 1,
+          "instance_id": 0
+        }
+      ]
+    }
+  ]
+}

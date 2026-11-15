@@ -1,0 +1,15 @@
+PASS actual host + MSP + program-MSP: checked custody, detach, retries, receipts, generation and capacity; fake controller/probe only
+PASS conservative boundary: detach before target-close completion retains programmer/dependency; no reset success inferred
+PASS MSP size negotiation and custody: prefix
+PASS MSP size negotiation and custody: truncated-release
+PASS MSP size negotiation and custody: null-release
+PASS MSP size negotiation and custody: release-only
+PASS MSP size negotiation and custody: truncated-control
+PASS MSP size negotiation and custody: full
+MSP programmer target gating, FRAM RMW/write/verify, failed-open quarantine and cleanup: PASS
+OBSERVED successful-release: MSP quiescent/old-close=false; physical claims released; old-close remains false after host cleanup
+OBSERVED failed-release: MSP quiescent/old-close=false; physical claims initially retained; old-close remains false after host cleanup
+REJECTED baseline-lost-custody: test: /workspace/scratch/c744abbbbd60/usb-msp-checked-consumer/RiscRTE-Drivers/test/drivers/usb_msp_checked_consumer_test.c:166: main: Assertion `!msp->close(NULL, delayed) && live_count() == 1' failed.
+REJECTED swallowed-receipt: test: /workspace/scratch/c744abbbbd60/usb-msp-checked-consumer/RiscRTE-Drivers/test/drivers/usb_msp_checked_consumer_test.c:173: main: Assertion `!md->quiesce()' failed.
+REJECTED ignored-release-failure: test: /workspace/scratch/c744abbbbd60/usb-msp-checked-consumer/RiscRTE-Drivers/test/drivers/usb_msp_checked_consumer_test.c:166: main: Assertion `!msp->close(NULL, delayed) && live_count() == 1' failed.
+REJECTED repeat-target-close: test: /workspace/scratch/c744abbbbd60/usb-msp-checked-consumer/RiscRTE-Drivers/test/drivers/usb_msp_checked_consumer_test.c:232: main: Assertion `program->close(NULL, pt)' failed.

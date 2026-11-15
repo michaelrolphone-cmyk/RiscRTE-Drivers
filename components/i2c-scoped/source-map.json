@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "source_repository": "michaelrolphone-cmyk/RiscRTE-T-Watch-S3",
+  "source_revision": "851b8998e804c57b2c9f42d9f8fd0a69e79f2b41",
+  "source_files": [
+    {
+      "path": "drivers/twatch_i2c/i2c_main.c",
+      "git_blob": "35eaa4f35b89a61776f20423b4a59e38366bffa5",
+      "sha256": "f837410c20d86ec0b497a4c9648bc7c994278b34e3b5214836dd25cd1beba060"
+    },
+    {
+      "path": "drivers/twatch_i2c/manifest.json",
+      "git_blob": "e8cbe3ba077ec97a6e2ad59016628f8d12de958f",
+      "sha256": "2b689de3c8219cbafaeb3420903470f7a04542604c5803341217345d580ff5c8"
+    },
+    {
+      "path": "include/twatch_i2c_impl.h",
+      "git_blob": "7fb608bb09c7ce72006d99abd67f2e1cce8ead8d",
+      "sha256": "8031ea683faf48e4026f5c39310908b7b0b39266e21fb3b6c42f53ced3945292"
+    },
+    {
+      "path": "include/twatch_support.h",
+      "git_blob": "70bfabf8780e3545d2ff8e672e1fbd81f60e1781",
+      "sha256": "2be79a3e294f53dc22231eafd45e33aad5901f9c6670ea2a91d3f909fa53c91d"
+    },
+    {
+      "path": "include/twatch_hardware.h",
+      "git_blob": "9b18939d38200a15a2b10bbdf7bb9b3184defa3d",
+      "sha256": "3393199de17e48910d136c3685eb41342221ae8ea732d212ab501898472d326c"
+    },
+    {
+      "path": "licenses/NOTICE.md",
+      "git_blob": "2a89bd8dd83fbcba647bfe6c910faf6994b717a6",
+      "sha256": "74694ee8651ddc857c717ff6a4d6994de6a44b691a431e55633448788656b9cd"
+    }
+  ],
+  "destination": "components/i2c-scoped/driver.c",
+  "adaptation": [
+    "Replace provider-BSS atomic_flag with existing device-scoped platform.sync@1; no new ABI.",
+    "Inline only the controller-relevant typed admission helpers; preserve controller/address/capacity/transfer bounds.",
+    "Retain failed create/open/close/unlock/destroy custody for retry; reject ambiguous dependencies before hardware I/O."
+  ],
+  "status": "experimental-unpublished",
+  "hardware_verified": false
+}

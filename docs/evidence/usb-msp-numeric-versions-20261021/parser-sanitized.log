@@ -1,0 +1,4 @@
+PASS actual pinned Runtime manifest/identity/version: /workspace/scratch/c744abbbbd60/usb-msp-checked-consumer/RiscRTE-Drivers/Drivers/usb_msp/manifest.json 0.1.2; prerelease/build/malformed controls rejected
+PASS actual pinned Runtime manifest/identity/version: /workspace/scratch/c744abbbbd60/usb-msp-checked-consumer/RiscRTE-Drivers/Drivers/program_msp/manifest.json 0.1.2; prerelease/build/malformed controls rejected
+PASS actual pinned Runtime manifest/identity/version: /workspace/scratch/c744abbbbd60/usb-native-cdc/RiscRTE-Drivers/candidates/usb-native-stream/usb-host-v2.json 0.1.7; prerelease/build/malformed controls rejected
+PASS actual pinned Runtime manifest/identity/version: /workspace/scratch/c744abbbbd60/usb-native-cdc/RiscRTE-Drivers/candidates/usb-native-stream/usb-controller-esp32s3.json 0.1.27; prerelease/build/malformed controls rejected

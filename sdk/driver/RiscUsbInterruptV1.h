@@ -17,7 +17,7 @@ typedef struct {
                               size_t capacity, uint32_t timeout_ms);
 } risc_usb_controller_interrupt_v1;
 typedef struct {
-    risc_usb_host_discovery_v1 discovery;
+    risc_usb_host_legacy_discovery_v1 discovery;
     int32_t (*interrupt_read)(void *context, uint64_t claim,
                               uint8_t endpoint, uint8_t *dst,
                               size_t capacity, uint32_t timeout_ms);

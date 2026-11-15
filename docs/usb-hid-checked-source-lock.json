@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "qualification": "pending",
+  "cohorts": {
+    "pr40": {
+      "commit": "90e7a8faae1a6678a24c92c32f95032b2fbe1e24",
+      "files": {
+        "Drivers/usb_hid/driver.c": {
+          "blob": "f404a73dcea13d4a01d51efa4205e64644fb78d2",
+          "sha256": "b2c9aea4281243c6a91c8f11b9ee9f2ffb3e43337bc671286cefcea26dbf8267"
+        },
+        "Drivers/usb_hid/manifest.json": {
+          "blob": "62764e45e75d40623ae2bbce1268c8f0c6188d3b",
+          "sha256": "1df206f0bf6e82195e296228a55fbedb76f95b4546541dd3be54b3c05abfe9b3"
+        },
+        "scripts/build_usb_hid.py": {
+          "blob": "393549d16742c494b18828221f738408dcb054a5",
+          "sha256": "5deebce52d246415bd800bb187aa7c63d96aed2d281757e625a614f7b55bc27f"
+        },
+        "Drivers/usb_host_v2/driver.c": {
+          "blob": "9bb24e8173eb657e4d670f914cac52e0abd22720",
+          "sha256": "bf8b3a47ad3f8a71df32c894da7a72c26505637eb6734670aa8a455bddee2d10"
+        },
+        "sdk/driver/RiscUsbControllerV1.h": {
+          "blob": "7b2ecba98cd431484296327c1d8d701cad431aea",
+          "sha256": "226f083493085ecdcaa21a7c3bf1c269640b7d1ebaa099e7217fb64124f1dbed"
+        },
+        "sdk/driver/RiscUsbInterruptV1.h": {
+          "blob": "0c46bcae5f9bb970af95e0bf33dba0fe30958c87",
+          "sha256": "bfdd4644feaf3f4dc5d06070f052104579d3fb902e27e707f27943d7bf22815e"
+        },
+        "sdk/driver/RiscUsbHidV1.h": {
+          "blob": "47913ebeda94dcc4138173be45eafe9315191e91",
+          "sha256": "5b5549c4cb718dec55f2aca8bc93f401b2d5a703d30aaa1a78d1bcdd26755b5c"
+        },
+        "manifest/released-drivers.json": {
+          "blob": "fc59495eb96f8147e578467dcb7f575764729dcf",
+          "sha256": "0688044be40b198fd2204856ff4b05a5946083379d411a75e2d94575e00f880a"
+        },
+        "manifest/source-trees.json": {
+          "blob": "ecdd660f2889ec339c9679029e01da67a77bf3a0",
+          "sha256": "cd2406a82714ab6cddac4855321508ae6e7877041cc5e80e97d52555dc755dcf"
+        }
+      }
+    },
+    "pr41": {
+      "commit": "501e22b5bc41d39fee6b15346a25a87ab7ad5df3",
+      "files": {
+        "Drivers/usb_hid/driver.c": {
+          "blob": "f404a73dcea13d4a01d51efa4205e64644fb78d2",
+          "sha256": "b2c9aea4281243c6a91c8f11b9ee9f2ffb3e43337bc671286cefcea26dbf8267"
+        },
+        "Drivers/usb_hid/manifest.json": {
+          "blob": "62764e45e75d40623ae2bbce1268c8f0c6188d3b",
+          "sha256": "1df206f0bf6e82195e296228a55fbedb76f95b4546541dd3be54b3c05abfe9b3"
+        },
+        "scripts/build_usb_hid.py": {
+          "blob": "393549d16742c494b18828221f738408dcb054a5",
+          "sha256": "5deebce52d246415bd800bb187aa7c63d96aed2d281757e625a614f7b55bc27f"
+        },
+        "Drivers/usb_host_v2/driver.c": {
+          "blob": "ed93499c915ba86f2764d82df6f69ea219d32319",
+          "sha256": "7728ce7fbd37aae22af93988b5e25a1ae8876f9086476daf90e2023040e76fd4"
+        },
+        "sdk/driver/RiscUsbControllerV1.h": {
+          "blob": "7b2ecba98cd431484296327c1d8d701cad431aea",
+          "sha256": "226f083493085ecdcaa21a7c3bf1c269640b7d1ebaa099e7217fb64124f1dbed"
+        },
+        "sdk/driver/RiscUsbInterruptV1.h": {
+          "blob": "0c46bcae5f9bb970af95e0bf33dba0fe30958c87",
+          "sha256": "bfdd4644feaf3f4dc5d06070f052104579d3fb902e27e707f27943d7bf22815e"
+        },
+        "sdk/driver/RiscUsbHidV1.h": {
+          "blob": "47913ebeda94dcc4138173be45eafe9315191e91",
+          "sha256": "5b5549c4cb718dec55f2aca8bc93f401b2d5a703d30aaa1a78d1bcdd26755b5c"
+        },
+        "manifest/released-drivers.json": {
+          "blob": "fc59495eb96f8147e578467dcb7f575764729dcf",
+          "sha256": "0688044be40b198fd2204856ff4b05a5946083379d411a75e2d94575e00f880a"
+        },
+        "manifest/source-trees.json": {
+          "blob": "ecdd660f2889ec339c9679029e01da67a77bf3a0",
+          "sha256": "cd2406a82714ab6cddac4855321508ae6e7877041cc5e80e97d52555dc755dcf"
+        }
+      }
+    }
+  },
+  "reader_mouse_source_commit": "c334919a05d393b7b3a536fceb117cfbb573a4ef",
+  "system_mouse_qualification_commit": "bfd82277b499c53d3f1e8cba487693bd5b7ce14e"
+}

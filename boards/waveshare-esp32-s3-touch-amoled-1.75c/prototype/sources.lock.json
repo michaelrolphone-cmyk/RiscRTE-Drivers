@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "drivers_base": "f1b207ac6553609e4a313d1ed7f4ca09aeebd89c",
+  "runtime": {
+    "repository": "michaelrolphone-cmyk/RiscRTE",
+    "commit": "046f4c22b263739f3bf3f96f888617d72eb3d498"
+  },
+  "watch": {
+    "repository": "michaelrolphone-cmyk/RiscRTE-Watch",
+    "commit": "605d5e7d4e2b46f6b33ff2f195582db6f882535c"
+  },
+  "controllers": {
+    "repository": "michaelrolphone-cmyk/RiscRTE-T-Watch-S3",
+    "commit": "851b8998e804c57b2c9f42d9f8fd0a69e79f2b41"
+  },
+  "system": {
+    "repository": "michaelrolphone-cmyk/RiscRTE-System-Apps",
+    "commit": "50684639efd155042d599ba8edc10c3268aac82d"
+  },
+  "utilities": {
+    "repository": "michaelrolphone-cmyk/RiscRTE-Utilities",
+    "commit": "7dd868591e1bdffb1d36fd6ff79be0b829aad952"
+  },
+  "idf": {
+    "repository": "espressif/esp-idf",
+    "commit": "fff9895c82d744c7237be8847347bdd1b07c6643"
+  },
+  "compiler": "15.2.0 esp-15.2.0_20251204",
+  "watch_bringup": {
+    "repository": "michaelrolphone-cmyk/RiscRTE-Watch",
+    "commit": "f550d559d3eaae9a6a15ef27b5ea7f82e741e54a"
+  },
+  "productivity": {
+    "repository": "michaelrolphone-cmyk/RiscRTE-Productivity",
+    "commit": "55dd087b054242eb6b28acae08b0f2a913ce0e35"
+  },
+  "watch_alpha_baseline": {
+    "repository": "michaelrolphone-cmyk/RiscRTE-Watch",
+    "commit": "03aa63fb4830987c854e05a878c00c8cdde9577c"
+  },
+  "spiffs_lookup": {
+    "repository": "pellepl/spiffs",
+    "base": "ad902cadceb39d0825a97e25ecb5867641f606ba",
+    "commit": "525335a05af89522a6f16b57d21682bcaeb518cc",
+    "entries": 64,
+    "selection": "explicit IDF component override; ordinary full-name validation retained"
+  },
+  "shared_clock_helper": {
+    "repository": "michaelrolphone-cmyk/RiscRTE",
+    "commit": "37fca3e2244bf71ac64bd8cd7e62eb94f4c09a9d",
+    "path": "sdk/app/RiscRuntimeClockV1.h",
+    "sha256": "76584fdab224b184918d9f9cf675d5c4443adef7161e8518d456bc25277dc30f",
+    "native_runtime_unchanged": false
+  }
+}

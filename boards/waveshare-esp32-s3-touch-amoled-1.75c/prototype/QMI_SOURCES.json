@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "repository": "waveshareteam/Waveshare-ESP32-components",
+  "commit": "010c5fb39ea7f0e996efd1f8e162cc70e569e57f",
+  "files": {
+    "sensor/qmi8658/qmi8658.c": "74f022dda11d2aff0519e9a77a72e17c5a3bbd9050e0d9d7e935369698ae1ee0",
+    "sensor/qmi8658/include/qmi8658.h": "8df80e3666a5cd1112c093e9e86bb0599f8b8cfdd7ec997971f9c36e718adf89"
+  },
+  "board_reference": {
+    "repository": "curisama/The-Badge",
+    "commit": "76172dfaf0fa0ffedee91a61da3261afdde56ce3",
+    "path": "main/port_esp.c",
+    "address": 107,
+    "native_axes_orientation": "physical orientation unqualified"
+  },
+  "policy": "Acceleration only;4g/125Hz,mg conversion8192counts/g;no gyro/reset/PMIC/IRQ/tap/wake;owned-bit readback and restoration"
+}

@@ -1,5 +1,7 @@
 """Fail-closed adaptations of the immutable, provider-private USB1.6.0 sources."""
 from pathlib import Path
+from native_usb_bounded_host import adapt_host
+from native_usb_bounded_endpoints import adapt as adapt_bounded_endpoints
 ROOT=Path(__file__).resolve().parents[1]
 DRIVER=ROOT/'Drivers/usb_controller_esp32s3'
 
@@ -34,6 +36,7 @@ def function(source, signature, replacement):
 
 
 def adapt(name, source):
+    source = adapt_bounded_endpoints(name, source)
     if name=='esp_err_to_name.c':
         # Preserve the exact immutable SDK lookup; the unused reentrant helper
         # would unnecessarily import strerror_r/strlcpy/snprintf.
@@ -106,4 +109,4 @@ def adapt(name, source):
 }''')
     if any(x in source for x in ('xTimerCreate(', 'xTimerDelete(', 'xTimerReset(', 'xTimerStop(', 'xTimerIsTimerActive(', 'xTimerChangePeriod(', 'vTimerSetReloadMode(','auto_suspend_timer;', 'auto_suspend_timer)', 'TimerHandle_t')):
         raise ValueError('native USB timer ownership remains')
-    return source
+    return adapt_host(source)

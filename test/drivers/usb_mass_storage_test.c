@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <dlfcn.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define SECTORS 8192u
@@ -170,29 +171,19 @@ static void format_fat16(void) {
     memcpy(disk[data],"hello",5);
 }
 
-int main(int argc, char **argv) {
-    assert(argc==2);
+/* Allocate exactly the deployed discovery prefix: ASan can detect any read
+ * into the optional tail, unlike a full struct with a smaller advertised size. */
+_Static_assert(sizeof(risc_usb_host_legacy_discovery_v1) ==
+               offsetof(risc_usb_host_discovery_v1, interrupt_read),
+               "legacy discovery prefix must end before optional slots");
+
+static void storage_checks(const risc_driver_v2 *driver,
+                           const risc_storage_volume_api_v1 *volume,
+                           const risc_provider_dependency_v1 *dep) {
     format_fat16();
-    void *elf=dlopen(argv[1],RTLD_NOW);
-    assert(elf);
-    risc_driver_get_v2_fn get=(risc_driver_get_v2_fn)dlsym(elf,"t5_driver_get");
-    assert(get && !get(1));
-    const risc_driver_v2 *driver=get(2);
-    assert(driver && !strcmp(driver->driver_id,"usb-mass-storage") &&
-           !strcmp(driver->capability_id,"storage.volume") &&
-           driver->capability_api==1);
-    const risc_storage_volume_api_v1 *volume=
-        (const risc_storage_volume_api_v1*)driver->capability;
-    assert(volume && volume->struct_size==sizeof(*volume));
-    risc_usb_host_discovery_v1 h={
-        {1,sizeof(h),NULL,configuration,claim_interface,release_interface,
-         control,bulk_read,bulk_write},
-        poll_devices,devices
-    };
-    risc_provider_dependency_v1 dep={"usb.host",1,&h.host};
-    assert(!driver->start(NULL,0));
-    assert(driver->start(&dep,1));
-    assert(!driver->start(&dep,1));
+    attached=true;
+    assert(driver->start(dep,1));
+    assert(!driver->start(dep,1));
     assert(volume->refresh(NULL));
     assert(volume->ready(NULL));
     assert(claimed);
@@ -250,7 +241,89 @@ int main(int argc, char **argv) {
     assert(!claimed);
     assert(driver->quiesce());
     driver->stop();
+    assert(!claimed);
+}
+
+int main(int argc, char **argv) {
+    assert(argc==2);
+    void *elf=dlopen(argv[1],RTLD_NOW);
+    assert(elf);
+    risc_driver_get_v2_fn get=(risc_driver_get_v2_fn)dlsym(elf,"t5_driver_get");
+    assert(get && !get(1));
+    const risc_driver_v2 *driver=get(2);
+    assert(driver && !strcmp(driver->driver_id,"usb-mass-storage") &&
+           !strcmp(driver->capability_id,"storage.volume") &&
+           driver->capability_api==1);
+    const risc_storage_volume_api_v1 *volume=
+        (const risc_storage_volume_api_v1*)driver->capability;
+    assert(volume && volume->struct_size==sizeof(*volume));
+    const risc_usb_host_legacy_discovery_v1 prefix={
+        .host={
+            .api_version=RISC_USB_HOST_API_V1,
+            .struct_size=sizeof(prefix),
+            .context=NULL,
+            .configuration=configuration,
+            .claim=claim_interface,
+            .release=release_interface,
+            .control=control,
+            .bulk_read=bulk_read,
+            .bulk_write=bulk_write,
+        },
+        .poll=poll_devices,
+        .devices=devices,
+    };
+    risc_usb_host_legacy_discovery_v1 *h=malloc(sizeof(*h));
+    assert(h);
+    *h=prefix;
+    risc_provider_dependency_v1 dep={"usb.host",1,h};
+    assert(!driver->start(NULL,0));
+
+    /* Even a provider whose allocation ends one byte before the prefix must
+     * fail before any mandatory callback is inspected or invoked. */
+    risc_usb_host_legacy_discovery_v1 short_prefix=prefix;
+    short_prefix.host.struct_size=sizeof(prefix)-1u;
+    void *short_provider=malloc(sizeof(prefix)-1u);
+    assert(short_provider);
+    memcpy(short_provider,&short_prefix,sizeof(prefix)-1u);
+    dep.api=short_provider;
+    assert(!driver->start(&dep,1));
+    free(short_provider);
+
+    /* Every callback used by the class remains mandatory. */
+#define REJECT_MISSING(member) do { \
+    risc_usb_host_legacy_discovery_v1 missing=prefix; \
+    missing.member=NULL; \
+    dep.api=&missing; \
+    assert(!driver->start(&dep,1)); \
+} while (0)
+    REJECT_MISSING(host.configuration);
+    REJECT_MISSING(host.claim);
+    REJECT_MISSING(host.release);
+    REJECT_MISSING(host.control);
+    REJECT_MISSING(host.bulk_read);
+    REJECT_MISSING(host.bulk_write);
+    REJECT_MISSING(poll);
+    REJECT_MISSING(devices);
+#undef REJECT_MISSING
+
+    dep.api=h;
+    storage_checks(driver,volume,&dep);
+    free(h);
+    puts("USB MSC exact legacy prefix + BOT/FAT16/hotplug: PASS");
+
+    /* A larger provider is compatible too, and optional tail callbacks need
+     * not be present for a class which consumes only the legacy prefix. */
+    risc_usb_host_discovery_v1 full={
+        .host=prefix.host,
+        .poll=poll_devices,
+        .devices=devices,
+    };
+    full.host.struct_size=sizeof(full);
+    assert(sizeof(full)>sizeof(prefix));
+    dep.api=&full;
+    storage_checks(driver,volume,&dep);
     assert(dlclose(elf)==0);
-    puts("USB MSC BOT + FAT16 browse/read/write/delete/hotplug: PASS");
+    puts("USB MSC full optional tail + BOT/FAT16/hotplug: PASS");
+    puts("USB MSC prefix-minus-one + mandatory callback rejection: PASS");
     return 0;
 }

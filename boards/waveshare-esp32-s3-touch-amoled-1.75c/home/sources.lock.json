@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "drivers_base": "6503f9ae7bd2ee9bf856d52dec139d24ed3d41b2",
+  "runtime": {
+    "repository": "michaelrolphone-cmyk/RiscRTE",
+    "commit": "13eca114cb58469cf6004fafc3da84fbd9d29beb"
+  },
+  "watch": {
+    "repository": "michaelrolphone-cmyk/RiscRTE-Watch",
+    "commit": "605d5e7d4e2b46f6b33ff2f195582db6f882535c"
+  },
+  "controllers": {
+    "repository": "michaelrolphone-cmyk/RiscRTE-T-Watch-S3",
+    "commit": "851b8998e804c57b2c9f42d9f8fd0a69e79f2b41"
+  },
+  "system": {
+    "repository": "michaelrolphone-cmyk/RiscRTE-System-Apps",
+    "commit": "bb0cadf3cec3445a64e11513b47b2676f3fdd92d"
+  },
+  "utilities": {
+    "repository": "michaelrolphone-cmyk/RiscRTE-Utilities",
+    "commit": "4fdcad2495c33fe63f5f6faca9b11ced3c739a5b"
+  },
+  "idf": {
+    "repository": "espressif/esp-idf",
+    "commit": "fff9895c82d744c7237be8847347bdd1b07c6643"
+  },
+  "compiler": "15.2.0 esp-15.2.0_20251204"
+}
