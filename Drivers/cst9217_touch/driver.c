@@ -7,7 +7,6 @@
 #include "RiscTouchI2cV2.h"
 #include "RiscProviderSyncV1.h"
 #include "RiscPowerRailV1.h"
-#include "ProviderLog.h"
 
 /* Vendor CST9217 component 2.0.0 protocol: 16-bit big-endian register
  * selection, STOP, 2 ms settling, then a separate read. Never substitute
@@ -38,10 +37,6 @@ static const risc_power_rail_api_v1 *rail;
 static const risc_hw_i2c_touch_v2 *hardware;
 static uint64_t bus_claim, reset_claim;
 static bool ready;
-/* A failed command may have reached the controller. Keep custody and require
- * a checked reset/reprobe before any further samples or mode commands. */
-static bool controlled, asleep, wake_required;
-static bool timing_failed;
 static bool state_valid;
 static bool unlock_state(void) {
     if (!sync_api || !state_lock || !sync_api->unlock(sync_api->context, state_lock)) {
@@ -78,26 +73,24 @@ static uint64_t monotonic_ms(void) {
     return clock_api->monotonic_ms(clock_api->context);
 }
 
-static bool reset_delay(uint32_t milliseconds);
 static bool select_reg(uint16_t reg) {
     const uint8_t address[2]={(uint8_t)(reg>>8u),(uint8_t)reg};
     if(!bus->transact(bus->context,bus_claim,address,2,NULL,0,CST9217_TIMEOUT_MS))return false;
-    return reset_delay(2);
+    clock_api->sleep_ms(clock_api->context,2);
+    return true;
 }
 static bool read_reg(uint16_t reg,uint8_t *out,size_t length) {
     return select_reg(reg) && bus->transact(bus->context,bus_claim,NULL,0,out,length,CST9217_TIMEOUT_MS);
 }
-static bool claim_bus(void) {
+static bool probe(void) {
     uint64_t token=0;
     bool claimed=bus->claim_device(bus->context,CST9217_ADDRESS,&token);
     bus_claim=token; /* Keep even a false/nonzero result until checked release. */
-    return claimed && token;
-}
-static bool probe(void) {
+    if(!claimed || !token)return false;
     const uint8_t mode[2]={0xd1,0x01};
     if(!select_reg(0xd101u) ||
        !bus->transact(bus->context,bus_claim,mode,2,NULL,0,CST9217_TIMEOUT_MS))return false;
-    if(!reset_delay(10))return false;
+    clock_api->sleep_ms(clock_api->context,10);
     uint8_t check[4],resolution[4],project[4];
     if(!read_reg(0xd1fcu,check,4) || !read_reg(CST9217_RESOLUTION,resolution,4) ||
        !read_reg(0xd204u,project,4))return false;
@@ -218,59 +211,11 @@ static bool service_one(void) {
     state_valid=true;return true;
 }
 
-static bool wake_device(void);
-static bool sleep_failure(const char *stage) {
-    provider_log(stage);
-    return false;
-}
-static bool enter_command_mode(void) {
-    /* Source-backed bounded retry: Waveshare SensorLib setMode makes three
-     * D11E/D11E/readback attempts, settling 200 ms after failed I/O. Also wait
-     * between stale acknowledgments rather than assuming immediate silicon. */
-    for (unsigned attempt = 0; attempt < 3; ++attempt) {
-        uint8_t mode[4] = {0};
-        timing_failed = false;
-        const char *failure = NULL;
-        if (!select_reg(0xd11eu)) failure = "CST_SLEEP stage=command-first error=transfer";
-        else if (!select_reg(0xd11eu)) failure = "CST_SLEEP stage=command-second error=transfer";
-        else if (!read_reg(0x0002u, mode, 4)) failure = "CST_SLEEP stage=command-status error=transfer";
-        else if (mode[1] != 0x1eu) failure = "CST_SLEEP stage=command-status error=mode";
-        if (!failure) return true;
-        if (timing_failed) return sleep_failure("CST_SLEEP stage=command-settle error=clock");
-        provider_log(failure);
-        if (attempt == 2) break;
-        provider_log("CST_SLEEP stage=command-retry wait_ms=200");
-        if (!reset_delay(200)) return sleep_failure("CST_SLEEP stage=command-retry error=clock");
-    }
-    return sleep_failure("CST_SLEEP stage=command-mode error=retry-exhausted");
-}
-static bool sleep_device(void) {
-    if (asleep) return true;
-    if (wake_required && !wake_device()) return sleep_failure("CST_SLEEP stage=reset-reprobe error=resume");
-    wake_required = true;
-    invalidate_subscribers();
-    if (!enter_command_mode()) return false;
-    uint8_t mode[2] = {0};
-    if (!select_reg(0xd101u)) return sleep_failure("CST_SLEEP stage=debug-info error=transfer");
-    if (!read_reg(0x0002u, mode, 2)) return sleep_failure("CST_SLEEP stage=debug-status error=transfer");
-    if (mode[1] != 0x01u) return sleep_failure("CST_SLEEP stage=debug-status error=mode");
-    if (!reset_delay(10)) return sleep_failure("CST_SLEEP stage=debug-settle error=clock");
-    const uint8_t sleep_command[2] = {0xd1, 0x05};
-    /* An unacknowledged D105 may have acted. Do not blindly retry it or erase
-     * the last subscription: the existing checked reset/reprobe owns retry. */
-    if (!bus->transact(bus->context, bus_claim, sleep_command, 2, NULL, 0,
-                       CST9217_TIMEOUT_MS)) return sleep_failure("CST_SLEEP stage=sleep-command error=transfer retained=1");
-    asleep = true;
-    provider_log("CST_SLEEP stage=sleep-command result=acknowledged");
-    return true;
-}
-
 static uint64_t subscribe_locked(void *context) {
     (void)context;
     if (!ready || !bus || !bus_claim || subscription_serial == UINT64_MAX) return 0;
     for (uint8_t i = 0; i < RISC_TOUCH_MAX_SUBSCRIBERS; ++i) {
         if (!subscribers[i].token) {
-            if (wake_required && !wake_device()) return 0;
             subscribers[i] = (touch_subscriber){0};
             subscribers[i].token = ++subscription_serial;
             return subscribers[i].token;
@@ -284,12 +229,6 @@ static bool unsubscribe_locked(void *context, uint64_t token) {
     if (!token) return false;
     for (uint8_t i = 0; i < RISC_TOUCH_MAX_SUBSCRIBERS; ++i) {
         if (subscribers[i].token == token) {
-            bool last = true;
-            for (uint8_t j = 0; j < RISC_TOUCH_MAX_SUBSCRIBERS; ++j)
-                if (j != i && subscribers[j].token) last = false;
-            /* Do not consume the last token until sleep is acknowledged. A
-             * false transfer can have put the chip to sleep: retry resets. */
-            if (last && !sleep_device()) return false;
             subscribers[i] = (touch_subscriber){0};
             return true;
         }
@@ -299,7 +238,7 @@ static bool unsubscribe_locked(void *context, uint64_t token) {
 
 static bool poll_locked(void *context, size_t max_reports) {
     (void)context;
-    if (!ready || wake_required || !bus || !clock_api || !bus_claim || !max_reports || max_reports > 16u)
+    if (!ready || !bus || !clock_api || !bus_claim || !max_reports || max_reports > 16u)
         return false;
     /* At most two 20 ms transfers and one 2 ms settling yield. */
     return service_one();
@@ -308,11 +247,7 @@ static bool poll_locked(void *context, size_t max_reports) {
 static int32_t next_event_locked(void *context, uint64_t token,
                           risc_touch_event_v1 *out) {
     (void)context;
-    /* A report GAP is recoverable after a later successful poll. Missing
-     * provider ownership/readiness is not: callers must retain the invocation
-     * rather than treating a disabled provider as an endless queue gap. */
-    if (!ready || wake_required || !bus || !bus_claim || !out) return -2;
-    if (!token) return -1;
+    if (!ready || !bus || !bus_claim || !token || !out) return -1;
     for (uint8_t i = 0; i < RISC_TOUCH_MAX_SUBSCRIBERS; ++i) {
         touch_subscriber *subscriber = &subscribers[i];
         if (subscriber->token != token) continue;
@@ -334,7 +269,7 @@ static int32_t next_event_locked(void *context, uint64_t token,
 
 static bool snapshot_locked(void *context, risc_touch_snapshot_v1 *out) {
     (void)context;
-    if (!ready || wake_required || !state_valid || !bus || !bus_claim || !out) return false;
+    if (!ready || !state_valid || !bus || !bus_claim || !out) return false;
     *out = (risc_touch_snapshot_v1){0};
     out->sequence = sequence;
     out->timestamp_ms = snapshot_timestamp_ms;
@@ -382,44 +317,14 @@ static bool admitted(const risc_hardware_device_v1 *device) {
 }
 static bool reset_delay(uint32_t milliseconds) {
     const uint64_t before = monotonic_ms();
-    if (before == UINT64_MAX) {timing_failed=true;return false;}
-    uint64_t now = before;
-    /* RTOS delays round to tick boundaries, not elapsed-time guarantees.
-     * Complete an early wake against the monotonic deadline, without an
-     * unbounded loop or treating a stalled/backward clock as settled. */
-    for (unsigned waits = 0; waits < 4; ++waits) {
-        if (now - before >= milliseconds) return true;
-        clock_api->sleep_ms(clock_api->context, milliseconds - (uint32_t)(now - before));
-        const uint64_t after = monotonic_ms();
-        if (after == UINT64_MAX || after < now) {timing_failed=true;return false;}
-        now = after;
-    }
-    if (now - before >= milliseconds) return true;
-    timing_failed=true;return false;
+    if (before == UINT64_MAX) return false;
+    clock_api->sleep_ms(clock_api->context, milliseconds);
+    const uint64_t after = monotonic_ms();
+    return after != UINT64_MAX && after >= before && after - before >= milliseconds;
 }
 static bool reset_level(bool expected) {
     bool actual = !expected;
     return gpio->read(gpio->context, reset_claim, &actual) && actual == expected;
-}
-static bool wake_device(void) {
-    /* GPIO2 is still exclusively owned, distinct from panel reset GPIO1. */
-    state_valid = false;
-    wake_required = true;
-    asleep = false;
-    if (!gpio->write(gpio->context, reset_claim, false) || !reset_level(false) ||
-        !reset_delay(hardware->base.reset_assert_ms) ||
-        !gpio->write(gpio->context, reset_claim, true) || !reset_level(true) ||
-        !reset_delay(hardware->base.reset_recovery_ms) || !probe()) return false;
-    const uint64_t now = monotonic_ms();
-    if (now == UINT64_MAX) return false;
-    contact_count = 0;
-    touch_buttons = 0;
-    snapshot_timestamp_ms = now;
-    for (uint8_t i = 0; i < RISC_TOUCH_MAX_CONTACTS; ++i)
-        contacts[i] = (risc_touch_contact_v1){0};
-    wake_required = false;
-    state_valid = true;
-    return true;
 }
 static bool prepare_reset(void) {
     /* Observe the separately scoped supply. Never touch PMIC address 0x34 from
@@ -468,11 +373,10 @@ static bool start(const risc_provider_dependency_v1 *deps, size_t count) {
         return false;
     }
     uint64_t initial_timestamp = UINT64_MAX;
-    bool success = monotonic_ms() != UINT64_MAX && prepare_reset() && claim_bus() && probe() &&
+    bool success = monotonic_ms() != UINT64_MAX && prepare_reset() && probe() &&
         (initial_timestamp = monotonic_ms()) != UINT64_MAX;
     if (success) {
-        ready = state_valid = controlled = true;
-        asleep = wake_required = false;
+        ready = state_valid = true;
         sequence = 0;
         /* Keep subscription generations monotonic across start/stop. */
         contact_count = 0;
@@ -490,7 +394,6 @@ static bool start(const risc_provider_dependency_v1 *deps, size_t count) {
 static bool quiesce_locked(void) {
     for (uint8_t i = 0; i < RISC_TOUCH_MAX_SUBSCRIBERS; ++i)
         if (subscribers[i].token) return false;
-    if (controlled && !asleep && !sleep_device()) return false;
     ready = state_valid = false;
     if (bus_claim) {
         if (!bus || !bus->release_device(bus->context, bus_claim)) return false;
@@ -504,7 +407,6 @@ static bool quiesce_locked(void) {
     contact_count = 0;
     touch_buttons = 0;
     surface_width = surface_height = 0;
-    controlled = asleep = wake_required = false;
     return true;
 }
 
@@ -516,17 +418,8 @@ static uint64_t subscribe(void *context) {
 }
 static bool unsubscribe(void *context, uint64_t token) {
     if (!lock_state()) return false;
-    int index = -1;
-    for (uint8_t i = 0; i < RISC_TOUCH_MAX_SUBSCRIBERS; ++i)
-        if (token && subscribers[i].token == token) index = i;
     const bool result = unsubscribe_locked(context, token);
-    if (!unlock_state()) {
-        /* The sync contract retains the held lock on false. Preserve the
-         * caller's cleanup token rather than admitting sleep through it. */
-        if (result && index >= 0)
-            subscribers[index] = (touch_subscriber){.token = token, .gap = true};
-        return false;
-    }
+    unlock_state();
     return result;
 }
 static bool poll(void *context, size_t max_reports) {
@@ -536,17 +429,15 @@ static bool poll(void *context, size_t max_reports) {
     return result;
 }
 static int32_t next_event(void *context, uint64_t token, risc_touch_event_v1 *out) {
-    /* A prior failed unlock retained the guard. Do not call any dependency
-     * while reporting that terminal state; lifecycle cleanup owns its retry. */
-    if (unlock_failed || !lock_state()) return -2;
+    if (!lock_state()) return -2;
     const int32_t result = next_event_locked(context, token, out);
-    if (!unlock_state()) return -2;
+    unlock_state();
     return result;
 }
 static bool snapshot(void *context, risc_touch_snapshot_v1 *out) {
-    if (unlock_failed || !lock_state()) return false;
+    if (!lock_state()) return false;
     const bool result = snapshot_locked(context, out);
-    if (!unlock_state()) return false;
+    unlock_state();
     return result;
 }
 static bool quiesce(void) {

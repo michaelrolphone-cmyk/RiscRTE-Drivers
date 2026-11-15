@@ -2,16 +2,13 @@
 // lowest hardware boundary. No provider activation may occur during admission.
 #include "bootstrap/Runtime.h"
 #include "ports/esp32s3/CpuPort.h"
-#include "badge_time_sample_fixture.h"
 #include "RuntimeFileFixture.h"
 #include <cstdio>
 #include <cstring>
-#include "RiscKeyValueV2.h"
 #ifdef BADGE_IMAGE_ADMISSION
 #include "cohort_elf_admission.h"
 #endif
 static unsigned ioCalls;
-static uint32_t settingsCapacity=RISC_KEY_VALUE_V2_BLOB_MAX;
 static RiscCpu::Port* cpu;
 static bool owner(){return true;}
 static bool bind(RiscBoot::Runtime& runtime){return cpu->bind(runtime);}
@@ -53,57 +50,14 @@ static RiscCpu::Hardware hardware(){
         [](uint8_t){++ioCalls;return false;},
         [](){++ioCalls;return false;}};
     h.displayBackend=&display;
-#ifdef BADGE_PROTOTYPE_ADMISSION
-    h.radioJoin=[](const char*,const char*){++ioCalls;return false;};
-    h.radioState=[](uint8_t*,int8_t*){++ioCalls;return false;};
-    h.radioLeave=[](){++ioCalls;return false;};h.radioIdle=[](){++ioCalls;return false;};
-    h.radioAddresses=[](uint8_t*,uint8_t*){++ioCalls;return false;};
-    h.radioScanStart=[](){++ioCalls;return false;};h.radioScanCancel=[](){++ioCalls;return false;};
-    h.radioScanPoll=[](garden_radio_scan_result_v1*){++ioCalls;return false;};
-#endif
-#ifdef BADGE_TIME_SERVER_SYNC
-    badgeTimeSampleHardware(h);
-#endif
     return h;
 }
-#ifdef BADGE_PROTOTYPE_ADMISSION
-/* Semantic native-storage boundary for graph admission only. Every data call
- * increments ioCalls and fails; prepare must never read or mutate user data. */
-class AdmissionSettings final: public RiscBoot::SettingsSession {
- public:
- uint32_t maxBlobSize()const override{return settingsCapacity;}
- bool configure(uint32_t,uint32_t,bool checkpoints,const uint32_t*,uint32_t shared)override{return !checkpoints&&!shared;}
- uint32_t checkpointCount()const override{return 0;} uint32_t format()const override{return 1;}
- uint32_t sharedCount()const override{return 0;}uint32_t sharedNamespace(uint32_t)const override{return 0;}
- uint32_t status(uint32_t)const override{return 0;}
- int32_t get(uint32_t,const char*,void*,uint32_t,uint32_t*,uint32_t,bool)override{++ioCalls;return -1;}
- int32_t put(uint32_t,const char*,const void*,uint32_t,bool)override{++ioCalls;return -1;}
- int32_t restore(uint32_t,const char*,const void*,uint32_t,bool)override{++ioCalls;return -1;}
- int32_t snapshot(uint32_t,void*,uint32_t,uint32_t*,uint64_t*)override{++ioCalls;return -1;}
- int32_t acknowledge(uint32_t,uint64_t)override{++ioCalls;return -1;}
- bool launchReady(uint32_t,bool*)const override{return true;}
-};
-static const RiscBoot::SettingsProvider settings{nullptr,[](void*){return std::unique_ptr<RiscBoot::SettingsSession>(new AdmissionSettings);}};
-static const RiscBoot::AppDataBackend appData{nullptr,
- [](void*,uint32_t,const char*,uint32_t*,uint64_t*)->int32_t{++ioCalls;return -1;},
- [](void*,uint32_t,const char*,uint64_t,void*,uint32_t,uint32_t*,uint64_t*)->int32_t{++ioCalls;return -1;},
- [](void*,uint32_t,const char*,uint64_t,const void*,uint32_t)->int32_t{++ioCalls;return -1;},
- [](void*){return true;}};
-#endif
-#ifndef BADGE_EXPECTED_IMAGES
-#define BADGE_EXPECTED_IMAGES 5
-#endif
 int main(int argc,char** argv){
-    if(argc!=2 && argc!=3)return 2;
-    if(argc==3){if(std::strcmp(argv[2],"small-kv"))return 2;settingsCapacity=64;}
+    if(argc!=2)return 2;
     RiscTest::FileSources files({std::string(argv[1])});
     RiscCpu::Port port(hardware());cpu=&port;
-    RiscBoot::Port runtimePort{owner,[](risc_runtime_health_v1*){++ioCalls;return false;},
-        [](uint32_t){++ioCalls;},[](const char*){return true;},bind};
-#ifdef BADGE_PROTOTYPE_ADMISSION
-    runtimePort.settings=&settings;runtimePort.appData=&appData;
-#endif
-    RiscBoot::Runtime runtime(runtimePort);
+    RiscBoot::Runtime runtime({owner,[](risc_runtime_health_v1*){++ioCalls;return false;},
+        [](uint32_t){++ioCalls;},[](const char*){return true;},bind});
     if(!files.bind(runtime))return 2;
     const bool prepared=runtime.prepare(argv[1]);
     bool images=false;unsigned count=0;
@@ -114,7 +68,7 @@ int main(int argc,char** argv){
         prepared?"true":"false",images?"true":"false",count,ioCalls,runtime.error());
     if(ioCalls)return 3;
 #ifdef BADGE_IMAGE_ADMISSION
-    return prepared && images && count==BADGE_EXPECTED_IMAGES?0:4;
+    return prepared && images && count==5?0:4;
 #else
     return prepared?0:4;
 #endif

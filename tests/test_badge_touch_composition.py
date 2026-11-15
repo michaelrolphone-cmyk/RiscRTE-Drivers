@@ -23,8 +23,7 @@ def main():
     drivers = args.drivers.resolve()
     runtime = args.runtime.resolve()
     sources = [root / "tests/badge_touch_composition_test.c",
-               drivers / "Drivers/cst9217_touch/driver.c",
-               drivers / "test/drivers/cst9217_diagnostic_stub.c"]
+               drivers / "Drivers/cst9217_touch/driver.c"]
     import sys
     sys.path.insert(0, str(drivers / "scripts"))
     from cst9217_sdk import stage_sdk

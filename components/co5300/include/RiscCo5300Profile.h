@@ -1,55 +1,11 @@
 #pragma once
 
-#ifndef RISC_CO5300_REUSE_COLUMNS
-#define RISC_CO5300_REUSE_COLUMNS 0
-#endif
-#if RISC_CO5300_REUSE_COLUMNS != 0 && RISC_CO5300_REUSE_COLUMNS != 1
-#error "CO5300 column reuse selector must be zero or one"
-#endif
-
 /* Build-selected CO5300 geometry shared by the provider and native backend.
  * Override these macros consistently for both translation units. Defaults keep
  * the deployed 2.06-inch profile; there is no board-ID switch in the driver.
- * Transport stripes require even physical starts and inclusive odd ends.
+ * The two-row transport requires even physical starts and inclusive odd ends.
  * Reset timings are the active-low pulse and the subsequent high recovery time.
  */
-#ifndef RISC_CO5300_PIXEL_ROTATION
-#define RISC_CO5300_PIXEL_ROTATION 0
-#endif
-#if RISC_CO5300_PIXEL_ROTATION != 0 && RISC_CO5300_PIXEL_ROTATION != 180
-#error "CO5300 pixel orientation must be 0 or 180 degrees"
-#endif
-
-#ifndef RISC_CO5300_ROUND
-#define RISC_CO5300_ROUND 0
-#endif
-#if RISC_CO5300_ROUND != 0 && RISC_CO5300_ROUND != 1
-#error "RISC_CO5300_ROUND must be a boolean panel-profile property"
-#endif
-
-/* Optional exact completed-panel shadow. OOM retains ordinary transfers. */
-#ifndef RISC_CO5300_REUSE_UNCHANGED
-#define RISC_CO5300_REUSE_UNCHANGED 0
-#endif
-#if RISC_CO5300_REUSE_UNCHANGED != 0 && RISC_CO5300_REUSE_UNCHANGED != 1
-#error "CO5300 reuse selection must be boolean"
-#endif
-
-/* Opt-in full sequential frame composition; generic partial pairs stay sync. */
-#ifndef RISC_CO5300_QUEUED_PIXELS
-#define RISC_CO5300_QUEUED_PIXELS 0
-#endif
-#if RISC_CO5300_QUEUED_PIXELS != 0 && RISC_CO5300_QUEUED_PIXELS != 1
-#error "CO5300 queued pixel selection must be boolean"
-#endif
-
-#ifndef RISC_CO5300_STRIPE_ROWS
-#define RISC_CO5300_STRIPE_ROWS 2
-#endif
-#if RISC_CO5300_STRIPE_ROWS < 2 || RISC_CO5300_STRIPE_ROWS > 65534 || (RISC_CO5300_STRIPE_ROWS % 2) != 0
-#error "CO5300 stripe rows must be positive, even and fit the display ABI"
-#endif
-
 #ifndef RISC_CO5300_WIDTH
 #define RISC_CO5300_WIDTH 410
 #endif

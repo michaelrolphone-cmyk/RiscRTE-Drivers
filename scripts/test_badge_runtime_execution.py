@@ -24,7 +24,6 @@ import subprocess
 import sys
 import tempfile
 from cst9217_sdk import stage_sdk
-from badge_home_fixture_clock import controlled_home_source
 
 ROOT = Path(__file__).resolve().parents[1]
 BOARD = ROOT / "boards/waveshare-esp32-s3-touch-amoled-1.75c"
@@ -147,10 +146,6 @@ def main():
         includes = ["-I" + str(p) for p in (sdk, watch / "include", watch, system / "lib/PortableApps/src")]
         objects = []
         for number, source in enumerate(home_sources):
-            if source.name == "crown.c":
-                original=source;source=out/"home-controlled-observation.c"
-                source.write_text(controlled_home_source(original.read_text()))
-                includes.append("-I"+str(original.parent))
             obj = out / f"home-{number}.o"
             run([*cc, "-std=c11", *common, *sanitizer, "-fPIC", "-fvisibility=hidden", *flags, *includes, "-c", source, "-o", obj])
             objects.append(obj)
@@ -200,9 +195,7 @@ def main():
                 "staged_store": str(source_store), "staged_metadata_sha256": {
                     p.relative_to(source_store).as_posix(): before[str(p)] for p in json_files},
                 "output_cleared_before_preflight": True,
-                "home_production_flags": flags, "home_source_modified": False,
-                "host_home_source_overlay": "Explicit controlled final Home observation stop at sole loop boundary after successful native clock; not a product/user return or target instruction execution",
-                "host_home_overlay_helper_sha256": hashlib.sha256((ROOT/"scripts/badge_home_fixture_clock.py").read_bytes()).hexdigest(), "host_module_sha256": host_sha256,
+                "home_production_flags": flags, "home_source_modified": False, "host_module_sha256": host_sha256,
                 "native_realtime": "actual NativeRealtime; POWERON => UNSET; no seeds or wall-clock reads",
                 "real_runtime_prepare_and_run": True, "real_provider_graph_and_cpu_port": True,
                 "target_metadata_unchanged": True, "home_cases": 5, "separate_lifecycle_probe_cases": 4,
@@ -212,7 +205,7 @@ def main():
                 "target_elf_loader_tested": False, "firmware_boot_tested": False,
                 "native_boot_confirmation_tested": False, "physical_hardware_tested": False,
                 "modeled_boundaries": ["lowest GPIO", "I2C register transfers", "display transport",
-                    "SDK reset/timer/wall syscalls", "test boot owner callback", "successful native monotonic clock and explicit host observation loop stop",
+                    "SDK reset/timer/wall syscalls", "test boot owner callback", "health lifetime bound",
                     "boot confirmation hook (real Runtime routing, no native bank confirmation)", "diagnostic sink",
                     "host Posix RuntimeFileSources fixture with test owner/safety checks",
                     "pinned esp_dlfcn.h host ELF magic-only validation and always-true managed-app admission",

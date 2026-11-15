@@ -13,7 +13,7 @@
 #define STRIDE (WIDTH*2u)
 #define DISPLAY_SAFE_INSETS {RISC_CO5300_SAFE_TOP, RISC_CO5300_SAFE_RIGHT, RISC_CO5300_SAFE_BOTTOM, RISC_CO5300_SAFE_LEFT}
 #define FORMAT RISC_DISPLAY_FORMAT_RGB565
-#define DISPLAY_FLAGS (RISC_DISPLAY_INFO_ASYNC_PRESENT|RISC_DISPLAY_INFO_BRIGHTNESS|(RISC_CO5300_ROUND?RISC_DISPLAY_INFO_ROUND:0))
+#define DISPLAY_FLAGS (RISC_DISPLAY_INFO_ASYNC_PRESENT|RISC_DISPLAY_INFO_BRIGHTNESS)
 #define DISPLAY_ID "co5300-display"
 static const risc_platform_clock_api_v1* timer;
 static const risc_display_backend_v1* backend;
@@ -53,12 +53,7 @@ static bool hw_start(const risc_provider_dependency_v1* d,size_t n){
  // A scoped claim stages LOW before NativeHardware releases that old hold.
  if(!reset_gpio->claim(reset_gpio->context,reset_pin,true,false,false,&reset_token))return false;
  if(!reset_token || !release_reset())return false;
- suspended=false;brightness=80;
- if(!backend->open(backend->context,&backend_token))return false;
- // Queue the existing default through the backend contract. Native startup
- // stays dark until a complete checked frame; a later explicit zero cancels
- // the request. On refusal retain backend_token for checked quiesce cleanup.
- return backend->brightness(backend->context,backend_token,brightness);
+ suspended=false;brightness=80;return backend->open(backend->context,&backend_token);
 }
 static void hw_submit(void){}
 static uint32_t hw_row_min_budget_ms(void){return 1;}

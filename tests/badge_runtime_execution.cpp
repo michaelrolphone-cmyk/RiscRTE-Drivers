@@ -44,31 +44,12 @@ void delay(uint32_t ms){assert(ms<=5000);m.ms+=ms;assert(m.ms<120000);}
 bool mapped(const char* id){for(const auto& e:m.mapped)if(e.second==id)return true;return false;}
 bool home(){return m.mode.compare(0,5,"home-")==0 || m.mode=="home";}
 bool retainedCase(){return m.mode=="probe-start-retained" || m.mode=="probe-i2c-retained" || m.mode=="home-shutdown-retained";}
-/* Native clock availability is not the fixture's normal stop signal.
- * Preserve every scenario observation/bound and stop predicate below, but
- * end Home through the explicit host-only observation loop gate. Runtime
- * controlExitRequested remains unbound: its native Home navigation action is
- * not a stop-run request. This is not a product/user return or target execution. */
-static bool fixtureContinue(){
-    assert(++m.health<1000000);
+bool health(risc_runtime_health_v1* out){
+    assert(++m.health<1000000);out->uptime_ms=static_cast<uint32_t>(m.ms);
     /* A fixture lifetime bound, not a public capability replacement. The app
      * owns its normal exit and Runtime performs its real checked teardown. */
     if(m.services && m.ms-m.servicesAt>=1100 && m.rows%466==0)return false;
     return true;
-}
-static bool fixtureStopRequested;
-bool fixtureMonotonic(uint32_t* out){*out=static_cast<uint32_t>(m.ms);return true;}
-bool fixtureObservationStop(){
- if(!fixtureStopRequested)fixtureStopRequested=!fixtureContinue();
- return fixtureStopRequested;
-}
-extern "C" int badge_fixture_home_continue(){
- const bool keep=!fixtureObservationStop();
- if(!keep)puts("FIXTURE_CONTROLLED_HOME_EXIT completed observation; not a user return or target instruction execution");
- return keep?1:0;
-}
-bool health(risc_runtime_health_v1* out){
- out->uptime_ms=static_cast<uint32_t>(m.ms);return true;
 }
 bool log(const char* line){
     m.stages.emplace_back(line);puts(line);
@@ -229,7 +210,7 @@ int main(int argc,char** argv){
     h.realtimeRead=[](risc_realtime_snapshot_v1* out){++m.realtimeReads;const auto rc=RiscCpu::NativeRealtime::read(out);assert(rc==RISC_REALTIME_OK&&out->validity==RISC_REALTIME_UNSET&&!out->epoch_seconds&&!out->nanoseconds);return rc;};
     h.realtimeSeed=[](int64_t epoch,uint32_t nanos){++m.seedCalls;return RiscCpu::NativeRealtime::seed(epoch,nanos);};
     static const RiscCpu::DisplayBackend backend={displayAccepts,displayOpen,displayRow,displayBrightness,displayClose};h.displayBackend=&backend;
-    RiscCpu::Port port(h);cpu=&port;RiscBoot::Port boot{owner,health,delay,log,bind};boot.monotonicMs=fixtureMonotonic;boot.confirmBoot=confirm;
+    RiscCpu::Port port(h);cpu=&port;RiscBoot::Port boot{owner,health,delay,log,bind};boot.confirmBoot=confirm;
     RiscTest::FileSources files({std::string(argv[1])});RiscBoot::Runtime runtime(boot);running=&runtime;
     assert(files.bind(runtime));
     if(!runtime.prepare(argv[1])){fprintf(stderr,"prepare failed: %s\n",runtime.error());return 1;}

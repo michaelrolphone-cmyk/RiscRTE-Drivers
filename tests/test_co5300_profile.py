@@ -10,17 +10,17 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULTS = dict(ROUND=0, PIXEL_ROTATION=0, WIDTH=410, HEIGHT=502, OFFSET_X=22, OFFSET_Y=0,
+DEFAULTS = dict(WIDTH=410, HEIGHT=502, OFFSET_X=22, OFFSET_Y=0,
                 RESET_LOW_MS=200, RESET_RECOVERY_MS=200,
                 PIXEL_WRITE_ADDRESS=0x003c00, RAMWR_BEFORE_PIXELS=1,
                 SAFE_TOP=0, SAFE_RIGHT=0, SAFE_BOTTOM=0, SAFE_LEFT=0)
 POSITIVE = {
     'default': {},
-    'badge': dict(ROUND=1, PIXEL_ROTATION=180, WIDTH=466, HEIGHT=466, OFFSET_X=6,
+    'badge': dict(WIDTH=466, HEIGHT=466, OFFSET_X=6,
                   RESET_LOW_MS=10, RESET_RECOVERY_MS=150,
                   PIXEL_WRITE_ADDRESS=0x002c00, RAMWR_BEFORE_PIXELS=0,
                   SAFE_TOP=69, SAFE_RIGHT=69, SAFE_BOTTOM=69, SAFE_LEFT=69),
-    'offset': dict(PIXEL_ROTATION=180, WIDTH=320, HEIGHT=240, OFFSET_X=4, OFFSET_Y=18,
+    'offset': dict(WIDTH=320, HEIGHT=240, OFFSET_X=4, OFFSET_Y=18,
                    RESET_LOW_MS=5, RESET_RECOVERY_MS=75),
     'minimum': dict(WIDTH=2, HEIGHT=2, OFFSET_X=0),
     'last-address': dict(WIDTH=2, HEIGHT=2, OFFSET_X=65534, OFFSET_Y=65534),
@@ -28,7 +28,7 @@ POSITIVE = {
     'timing-boundaries': dict(RESET_LOW_MS=1, RESET_RECOVERY_MS=500),
     'direct-memory-write': dict(PIXEL_WRITE_ADDRESS=0x002c00, RAMWR_BEFORE_PIXELS=0),
 }
-NEGATIVE = {'round-negative':dict(ROUND=-1), 'round-two':dict(ROUND=2), 'rotation-90':dict(PIXEL_ROTATION=90), 'rotation-negative':dict(PIXEL_ROTATION=-180)}
+NEGATIVE = {}
 for dimension in ('WIDTH', 'HEIGHT'):
     for value in (0, -2, 1, 467, 65536):
         NEGATIVE[f'{dimension}-{value}'] = {dimension: value}
@@ -71,7 +71,7 @@ with tempfile.TemporaryDirectory(prefix='co5300-profile-') as directory:
             if name in POSITIVE:
                 assert result.returncode == 0, f'{language} rejected {name}: {result.stdout}'
             else:
-                assert result.returncode != 0 and ('CO5300 ' in result.stdout or 'CO5300_ROUND ' in result.stdout), (
+                assert result.returncode != 0 and 'CO5300 ' in result.stdout, (
                     f'{language} did not reject {name} with the profile diagnostic: {result.stdout}')
         print(f'{language} CO5300 profile: {len(POSITIVE)} valid configurations and '
               f'{len(NEGATIVE)} invalid geometry/reset/memory-write/inset configurations PASS')

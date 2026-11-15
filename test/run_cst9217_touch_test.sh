@@ -13,6 +13,6 @@ for mode in normal sanitized; do
  cc -std=c11 -Wall -Wextra -Werror "${flags[@]}" \
   -I"$tmp/sdk" \
   -I"$repo/components/co5300/include" \
-  "$repo/Drivers/cst9217_touch/driver.c" "$repo/test/drivers/cst9217_touch_test.c" "$repo/test/drivers/cst9217_diagnostic_stub.c" -o "$tmp/test"
+  "$repo/Drivers/cst9217_touch/driver.c" "$repo/test/drivers/cst9217_touch_test.c" -o "$tmp/test"
  ASAN_OPTIONS=detect_leaks=0 "$tmp/test"
 done

@@ -86,7 +86,7 @@ def main():
     source_roots = [watch / "apps/clock", watch / "apps/runtime_features", watch / "include", watch / "sdk",
                     system / "lib/PortableApps", utilities / "lib/Alarm/include", utilities / "lib/Contexts/include",
                     ROOT / "components/co5300/include", ROOT / "sdk/driver",
-                    runtime / "sdk/app", runtime / "sdk/hardware", runtime / "sdk/driver"]
+                    runtime / "sdk/hardware", runtime / "sdk/driver"]
     for name, relatives in (("watch", ["apps/clock", "apps/runtime_features", "include", "sdk"]),
                             ("system", ["lib/PortableApps"]),
                             ("utilities", ["lib/Alarm/include", "lib/Contexts/include", "Apps/alarm_writer.h"])):

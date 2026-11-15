@@ -8,11 +8,8 @@
 
 /* Compile the provider and native backend with this same selected profile.
  * Vendor-native reference: Waveshare BSP 010c5fb and ESP-IOT 2d289eb.
- * Keep the BSP register state/gap; rotate the logical pixel stream to match
- * the panel/touch mounting without guessing a mirrored controller gap.
+ * Retain the BSP's orientation/gap, not later application mirror/gap changes.
  */
-#define RISC_CO5300_PIXEL_ROTATION 180
-#define RISC_CO5300_ROUND 1
 #define RISC_CO5300_WIDTH 466
 #define RISC_CO5300_HEIGHT 466
 #define RISC_CO5300_OFFSET_X 6

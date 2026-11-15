@@ -89,56 +89,6 @@ at startup (including after probe) and during sampling fail closed.
 Unlike the vendor reference's retry/reset loop, this provider makes one bounded
 attempt per poll and reports a gap without resetting a shared device or bus.
 
-## Subscriber-idle sleep and checked resume
-
-The last successful unsubscribe now enters controller sleep before removing
-its token; provider quiesce with no subscribers does likewise. The bus and
-GPIO2 reset claims remain owned while merely idle. The first later subscribe
-asserts and verifies reset LOW for at least 10 ms, HIGH for at least 50 ms,
-then repeats the original probe using the same bus claim. No GPIO1, IRQ11,
-PMIC settings, shared rail, touch wake source, or public ABI is changed.
-
-The exact additional reference is Waveshare's **1.75C**, not 1.75/2.06, at
-[4bfdc80eedbf95031e384610796bed15e0240312](https://github.com/waveshareteam/ESP32-S3-Touch-AMOLED-1.75C/tree/4bfdc80eedbf95031e384610796bed15e0240312):
-
-- [TouchDrvCST92xx.cpp lines 220–242](https://github.com/waveshareteam/ESP32-S3-Touch-AMOLED-1.75C/blob/4bfdc80eedbf95031e384610796bed15e0240312/examples/arduino/libraries/SensorLib/src/touch/TouchDrvCST92xx.cpp#L220-L242),
-  blob `d9c4d25e4b061db226741399595d8509e3cf5168`, enters DEBUG_INFO,
-  sends the two-byte D105 command and wakes by reset. Reset is lines 87–95.
-- Its setMode at lines 554–578 sends D11E twice and checks register 0002
-  byte 1 for 1E. Lines 599–603 and 664–680 send D101, check 0002 byte 1
-  for 01, then delay 10 ms.
-- [CST9xxConstants.h lines 49–54](https://github.com/waveshareteam/ESP32-S3-Touch-AMOLED-1.75C/blob/4bfdc80eedbf95031e384610796bed15e0240312/examples/arduino/libraries/SensorLib/src/REG/CST9xxConstants.h#L49-L54),
-  blob `42faf321b3362aeea3ebf4e4b02085a0d0b7836c`, identifies CST9217
-  and pins D101/D105. The board's 05_LVGL_Widgets example calls touch.sleep().
-
-This provider keeps its already-qualified STOP-separated register transport,
-checks every mode command/readback and the minimum settling time. Command-mode
-admission makes at most three D11E/D11E/readback attempts, with a measured
-200 ms wait between recoverable transfer failures or stale mode acknowledgments.
-This follows the vendor's bounded command-mode retry, not an unbounded bus reset.
-The subsequent D101/readback/D105 sequence is not blindly repeated. Each failed
-stage attempts a bounded `CST_SLEEP` diagnostic through the existing Runtime
-API. Delivery is best-effort: it is available during an active invocation,
-including subscriber cleanup, but may be unavailable during final graph teardown.
-An invalid/backward/stalled clock fails closed, while an early scheduler wake
-gets up to four measured waits to complete the original minimum duration. A failed sleep
-transfer may have acted. It therefore retains the last subscription, marks
-snapshots invalid, forbids further polls, and requires a reset/reprobe before
-retrying. Failed wake likewise grants no subscription and retains custody.
-Quiesce cannot report success through a failed sleep or retained bus/GPIO
-release. Consumers must preserve a token after false unsubscribe and retry;
-ignoring false is not safe admission to CPU deep sleep.
-
-Host tests cover 24 ordinary cycles and 24 transient-busy handoffs, all eight
-sleep transfers, bounded retry exhaustion, mismatched mode, early scheduler
-wake, stalled/invalid clocks, acted-but-false writes, every warm reset/readback/
-probe failure, retained cleanup, and owner reentrancy. Exhausted admission and
-uncertain D105 outcomes keep the original subscription and all custody; the
-repair never clears an outgoing token merely to let another application run. This is source-backed
-software behavior, not measured controller current or proof that a physical
-board accepts these commands. The final hardware gate remains repeated wake,
-actual sleep-current measurement, and recovery after interrupted I/O.
-
 ## Reproduction and limits
 
 Use Runtime `13eca114cb58469cf6004fafc3da84fbd9d29beb` for these commands:
@@ -174,23 +124,3 @@ the selected provider and existing Watch default. Electrical timing, physical
 controller revision, orientation and real touch behavior remain unmeasured.
 No reset/retry loop, unrelated sensor, external RTC or SD capability is added.
 User-reported Badge success is not RiscRTE validation.
-
-### Stream fault classification
-
-`next()` distinguishes a recoverable discarded-report GAP or stale subscription
-(`-1`) from unavailable provider state or guard failure (`-2`). A malformed or
-failed report still invalidates its snapshot until a later successful poll; it
-is not reclassified as terminal merely because the current sample is unavailable.
-A failed guard unlock overrides event, empty, GAP and stale results with `-2`.
-Subsequent `next()` calls report a retained guard from local state without any
-dependency callback. Existing owner lifecycle cleanup retains its explicit retry
-path; no hardware policy, reset sequence, ABI or fabricated contact state changes.
-
-Snapshot custody: the boolean snapshot result is false if its unlock fails.
-An already-latched failed unlock also returns false locally, without attempting
-another lock operation. Clients that distinguish recoverable snapshot refusal
-from ownership failure may immediately classify it with the existing typed
-`next` result; a latched guard fault yields `-2` without dependency callbacks.
-Only explicit owner lifecycle cleanup retries the retained guard. Owning tests
-cover valid/invalid snapshot unlock failures and hidden subscribe/poll unlock
-failures, including zero dependency callbacks during classification.

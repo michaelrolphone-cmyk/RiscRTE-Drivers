@@ -20,7 +20,7 @@ The-Badge `76172dfa`, Waveshare BSP 3.0.0 `010c5fb3`, CST9217 2.0.0
 - CO5300 is 466x466, QSPI clock38, data4/5/6/7, CS12, reset1, column offset6.
 - CST reset2 and IRQ11 are separate from LCD reset1. The BSP's “shared reset”
   comment contradicts its actual pin definitions; the definitions are used.
-- BOOT is GPIO0, active low. PWR is AXP2101 PWRON, not GPIO0; PWRON is indirectly observable through T1-inverted SYS_OUT/GPIO3.
+- BOOT is GPIO0, active low. PWR is AXP2101 PWRON, not GPIO0 or SYS_OUT.
 - LCD/touch use DCDC1 with the ESP32, per the pinned upstream board analysis.
   The 2.06 ALDO2 display-power provider must NOT be selected. It is not an
   independently switchable display supply. No supply voltage is inferred from

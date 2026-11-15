@@ -10,8 +10,8 @@
 // Expectations derive from the selected build profile, not private backend state.
 static constexpr unsigned TestWidth=RISC_CO5300_WIDTH,TestHeight=RISC_CO5300_HEIGHT;
 static constexpr unsigned TestOffsetX=RISC_CO5300_OFFSET_X,TestOffsetY=RISC_CO5300_OFFSET_Y;
-static constexpr unsigned TestPairPixels=TestWidth*RISC_CO5300_STRIPE_ROWS,TestPairBytes=TestPairPixels*2;
-static constexpr unsigned TestWindows=(TestHeight+RISC_CO5300_STRIPE_ROWS-1)/RISC_CO5300_STRIPE_ROWS,TestWindowPackets=3+RISC_CO5300_RAMWR_BEFORE_PIXELS;
+static constexpr unsigned TestPairPixels=TestWidth*2,TestPairBytes=TestPairPixels*2;
+static constexpr unsigned TestWindows=TestHeight/2,TestWindowPackets=3+RISC_CO5300_RAMWR_BEFORE_PIXELS;
 // Independent expected programs, including intentional startup brightness-zero
 // replacements. Do not derive these expected bytes from InitCommands.
 struct TestInitCommand {uint8_t reg;std::vector<uint8_t> bytes;unsigned delay=0;};
@@ -53,15 +53,11 @@ namespace model {
 enum Op { Init,Add,Acquire,Allocate,Configure,Level,Start,End,Remove,Free,Reset,Count };
 std::array<unsigned,Count> calls{},failAt{};
 esp_err_t endError=ESP_ERR_TIMEOUT;
-bool wrongResult=false;unsigned allocationFailures=0;size_t maxAllocation=SIZE_MAX;
 bool dmaFailure=false,partialAdd=false,bus=false,device=false,acquired=false,flight=false,psramReady=true;
 int core=0;TaskHandle_t task=reinterpret_cast<TaskHandle_t>(1);
 spi_device_t handle;
 spi_transaction_t* descriptor=nullptr;
 void* allocation=nullptr;
-#if RISC_CO5300_REUSE_UNCHANGED
-void* shadowAllocation=nullptr;bool shadowOom=false;unsigned shadowAllocations=0;
-#endif
 std::array<uint32_t,49> levels{};
 std::vector<int> resets;
 std::vector<TickType_t> delays;
@@ -79,7 +75,7 @@ unsigned registerCount(uint8_t reg){return std::count_if(packets.begin(),packets
 unsigned pixelCount(){return std::count_if(packets.begin(),packets.end(),[](const auto& p){return p.command==0x32;});}
 void clear(){
  assert(!state.owned&&!bus&&!device&&!acquired&&!flight&&!allocation);
- calls={};failAt={};wrongResult=false;allocationFailures=0;maxAllocation=SIZE_MAX;endError=ESP_ERR_TIMEOUT;dmaFailure=partialAdd=false;
+ calls={};failAt={};endError=ESP_ERR_TIMEOUT;dmaFailure=partialAdd=false;
  levels={};levels[12]=1;packets.clear();resets.clear();delays.clear();resetLevels.clear();clockUs=clockReads=0;
  RiscPerf::configure(now,owner,true);
 }
@@ -112,11 +108,7 @@ esp_err_t spi_device_polling_start(spi_device_handle_t d,spi_transaction_t* t,ui
  if(failed(Start))return ESP_ERR_NO_MEM;
  assert(!t->rxlength&&!t->rx_buffer&&t->length%8==0);
  if(t->cmd==2)assert((t->flags&(SPI_TRANS_MULTILINE_CMD|SPI_TRANS_MULTILINE_ADDR))==(SPI_TRANS_MULTILINE_CMD|SPI_TRANS_MULTILINE_ADDR)&&!(t->flags&SPI_TRANS_MODE_QIO));
- else assert(t->cmd==0x32&&t->addr==RISC_CO5300_PIXEL_WRITE_ADDRESS&&t->flags==SPI_TRANS_MODE_QIO&&t->length<=TestPairBytes*8&&t->length%(TestWidth*2*16)==0&&(t->tx_buffer==allocation
-#if RISC_CO5300_QUEUED_PIXELS
- || t->tx_buffer==static_cast<uint8_t*>(allocation)+TestPairBytes
-#endif
- ));
+ else assert(t->cmd==0x32&&t->addr==RISC_CO5300_PIXEL_WRITE_ADDRESS&&t->flags==SPI_TRANS_MODE_QIO&&t->length==TestPairBytes*8&&t->tx_buffer==allocation);
  Packet p{t->cmd,t->addr,t->flags,{}};
  const auto* bytes=static_cast<const uint8_t*>((t->flags&SPI_TRANS_USE_TXDATA)?static_cast<void*>(t->tx_data):t->tx_buffer);
  if(t->length)p.bytes.assign(bytes,bytes+t->length/8);
@@ -134,14 +126,6 @@ esp_err_t spi_device_polling_end(spi_device_handle_t d,uint32_t wait){
  }
  flight=false;packets.back().complete=true;clockUs+=7;return ESP_OK;
 }
-#if RISC_CO5300_QUEUED_PIXELS
-esp_err_t spi_device_queue_trans(spi_device_handle_t d,spi_transaction_t* t,TickType_t wait){assert(wait<=21);return spi_device_polling_start(d,t,portMAX_DELAY);}
-esp_err_t spi_device_get_trans_result(spi_device_handle_t d,spi_transaction_t** out,TickType_t wait){
- const auto result=spi_device_polling_end(d,wait);
- if(result==ESP_OK || (result==ESP_ERR_INVALID_STATE&&model::dmaFailure))*out=model::wrongResult?nullptr:model::descriptor;
- return result;
-}
-#endif
 void spi_device_release_bus(spi_device_handle_t d){using namespace model;correctOwner();assert(device&&acquired&&!flight&&d==&handle);acquired=false;}
 esp_err_t spi_bus_remove_device(spi_device_handle_t d){using namespace model;correctOwner();assert(device&&!acquired&&!flight&&d==&handle);if(failed(Remove))return ESP_FAIL;device=false;return ESP_OK;}
 esp_err_t spi_bus_free(spi_host_device_t h){using namespace model;correctOwner();assert(bus&&!device&&!flight&&h==SPI2_HOST);if(failed(Free))return ESP_FAIL;bus=false;return ESP_OK;}
@@ -160,21 +144,10 @@ esp_err_t gpio_config(const gpio_config_t* c){
 esp_err_t gpio_reset_pin(gpio_num_t pin){using namespace model;correctOwner();assert(!bus&&!device&&!flight);resets.push_back(pin);return failed(Reset)?ESP_FAIL:ESP_OK;}
 esp_err_t gpio_dump_io_configuration(FILE*,uint64_t){return ESP_OK;}
 void* heap_caps_aligned_alloc(size_t alignment,size_t bytes,uint32_t caps){
- using namespace model;correctOwner();assert(!allocation&&alignment==16&&(bytes==TestPairBytes
-#if RISC_CO5300_QUEUED_PIXELS
- || (bytes>=TestWidth*4&&bytes<=2*TestPairBytes&&bytes%(TestWidth*4)==0)
-#endif
- )&&caps==(MALLOC_CAP_INTERNAL|MALLOC_CAP_DMA|MALLOC_CAP_8BIT));
- const bool allocationFault=failed(Allocate);if(allocationFailures){--allocationFailures;return nullptr;}if(allocationFault||bytes>maxAllocation)return nullptr;return posix_memalign(&allocation,alignment,bytes)?nullptr:allocation;
+ using namespace model;correctOwner();assert(!allocation&&alignment==16&&bytes==TestPairBytes&&caps==(MALLOC_CAP_INTERNAL|MALLOC_CAP_DMA|MALLOC_CAP_8BIT));
+ if(failed(Allocate))return nullptr;return posix_memalign(&allocation,alignment,bytes)?nullptr:allocation;
 }
-#if RISC_CO5300_REUSE_UNCHANGED
-void* heap_caps_malloc(size_t bytes,uint32_t caps){using namespace model;correctOwner();assert(!shadowAllocation&&bytes==TestWidth*TestHeight*2&&caps==(MALLOC_CAP_SPIRAM|MALLOC_CAP_8BIT));++shadowAllocations;if(shadowOom)return nullptr;return shadowAllocation=std::malloc(bytes);}
-#endif
-void heap_caps_free(void* p){using namespace model;correctOwner();assert(!flight&&!bus&&!device);
-#if RISC_CO5300_REUSE_UNCHANGED
- if(p==shadowAllocation){std::free(p);shadowAllocation=nullptr;return;}
-#endif
- assert(p==allocation);std::free(p);allocation=nullptr;}
+void heap_caps_free(void* p){using namespace model;correctOwner();assert(p==allocation&&!flight&&!bus&&!device);std::free(p);allocation=nullptr;}
 static risc_hw_spi_display_v2 config(){
  risc_hw_spi_display_v2 c{};auto& b=c.base;b.struct_size=sizeof(c);b.width=TestWidth;b.height=TestHeight;b.offset_x=TestOffsetX;b.offset_y=TestOffsetY;
  b.reset=8;b.cs=12;b.dc=b.backlight=b.busy=-1;b.bus.sclk=11;b.bus.mosi=4;b.bus.miso=5;b.bus.frequency_hz=40000000;
@@ -187,21 +160,18 @@ static risc_hardware_device_v1 hardware(const risc_hw_spi_display_v2& c){
 static auto* api=RiscCpu::selectedDisplayBackend();
 static void open(){const auto c=config();const auto h=hardware(c);assert(api->accepts(h,2)&&api->open(h,2));}
 static void closed(){assert(api->close());assert(api->close());assert(!state.owned&&!model::allocation&&!model::bus&&!model::device&&!model::flight);}
-static void checkPixels(size_t firstPacket,bool zero,unsigned firstRow=0,unsigned endRow=TestHeight,unsigned stripeRows=RISC_CO5300_STRIPE_ROWS){
- using namespace model;unsigned expectedY=firstRow;
+static void checkPixels(size_t firstPacket,bool zero){
+ using namespace model;unsigned expectedY=0;
  for(size_t i=firstPacket;i<packets.size();++i){const auto& p=packets[i];if(p.command!=0x32)continue;
-  const unsigned rows=std::min(stripeRows,endRow-expectedY);
-  const unsigned pixels=rows*TestWidth;
-  assert(i>=TestWindowPackets-1&&p.complete&&p.bytes.size()==pixels*2);
+  assert(i>=TestWindowPackets-1&&p.complete&&p.bytes.size()==TestPairBytes);
   const auto& x=packets[i-TestWindowPackets+1];const auto& y=packets[i-TestWindowPackets+2];
   assert(x.address==0x2a00&&x.bytes==addressBytes(TestOffsetX,TestOffsetX+TestWidth-1));
-  const unsigned wireY=RISC_CO5300_PIXEL_ROTATION==180?TestHeight-rows-expectedY:expectedY;
-  assert(y.address==0x2b00&&y.bytes==addressBytes(TestOffsetY+wireY,TestOffsetY+wireY+rows-1));
+  assert(y.address==0x2b00&&y.bytes==addressBytes(TestOffsetY+expectedY,TestOffsetY+expectedY+1));
   if(RISC_CO5300_RAMWR_BEFORE_PIXELS){const auto& ram=packets[i-1];assert(ram.address==0x2c00&&ram.bytes.empty());}
-  for(unsigned k=0;k<pixels;++k){const uint16_t value=zero?0:uint16_t(expectedY*TestWidth+(RISC_CO5300_PIXEL_ROTATION==180?pixels-1-k:k));assert(p.bytes[2*k]==value>>8&&p.bytes[2*k+1]==(value&255));}
-  expectedY+=rows;
+  for(unsigned k=0;k<TestPairPixels;++k){const uint16_t value=zero?0:uint16_t(expectedY*TestWidth+k);assert(p.bytes[2*k]==value>>8&&p.bytes[2*k+1]==(value&255));}
+  expectedY+=2;
  }
- assert(expectedY==endRow);
+ assert(expectedY==TestHeight);
 }
 static void frame(unsigned end=TestHeight){
  uint16_t line[TestWidth];for(unsigned y=0;y<end;++y){for(unsigned x=0;x<TestWidth;++x)line[x]=uint16_t(y*TestWidth+x);assert(api->row(y,line,TestWidth));std::fill(std::begin(line),std::end(line),0xffff);}
@@ -222,9 +192,6 @@ static void checkProbe(){
  auto expected=bootDelays();expected.insert(expected.end(),{801,1201,1201,1201});assert(delays==expected);
 }
 #endif
-#if defined(RISC_CO5300_TEST_REUSE)
-#include "reuse_cases.inc"
-#elif !defined(RISC_CO5300_TEST_STRIPES)
 int main(int argc,char** argv){
  using namespace model;
 #ifdef RISC_VENDOR_DISPLAY_PROBE
@@ -327,12 +294,7 @@ int main(int argc,char** argv){
  // A timed-out final pair never opens the visibility gate, even after close
  // later proves that transfer completed. Caller pixels and descriptor stay held.
  clear();open();assert(api->brightness(80));frame(TestHeight-1);fault(End,TestWindowPackets);assert(!api->row(TestHeight-1,line,TestWidth)&&flight&&!state.frameComplete&&lit()==0);
- const std::vector<uint8_t> retainedDma(state.dma,state.dma+TestPairBytes);
- assert(!api->brightness(255)&&!api->row(TestHeight-1,line,TestWidth));
- for(unsigned x=0;x<TestWidth;++x)line[x]^=0xffff;
- assert(!api->row(0,line,TestWidth)&&!api->row(1,line,TestWidth));
- assert(std::equal(retainedDma.begin(),retainedDma.end(),state.dma));
- closed();assert(lit()==0);
+ assert(!api->brightness(255)&&!api->row(TestHeight-1,line,TestWidth));closed();assert(lit()==0);
  // IDF6's completed-DMA-error status is distinct from still-in-flight timeout.
  clear();open();assert(api->row(0,line,TestWidth));dmaFailure=true;fault(End,TestWindowPackets);assert(!api->row(1,line,TestWidth)&&!flight&&state.failed);closed();
  // CS deassertion failure retains the completed transaction until safely high.
@@ -350,33 +312,11 @@ int main(int argc,char** argv){
 #if RISC_PERFORMANCE_TRACE
  assert(RiscPerf::data.counts[39]==1);
 #endif
- // Partial row-pair updates preserve logical-to-physical mapping on reopen.
- for(unsigned cycle=0;cycle<3;++cycle){
-  clear();open();
-  for(unsigned first:{0u,TestHeight/2u&~1u,TestHeight-2u}){
-   const auto mark=packets.size();
-   for(unsigned y=first;y<first+2;++y){
-    uint16_t padded[TestWidth+4];padded[0]=padded[TestWidth+3]=0xabcd;
-    for(unsigned x=0;x<TestWidth;++x)padded[x+2]=uint16_t(y*TestWidth+x);
-    assert(api->row(y,padded+2,TestWidth));
-    assert(padded[0]==0xabcd&&padded[TestWidth+3]==0xabcd);
-   }
-   checkPixels(mark,false,first,first+2);
-  }
-  closed();
- }
  // An unclassified poll error is irreversible uncertainty: no re-poll, pad
  // reset, resource release or new open. The following reset is test-process only.
  clear();open();assert(api->row(0,line,TestWidth));endError=ESP_FAIL;fault(End);assert(!api->row(1,line,TestWidth)&&state.uncertain);
- const std::vector<uint8_t> uncertainDma(state.dma,state.dma+TestPairBytes);
- callsBefore=calls;assert(!api->row(0,line,TestWidth)&&!api->row(1,line,TestWidth));
- assert(std::equal(uncertainDma.begin(),uncertainDma.end(),state.dma));
- assert(!api->close()&&!api->close()&&calls==callsBefore&&resets.empty());
+ callsBefore=calls;assert(!api->close()&&!api->close()&&calls==callsBefore&&resets.empty());
  {const auto c=config();assert(!api->open(hardware(c),2));}
  std::free(allocation);allocation=nullptr;state=PanelState{};bus=device=acquired=flight=false;
  std::printf("Native IDF6 CO5300: real SDK/ABI, %ux%u offset %u/%u, 40MHz framing, %u paired windows, dark frame gate, setup/transfer/cleanup faults, retained custody and trace=%d PASS\n",TestWidth,TestHeight,TestOffsetX,TestOffsetY,TestWindows,RISC_PERFORMANCE_TRACE);
 }
-
-#else
-#include "stripe_cases.inc"
-#endif

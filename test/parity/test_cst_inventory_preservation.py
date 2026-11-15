@@ -11,9 +11,6 @@ ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location('preservation', ROOT/'scripts/verify_usb_hid_preservation.py')
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
-parity_spec = importlib.util.spec_from_file_location('parity', ROOT/'scripts/check_parity.py')
-parity = importlib.util.module_from_spec(parity_spec)
-parity_spec.loader.exec_module(parity)
 
 class CstInventoryPreservation(unittest.TestCase):
     @classmethod
@@ -40,34 +37,6 @@ class CstInventoryPreservation(unittest.TestCase):
     def test_exact_addition_preserves_historical_bytes(self):
         self.assertEqual(hashlib.sha256(self.baseline).hexdigest(), self.expected)
         self.assert_accepted(self.data, True)
-
-    def test_cst_entry_matches_actual_source_custody(self):
-        entry = module.CST_ENTRY
-        self.assertEqual(parity.local_tree(ROOT/entry['source_path']), entry['source_tree_sha'])
-
-    def test_prototype_entries_match_actual_source_custody(self):
-        original = json.loads(self.data)['original_drivers']
-        self.assertEqual(original[-len(module.PROTOTYPE_ENTRIES):], module.PROTOTYPE_ENTRIES)
-        for entry in module.PROTOTYPE_ENTRIES:
-            with self.subTest(driver=entry['id']):
-                self.assertEqual(parity.local_tree(ROOT/entry['source_path']), entry['source_tree_sha'])
-
-    def test_each_prototype_addition_is_strictly_pinned(self):
-        original = json.loads(self.data)
-        for entry in module.PROTOTYPE_ENTRIES:
-            index = next(i for i, candidate in enumerate(original['original_drivers']) if candidate['id'] == entry['id'])
-            mutants = {}
-            for field in ('id', 'version', 'source_path', 'source_tree_sha'):
-                changed = copy.deepcopy(original)
-                changed['original_drivers'][index][field] = 'wrong'
-                mutants['changed '+field] = changed
-            changed = copy.deepcopy(original); changed['original_drivers'].pop(index); mutants['missing'] = changed
-            changed = copy.deepcopy(original); changed['original_drivers'].insert(index, copy.deepcopy(entry)); mutants['duplicate'] = changed
-            changed = copy.deepcopy(original); changed['original_drivers'][index]['extra'] = True; mutants['extra field'] = changed
-            changed = copy.deepcopy(original); changed['original_drivers'][index] = dict(reversed(list(entry.items()))); mutants['field order'] = changed
-            for mutation, candidate in mutants.items():
-                with self.subTest(driver=entry['id'], mutation=mutation):
-                    self.assert_accepted((json.dumps(candidate, indent=2)+'\n').encode(), False)
 
     def test_inventory_mutations_fail_closed(self):
         original = json.loads(self.data)

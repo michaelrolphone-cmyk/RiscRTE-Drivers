@@ -85,9 +85,6 @@ static void start_faults(void) {
     for(unsigned i=0;i<sizeof(cases)/sizeof(*cases);i++)for(unsigned retain=0;retain<2;retain++) {
         cst_test_model m;setup(&m);cst_test_fail_at(&m,cases[i].op,cases[i].nth,cases[i].fault);
         m.fail_bus_release=m.fail_reset_release=m.fail_sync_destroy=retain;
-        if(cases[i].op==CST_TEST_RESET_DELAY){
-            assert(start(&m));finish(&m);retry(&m);continue;
-        }
         assert(!start(&m));assert(!touch->subscribe(NULL));
         if(m.sync_token||m.reset_token||m.bus_token) {
             assert(!start(&m));assert(!driver->quiesce());driver->stop();
@@ -101,11 +98,8 @@ static void start_faults(void) {
         if(retain){assert(m.bus_token&&m.reset_token);assert(!driver->quiesce());driver->stop();}
         finish(&m);retry(&m);
     }
-    /* Measure the successful source path so newly added settling observations
-     * cannot silently move the final post-probe sample outside fault coverage. */
-    cst_test_model healthy;setup(&healthy);assert(start(&healthy));
-    const unsigned startup_clock_calls=healthy.counts[CST_TEST_CLOCK];finish(&healthy);
-    for(unsigned n=1;n<=startup_clock_calls;n++)for(unsigned retain=0;retain<2;retain++) {
+    /* Every reset time sample plus final post-probe timestamp fails closed. */
+    for(unsigned n=1;n<=6;n++)for(unsigned retain=0;retain<2;retain++) {
         cst_test_model m;setup(&m);cst_test_fail_at(&m,CST_TEST_CLOCK,n,CST_TEST_FAIL);
         m.fail_bus_release=m.fail_reset_release=retain;assert(!start(&m));
         assert(!touch->subscribe(NULL));finish(&m);retry(&m);

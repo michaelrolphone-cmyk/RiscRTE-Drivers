@@ -11,7 +11,7 @@ not changed. This unit does not make that product consume the shared component.
 Compile **both** facade and native backend with `-include display-profile.h`
 and `components/co5300/include/`. The profile is private build data, not a
 new Runtime ABI. It selects 466×466 RGB565, columns 6–471, rows 0–465, active-low
-LCD reset 10/150 ms, and canonical BSP MADCTL=0 command state. The selected native transport rotates the logical pixel raster 180 degrees inside that unchanged window; raw CST touch stays untransformed. A 69-pixel safe
+LCD reset 10/150 ms, and the canonical BSP MADCTL=0 orientation. A 69-pixel safe
 inset on each side exposes a conservative 328×328 content rectangle through the
 existing display API. These are mathematical bring-up bounds, not measured
 visible bounds; no contour-clipping or touch transformation is claimed.
@@ -30,17 +30,9 @@ Primary sources:
 - [Exact ESP-IOT CO5300 reset/init/draw implementation](https://github.com/espressif/esp-iot-solution/blob/2d289eb1f14431e345b345c3fd6fc299a555d770/components/display/lcd/esp_lcd_co5300/esp_lcd_co5300_spi.c#L188-L315)
 - [BSP physical pin definitions](https://github.com/waveshareteam/Waveshare-ESP32-components/blob/010c5fb39ea7f0e996efd1f8e162cc70e569e57f/bsp/esp32_s3_touch_amoled_1_75c/include/bsp/esp32_s3_touch_amoled_1_75c.h#L43-L54)
 
-The-Badge reference `76172dfaf0fa0ffedee91a61da3261afdde56ce3/main/display.c`
-mirrors both panel axes and leaves touch unchanged. Actual user testing of our
-unrotated profile confirmed both axes reversed relative to touch. This profile
-therefore selects `RISC_CO5300_PIXEL_ROTATION=180` in the shared transport. Each
-row pair goes to its opposite physical pair, with both rows and columns reversed
-in the existing endian-conversion loop. The known six-column window and MADCTL
-color-order state are retained, avoiding an unqualified controller-gap change.
-Default and unrelated profiles remain zero degrees. This is a display mapping,
-not a watch-face gesture reversal. Native wire tests cover all pixels/corners,
-partial row pairs, padded source rows, close/reopen, failures and full-frame
-illumination custody. Physical acceptance of the repaired orientation is pending.
+The-Badge application subsequently mirrors both axes and uses a different gap.
+Its installed upstream firmware is not evidence that this unrotated BSP profile
+matches physical touch orientation. That remains a later device test.
 
 ## Power and reset ownership
 

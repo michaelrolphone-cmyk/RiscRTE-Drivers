@@ -38,9 +38,6 @@ with tempfile.TemporaryDirectory() as tmp:
         subprocess.run([os.environ.get('CC', 'cc'), *flags, *includes, *definitions,
                         str(ROOT / 'tests/test_vendor_panel.c'), '-o', str(binary)], check=True)
         subprocess.run([str(binary)], check=True)
-        subprocess.run([os.environ.get('CC', 'cc'), *flags, *includes, *definitions,
-                        str(ROOT / 'tests/test_co5300_poll_budget.c'), '-o', str(binary)], check=True)
-        subprocess.run([str(binary)], check=True)
         print(name + ': shared facade geometry/safe bounds, supply refusal and reset custody PASS', flush=True)
 
 # The selected DCDC1 observer uses the same real ABI headers and host faults.

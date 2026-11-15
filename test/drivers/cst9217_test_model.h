@@ -23,10 +23,6 @@ typedef struct {
     uint64_t clock_ms, serial, bus_token, reset_token, sync_token, native_token;
     uint64_t selected_at, reset_asserted_at, reset_released_at;
     bool reset_high, reset_recovered, sync_held, reenter;
-    bool asleep, wrong_mode, stalled_delay;
-    unsigned command_busy_transfers;
-    unsigned sleeps, wake_resets;
-    uint8_t mode;
     bool fail_bus_release, fail_reset_release, fail_sync_unlock, fail_sync_destroy;
     unsigned counts[CST_TEST_OP_COUNT], fail_nth;
     enum cst_test_operation fail_op;
@@ -106,13 +102,9 @@ static inline bool cst_test_gpio_read(void *context,uint64_t token,bool *out) {
 }
 static inline bool cst_test_gpio_write(void *context,uint64_t token,bool high) {
     cst_test_model *m=context; assert(token&&token==m->reset_token&&m->sync_held);
-    if(high)assert(!m->reset_high&&m->clock_ms-m->reset_asserted_at>=10);
-    enum cst_test_fault fault=cst_test_record(m,CST_TEST_RESET_WRITE);
-    if(fault==CST_TEST_FAIL)return false;
-    m->reset_high=high;
-    if(high){m->reset_released_at=m->clock_ms;m->asleep=false;m->mode=0;}
-    else{m->reset_asserted_at=m->clock_ms;m->reset_recovered=false;++m->wake_resets;}
-    return fault!=CST_TEST_FALSE_RETAINED;
+    assert(high&&!m->reset_high&&m->clock_ms-m->reset_asserted_at>=10);
+    if(cst_test_record(m,CST_TEST_RESET_WRITE)==CST_TEST_FAIL)return false;
+    m->reset_high=true;m->reset_released_at=m->clock_ms;return true;
 }
 static inline bool cst_test_gpio_release(void *context,uint64_t token) {
     cst_test_model *m=context; assert(token&&token==m->reset_token&&m->sync_held&&!m->bus_token);
@@ -125,11 +117,12 @@ static inline uint64_t cst_test_now(void *context) {
 }
 static inline void cst_test_sleep(void *context,uint32_t milliseconds) {
     cst_test_model *m=context; assert(m->sync_held&&m->reset_token);
-    assert(milliseconds && milliseconds<=200);
-    enum cst_test_fault fault=milliseconds==2?CST_TEST_OK:cst_test_record(m,CST_TEST_RESET_DELAY);
-    if(!m->stalled_delay)m->clock_ms+=fault==CST_TEST_FAIL?milliseconds-1:milliseconds;
-    if(m->reset_high && m->clock_ms-m->reset_released_at>=50)m->reset_recovered=true;
-
+    if(!m->bus_token) {
+        assert(milliseconds==(m->reset_high?50u:10u));
+        enum cst_test_fault fault=cst_test_record(m,CST_TEST_RESET_DELAY);
+        m->clock_ms+=fault==CST_TEST_FAIL?milliseconds-1:milliseconds;
+        if(m->reset_high&&fault!=CST_TEST_FAIL)m->reset_recovered=true;
+    } else { assert(milliseconds==2||milliseconds==10);m->clock_ms+=milliseconds; }
     if(m->reenter) {
         m->reenter=false;risc_touch_snapshot_v1 snapshot;
         assert(m->touch&&!m->touch->snapshot(NULL,&snapshot));
@@ -154,18 +147,9 @@ static inline bool cst_test_transact(void *context,uint64_t token,const uint8_t 
                                     uint8_t *rx,size_t rx_size,uint32_t timeout) {
     cst_test_model *m=context;assert(token&&token==m->bus_token&&m->sync_held&&timeout==20);
     cst_test_owned(m);assert(!(tx_size&&rx_size));
-    enum cst_test_fault fault=cst_test_record(m,CST_TEST_TRANSFER);
-    if(fault==CST_TEST_FAIL)return false;
-    assert(!m->asleep);
-    if(tx_size){
-        assert(tx&&tx_size==2&&!rx);m->reg=(uint16_t)((tx[0]<<8)|tx[1]);m->selected_at=m->clock_ms;
-        if(m->reg==0xd11e && m->command_busy_transfers){--m->command_busy_transfers;return false;}
-        if(m->reg==0xd11e||m->reg==0xd101)m->mode=(uint8_t)m->reg;
-        if(m->reg==0xd105){assert(m->mode==1);m->asleep=true;++m->sleeps;}
-        return fault!=CST_TEST_FALSE_RETAINED;
-    }
+    if(cst_test_record(m,CST_TEST_TRANSFER)==CST_TEST_FAIL)return false;
+    if(tx_size){assert(tx&&tx_size==2&&!rx);m->reg=(uint16_t)((tx[0]<<8)|tx[1]);m->selected_at=m->clock_ms;return true;}
     assert(!tx&&rx&&m->clock_ms-m->selected_at>=2);
-    if(m->reg==0x0002){assert(rx_size==2||rx_size==4);memset(rx,0,rx_size);rx[1]=m->wrong_mode?0:m->mode;return true;}
     if(m->reg==0xd1f8){assert(rx_size==4);rx[0]=m->width;rx[1]=m->width>>8;rx[2]=m->height;rx[3]=m->height>>8;return true;}
     if(m->reg==0xd1fc||m->reg==0xd204){assert(rx_size==4);memset(rx,0,rx_size);return true;}
     assert(m->reg==0xd000&&rx_size==10);memcpy(rx,m->raw,10);return true;

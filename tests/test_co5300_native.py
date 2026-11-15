@@ -25,7 +25,7 @@ p.add_argument('--runtime', type=Path, default=ROOT.parent / 'runtime',
 p.add_argument('--output', type=Path)
 p.add_argument('--cmake', default=os.environ.get('CMAKE', 'cmake'), help='CMake executable for staging selection checks')
 p.add_argument('--sanitize', action='store_true')
-p.add_argument('--profile', choices=('all', 'default', 'badge', 'offset', 'offset180'), default='all',
+p.add_argument('--profile', choices=('all', 'default', 'badge', 'offset'), default='all',
                help='Exercise default 2.06, badge 1.75C, or independent offset geometry (default: all)')
 group = p.add_mutually_exclusive_group()
 group.add_argument('--host-only', action='store_true')
@@ -76,8 +76,7 @@ profiles = {
     'offset': ({'WIDTH': 320, 'HEIGHT': 240, 'OFFSET_X': 4, 'OFFSET_Y': 18,
                 'RESET_LOW_MS': 5, 'RESET_RECOVERY_MS': 75}, 240, 12, 4),
 }
-profiles['offset180']=({**profiles['offset'][0], 'PIXEL_ROTATION':180}, *profiles['offset'][1:])
-profile_keys = ('PIXEL_ROTATION', 'WIDTH', 'HEIGHT', 'OFFSET_X', 'OFFSET_Y', 'RESET_LOW_MS', 'RESET_RECOVERY_MS',
+profile_keys = ('WIDTH', 'HEIGHT', 'OFFSET_X', 'OFFSET_Y', 'RESET_LOW_MS', 'RESET_RECOVERY_MS',
                 'PIXEL_WRITE_ADDRESS', 'RAMWR_BEFORE_PIXELS', 'INIT_COMMANDS',
                 'SAFE_TOP', 'SAFE_RIGHT', 'SAFE_BOTTOM', 'SAFE_LEFT')
 

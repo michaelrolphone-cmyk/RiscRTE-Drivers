@@ -15,7 +15,7 @@ def stage_sdk(drivers: Path, runtime: Path, destination: Path) -> Path:
         if not (runtime / relative).is_file():
             raise ValueError('Required current Runtime header missing: ' + str(runtime / relative))
     destination.mkdir(parents=True, exist_ok=True)
-    for source in (drivers / 'sdk/driver', runtime / 'sdk/app', runtime / 'sdk/driver', runtime / 'sdk/hardware'):
+    for source in (drivers / 'sdk/driver', runtime / 'sdk/driver', runtime / 'sdk/hardware'):
         for header in source.glob('*.h'):
             shutil.copyfile(header, destination / header.name)
     return destination

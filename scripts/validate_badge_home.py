@@ -43,7 +43,6 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for n in ('runtime','controllers','store','output'):
         p.add_argument('--'+n,type=Path,required=True)
-    p.add_argument('--prototype',action='store_true')
     p.add_argument('--native-elf',type=Path)
     p.add_argument('--graph-only',action='store_true',help='Explicitly omit ELF import/link qualification')
     p.add_argument('--sanitize',action='store_true')
@@ -52,8 +51,6 @@ def main():
     N=a.runtime.resolve();T=a.controllers.resolve();out=a.output.resolve();store=a.store.resolve()
     out.mkdir(parents=True,exist_ok=True)
     (out/'admission.json').unlink(missing_ok=True)
-    global LOCK
-    if a.prototype: LOCK=LOCK.parent.parent/'prototype/sources.lock.json'
     lock=json.loads(LOCK.read_text())
     dependency_paths={'runtime':['src','sdk','lib/ArduinoJson','lib/elf_loader','test'],
                       'controllers':['scripts/verify_update_elf.py']}
@@ -64,20 +61,12 @@ def main():
     if store_before!=receipt['store_files']:raise ValueError('Store differs from its build receipt')
     for name,expected in receipt['source_sha256'].items():
         if digest(ROOT/name)!=expected:raise ValueError('Composition source changed since target build: '+name)
-    local_sources={str(p):digest(p) for p in [LOCK,Path(__file__).resolve(),ROOT/'tests/badge_home_admission.cpp',ROOT/'tests/badge_time_sample_fixture.h']}
+    local_sources={str(p):digest(p) for p in [LOCK,Path(__file__).resolve(),ROOT/'tests/badge_home_admission.cpp']}
     native_digest=digest(a.native_elf) if a.native_elf else None
     incs=[N/x for x in ['src','sdk/app','sdk/driver','sdk/hardware','lib/ArduinoJson/src',
         'test','test/drivers/stubs','lib/elf_loader/include','test/native_bank_stubs']]+[out]
     flags=['-std=c++17','-Wall','-Wextra','-Werror','-Wno-missing-field-initializers',
            '-Wno-misleading-indentation','-rdynamic','-DRISC_APP_REQUIREMENT_ROWS=24']
-    quick=receipt.get('quick_actions',False)
-    if type(quick) is not bool:raise ValueError('Invalid QuickActions selection')
-    sync=receipt.get('time_server_sync',{}).get('enabled',False)
-    if type(sync) is not bool:raise ValueError('Invalid time sync selection')
-    if sync:flags+=['-DBADGE_TIME_SERVER_SYNC=1']
-    if quick:flags+=['-DRISC_RUNTIME_PREFERENCE_STORE=1','-DRISC_RUNTIME_ATOMIC_KEY_VALUE=0']
-    if a.prototype:
-        flags+=['-DBADGE_PROTOTYPE_ADMISSION=1','-DBADGE_EXPECTED_IMAGES='+str(sum(n.endswith('.elf') for n in store_before))]
     if a.native_elf:
         sys.path.insert(0,str(T/'scripts'))
         from verify_update_elf import cohort_admission_header
@@ -105,8 +94,8 @@ def main():
          '-o',out/'validate.o'],check=True)
     run([os.environ.get('CXX','c++'),*flags,*san,*include,*sources,ROOT/'tests/badge_home_admission.cpp',
          out/'validate.o','-ldl','-o',out/'admit'],check=True)
-    def admit(directory,small_kv=False,executable='admit'):
-        r=run([out/executable,directory,*(['small-kv'] if small_kv else [])],text=True,capture_output=True,
+    def admit(directory):
+        r=run([out/'admit',directory],text=True,capture_output=True,
               env={**os.environ,'ASAN_OPTIONS':'detect_leaks=0'})
         if not r.stdout.strip():raise RuntimeError(r.stderr)
         result=json.loads(r.stdout.splitlines()[-1])
@@ -115,16 +104,6 @@ def main():
     rc,positive=admit(store)
     if rc:raise ValueError('Real Runtime refused composed store: '+json.dumps(positive))
     refusals={}
-    if quick:
-        off=[f for f in flags if not f.startswith('-DRISC_RUNTIME_PREFERENCE_STORE=')]
-        run([os.environ.get('CXX','c++'),*off,*san,*include,*sources,ROOT/'tests/badge_home_admission.cpp',out/'validate.o','-ldl','-o',out/'admit-broker-off'],check=True)
-        code,result=admit(store,executable='admit-broker-off')
-        if code!=4 or 'preference' not in json.dumps(result).lower():raise ValueError('Missing broker was not refused: '+str(result))
-        refusals['missing-preference-broker']=result
-    if receipt.get('clock_edit_authority'):
-        code,result=admit(store,small_kv=True)
-        if code!=4:raise ValueError('Editor-aware service accepted insufficient bound KV capacity: '+str(result))
-        refusals['insufficient-bound-kv-capacity']=result
     with tempfile.TemporaryDirectory(prefix='badge-negative-') as tmp:
         damaged=Path(tmp)/'store'
         def edit(path,fn):
@@ -145,36 +124,17 @@ def main():
             'display-touch-reset-collision':lambda:edit('board.json',lambda b:next(d for d in b['devices'] if d['instance_id']==6)['config'].update(reset=1)),
             'duplicate-touch-compatibility':lambda:edit('touch/manifest.json',lambda m:m['hardware_compatibility'].append(copy.deepcopy(m['hardware_compatibility'][0]))),
             'unsupported-battery-grant':lambda:append_grant('board.battery'),
-            'unsupported-rtc-required':lambda:edit('default.json',lambda m:(m.update(requires=[d for d in m['requires'] if d['capability']!='rtc.clock']+[{'capability':'rtc.clock','api':2}]),m.update(optional=[d for d in m.get('optional',[]) if d['capability']!='rtc.clock']))),
+            'unsupported-rtc-required':lambda:edit('default.json',lambda m:(m['requires'].extend(d for d in m['optional'] if d['capability']=='rtc.clock'),m.update(optional=[d for d in m['optional'] if d['capability']!='rtc.clock']))),
             'missing-time-authority':lambda:edit('boot.json',lambda b:b['app_capabilities'][0].update(grants=[g for g in b['app_capabilities'][0]['grants'] if g['capability']!='runtime.realtime-control'])),
             'missing-promotion-authority':lambda:edit('boot.json',lambda b:b['app_capabilities'][0].update(grants=[g for g in b['app_capabilities'][0]['grants'] if g['capability']!='runtime.provider-promotion'])),
             'raw-platform-app-grant':lambda:(edit('default.json',lambda m:m['requires'].append({'capability':'platform.gpio','api':1})),append_grant('platform.gpio')),
         }
-        if quick:
-            cases['missing-preference-grant']=lambda:edit('boot.json',lambda b:b['app_capabilities'][0].update(grants=[g for g in b['app_capabilities'][0]['grants'] if g['capability']!='storage.preferences']))
-            cases['unsupported-preference-api']=lambda:edit('default.json',lambda m:next(d for d in m['requires'] if d['capability']=='storage.preferences').update(api=99))
-        if receipt.get('include_timecard') is True:
-            def timecard_grants(b):
-                return next(row for row in b['app_capabilities'] if row['manifest']=='timecard.json')
-            def timecard_appdata(b):
-                return next(g for g in timecard_grants(b)['grants'] if g['capability']=='storage.app-data')
-            def alias_private_namespace(b):
-                other=next(g['instance_id'] for row in b['app_capabilities'] if row['manifest']!='timecard.json' for g in row['grants'] if g['capability']=='storage.app-data')
-                timecard_appdata(b)['instance_id']=other
-            cases.update({
-                'timecard-missing-appdata':lambda:edit('boot.json',lambda b:timecard_grants(b).update(grants=[g for g in timecard_grants(b)['grants'] if g['capability']!='storage.app-data'])),
-                'timecard-zero-private-namespace':lambda:edit('boot.json',lambda b:timecard_appdata(b).update(instance_id=0)),
-                'timecard-private-namespace-alias':lambda:edit('boot.json',alias_private_namespace),
-                'timecard-unsupported-appdata-api':lambda:edit('timecard.json',lambda m:next(d for d in m['requires'] if d['capability']=='storage.app-data').update(api=99)),
-                'timecard-missing-preference-grant':lambda:edit('boot.json',lambda b:timecard_grants(b).update(grants=[g for g in timecard_grants(b)['grants'] if g['capability']!='storage.preferences'])),
-            })
         if a.native_elf:
             cases['invalid-home-elf']=lambda:(damaged/'default.elf').write_bytes(b'not an ELF')
             cases['missing-touch-elf']=lambda:(damaged/'touch/driver.elf').unlink()
         for name,mutate in cases.items():
             if damaged.exists():shutil.rmtree(damaged)
             shutil.copytree(store,damaged);mutate()
-            if files(damaged)==store_before:raise ValueError('Negative mutation was a no-op: '+name)
             code,result=admit(damaged)
             if code!=4:raise ValueError(f'Invalid store accepted: {name}: {result}')
             refusals[name]=result
@@ -183,7 +143,7 @@ def main():
     if store_before!=files(store):raise ValueError('Store changed during admission')
     if any(digest(Path(p))!=expected for p,expected in local_sources.items()):raise ValueError('Admission harness changed during run')
     if a.native_elf and native_digest!=digest(a.native_elf):raise ValueError('Native ELF changed during admission')
-    result={'schema':1,'quick_actions':quick,'verified_dependencies':verified,'source_sha256':local_sources,'store_files':store_before,'real_runtime_graph_admission':True,'target_images_checked':bool(a.native_elf),
+    result={'schema':1,'verified_dependencies':verified,'source_sha256':local_sources,'store_files':store_before,'real_runtime_graph_admission':True,'target_images_checked':bool(a.native_elf),
             'native_elf_sha256':native_digest,
             'hardware_io_calls':0,'positive':positive,'negative_cases':refusals,'commands':commands,
             'sanitize':a.sanitize,'leak_sanitizer':False,'physical_verified':False}

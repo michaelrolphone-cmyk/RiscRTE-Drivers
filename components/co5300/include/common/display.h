@@ -139,11 +139,9 @@ static void display_poll(uint32_t budget_ms) {
         const uint64_t began = timer->monotonic_ms(timer->context);
         present_state = RISC_DISPLAY_PRESENT_ACTIVE;
         /* Amortize owner-task scheduling across rows, without monopolizing it.
-         * The finite 128-row cap bounds a stopped/coarse clock while allowing
-         * inexpensive/skipped rows to use the available deadline. The legacy
-         * transport receives the remaining budget; a native backend retains
-         * its own bounded transaction completion/retention contract. */
-        for (unsigned rows = 0; rows < 128 && next_row < HEIGHT; ++rows) {
+         * The item cap also bounds a stopped/coarse clock. Every SPI transaction
+         * receives only the remainder of this poll's total time budget. */
+        for (unsigned rows = 0; rows < 32 && next_row < HEIGHT; ++rows) {
             uint64_t elapsed = timer->monotonic_ms(timer->context) - began;
             if (elapsed >= budget)
                 break;
