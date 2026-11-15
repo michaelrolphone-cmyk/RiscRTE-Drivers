@@ -171,9 +171,9 @@
     },
     {
       "id": "ble-sensors",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "source_path": "Drivers/ble_sensors",
-      "source_tree_sha": "a190629bc6beada053596d8950716e9a15a08b10"
+      "source_tree_sha": "62b13153c7764f6ae49b077f870160a0976a0ce3"
     },
     {
       "id": "ble-telemetry",

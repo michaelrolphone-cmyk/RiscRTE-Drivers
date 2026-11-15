@@ -1,0 +1,49 @@
+name: T061 receiver qualification
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qualification:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: michaelrolphone-cmyk/RiscRTE
+          ref: 6a3b3d46f5b2857eacc6e9863799dec1f466b036
+          path: .source/runtime
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verified selected GCC8 compiler
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/t061-toolchain"
+          cd "$RUNNER_TEMP/t061-toolchain"
+          curl --fail --location --retry 3 --output gcc8.tar.gz https://github.com/espressif/crosstool-NG/releases/download/esp-2021r2-patch5/xtensa-esp32s3-elf-gcc8_4_0-esp-2021r2-patch5-linux-amd64.tar.gz
+          test "$(stat -c %s gcc8.tar.gz)" = 68099473
+          echo '8aa17a6adf01efa5b1628c8ac578063a44d26ae9581d39486b92223a41ef262f  gcc8.tar.gz' | sha256sum --check
+          tar -xzf gcc8.tar.gz
+          echo "T061_CC=$PWD/xtensa-esp32s3-elf/bin/xtensa-esp32s3-elf-gcc" >> "$GITHUB_ENV"
+      - name: Normal, sanitized and repeated target qualification
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/qualify_t061.py --dependencies .source --compiler "$T061_CC" --output "$RUNNER_TEMP/t061-receiver"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: t061-receiver-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/t061-receiver/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30

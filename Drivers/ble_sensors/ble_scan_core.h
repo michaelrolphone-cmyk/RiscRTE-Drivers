@@ -14,7 +14,7 @@ typedef enum {BLE_IDLE,BLE_STARTING,BLE_SCANNING,BLE_COMPLETE,BLE_ERROR} ble_pha
 typedef struct {
  ble_device devices[BLE_MAX_DEVICES];unsigned count,dropped,malformed;
  ble_phase phase;unsigned command;uint16_t waiting;uint32_t command_at,scan_at;
- bool pending;uint8_t credits;const char *error;
+ bool pending,link_uncertain;uint8_t credits;const char *error;
 } ble_scan;
 static uint16_t ble_u16(const uint8_t*p){return (uint16_t)(p[0]|((uint16_t)p[1]<<8));}
 static void ble_service(ble_device*d,uint16_t value){
@@ -72,11 +72,20 @@ static bool ble_ad_valid(const uint8_t*p,size_t n){
  return true;
 }
 static void ble_ad(ble_device*d,const uint8_t*p,size_t n){
+ bool bthome_seen=false;
  for(size_t i=0;i<n;){unsigned size=p[i++];if(!size)break;unsigned type=p[i++];size--;const uint8_t*v=p+i;i+=size;
   if(type==8||type==9){size_t count=size<31?size:31;for(size_t j=0;j<count;j++)d->name[j]=(v[j]>=32&&v[j]<=126)?(char)v[j]:'?';d->name[count]=0;}
   if(type==2||type==3)for(unsigned j=0;j<size;j+=2)ble_service(d,ble_u16(v+j));
   if(type==0xff){d->company=ble_u16(v);d->has_company=true;}
-  if(type==0x16){uint16_t uuid=ble_u16(v);ble_service(d,uuid);if(uuid==0xfcd2)ble_bthome(d,v+2,size-2);}
+  if(type==0x16){uint16_t uuid=ble_u16(v);ble_service(d,uuid);if(uuid==0xfcd2){
+   if(!bthome_seen){ble_bthome(d,v+2,size-2);bthome_seen=true;}
+   else {
+    /* Multiple BTHome service-data fields are one ambiguous advertisement,
+     * never a last-field-wins reading. Preserve presence, invalidate sample. */
+    d->measurement_invalid=true;d->has_battery=d->has_temperature=d->has_humidity=false;
+    d->reading_count=0;memset(d->readings,0,sizeof(d->readings));
+   }
+  }}
  }
 }
 /* Validate every report before mutating the table, including multi-report
@@ -114,8 +123,13 @@ static size_t ble_command(ble_scan*s,uint8_t out[16],uint32_t now){
  s->pending=true;s->credits=0;s->waiting=opcode;s->command_at=now;return 3u+out[2];
 }
 static void ble_event(ble_scan*s,uint8_t type,const uint8_t*p,size_t n,uint32_t now){
- if(type!=4)return;
- if(n<2||n!=2u+p[1]){if(s->malformed!=UINT32_MAX)s->malformed++;return;}
+ if(type!=4){s->link_uncertain=true;return;}
+ if(n<2||n!=2u+p[1]){s->link_uncertain=true;if(s->malformed!=UINT32_MAX)s->malformed++;return;}
+ /* No-link proof is scoped to this reset passive host. Any observed link,
+  * unknown LE topology or unexpected reset invalidates it until a new scan. */
+ if(p[0]==0x03||p[0]==0x05||(p[0]==0x3e&&(n<3||p[2]!=2))||
+    (p[0]==0x0e&&n>=5&&ble_u16(p+3)==0x0c03&&(!s->pending||s->waiting!=0x0c03)))
+  s->link_uncertain=true;
  if(p[0]==0x0e && n>=5)s->credits=p[2];
  if(p[0]==0x0f && n==6)s->credits=p[3];
  if(p[0]==0x10){ble_fail(s,"Controller error");return;}
