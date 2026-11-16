@@ -85,6 +85,7 @@ jobs:
         run: |
           set -euo pipefail
           source "$IDF_PATH/export.sh" >/dev/null
+          python "$BADGE_PROTOTYPE_ROOT/drivers/tests/test_badge_native_profiles.py"
           python "$BADGE_PROTOTYPE_ROOT/drivers/scripts/run_badge_prototype_ci.py" \
             --workspace "$BADGE_PROTOTYPE_ROOT" --idf "$IDF_PATH" \
             --cc "$(command -v xtensa-esp32s3-elf-gcc)" \

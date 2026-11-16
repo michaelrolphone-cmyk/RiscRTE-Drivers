@@ -9,6 +9,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -45,15 +46,31 @@ def run(command, log, env):
         raise RuntimeError(f'Command failed ({result.returncode}); full log: {log}')
 
 
-def local_sources():
-    paths = sorted([p for directory in (BOARD,ROOT/'components/co5300/native',ROOT/'components/co5300/include')
+def selected_profile(prototype=False):
+    board = BOARD.parent / 'prototype/native' if prototype else BOARD
+    revision = RUNTIME_REVISION
+    if prototype:
+        lock = json.loads((board.parent / 'sources.lock.json').read_text())
+        runtime = lock['runtime']
+        if (runtime.get('repository') != 'michaelrolphone-cmyk/RiscRTE' or
+                not re.fullmatch(r'[0-9a-f]{40}', runtime.get('commit', ''))):
+            raise ValueError('Prototype requires an exact owning Runtime source lock')
+        revision = runtime['commit']
+    return board, revision
+
+
+def local_sources(board=BOARD):
+    paths = sorted([p for directory in (BOARD,board,ROOT/'components/co5300/native',ROOT/'components/co5300/include')
                     for p in directory.rglob('*') if p.is_file()] +
                    [BOARD.parent/'display-profile.h',Path(__file__),ROOT/'test/test_badge_native.py'])
+    if board != BOARD:paths.append(board.parent/'sources.lock.json')
     return {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
 
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--prototype', action='store_true', help='Select the exact prototype profile and source lock')
+    p.add_argument('--quick-actions', action='store_true', help='Select the copied preference broker; requires prototype')
     p.add_argument('--runtime', required=True, type=Path)
     p.add_argument('--idf', required=True, type=Path)
     p.add_argument('--cc', required=True, type=Path)
@@ -61,13 +78,15 @@ def main():
                    help='Python in an installed ESP-IDF 6.1 environment')
     p.add_argument('--output', required=True, type=Path)
     a = p.parse_args()
+    if a.quick_actions and not a.prototype:p.error('quick-actions requires prototype')
     runtime, idf, cc, python, out = [getattr(a, name).absolute()
                                     for name in ('runtime', 'idf', 'cc', 'python', 'output')]
     out.mkdir(parents=True, exist_ok=True)
     # Clear stale success even when pin/compiler preflight fails.
     (out / 'build-proof.json').unlink(missing_ok=True)
+    board, runtime_revision = selected_profile(a.prototype)
     # Preserve the ESP32-S3 frontend symlink: resolving it changes GCC target.
-    pinned_checkout(runtime, RUNTIME_REVISION, 'Runtime')
+    pinned_checkout(runtime, runtime_revision, 'Runtime')
     pinned_checkout(idf, IDF_REVISION, 'ESP-IDF')
     version = output([cc, '--version'])
     if output([cc, '-dumpfullversion']) != '15.2.0' or TOOLCHAIN not in version:
@@ -82,32 +101,39 @@ def main():
     ninja = shutil.which('ninja', path=env['PATH'])
     if not cmake or not ninja:
         raise RuntimeError('Install/export ESP-IDF CMake and Ninja before building')
-    before = local_sources()
+    before = local_sources(board)
     build = out / 'build'
-    profile = BOARD / 'product-profile.cmake'
+    profile = board / 'product-profile.cmake'
     run([cmake, '-S', runtime / 'idf', '-B', build, '-G', 'Ninja',
          '-DCMAKE_TOOLCHAIN_FILE=' + str(idf / 'tools/cmake/toolchain-esp32s3.cmake'),
          '-DPYTHON=' + str(python), '-DRISC_PRODUCT_PROFILE=' + str(profile),
-         '-DRISC_SOURCE_SHA=' + RUNTIME_REVISION], out / 'configure.log', env)
+         '-DRISC_SOURCE_SHA=' + runtime_revision,
+         *(['-DRISC_BADGE_QUICK_ACTIONS=' + ('ON' if a.quick_actions else 'OFF')] if a.prototype else [])], out / 'configure.log', env)
     run([cmake, '--build', build, '--', '-j1'], out / 'build.log', env)
-    if before != local_sources():raise RuntimeError('Native source bytes changed during build')
-    pinned_checkout(runtime,RUNTIME_REVISION,'Runtime')
+    if before != local_sources(board):raise RuntimeError('Native source bytes changed during build')
+    pinned_checkout(runtime,runtime_revision,'Runtime')
     pinned_checkout(idf,IDF_REVISION,'ESP-IDF')
-    qualify(runtime, idf, cc, python, out, env, version, before)
+    qualify(runtime, idf, cc, python, out, env, version, before, a.prototype, a.quick_actions)
 
 
-def qualify(runtime, idf, cc, python, out, env, version, before):
+def qualify(runtime, idf, cc, python, out, env, version, before, prototype=False, quick_actions=False):
     """Audit a completed link without rebuilding or changing its image bytes."""
+    if quick_actions and not prototype:raise ValueError("quick-actions requires prototype")
+    board, runtime_revision = selected_profile(prototype)
     build = out / 'build'
     run([python, runtime / 'test/native_firmware_idf6_test.py', '--build', build,
          '--cxxfilt', cc.with_name('xtensa-esp-elf-c++filt')], out / 'runtime-proof.log', env)
     run([python, ROOT / 'test/test_badge_native.py', '--build', build,
-         '--runtime', runtime], out / 'badge-proof.log', env)
-    if before != local_sources():raise RuntimeError('Native source bytes changed during qualification')
-    pinned_checkout(runtime,RUNTIME_REVISION,'Runtime')
+         '--runtime', runtime, *(['--prototype'] if prototype else []),
+         *(['--quick-actions'] if quick_actions else [])], out / 'badge-proof.log', env)
+    if before != local_sources(board):raise RuntimeError('Native source bytes changed during qualification')
+    pinned_checkout(runtime,runtime_revision,'Runtime')
     pinned_checkout(idf,IDF_REVISION,'ESP-IDF')
     report = {
-        'runtime_revision': RUNTIME_REVISION, 'idf_revision': IDF_REVISION,
+        'runtime_revision': runtime_revision, 'prototype': prototype, 'quick_actions': quick_actions,
+        'preference_store': {'enabled': quick_actions, 'atomic_key_value': False,
+                             'backend': 'existing namespace KV copied synchronous operations' if quick_actions else None},
+        'idf_revision': IDF_REVISION,
         'compiler': version, 'jobs': 1, 'hardware_qualified': False,
         'boot_store_included': False, 'full_link': True,
         'sources_sha256': before,

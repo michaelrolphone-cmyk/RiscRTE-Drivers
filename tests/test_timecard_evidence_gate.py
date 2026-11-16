@@ -1,4 +1,5 @@
-import copy,importlib.util,pathlib,unittest
+import copy,importlib.util,pathlib,unittest,sys
+sys.path.insert(0,str(pathlib.Path(__file__).resolve().parents[1]/'scripts'))
 p=pathlib.Path(__file__).resolve().parents[1]/'scripts/timecard_evidence_gate.py'
 spec=importlib.util.spec_from_file_location('timecard_evidence_gate',p);g=importlib.util.module_from_spec(spec);spec.loader.exec_module(g)
 class TimecardGateTests(unittest.TestCase):

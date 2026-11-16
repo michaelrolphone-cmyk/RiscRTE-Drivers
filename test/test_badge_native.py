@@ -13,14 +13,33 @@ ROOT = Path(__file__).resolve().parents[1]
 BOARD = ROOT / 'boards/waveshare-esp32-s3-touch-amoled-1.75c'
 
 
-def verify(build, runtime):
+def verify_profile_definitions(args, prototype=False, quick_actions=False):
+    assert not quick_actions or prototype, 'Quick requires the prototype profile'
+    def definitions(name):
+        return [arg for arg in args if arg == '-D'+name or arg.startswith('-D'+name+'=') or
+                arg == '-U'+name]
+    preference = definitions('RISC_RUNTIME_PREFERENCE_STORE')
+    atomic = definitions('RISC_RUNTIME_ATOMIC_KEY_VALUE')
+    assert preference == ['-DRISC_RUNTIME_PREFERENCE_STORE=1'] if quick_actions else preference in ([], ['-DRISC_RUNTIME_PREFERENCE_STORE=0'])
+    assert atomic == ['-DRISC_RUNTIME_ATOMIC_KEY_VALUE=0'] if quick_actions else atomic in ([], ['-DRISC_RUNTIME_ATOMIC_KEY_VALUE=0'])
+    required = {'RISC_PAIRED_APP_DATA':'1', 'RISC_NATIVE_APP_DATA_MOUNT':'1',
+                'RISC_NATIVE_STANDALONE_APP_DATA':'1', 'RISC_NATIVE_APP_DATA_OFFSET':'0x1f00000',
+                'RISC_NATIVE_APP_DATA_BYTES':'0x100000', 'RISC_NATIVE_FLASH_BYTES':'0x2000000'}
+    for name, value in required.items():
+        actual = definitions(name)
+        if prototype:assert actual == ['-D'+name+'='+value], name
+        elif name == 'RISC_PAIRED_APP_DATA':assert not actual, name
+
+
+def verify(build, runtime, prototype=False, quick_actions=False):
+    assert not quick_actions or prototype
     config = json.loads((build / 'config/sdkconfig.json').read_text())
     assert config['ESPTOOLPY_FLASHSIZE'] == '32MB'
     assert config['SPIRAM'] and config['SPIRAM_MODE_OCT']
     assert config['SPIRAM_ALLOW_BSS_SEG_EXTERNAL_MEMORY']
     assert config['LIBC_TIME_SYSCALL_USE_RTC_HRT']
     assert config['SPIFFS_PAGE_SIZE'] == 512
-    assert config['PARTITION_TABLE_CUSTOM_FILENAME'] == str(BOARD / 'native/partitions.csv')
+    assert config['PARTITION_TABLE_CUSTOM_FILENAME'] == str(BOARD / ('prototype/native/partitions.csv' if prototype else 'native/partitions.csv'))
     rows = json.loads((build / 'compile_commands.json').read_text())
     required = (
         runtime / 'src/bootstrap/Runtime.cpp',
@@ -35,11 +54,12 @@ def verify(build, runtime):
         args = matched[0].get('arguments') or shlex.split(matched[0]['command'])
         assert '-DRISC_NATIVE_ESP_IDF=1' in args
         assert '-DRISC_APP_REQUIREMENT_ROWS=24' in args
+        verify_profile_definitions(args, prototype, quick_actions)
         assert not any(arg.startswith('-DRISC_APP_POLICY_ROWS=') for arg in args)
         assert str(BOARD / 'display-profile.h') in args
         # These are compile-time feature gates, not an ABI implemented by stubs.
         for excluded in ('RISC_ENABLE_SDMMC', 'RISC_ENABLE_RADIO_IQ',
-                         'RISC_PAIRED_BANKS', 'RISC_PAIRED_APP_DATA'):
+                         'RISC_PAIRED_BANKS', *([] if prototype else ['RISC_PAIRED_APP_DATA'])):
             assert not any(arg.startswith('-D' + excluded) for arg in args), excluded
     forbidden = {str(BOARD / 'touch-startup.c'), str(BOARD / 'startup.c'),
                  str(ROOT / 'boards/common/prepare.c')}
@@ -75,20 +95,23 @@ def verify(build, runtime):
         if magic != 0x50aa:
             break
         parts.append((name.rstrip(b'\0').decode(), kind, subkind, start, size, flags))
-    assert parts == [
+    expected = [
         ('nvs', 1, 2, 0x9000, 0x6000, 0),
         ('factory', 0, 0, 0x10000, 0x300000, 0),
-        ('bootfs', 1, 0x82, 0x310000, 0x1cf0000, 0),
-    ], parts
+        ('bootfs', 1, 0x82, 0x310000, 0x1bf0000 if prototype else 0x1cf0000, 0),
+    ]
+    if prototype:expected.append(('appdata', 1, 0x41, 0x1f00000, 0x100000, 0))
+    assert parts == expected, parts
     page_size = config['SPIFFS_PAGE_SIZE']
     assert 0x1cf0000 // page_size <= 65535
     assert 2 + 2 * (0x1cf0000 // (2 * page_size)) <= 65535
     assert (build / 'riscrte_native.bin').stat().st_size <= 0x300000
-    proof = {'linked_native_selection': True, 'hardware_qualified': False,
+    proof = {'linked_native_selection': True, 'prototype': prototype,
+             'quick_actions': quick_actions, 'hardware_qualified': False,
              'display': {'width': 466, 'height': 466, 'offset_x': 6, 'offset_y': 0},
              'flash_bytes': 32 * 1024 * 1024, 'psram_expected_bytes': 8 * 1024 * 1024,
              'application_requirement_rows': 24, 'application_live_grants': 16,
-             'bootfs': {'offset': 0x310000, 'bytes': 0x1cf0000, 'page_size': page_size,
+             'bootfs': {'offset': 0x310000, 'bytes': 0x1bf0000 if prototype else 0x1cf0000, 'page_size': page_size,
                         'object_name_length': config['SPIFFS_OBJ_NAME_LEN'],
                         'metadata_length': config['SPIFFS_META_LENGTH'],
                         'use_magic': config['SPIFFS_USE_MAGIC'],
@@ -103,10 +126,12 @@ def verify(build, runtime):
     return proof
 
 
-def negative_checks(build, runtime):
+def negative_checks(build, runtime, prototype=False, quick_actions=False):
     """Mutate copied evidence and require the same linked-target checker to fail."""
     cases = ['wrong-flash-size', 'wrong-spiffs-pages', 'missing-native-backend',
              'native-touch-reset', 'wrong-partition-bytes', 'wrong-panel-marker']
+    if prototype:cases += ['missing-appdata-definition', 'wrong-appdata-definition', 'duplicate-appdata-definition', 'undefine-appdata-definition']
+    if quick_actions:cases += ['missing-preference-broker', 'conflicting-atomic-key-value']
     with tempfile.TemporaryDirectory(prefix='badge-native-negatives-') as temp:
         root = Path(temp)
         for case in cases:
@@ -144,13 +169,32 @@ def negative_checks(build, runtime):
                 else:
                     rows.append({'file': str(BOARD / 'touch-startup.c'), 'arguments': []})
                 path.write_text(json.dumps(rows))
+            elif case in ('missing-appdata-definition', 'wrong-appdata-definition',
+                          'duplicate-appdata-definition', 'undefine-appdata-definition',
+                          'missing-preference-broker', 'conflicting-atomic-key-value'):
+                path = trial / 'compile_commands.json'
+                rows = json.loads(path.read_text())
+                row = next(r for r in rows if r['file'].endswith('/src/ports/esp32s3/CpuPort.cpp'))
+                args = row.get('arguments') or shlex.split(row['command'])
+                name = ('RISC_RUNTIME_PREFERENCE_STORE' if case == 'missing-preference-broker'
+                        else 'RISC_RUNTIME_ATOMIC_KEY_VALUE' if case == 'conflicting-atomic-key-value'
+                        else 'RISC_NATIVE_APP_DATA_BYTES')
+                if case.startswith(('missing', 'wrong')):
+                    args = [x for x in args if not x.startswith('-D'+name+'=')]
+                if case == 'wrong-appdata-definition':args.append('-D'+name+'=0x200000')
+                if case == 'duplicate-appdata-definition':args.append('-D'+name+'=0x100000')
+                if case == 'undefine-appdata-definition':args.append('-U'+name)
+                if case == 'conflicting-atomic-key-value':args.append('-D'+name+'=1')
+                row['arguments'] = args
+                row.pop('command', None)
+                path.write_text(json.dumps(rows))
             elif case == 'wrong-partition-bytes':
                 path = trial / 'partition_table/partition-table.bin'
                 raw = bytearray(path.read_bytes())
                 struct.pack_into('<I', raw, 64 + 8, 0x4f0000)
                 path.write_bytes(raw)
             try:
-                verify(trial, runtime)
+                verify(trial, runtime, prototype, quick_actions)
             except AssertionError:
                 continue
             raise AssertionError('Mutated native evidence was accepted: ' + case)
@@ -159,14 +203,17 @@ def negative_checks(build, runtime):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--prototype', action='store_true')
+    parser.add_argument('--quick-actions', action='store_true')
     parser.add_argument('--build', required=True, type=Path)
     parser.add_argument('--runtime', required=True, type=Path)
     args = parser.parse_args()
+    if args.quick_actions and not args.prototype:parser.error('quick-actions requires prototype')
     build, runtime = args.build.resolve(), args.runtime.resolve()
-    proof = verify(build, runtime)
-    proof['rejected_mutations'] = negative_checks(build, runtime)
+    proof = verify(build, runtime, args.prototype, args.quick_actions)
+    proof['rejected_mutations'] = negative_checks(build, runtime, args.prototype, args.quick_actions)
     (build / 'qualification/badge-native.json').write_text(json.dumps(proof, indent=2) + '\n')
-    print('Linked Badge native profile, real CPU port, panel selection, flash layout and six negative cases: PASS')
+    print('Linked Badge native profile, real CPU port, panel selection, flash layout and selected-profile negative cases: PASS')
 
 
 if __name__ == '__main__':
