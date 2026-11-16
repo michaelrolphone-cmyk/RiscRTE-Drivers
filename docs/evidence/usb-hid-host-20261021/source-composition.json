@@ -1,0 +1,530 @@
+{
+  "schema": 1,
+  "observed_at": "2026-10-21T10:50:56Z",
+  "method": "Read-only remote main verification with git ls-remote; immutable Git source reads; local C fixture execution. Released binary identities below are recorded product evidence, not freshly downloaded/rehashed releases.",
+  "repositories": {
+    "Drivers": {
+      "commit": "a7ae39994603c4545a3c014f09051ecfc12084d2",
+      "tree": "94b9d146c3adf962b6f6ddae4b54345ed3b36050",
+      "files": {
+        "Drivers/usb_controller_esp32s3/manifest.json": {
+          "git_blob": "f3bc033268a7cf232a68b6687e6b5697a4dd3913",
+          "bytes": 397,
+          "sha256": "3f01e6c2033d155911d7e0411133e4f4cb877e9274a1b48c4d12f5d88ea64dce"
+        },
+        "Drivers/usb_hid/driver.c": {
+          "git_blob": "f404a73dcea13d4a01d51efa4205e64644fb78d2",
+          "bytes": 12286,
+          "sha256": "b2c9aea4281243c6a91c8f11b9ee9f2ffb3e43337bc671286cefcea26dbf8267"
+        },
+        "Drivers/usb_hid/manifest.json": {
+          "git_blob": "62764e45e75d40623ae2bbce1268c8f0c6188d3b",
+          "bytes": 295,
+          "sha256": "1df206f0bf6e82195e296228a55fbedb76f95b4546541dd3be54b3c05abfe9b3"
+        },
+        "Drivers/usb_hid_gamepad/StateMailbox.h": {
+          "git_blob": "9b6dc1e4c8ecf8ddc2d64da4e862f86b3a530793",
+          "bytes": 1441,
+          "sha256": "9ce3b77ea447af140893013d5d8fa9970906c44e4635e8c3dfbc4e817dab75b7"
+        },
+        "Drivers/usb_hid_gamepad/driver.c": {
+          "git_blob": "0e31b792cf9ff982ef4769afedae4de764333469",
+          "bytes": 22006,
+          "sha256": "d07a775bcf0ab159e6efa9ff0476fe17ec9ce0029e8006a8579c10d01aba9cf7"
+        },
+        "Drivers/usb_hid_gamepad/manifest.json": {
+          "git_blob": "ed8ded3575458372f88fb5fd6a55d9bc28b49789",
+          "bytes": 354,
+          "sha256": "9e0a270d5790777e1e52e3d144dfcad8d4ec1ed16c028df2288ca0ff839fe68c"
+        },
+        "Drivers/usb_hid_keyboard/driver.c": {
+          "git_blob": "859071a1b6e34ae5a72eac04b74aa507c80d3eb4",
+          "bytes": 10480,
+          "sha256": "2b91319f239033c3613ba37d4840411480ff5cb6e8496688b5122780bc8a8a87"
+        },
+        "Drivers/usb_hid_keyboard/manifest.json": {
+          "git_blob": "010b7f9bde0418dfa7ec51117a85391ebe8f4319",
+          "bytes": 312,
+          "sha256": "7bed05bd93f8236cb8cf2aec7182b45dd1bf830d15a9f927f673166a34fdcb2d"
+        },
+        "Drivers/usb_hid_text_input/driver.c": {
+          "git_blob": "8020d667589106419a2149e123013387e5d3fb21",
+          "bytes": 10681,
+          "sha256": "f6a04dd121ade8745769443bd05eb63234448fc1b9afad503fb3ce5dd6285652"
+        },
+        "Drivers/usb_hid_text_input/manifest.json": {
+          "git_blob": "34c6503c00d5daa9e221c8eb3de6236b49f344b2",
+          "bytes": 325,
+          "sha256": "d9db047b0ca72fc8f27d21995abaa9ae3486f1231243c67e1f83d2d2a908126a"
+        },
+        "Drivers/usb_host_v2/driver.c": {
+          "git_blob": "5cdddf061b454d514f237ffcdc9a77341b6e238c",
+          "bytes": 15075,
+          "sha256": "1ad22922d3dd6dafe221433637045f1025c848752669623ec816f341e8becae0"
+        },
+        "Drivers/usb_host_v2/manifest.json": {
+          "git_blob": "d8a99460b5d70e63ab61f5e891500458052922ce",
+          "bytes": 306,
+          "sha256": "16aabcba5a4a386d30dd927cf8ba0570b45920af784056e62890fbbd6e0fcf48"
+        },
+        "Drivers/usb_ui_navigation/driver.c": {
+          "git_blob": "79221497c5d1ec1eae471b4b602124bd8530b04c",
+          "bytes": 10418,
+          "sha256": "eb42e2c39bf04440f40359c639fc076bb54ffb0780efac4f20ed561b44c6ddb8"
+        },
+        "Drivers/usb_ui_navigation/manifest.json": {
+          "git_blob": "d62e276cf0f479e3ab4218153f050c7ebdc821d5",
+          "bytes": 425,
+          "sha256": "7f258412063d49b3739f9fad8a4064542b936bd58f4dc2f115f0788942d6d55a"
+        },
+        "Drivers/usb_xinput_gamepad/driver.c": {
+          "git_blob": "7f68505443ffafe3ac3f2cb6f24e3ca5315b98b3",
+          "bytes": 17444,
+          "sha256": "a9a3f2aff9a9a50d25c3fd875e279f310981c8d3f525ab0cb5cabfbdf0fc4e32"
+        },
+        "Drivers/usb_xinput_gamepad/manifest.json": {
+          "git_blob": "54566d90d5b4899601e1b32f267e42b0d30159d8",
+          "bytes": 361,
+          "sha256": "acc0cb60b4465034440941470f43b8f75f47a126301fca210a319dcfbdae6be7"
+        },
+        "dist/xteink-x4-pro/load-order.json": {
+          "git_blob": "1ef0c79b222d640b11241fed0dec33c9cb0eae0a",
+          "bytes": 491,
+          "sha256": "551f8be714f51c54d2009d4e343ba24de1bf2225045cccb9aa14388797ae6b22"
+        },
+        "manifest/released-drivers.json": {
+          "git_blob": "fc59495eb96f8147e578467dcb7f575764729dcf",
+          "bytes": 4575,
+          "sha256": "0688044be40b198fd2204856ff4b05a5946083379d411a75e2d94575e00f880a"
+        },
+        "sdk/driver/RiscAudioPcmV1.h": {
+          "git_blob": "3dd556593befd134ecd5de4c1db3afb5f3ad5566",
+          "bytes": 1343,
+          "sha256": "2a7c5417aa4453440e3b8112d664a93530aeb4d5567a3b2eb3c93f929a46d321"
+        },
+        "sdk/driver/RiscAudioV1.h": {
+          "git_blob": "8ca2e55620ad9eba214a3c120642ace219ec1d64",
+          "bytes": 1007,
+          "sha256": "46c362397b6ce9754261a05a111b8c43aea32adccf83e1f3491cef5e895b607f"
+        },
+        "sdk/driver/RiscBatteryGaugeV1.h": {
+          "git_blob": "5a9294fbb8aaea67913c82300cfcd199721451fb",
+          "bytes": 654,
+          "sha256": "e63ec549baa5a263f325990320ff7cffb210c8149a1a3fb29e2e7f65f9a1c5bb"
+        },
+        "sdk/driver/RiscBluetoothHidV1.h": {
+          "git_blob": "8bff7f13443bdfd5e5855552cf1500f90b731aca",
+          "bytes": 3278,
+          "sha256": "ccac0a0c70b6aa73233201c1289a6825b6976d8d6b1758e394995eed234bf1b7"
+        },
+        "sdk/driver/RiscBluetoothHostV1.h": {
+          "git_blob": "6e4d1816f9525f06dbe124ba66109c6e59d16ae5",
+          "bytes": 1305,
+          "sha256": "d3846ce9597357772ad37739a1919e28a15790d9d2067be3060dabe976d27156"
+        },
+        "sdk/driver/RiscBluetoothSensorsV1.h": {
+          "git_blob": "a6b7b8abaeda776e75c7ef63e5cf3b4413169877",
+          "bytes": 2026,
+          "sha256": "62f21be78604b6c32c47beb8317f1fea059653b407baa73a93ee23ce8d8d050e"
+        },
+        "sdk/driver/RiscBluetoothTelemetryV1.h": {
+          "git_blob": "d5e20e1ac8b0afac0e75bde35712664640fffd1c",
+          "bytes": 1702,
+          "sha256": "f98aaff4165ee3816846cfe9ba110e8bafce403342a870162eb1089a03d935a6"
+        },
+        "sdk/driver/RiscBoundKeyValueV1.h": {
+          "git_blob": "930f1b6d934b6957fad2cc5842b11b4646185452",
+          "bytes": 2550,
+          "sha256": "0d77dffef1e6513cbf9b3cf38266f7c9ebcc25d000605838821241ba742cd672"
+        },
+        "sdk/driver/RiscBq25896ProfileV1.h": {
+          "git_blob": "0523df41c0d100bf065819372cb871c601317eb9",
+          "bytes": 1764,
+          "sha256": "04e33c1b5a3385c2bedf275b85aa62a5dbfbec8cb38c2f3879ebb413e70a0c98"
+        },
+        "sdk/driver/RiscDisplayOutputV1.h": {
+          "git_blob": "97d13f212598fb3ae5e189809d9086cd3d0d24f9",
+          "bytes": 4478,
+          "sha256": "8111c8fb6d28542f3d2f5ae7ce7497891b1c89bd2488735c817542b955bdd726"
+        },
+        "sdk/driver/RiscDisplayPowerV1.h": {
+          "git_blob": "6c10664c3be651a7ff0f1f31bcd3025ffb3e4950",
+          "bytes": 1106,
+          "sha256": "4ba5303d82c1b9a97ba1abada14456f882e449331bc04bf9caa70ded23d1560b"
+        },
+        "sdk/driver/RiscFirmwareI2cCompatV1.h": {
+          "git_blob": "4a201a6ccaeb961cd6d917bf6cf817250d984c8b",
+          "bytes": 778,
+          "sha256": "4abe4c6d4b83432bd76ca8fdbf9502dfbab25f5579ae0acd6de367cc133bb0ef"
+        },
+        "sdk/driver/RiscFrontlightV1.h": {
+          "git_blob": "7a9799c8b28fa3232ecb170968e88aad3d80ae4b",
+          "bytes": 505,
+          "sha256": "202f9f4b5e00452d80f2bda836327a121e23437280f166bbf45c64764ba15d9d"
+        },
+        "sdk/driver/RiscGpioBankV1.h": {
+          "git_blob": "e119d171b45fe850bc168ce20b2be4c1d7caf6ff",
+          "bytes": 857,
+          "sha256": "f508f8cdfe6e880c911982e2a27e54d8e0ec5d9d906bccf1e0aef0fd67b5fbbd"
+        },
+        "sdk/driver/RiscI2cBusV1.h": {
+          "git_blob": "30f33092c57800714f0145063842d90765ed8317",
+          "bytes": 1836,
+          "sha256": "a6b769efbbf7f3837a6a348689b0aee84bf687ae8e18a31d0296f3bfa6ac2004"
+        },
+        "sdk/driver/RiscInputNavigationV1.h": {
+          "git_blob": "615b6b8140f443e854dd93e3c4f91aced5eff4ce",
+          "bytes": 1713,
+          "sha256": "2644754feb7238d066908658ac9d4fe25537d4d5e424a6aef1365fabea600a26"
+        },
+        "sdk/driver/RiscMspFetV1.h": {
+          "git_blob": "290eae0e35d1b3f4c3019fefaa22a498e2e71ca6",
+          "bytes": 2419,
+          "sha256": "883879ee0ce2ac3ff5df42eb549a856557132a4da5a1dfe22edff8ad8c4e015b"
+        },
+        "sdk/driver/RiscPlatformClockV1.h": {
+          "git_blob": "33a5b27dcea7e30698d0177ad5db065166082194",
+          "bytes": 592,
+          "sha256": "41a12f6529f38731ee874f8bc166e1cf89fe376a1448fe5a4dd4c9abac90e5e2"
+        },
+        "sdk/driver/RiscPowerKeyV1.h": {
+          "git_blob": "2ce7240a42bfc324e2b5da4c6c2d11a1f9147d0c",
+          "bytes": 634,
+          "sha256": "65acb08b7527a7597ea24a6adae6d70e7182413705b957cdb88e27e2a985e75f"
+        },
+        "sdk/driver/RiscPowerSleepV1.h": {
+          "git_blob": "0a240ff6c1b9d8e3832a0293eccd688d1cf1e926",
+          "bytes": 1542,
+          "sha256": "2ca96de4ddb76b511c2b9d23571a060e19efff3ebf793714324c5ac012c5179c"
+        },
+        "sdk/driver/RiscProgramMspV1.h": {
+          "git_blob": "90341072516af35761fdd8b1a511ccda592330a9",
+          "bytes": 1672,
+          "sha256": "fd1a7c6ebdfdaeb951c3b82abf2baca6f84f4a4e533841c12d2eb81ff2e0166f"
+        },
+        "sdk/driver/RiscProviderV2.h": {
+          "git_blob": "4bdba1740d5788485ea10cad65a13be739c192fc",
+          "bytes": 2246,
+          "sha256": "358ac93f86a3e228c2a9c9cfca0b758571db43453bce1e4c5e38402096064ea0"
+        },
+        "sdk/driver/RiscRadioIqResourceV1.h": {
+          "git_blob": "4f408eefa91c89bfe1f9a2827a330827838bef1c",
+          "bytes": 635,
+          "sha256": "dd6a9684d5be6203846b5ee06f685ca3dae6835d1e3b95821c336a48b5fa3827"
+        },
+        "sdk/driver/RiscRadioIqV1.h": {
+          "git_blob": "7f4aa575366ab86bba0bbfbea88ca35053e75959",
+          "bytes": 6404,
+          "sha256": "7b6e99c6a886b9445ffae7c3471c4f9867b8af9329924710203db5b99764bd2f"
+        },
+        "sdk/driver/RiscStlinkV1.h": {
+          "git_blob": "6540af993431b2bf39a088dd96029e8659a8279e",
+          "bytes": 2546,
+          "sha256": "1261bd3a8ed77646d03a686cb13b72461ca9ca040ef81d48329e92228461ed8d"
+        },
+        "sdk/driver/RiscStorageVolumeV1.h": {
+          "git_blob": "69b7a67999a2ae52c87c96c4efab0bec0918c3e6",
+          "bytes": 2251,
+          "sha256": "96902eb6cca4356d44066798d0edb1260e32ae23721a401404450cdb191cd7e7"
+        },
+        "sdk/driver/RiscTelemetryV1.h": {
+          "git_blob": "6f061f953385511bda8d5135053bc7c825715a9e",
+          "bytes": 1107,
+          "sha256": "8ef64c586e8392c1d7521498c25cfdaccefd53242530e2dda9116e9cc12a5d48"
+        },
+        "sdk/driver/RiscTextInputV1.h": {
+          "git_blob": "1569cac0e7abef3f8d746f0d126430a65987a253",
+          "bytes": 2094,
+          "sha256": "32f2a6cda3b7a4fef8487cc046ceb891261e483feafed32908cbd924112a1a77"
+        },
+        "sdk/driver/RiscTouchV1.h": {
+          "git_blob": "6f6ba399424b4f1984d73b3d0a881b1db5c64561",
+          "bytes": 2703,
+          "sha256": "fe18fab3ac20fda95747388f1428408b7795e5da3511c7a9fff07c16ddfd2c7d"
+        },
+        "sdk/driver/RiscUsbControllerV1.h": {
+          "git_blob": "348b5b478f23f5893ff33dffcb4359f694712fd0",
+          "bytes": 3061,
+          "sha256": "2fb2908caee99b0822838956f33cf8302db9d2cbd0600a9eed21fcce5f68232b"
+        },
+        "sdk/driver/RiscUsbDiscoveryDiagnosticsV1.h": {
+          "git_blob": "48b879d8dc0cc01e22ba647db274513e2e3c76f8",
+          "bytes": 672,
+          "sha256": "b0a2652e3724f5cb3003485397fae860a6f49a38092d5f30345573ec8931c4d7"
+        },
+        "sdk/driver/RiscUsbGamepadDiagnosticsV1.h": {
+          "git_blob": "75e2f396069663d9d0be21440681a4810aca9e61",
+          "bytes": 645,
+          "sha256": "b58df5e7618f8a0e3e58ae023fd034c96ff9f7d04b6c35080a4b6661a064ae0a"
+        },
+        "sdk/driver/RiscUsbHidV1.h": {
+          "git_blob": "47913ebeda94dcc4138173be45eafe9315191e91",
+          "bytes": 4383,
+          "sha256": "5b5549c4cb718dec55f2aca8bc93f401b2d5a703d30aaa1a78d1bcdd26755b5c"
+        },
+        "sdk/driver/RiscUsbInterruptV1.h": {
+          "git_blob": "ace65e02ed10daa9d452cbd6e789c6e0a6b01135",
+          "bytes": 1228,
+          "sha256": "a2501d9e27f700de155172f7139282e0b5848b1149e5b4f89870502d0b2f2ee2"
+        },
+        "sdk/driver/RiscUsbProviderV1.h": {
+          "git_blob": "7e6a7512c332fd2014ecf4b44fa0c56de18a1e07",
+          "bytes": 2354,
+          "sha256": "77f67cf5db7ed3fd7c6e148807bc705b5f8443c90d401b546069d756eb997b9a"
+        },
+        "sdk/driver/RiscUsbVbusV1.h": {
+          "git_blob": "047536c91bc859dfc1502b753d20e521016ac2d5",
+          "bytes": 3350,
+          "sha256": "27efb8b327d38c3ca6a97d5f2936094659f67d69e89b49afcba9fc4ee5db6a6a"
+        },
+        "sdk/driver/T5DriverApi.h": {
+          "git_blob": "ff145230b225231cbb53afc597e0d058d606be75",
+          "bytes": 1387,
+          "sha256": "e0960f0b2e2579d7b7245734b593182841806c5eb7b7d67af4194ac8eb0c4b55"
+        },
+        "sdk/driver/T5GnssProvider.h": {
+          "git_blob": "eff67c3b1db4b7c3e4d1c317ea844cc734953f36",
+          "bytes": 238,
+          "sha256": "f093ed0f5707b1cbe12caa5086f248e884fb5f69c7fbcf1f6f6a3ce911747116"
+        },
+        "sdk/driver/T5GpsApi.h": {
+          "git_blob": "77d25dcc5d587a814a28da974da64ec4f5d3c8ad",
+          "bytes": 904,
+          "sha256": "a0550bc74574ba073a419d8a65ae73bd2697f531dc1b6d5172d6eab5ccea3262"
+        },
+        "sdk/driver/T5UsbClassDriver.h": {
+          "git_blob": "d1b9a8fe2fb61c624645f3122d996d33e5d30c3e",
+          "bytes": 1422,
+          "sha256": "64a6a3a8081509ce9ab8e15c15095578174d9d7afb4343672576b89b4f65300d"
+        },
+        "sdk/driver/T5VideoApi.h": {
+          "git_blob": "223526fcc7df4357f25e405cf10ff52214133c13",
+          "bytes": 3724,
+          "sha256": "7efa44432f7787ab6827c5e284f368ac4db7dcef274fcd8e0c062c0086c9d5db"
+        },
+        "test/drivers/usb_hid_gamepad_descriptor_test.c": {
+          "git_blob": "aadeebc0c948121249f88955b3ec8bfbab12ee2d",
+          "bytes": 8172,
+          "sha256": "92f7d114a53400d95fffef3ea50bd2bfafb1836933f03f8a4450e1d86b6eb9c2"
+        },
+        "test/drivers/usb_hid_gamepad_test.c": {
+          "git_blob": "aadeebc0c948121249f88955b3ec8bfbab12ee2d",
+          "bytes": 8172,
+          "sha256": "92f7d114a53400d95fffef3ea50bd2bfafb1836933f03f8a4450e1d86b6eb9c2"
+        },
+        "test/drivers/usb_hid_keyboard_test.c": {
+          "git_blob": "94d0ef56ac602a796c73b693e5d31aad41fa44d9",
+          "bytes": 4586,
+          "sha256": "16090d5939e73661fbb7875210f946bf4d41e83cafc06e87965fd539256db8f7"
+        },
+        "test/drivers/usb_hid_quiesce_test.c": {
+          "git_blob": "eea6d191e1d32d7df69dee69fac0db669e4af251",
+          "bytes": 2380,
+          "sha256": "70bb116fe2dcd63017bd8fab45a5ee9dfb8f36eebf8a2dec78f07ed03b20fcbc"
+        },
+        "test/drivers/usb_hid_test.c": {
+          "git_blob": "7858222addffbde7e22faba3a7bc2e3a7916f62f",
+          "bytes": 11929,
+          "sha256": "aa27fa0d381ffb6cf884e0b58c7249d65333d0503524541bdcbf4189f802ca23"
+        },
+        "test/drivers/usb_hid_text_input_test.c": {
+          "git_blob": "3efefcebbf89f238820da88e5d7aec01d757ec68",
+          "bytes": 4463,
+          "sha256": "757c1979351d418f9d6f37e1cddd66ad46e027885d04a75e1b917b37cf32dd2c"
+        },
+        "test/drivers/usb_host_v2_test.c": {
+          "git_blob": "572c18f0d1c8328cb970ec8657fc03fd65aa2e67",
+          "bytes": 8644,
+          "sha256": "2dd62a1fe5cac80a9387a1389b71ee4de62e744d2273d9d5edb342cd030825d9"
+        },
+        "test/drivers/usb_ui_navigation_test.c": {
+          "git_blob": "a8c572d57acb6a5446e0980bda0f28b6d42dfb07",
+          "bytes": 6609,
+          "sha256": "599652fb4ed7e93285cfacf12da1be422aeb9ade38c498491ad7ff4ef0172858"
+        },
+        "test/drivers/usb_xinput_gamepad_test.c": {
+          "git_blob": "f2d02e3189754387a46ce840894b17de30571da5",
+          "bytes": 14986,
+          "sha256": "037e0417159ad2d908901bd3978d93fccaa76399c2f5574907244f437177abad"
+        }
+      }
+    },
+    "X4": {
+      "commit": "6b7d1abe9b2dcc236f6086d07c0f619244c907cb",
+      "tree": "953fb9507f3ea74dcb98ace20ca50452e4550f77",
+      "files": {
+        "profiles/xteink-x4-pro.json": {
+          "git_blob": "2e12effae8e4c0b28483934eca74913cb5b9361d",
+          "bytes": 247,
+          "sha256": "53e0f88fb5d413e1dcd472e26da454ba20b811df12d1c30f1bcd29e9d118f453"
+        },
+        "minimal/scripts/generate_profile.py": {
+          "git_blob": "3c7f1a285d82243e9e54e5a4fb9b6eb752b0bc50",
+          "bytes": 5394,
+          "sha256": "169c64d6895680858a659964f95f712f945e86d4cf6cfcd46bdddb001dfd5886"
+        },
+        "minimal/drivers/x4pro_board_power/manifest.json": {
+          "git_blob": "c5699e9306a03bcfb5e5b6169e880597bc857fc5",
+          "bytes": 716,
+          "sha256": "53956ef045217d714cf3ce02dc4eb6d1f83e56ae00d08acd8211fdb4ac1ebbb6"
+        },
+        "minimal/drivers/x4pro_power/manifest.json": {
+          "git_blob": "f632bc0a3b2a6cdc3764ff669d2ddee707cd7cda",
+          "bytes": 828,
+          "sha256": "d971a5fe28b141663a75b2f00afda104712a2635acbb690f4afc6e95f98bd465"
+        },
+        "Drivers/x4pro_battery/README.md": {
+          "git_blob": "f10e01163c6f4c41d92662c84b5ba7a1831e5c93",
+          "bytes": 4122,
+          "sha256": "5aab218874dfa6a525e247c8a5b7ebdc6760f1c8a3207335b213db418021c411"
+        },
+        "minimal/docs/USB_PREPARATION_034.md": {
+          "git_blob": "12319f8e6ed1b307880c0a050921c6d5c17847d6",
+          "bytes": 1785,
+          "sha256": "8d2fb3f082c72fa641f71ae36602a1fc4f192b8ffc6b471e11cae9a1dc1a0215"
+        },
+        "minimal/docs/USB_PREPARATION_036.md": {
+          "git_blob": "123abc72b41fcc6877b046488a9fa3eb6d10b6d6",
+          "bytes": 1623,
+          "sha256": "9c5cfd1cff896bb91cd2fcef60ab3011f4ffb076e524666faa97c1c838f221f7"
+        },
+        "docs/native-idf61/PACKAGING.md": {
+          "git_blob": "b2878995a21bac80087609aa60fb9a1ba0181b7d",
+          "bytes": 12703,
+          "sha256": "134843a97369b7718966d562b42ea35de0d574a93f88adfbe12c131dd6d04c28"
+        },
+        "docs/native-idf61/released-baseline.json": {
+          "git_blob": "e8261b50cdf3b72c76d73005f6949a2e709f41c0",
+          "bytes": 56640,
+          "sha256": "541d89454601832152f4175e044194c74cb4aa9b8a0d71b571ad42db44f9f142"
+        },
+        "docs/native-idf61/released-profile.json": {
+          "git_blob": "5fc08b6bebcfabc5506f5bc8c80683fd43ec7237",
+          "bytes": 4008,
+          "sha256": "1f337cf383abe677814e4d82497ca372bf9b10b4fb728dd610c550386d10de9d"
+        }
+      }
+    },
+    "Runtime": {
+      "commit": "13eca114cb58469cf6004fafc3da84fbd9d29beb",
+      "tree": "8c18029d7d845b35a447fc6a871a529f65d4c647",
+      "files": {
+        "docs/USB_CONTROLLER_IDF61_POLICY.md": {
+          "git_blob": "709028af63ad93d26b5aae5a8501ca2fbd118030",
+          "bytes": 7028,
+          "sha256": "4477a551c7403042f03a7b43e8b8b8e6ccc3598295122d1321ad4659d26c6cd4"
+        }
+      }
+    },
+    "Reader_mouse_source_search": {
+      "commit": "9c8783d6f20659a514bfaeb3847a77c7213dc4f6",
+      "tree": "66a1bb85173858d3630e5e081abd608288ceff90",
+      "files": {
+        "docs/USB_HID_ELF.md": {
+          "git_blob": "6d5c9390596782d94681995067ff51aa2ee167dc",
+          "bytes": 14024,
+          "sha256": "e6871acda492358b8bbaa6e0fb56f916fc49aafb8658c8e644ced5bcae015ef4"
+        },
+        "docs/legacy/pre-hardware-boundary/USB_OTG_HOST_ARCHITECTURE.md": {
+          "git_blob": "ea843aba79255bb22be1aad5172ddea67cc3ec6f",
+          "bytes": 16307,
+          "sha256": "3a6cf56d82a4ff262cf08d3bbfc8475f69823f765373ed0db04ccb998a8907e3"
+        },
+        "sdk/driver/RiscUsbHidV1.h": {
+          "git_blob": "47913ebeda94dcc4138173be45eafe9315191e91",
+          "bytes": 4383,
+          "sha256": "5b5549c4cb718dec55f2aca8bc93f401b2d5a703d30aaa1a78d1bcdd26755b5c"
+        },
+        "Drivers/usb_hid/manifest.json": {
+          "git_blob": "62764e45e75d40623ae2bbce1268c8f0c6188d3b",
+          "bytes": 295,
+          "sha256": "1df206f0bf6e82195e296228a55fbedb76f95b4546541dd3be54b3c05abfe9b3"
+        }
+      }
+    }
+  },
+  "recorded_x4_release": {
+    "release_tag": "test-t064-crash-0.1.121",
+    "release_source_revision": "3ac013bd21815bf18e42466b656dbc333665bf6b",
+    "runtime_revision": "f734d91780cdb4f1ba36fe82dcbd8fa28f25bb2b",
+    "factory_bytes": 16777216,
+    "factory_sha256": "48145adc023a334885207100ce29596edef3f02c07a6d830ca53e3ab1fbf5993",
+    "native_bytes": 1665248,
+    "native_sha256": "2e6116022ef7f8b35018ec42aebeefb831560d88be0c1d3b191946ab35840d6a",
+    "store_file_count": 107,
+    "elf_count": 43,
+    "historical_composition_recovered": false,
+    "historical_native_elf_recovered": false,
+    "usb_or_hid_internal_files": {
+      "hid/driver.elf": {
+        "bytes": 125480,
+        "sha256": "6290d9cdfae051b9f2f2c83060f1c4000a62f727d47b680c67cd77b0d9e0c555"
+      },
+      "hid/manifest.json": {
+        "bytes": 537,
+        "sha256": "bf2f68ebfb13aba3d48050813453872885286ef5f0fe73c3fd3cb6faaabd3b49"
+      },
+      "usb-msc/driver.elf": {
+        "bytes": 34892,
+        "sha256": "9a7cc6f87fc2a9cb5b1d65b7be1795be42cee822a2af722c8a81317a701d8461"
+      },
+      "usb-msc/manifest.json": {
+        "bytes": 436,
+        "sha256": "454af5a0db75022a182e8f57594ad56710696afc2de4cac32caf1f6a7f67c182"
+      },
+      "usb_sd_transfer.elf": {
+        "bytes": 72832,
+        "sha256": "cfff8f91f169cd555b5f7613c1f860cfd6b22619c528396d28c662d0fc97e6d6"
+      },
+      "usb_sd_transfer.json": {
+        "bytes": 527,
+        "sha256": "825302a3ff2b8cd7fcb411251383cbfe5ce372855320522276551fcc4d6f3dd9"
+      }
+    },
+    "usb_or_hid_sd_files": {
+      "Drivers/ble-hid/image-6290d9cdfae051b9f2f2c83060f1c4000a62f727d47b680c67cd77b0d9e0c555.elf": {
+        "bytes": 125480,
+        "role": "driver",
+        "sha256": "6290d9cdfae051b9f2f2c83060f1c4000a62f727d47b680c67cd77b0d9e0c555"
+      },
+      "Drivers/usb-device-msc-esp32s3/image-9a7cc6f87fc2a9cb5b1d65b7be1795be42cee822a2af722c8a81317a701d8461.elf": {
+        "bytes": 34892,
+        "role": "driver",
+        "sha256": "9a7cc6f87fc2a9cb5b1d65b7be1795be42cee822a2af722c8a81317a701d8461"
+      }
+    }
+  },
+  "results": {
+    "plain": "8/8 passed",
+    "asan_ubsan": "8/8 passed with ASAN_OPTIONS=detect_leaks=0",
+    "lsan": "not run successfully: ptrace unsupported",
+    "physical_usb": "not run",
+    "target_build": "not run",
+    "publication": "not performed",
+    "production_source_changed": false
+  },
+  "coverage_note": "The initial pass executed nine paths; usb_hid_gamepad_test.c and usb_hid_gamepad_descriptor_test.c are byte-identical. Final runner executes eight distinct fixture bodies per mode.",
+  "failed_attempts": [
+    "LeakSanitizer refused ptrace; ASan/UBSan rerun with leak detection disabled passed.",
+    "One read-only shell launch failed before process creation with exec-server transport disconnected; equivalent local reads then succeeded."
+  ],
+  "mouse_source_recovery": {
+    "original_request_message_id": "Sentinel_69c5b163d0ec81918e99e3f855dcbcf7",
+    "original_request_at": "2026-10-09T07:24:32.259417+00:00",
+    "scope": "Mouse, keyboard and game controllers explicitly requested; reuse existing drivers and add X4 roots.",
+    "searches": [
+      "git ls-tree -r --name-only 9c8783d6f20659a514bfaeb3847a77c7213dc4f6",
+      "git grep -n -i mouse 9c8783d6f20659a514bfaeb3847a77c7213dc4f6 --",
+      "git log --all --format=%H:%s -i --grep=mouse",
+      "Drivers/Utilities/System Apps interface searches for input.mouse, input.pointer and Risc mouse/pointer APIs"
+    ],
+    "finding": "No host mouse provider or semantic interface located in inspected canonical Reader snapshot or local source repositories. Legacy mouse references describe prospective device mode; Utilities mouse is BLE output. Earlier implementation elsewhere is not disproven.",
+    "next": "Recover exact earlier provider/consumer contract before treating a port as reuse; a new generic mouse class could be host-tested independently but is not implemented here."
+  },
+  "independent_replay": {
+    "observed_at": "2026-10-21T10:55:00Z",
+    "plain": "8/8 passed",
+    "asan_ubsan": "8/8 passed, detect_leaks=0",
+    "additional_scenarios": false
+  }
+}

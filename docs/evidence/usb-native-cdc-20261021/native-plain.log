@@ -1,0 +1,37 @@
+PASS native CDC invalid
+PASS native CDC budget-open
+PASS native CDC budget-exhaust
+PASS native CDC budget-before-claims
+PASS native CDC clock-error
+PASS native CDC missing-ack
+PASS native CDC delayed-ack
+PASS native CDC partial-close
+PASS native CDC close-budget
+PASS native CDC close-after-release-budget
+PASS native CDC partial-queue-close
+PASS native CDC finish-failure
+PASS native CDC partial-publish
+PASS native CDC partial-publish-clean
+PASS native CDC failed-config
+PASS native CDC failed-claim
+PASS native CDC dirty-failed-claim
+PASS native CDC detach-reconnect
+PASS native CDC inventory-failure
+PASS native CDC partial-data
+PASS native CDC poll-budget
+PASS native CDC queue-budget
+PASS native CDC stale-native-prefix
+PASS native CDC legacy
+PASS native CDC wide-clock
+PASS native CDC real-retained
+PASS native CDC real-dirty-claim
+PASS native CDC real-dirty-claim-clean
+PASS native CDC real-detach
+PASS native CDC real-data
+PASS native CDC old-header
+PASS rejected mutation budget-reset : test: /workspace/scratch/c744abbbbd60/usb-native-cdc/RiscRTE-Drivers/test/drivers/usb_cdc_native_test.c:117: main: Assertion `control_budget==5&&now==6' failed.
+PASS rejected mutation premature-queue-close : test: /workspace/scratch/c744abbbbd60/usb-native-cdc/RiscRTE-Drivers/test/drivers/usb_cdc_native_test.c:40: f_close: Assertion `!claim_live[0]&&!claim_live[1]' failed.
+PASS rejected mutation claim-forget : test: /workspace/scratch/c744abbbbd60/usb-native-cdc/RiscRTE-Drivers/test/drivers/usb_cdc_native_test.c:40: f_close: Assertion `!claim_live[0]&&!claim_live[1]' failed.
+PASS rejected mutation unknown-inventory-pump : test: /workspace/scratch/c744abbbbd60/usb-native-cdc/RiscRTE-Drivers/test/drivers/usb_cdc_native_test.c:157: main: Assertion `!reads&&!writes' failed.
+PASS rejected mutation daemon-discovery : test: /workspace/scratch/c744abbbbd60/usb-native-cdc/RiscRTE-Drivers/test/drivers/usb_cdc_native_test.c:27: f_poll: Assertion `!"daemon discovery must not run"' failed.
+PASS rejected prerequisite partial-claim loss: test: /workspace/scratch/c744abbbbd60/usb-native-cdc/RiscRTE-Drivers/test/drivers/usb_cdc_native_test.c:91: main: Assertion `open_ms(1000)==RISC_STREAM_RETAINED&&opened.session&&claim_live[0]&&claim_live[1]' failed.

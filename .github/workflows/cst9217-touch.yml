@@ -1,0 +1,36 @@
+name: CST9217 touch provider
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cst9217:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Checkout exact scoped Runtime SDK
+        uses: actions/checkout@v4
+        with:
+          repository: michaelrolphone-cmyk/RiscRTE
+          ref: 13eca114cb58469cf6004fafc3da84fbd9d29beb
+          path: .ci/runtime
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Exercise protocol and lifecycle in normal and sanitized builds
+        run: bash test/run_cst9217_touch_test.sh .ci/runtime
+      - name: Install existing pinned native GCC15 toolchain
+        run: bash scripts/install_native_driver_toolchain.sh
+      - name: Build Xtensa provider and validate ABI and manifest
+        run: python scripts/build_cst9217_touch.py --runtime .ci/runtime
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cst9217-touch-${{ github.event.pull_request.head.sha || github.sha }}
+          path: dist/cst9217-touch/
+          if-no-files-found: error

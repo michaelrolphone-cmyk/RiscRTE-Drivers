@@ -1,0 +1,75 @@
+=== usb_cdc_v2 pinned runtime fixture ===
+CDC claim-scoped control, inventory, release retry, I/O and stale token: PASS
+CDC composite, union, IAD, alternate and claim-control cases: PASS
+ST-LINK V2.1/V3 CDC VCP is reachable through serial.port: PASS
+Generic ABI-v2 module dependency/pin/unload tests: PASS
+Generic provider quarantines unsafe teardown and rejects regrant: PASS
+USB host ELF discovery, claim-scoped control, I/O and teardown: PASS
+USB host checked release, quarantine, retry and detach: PASS
+USB host claim-scoped controls and verified fault cleanup: PASS
+USB host composite interface isolation, exclusive vendor control and stale claims: PASS
+USB host ELF snapshot: atomic capacity, transient descriptor, detach, stale generation and fault recovery PASS
+Production host + four independently installable serial class ELFs: PASS
+Production four-class provider-owned inventory: PASS
+USB controller staged claim release and retry: PASS
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.000s
+
+OK
+USBCTRL stage=no-clients
+USBCTRL stage=vbus-released
+USBCTRL cleanup-failed stage=invalid-claim
+USBCTRL stage=no-clients
+USBCTRL stage=vbus-released
+USBCTRL cleanup-failed stage=device-close rc=3
+USBCTRL stage=no-clients
+USBCTRL stage=vbus-released
+USBCTRL cleanup-failed stage=transfer-free rc=3
+USBCTRL stage=no-clients
+USBCTRL stage=vbus-released
+USBCTRL cleanup-failed stage=client-deregister rc=3
+USBCTRL stage=no-clients
+USBCTRL stage=vbus-released
+USBCTRL cleanup-failed stage=no-clients-events rc=3
+USBCTRL stage=no-clients
+USBCTRL stage=vbus-released
+USBCTRL stage=no-clients
+USBCTRL cleanup-failed stage=device-free-all rc=3
+USBCTRL stage=vbus-released
+USBCTRL stage=no-clients
+USBCTRL cleanup-failed stage=device-free-events rc=3
+USBCTRL stage=vbus-released
+USBCTRL stage=no-clients
+USBCTRL cleanup-failed stage=host-uninstall rc=3
+USBCTRL stage=vbus-released
+USBCTRL stage=no-clients
+USBCTRL stage=vbus-released
+USBCTRL stage=no-clients
+USBCTRL cleanup-failed stage=vbus-release
+USBCTRL stage=vbus-released
+USBCTRL cleanup-failed stage=no-clients-timeout
+USBCTRL stage=no-clients
+USBCTRL stage=vbus-released
+USBCTRL stage=no-clients
+USBCTRL cleanup-failed stage=device-free-timeout
+USBCTRL stage=vbus-released
+USBCTRL cleanup-failed stage=outstanding-claim
+USBCTRL stage=no-clients
+USBCTRL stage=vbus-released
+USBCTRL stage=no-clients
+USBCTRL stage=vbus-released
+USBCTRL stage=no-clients
+USBCTRL stage=vbus-released
+USBCTRL stage=faulted-controller-quiesce
+USBCTRL stage=no-clients
+USBCTRL stage=vbus-released
+USBCTRL cleanup-failed stage=no-clients-timeout
+USBCTRL stage=no-clients
+USBCTRL stage=vbus-released
+Production controller teardown: failure retention, retry, bounds, source-off and PHY restore PASS
+CH34x ELF inventory, protocol, scoped control, orphan recovery: PASS
+Generic graph: metadata enumeration, dependencies, competing provider choice, cycle detection and grants PASS
+==210==LeakSanitizer has encountered a fatal error.
+==210==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==210==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)

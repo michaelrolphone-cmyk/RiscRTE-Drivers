@@ -1,0 +1,142 @@
+{
+  "schema": "riscrte.board-preparation",
+  "schema_version": 1,
+  "board_id": "waveshare-esp32-s3-touch-amoled-1.75c",
+  "revision": "unspecified",
+  "physical_memory": {
+    "flash_bytes": 33554432,
+    "psram_bytes": 8388608
+  },
+  "i2c": {
+    "instance_id": 101,
+    "controller": 0,
+    "sda": 15,
+    "scl": 14,
+    "frequency_hz": 400000
+  },
+  "display": {
+    "controller": "co5300",
+    "width": 466,
+    "height": 466,
+    "offset_x": 6,
+    "offset_y": 0,
+    "rotation": 0,
+    "qspi": {
+      "physical_controller": 2,
+      "sclk": 38,
+      "data": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "cs": 12,
+      "frequency_hz": 40000000
+    },
+    "reset": {
+      "pin": 1,
+      "active_high": false,
+      "assert_ms": 10,
+      "recovery_ms": 150
+    },
+    "backlight": null,
+    "pixel_format": "rgb565",
+    "damage_alignment": [
+      2,
+      2
+    ],
+    "safe_insets": {
+      "top": 69,
+      "right": 69,
+      "bottom": 69,
+      "left": 69
+    }
+  },
+  "touch": {
+    "controller": "cst9217",
+    "address": 90,
+    "width": 466,
+    "height": 466,
+    "irq": 11,
+    "irq_active_high": false,
+    "reset": {
+      "pin": 2,
+      "active_high": false,
+      "assert_ms": 10,
+      "recovery_ms": 50
+    },
+    "mode": "polling"
+  },
+  "power": {
+    "controller": "axp2101",
+    "address": 52,
+    "identity_register": 3,
+    "identity_mask": 255,
+    "identity_value": 74,
+    "enable_register": 128,
+    "enable_mask": 1,
+    "enable_value": 1,
+    "transaction_timeout_ms": 20,
+    "display_touch_supply": "DCDC1",
+    "cpu_shares_display_touch_supply": true,
+    "policy": "read-only-preserve",
+    "display_power_off_supported": false,
+    "power_key": {
+      "source": "pmic-pwron",
+      "gpio": null
+    },
+    "boot_key": {
+      "source": "gpio",
+      "pin": 0,
+      "active_high": false
+    }
+  },
+  "present_unselected": [
+    "qmi8658",
+    "es8311",
+    "es7210"
+  ],
+  "absent_hardware": [
+    "external-rtc",
+    "sd-card",
+    "lora",
+    "infrared"
+  ],
+  "app": {
+    "repository": "michaelrolphone-cmyk/RiscRTE-Watch",
+    "role": "default.elf",
+    "board_specific_fork": false
+  },
+  "integration": {
+    "installable": false,
+    "hardware_verified": false,
+    "startup_adapter": "pending",
+    "co5300_provider": "pending",
+    "touch_provider": "cst9217-touch@0.1.0",
+    "rtc_service": "unselected",
+    "storage": "onboard flash provisioning pending",
+    "sleep": "unqualified"
+  },
+  "sources": [
+    {
+      "url": "https://github.com/curisama/The-Badge/blob/76172dfaf0fa0ffedee91a61da3261afdde56ce3/main/port_esp.c",
+      "sha256": "735c65a84cdfcab043789fcea7f32045e665c1c53d7f838ebb43bb9d7a21c267"
+    },
+    {
+      "url": "https://github.com/waveshareteam/Waveshare-ESP32-components/blob/010c5fb39ea7f0e996efd1f8e162cc70e569e57f/bsp/esp32_s3_touch_amoled_1_75c/include/bsp/esp32_s3_touch_amoled_1_75c.h",
+      "sha256": "c99b2489c052b82c12e2d3c38d38313caf74947c35dd4abc125365e1de14ac09"
+    },
+    {
+      "url": "https://github.com/waveshareteam/Waveshare-ESP32-components/blob/010c5fb39ea7f0e996efd1f8e162cc70e569e57f/bsp/esp32_s3_touch_amoled_1_75c/esp32_s3_touch_amoled_1_75c.c",
+      "sha256": "a2bc2256ffd18beddf6b651cdfc1a9f82350f9c24073feea641e253179bff4c8"
+    },
+    {
+      "url": "https://github.com/waveshareteam/Waveshare-ESP32-components/blob/9daffb7168b3c093a330da700988a22092294eef/display/touch/esp_lcd_touch_cst9217/esp_lcd_touch_cst9217.c",
+      "sha256": "79aa1ffbf7fff8a76a573f3588f51204d3ffe075e5a777b7f7ec5f4e4e357c26"
+    },
+    {
+      "url": "https://github.com/espressif/esp-iot-solution/blob/2d289eb1f14431e345b345c3fd6fc299a555d770/components/display/lcd/esp_lcd_co5300/esp_lcd_co5300_spi.c",
+      "sha256": "823bda75000ebe4236ef06911cf26fc873e6507c8cc5de17a5104d89d19a9c34"
+    }
+  ]
+}

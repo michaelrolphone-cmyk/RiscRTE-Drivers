@@ -1,0 +1,12 @@
+{
+  "usb-msp-checked-consumer/RiscRTE-Drivers/test/msp_numeric_manifest_test.cpp": {
+    "sha256": "6538890085a5353086dfc9e788cad4eaaf2639fb1828bfe0e1837ed766258713",
+    "bytes": 2297
+  },
+  "usb-msp-checked-consumer/RiscRTE-Drivers/test/run_msp_numeric_manifest_test.sh": {
+    "sha256": "d383033f048f2992176b3cc63fd2d3382e2fb5e2e648dda03e496ebe1335480e",
+    "bytes": 1467
+  },
+  "repository_commit": "0bff96535f2d06c51ec134bae2616e7e8b9bd5bc",
+  "runtime_commit": "6a3b3d46f5b2857eacc6e9863799dec1f466b036"
+}

@@ -186,6 +186,12 @@
       "version": "0.1.0",
       "source_path": "Drivers/telemetry_battery",
       "source_tree_sha": "a451ee283ff55a9dbe83fd93538853d6d54d5812"
+    },
+    {
+      "id": "cst9217-touch",
+      "version": "0.1.0",
+      "source_path": "Drivers/cst9217_touch",
+      "source_tree_sha": "cb0bf865118d842a08fb4d0ed6eab13bea9bacc4"
     }
   ]
 }

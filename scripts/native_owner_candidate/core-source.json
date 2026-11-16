@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "repository": "https://github.com/michaelrolphone-cmyk/RiscRTE.git",
+  "commit": "ec86b26b2f06271c62405dc8976b07dae19b713f",
+  "os_cpu_abi": 5,
+  "files": {
+    "lib/elf_loader/src/esp_elf_validate.c": "494bed699206e71d7e28a0817862b70f6c1533b931304e050a7ad1bd80f19b3b",
+    "lib/elf_loader/src/esp_privileged_imports.c": "6dafb2f1ccd053b0ff11b009c0cbf8f7dc997cca470b6345da527942c6d5d2d9",
+    "lib/elf_loader/src/esp_privileged_manifest_imports.c": "6acfb45e8e6745f072537c0780b1e34a83033077c908cc244a0fd03e5e39ca14",
+    "lib/elf_loader/include/private/elf_types.h": "c5113e28227646b9c13941a7eac9c0f476880ad9ebf9eac0a6e96eddabe15843",
+    "lib/elf_loader/include/private/esp_elf_data_layout.h": "54bbab2ca18a95c92741da93c169605752914941f61955b694e8cbb301bcfc1e",
+    "lib/elf_loader/include/private/esp_elf_internal_v1.h": "259dd065d60e355df49901f230a59445081a9f1366632553b5d8018d9b97eb90",
+    "lib/elf_loader/include/private/esp_privileged_imports.h": "0ca83ac101a3373d994cc6d47e711c61b191d5e1a5ca7b8d2be9db4f610d84a3",
+    "lib/elf_loader/include/private/esp_privileged_manifest_imports.h": "cbece8377e92892edb821128144c90558d5a16eccb85dcb36502b2720ea7515f",
+    "lib/elf_loader/include/private/privileged_os_cpu_symbols_v1.def": "77d0eb9c83ab4ea051c9b1011592049e774dc8c2e6d9ddbd14753cfedc3570e6",
+    "lib/elf_loader/include/private/privileged_os_cpu_symbols_v2.def": "d035399a0eca8ef6ef0f09628a013fb70b4ff7994e0544a3add2c97ba3b2687a",
+    "lib/elf_loader/include/private/privileged_os_cpu_symbols_v5.def": "0a69dbd8e85fe9257d6aac0299745ceac24a16d768a137042390aab9a5113dca",
+    "lib/elf_loader/include/private/privileged_public_libc_compat_v1.def": "a887c81d255514eca177dda0f423b256c22f03caf521010845730c718f3169fa",
+    "lib/elf_loader/include/private/privileged_public_libc_compat_v2.def": "93551c9a535e5633ae6b9bf0b8b510552ef27b498224a9675703cd522ad32e42"
+  }
+}

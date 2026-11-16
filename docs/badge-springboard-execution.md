@@ -1,0 +1,11 @@
+# Springboard report-gap execution regression
+
+Run `scripts/test_badge_springboard_execution.py` with the same explicit source/store arguments as the original execution runner, plus `--foreground`; add `--sanitize` for ASan/UBSan. The suite runs four ordered case0 variants: malformed marker, contact count, coordinates, and transient bus-read failure. `--expect-retained` is a baseline-only negative oracle, never product qualification.
+
+Actual Home swipe launches Springboard. At entry+150ms or later, one modeled CST report is malformed (successful I2C), or one actual modeled bus read fails. Production app, touch reducer, provider, Runtime and graph execute unchanged. Valid neutral reports must follow; a fresh physical tap must activate Settings only at the intended tap boundary, actual Settings Save must persist, and Back must return to a substantive completed visible Home frame with quiescent teardown. No app state is assigned and no provider result is overwritten. Existing alarm/quick fixture includes are reused unchanged; the original42-case suite remains separate.
+
+Baseline requires actual retained Runtime before Settings activation and exits the host process without destroying uncertain custody. An initial exploratory run demonstrated the Runtime destructor abort after correct retention; the corrected oracle deliberately avoids such teardown.
+
+Ordinary report-read failure is recoverable, not a hard-custody fault. Failed-sync-unlock terminal behavior is covered by separate actual CST+reducer owning composition tests; this Runtime hardware model has no faithful failed-unlock hook. No artificial provider return is used to claim that coverage.
+
+Receipts declare schema1, qualification `springboard-report-gap`, expected_retained, sanitizer mode, exact ordered four results with real return codes/stdout/stderr, source/fixture hashes, source pins, target build digest and complete store inventory. Product evidence requires expected_retained=false and four successful recoveries. Baseline reproduction is not product success and is not proof of the unique cause of a physical failure. Execution is host recompilation with modeled hardware/time/input/storage, not target instructions or physical hardware.

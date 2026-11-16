@@ -48,17 +48,55 @@ typedef struct {
     bool (*quiesce)(void *context);
 } risc_usb_controller_api_v1;
 
-/* Optional append-only extension of the original USB host v1 interface. Old
- * class ELFs use only .host and need no changes. Discovery belongs to the
- * USB provider, never a firmware USB-specific enumerator. Call poll() on
- * the serialized provider executor; devices() copies currently present,
- * generation-qualified tokens into a bounded caller-owned buffer. */
+/* Preserve the deployed discovery/interrupt/diagnostic prefix. U1 checked
+ * release/control slots follow it, so published HID binaries keep offsets. */
+typedef struct {
+    risc_usb_host_api_v1 host;
+    bool (*poll)(void *context, size_t max_events, size_t *processed);
+    bool (*devices)(void *context, uint64_t *out, size_t *inout_count);
+} risc_usb_host_legacy_discovery_v1;
+
 typedef struct {
     risc_usb_host_api_v1 host;
     bool (*poll)(void *context, size_t max_events, size_t *processed);
     bool (*devices)(void *context, uint64_t *out,
                     size_t *inout_count);
+    int32_t (*interrupt_read)(void *context, uint64_t claim, uint8_t endpoint,
+                              uint8_t *dst, size_t capacity, uint32_t timeout_ms);
+    bool (*diagnostic)(void *context, char *out, size_t capacity);
+    bool (*release_checked)(void *context, uint64_t claim);
+    /* The caller presents its own claim rather than a publicly discoverable
+     * device token. Interface recipient: index must equal claimed interface.
+     * Device recipient: claim must be the device's sole live claim, preventing
+     * one class from issuing device-wide vendor commands against another.
+     * Endpoint/other recipients and stale/closing/detached claims fail closed. */
+    int32_t (*control_claim)(void *context, uint64_t claim,
+                             uint8_t request_type, uint8_t request,
+                             uint16_t value, uint16_t index, uint8_t *payload,
+                             uint16_t length, uint32_t timeout_ms);
 } risc_usb_host_discovery_v1;
+
+/* Provider-owned, bounded and coherent discovery result. Presence and
+ * identification are distinct: if descriptor retrieval transiently fails,
+ * identified=0 but the same live token remains visible so an established
+ * session is NOT falsely closed. No descriptor bytes enter firmware. */
+typedef struct {
+    uint64_t token;
+    uint16_t vid, pid;
+    uint8_t identified;
+    uint8_t reserved[3];
+} risc_usb_device_identity_v1;
+
+/* The discovery ABI prefix above stays intact for independently installed
+ * classes. snapshot() consumes at most 16 controller events, then returns one
+ * ordered host-owned generation-token snapshot. Capacity failure publishes no
+ * partial records and returns the required count. Failed event polling returns
+ * false, never an apparently empty device set. */
+typedef struct {
+    risc_usb_host_discovery_v1 discovery;
+    bool (*snapshot)(void *context, risc_usb_device_identity_v1 *out,
+                     size_t *inout_count);
+} risc_usb_host_snapshot_v1;
 #ifdef __cplusplus
 }
 #endif

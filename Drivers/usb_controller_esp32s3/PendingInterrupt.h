@@ -6,6 +6,7 @@ struct PendingInterrupt {
     uint64_t claim_id = 0;
     bool pending = false;
     bool ready = false;
+    bool draining = false, halted = false, flushed = false;
 };
 static PendingInterrupt interrupts[RISC_USB_HOST_MAX_CLAIMS];
 
@@ -17,6 +18,22 @@ void interrupt_complete(usb_transfer_t *dma) {
 
 bool drain_interrupt(PendingInterrupt &slot) {
     if (!slot.dma) return true;
+#if ESP_IDF_VERSION == ESP_IDF_VERSION_VAL(6, 1, 0)
+    if (slot.pending || slot.draining) {
+        slot.draining = true;
+        if (!slot.halted) {
+            if (risc_usb_endpoint_halt_poll(slot.dma->device_handle,
+                    slot.dma->bEndpointAddress) != ESP_OK) return false;
+            slot.halted = true;
+        }
+        if (!slot.flushed) {
+            if (risc_usb_endpoint_flush(slot.dma->device_handle,
+                    slot.dma->bEndpointAddress) != ESP_OK) return false;
+            slot.flushed = true;
+        }
+        if (!pump_transfer(0) || slot.pending) return false;
+    }
+#else
     if (slot.pending) {
         const esp_err_t halt = usb_host_endpoint_halt(slot.dma->device_handle,
                                                      slot.dma->bEndpointAddress);
@@ -33,6 +50,7 @@ bool drain_interrupt(PendingInterrupt &slot) {
                                   pdMS_TO_TICKS(kTeardownTicks)) return false;
         }
     }
+#endif
     if (usb_host_transfer_free(slot.dma) != ESP_OK) return false;
     slot = {};
     return true;
@@ -56,6 +74,7 @@ int32_t read_interrupt(uint64_t id, usb_device_handle_t handle, uint8_t endpoint
         slot->dma->callback = interrupt_complete;
         slot->dma->context = slot;
     }
+    if (slot->draining) return -1;
     if (!slot->pending && !slot->ready) {
         slot->pending = true;
         if (usb_host_transfer_submit(slot->dma) != ESP_OK) {
@@ -66,7 +85,7 @@ int32_t read_interrupt(uint64_t id, usb_device_handle_t handle, uint8_t endpoint
     // Class poll() drains reports already completed; it must not accumulate
     // one blocking wait per requested report or per quiet endpoint. The app's
     // owner loop supplies scheduler cooperation between bounded poll calls.
-    if (!slot->ready && !pump(0)) return -1;
+    if (!slot->ready && !pump_transfer(0)) return -1;
     if (!slot->ready) return 0; // IDF retains the armed request across polls.
     slot->ready = false;
     const int32_t n = slot->dma->actual_num_bytes;
@@ -74,7 +93,11 @@ int32_t read_interrupt(uint64_t id, usb_device_handle_t handle, uint8_t endpoint
     // cleared. The completed callback has returned DMA ownership, so the next
     // bounded read can safely resubmit after recovery.
     if (slot->dma->status == USB_TRANSFER_STATUS_STALL) {
+#if ESP_IDF_VERSION == ESP_IDF_VERSION_VAL(6, 1, 0)
+        (void)risc_usb_endpoint_clear(handle, endpoint);
+#else
         (void)usb_host_endpoint_clear(handle, endpoint);
+#endif
         return -1;
     }
     if (slot->dma->status != USB_TRANSFER_STATUS_COMPLETED || n < 0 || n > packet)

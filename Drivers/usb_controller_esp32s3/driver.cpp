@@ -54,7 +54,7 @@ int32_t interrupt_read(void *, uint64_t id, uint8_t endpoint,
     Claim *c = claim(id);
     Device *d = c ? device(c->physical_device) : nullptr;
     uint16_t packet = 0;
-    if (!running || !d || !d->attached || !dst || !timeout || timeout > 100 ||
+    if (!running || !d || !d->attached || c->interfaceReleased || !dst || !timeout || timeout > 100 ||
         !interrupt_mps(d, c, endpoint, &packet) || capacity < packet ||
         capacity > RISC_USB_HID_MAX_REPORT) return -1;
     return read_interrupt(id, d->handle, endpoint, packet, dst, timeout);

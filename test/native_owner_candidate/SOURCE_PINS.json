@@ -1,0 +1,17 @@
+{
+  "scripts/native_owner_candidate/generate_privileged_imports_v1.py": "a65818d5ee8f4fb68e256666b8fb6680e69c8d96249a2e65b09815d994f876e0",
+  "scripts/native_owner_candidate/generate_provider_package_inputs_v1.py": "8e1808b43460dc0b0bd88d395cca5743f9f4617124a07e7f6ced3d9db5294f94",
+  "scripts/native_owner_candidate/package_admission.py": "314e034b5bc7d60893bcb029072a44aa65f6fd28783fba0e9e807881d474d54b",
+  "scripts/native_owner_candidate/package_candidate.py": "4d7d81e464f195c2ab832c0c803b6c0bfd70596d9b18ee0ac3a9c40fff6dc2f8",
+  "scripts/native_owner_candidate/package_mapping.py": "0b33de7506ad48873949e931180d60b2ae9b8259d1fece729a4b850d99769d3a",
+  "scripts/native_owner_candidate/package_preflight.c": "15da16e09595b2473ceac43cfc6443a1902300c3d5a014a6cde585b98c066b98",
+  "scripts/native_owner_candidate/package_resource_paths.py": "c7a495ca62fc5725c9da189a267a65b1fe630e9e43d44f5131445c2d5a74422b",
+  "test/native_owner_candidate/elf_fixture.py": "fb687eee2cb2083c684d5c06e452eb9f57ec6d67c510e318e26af7930fbcfa53",
+  "test/native_owner_candidate/test_package_candidate.py": "46ffa6fe26451d2dc71472b666fdcc4fa392db7e39f372cd638228721fa96ac7",
+  "test/native_owner_candidate/test_package_mapping.py": "dd6b76b5ea6bff9dd5ccd92702b260122c604c7e81cbd661b0f93e0bf8f8a3d6",
+  "scripts/native_owner_candidate/core-source.json": "a5ae41ea70bb982b6b579645bb3faafd15e035347404e445aa0a910a8c7cd94d",
+  "scripts/native_owner_candidate/core_binding.py": "a586818e93a45307344a8a9efeb2fb0df3d0f729d702b8cafcf06144e0ea608b",
+  "test/native_owner_candidate/test_package_binding.py": "8ff8a66879d8df91b145466c626ae605a21a1de083bab312f2ed195a555234f7",
+  "test/native_owner_candidate/run_cases.py": "06ba8c8f006d5d5f8054d266738c5bbf55dc1f6a75e5ebb35be63bcf98b088ec",
+  "test/run_native_owner_candidate.py": "071f8a8601a78d63f4b4af64dfe4f019c0690b22bcd8743dcdc05840dcaccfeb"
+}

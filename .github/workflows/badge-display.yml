@@ -1,0 +1,42 @@
+name: Badge shared CO5300 integration
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  display:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    container: espressif/idf:v6.1@sha256:81893c71bb5e570088901f21def8684c25cd2a9020281bd01b843a7655edb18c
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      CMAKE_BUILD_PARALLEL_LEVEL: '1'
+      ASAN_OPTIONS: detect_leaks=0
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Clone exact PR source as shell owner
+        env:
+          SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/badge-display"
+          echo "BADGE_ROOT=$root" >> "$GITHUB_ENV"
+          git init --quiet "$root/drivers"
+          git -C "$root/drivers" remote add origin "https://github.com/$GITHUB_REPOSITORY.git"
+          git -C "$root/drivers" fetch --no-tags --depth=1 origin "$SOURCE_SHA"
+          git -C "$root/drivers" checkout --quiet --detach FETCH_HEAD
+          test "$(git -C "$root/drivers" rev-parse HEAD)" = "$SOURCE_SHA"
+      - name: Qualify shared display, supply and reset composition
+        run: bash "$BADGE_ROOT/drivers/scripts/run_badge_display_ci.sh"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: badge-display-evidence-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ${{ env.BADGE_ROOT }}/evidence/
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,7 @@
+# Work-conserving bounded CO5300 facade polling
+
+The generic facade's finite per-poll row cap is 128 rather than32. Existing elapsed-time, minimum remaining-budget, ownership, failure and completion checks remain unchanged. Fast/unchanged rows can use more of the Runtime's8ms callback budget; a stopped/coarse clock still cannot process more than128rows in one callback. This does not promise an8ms hard deadline for a native transaction: the native backend has its own bounded completion/retention contract.
+
+Tests include actual facade code at default502, Badge466 and offset240 heights, stopped-clock completion,1/2/3ms row costs, partial damage preserving the full-frame composition, failure at every possible row with no later row calls, foreign-owner rejection, zero/insufficient budgets and cancellation. Existing supply/Light/Deep/reopen custody coverage remains. Actual facade plus shadow-enabled native sleep/rollback composition is separately exercised.
+
+An exact-source sensitivity model (not physical timing) at8us row packing,300us changed-window cost and nominal1ms inter-poll gap reduces full466 changed-frame completion from52.828ms/15polls to43.828ms/6polls; unchanged frame from17.728ms/15polls to6.728ms/4polls. Actual tick-phase, provider costs and hardware timings vary. This is not40–60FPS qualification and does not change image pixels, clock cadence, SPI clock or publication.

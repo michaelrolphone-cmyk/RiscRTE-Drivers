@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "origin": "New reconstruction from measured Host32; unavailable later14-file draft not claimed recovered",
+  "host32_result_sha256": "894eedb48378fb5003b09ca2d34f8f3cded458a24c48183fa24b093028b3c309",
+  "fixed_core_host38_result_sha256": "3071bb17d6087125237a1a11109b051b593fb5e95cf9a7bfcb55570ebb11215a",
+  "core_repository": "https://github.com/michaelrolphone-cmyk/RiscRTE.git",
+  "core_commit": "ec86b26b2f06271c62405dc8976b07dae19b713f",
+  "portable_entry_status": "passed38/38; actual C gate and immutable snapshot producer",
+  "target_cli_status": "passed on exact saved2136B linked Xtensa fixture; zero fresh target compile/link",
+  "ordinary_builders": "unchanged; additive explicit producer only",
+  "helper_provenance": {
+    "extractor": "a65818d5ee8f4fb68e256666b8fb6680e69c8d96249a2e65b09815d994f876e0",
+    "candidate_metadata_generator": "8e1808b43460dc0b0bd88d395cca5743f9f4617124a07e7f6ced3d9db5294f94",
+    "resource_paths": "c7a495ca62fc5725c9da189a267a65b1fe630e9e43d44f5131445c2d5a74422b"
+  },
+  "runtime_authority": false,
+  "physical_admission": false,
+  "repository_packaging_changes": {
+    "test_docstring": "document portable test entry",
+    "terminal_lf_normalization": [
+      {
+        "path": "scripts/native_owner_candidate/package_admission.py",
+        "old_sha256": "0281a5010f99d22a0aaeee33c8e597366304b84b5fa61f1a7a6fb013879a5f3d",
+        "new_sha256": "314e034b5bc7d60893bcb029072a44aa65f6fd28783fba0e9e807881d474d54b",
+        "removed_lf": 1
+      },
+      {
+        "path": "scripts/native_owner_candidate/package_candidate.py",
+        "old_sha256": "502206609d7e757fe16d11d309dd9075c1de59695b519c4ed9926e42c8cdd21d",
+        "new_sha256": "4d7d81e464f195c2ab832c0c803b6c0bfd70596d9b18ee0ac3a9c40fff6dc2f8",
+        "removed_lf": 1
+      },
+      {
+        "path": "scripts/native_owner_candidate/package_mapping.py",
+        "old_sha256": "4adc4e0e3446162d16ca70d195cfe0e59f2b8191d680825ac71aff469a0e215f",
+        "new_sha256": "0b33de7506ad48873949e931180d60b2ae9b8259d1fece729a4b850d99769d3a",
+        "removed_lf": 1
+      },
+      {
+        "path": "scripts/native_owner_candidate/package_preflight.c",
+        "old_sha256": "69d9437e9c5091f7fb4a7f355766d2aa01d620a4a8c8fc3ff2aa5518883e6e2c",
+        "new_sha256": "15da16e09595b2473ceac43cfc6443a1902300c3d5a014a6cde585b98c066b98",
+        "removed_lf": 1
+      },
+      {
+        "path": "test/native_owner_candidate/elf_fixture.py",
+        "old_sha256": "8b39bffa96d429cdbee735d1aacc6d60e1ab84c96acaa9bde4ddc363cc03d945",
+        "new_sha256": "fb687eee2cb2083c684d5c06e452eb9f57ec6d67c510e318e26af7930fbcfa53",
+        "removed_lf": 1
+      },
+      {
+        "path": "test/native_owner_candidate/test_package_candidate.py",
+        "old_sha256": "2ed134b85696d878c259390cce272c7dfcf0d8917a80c89a0a9fa80deb3df77d",
+        "new_sha256": "46ffa6fe26451d2dc71472b666fdcc4fa392db7e39f372cd638228721fa96ac7",
+        "removed_lf": 1
+      },
+      {
+        "path": "test/native_owner_candidate/test_package_mapping.py",
+        "old_sha256": "6fc13a9fab530b265f284e78e6ab6f01e221a663e938a877d411e929afb1deeb",
+        "new_sha256": "dd6b76b5ea6bff9dd5ccd92702b260122c604c7e81cbd661b0f93e0bf8f8a3d6",
+        "removed_lf": 1
+      }
+    ],
+    "helpers_unchanged": true
+  },
+  "portable_result_sha256": "3c93e8d19f276e19c2e834b62f610057a0ddc8c4f28a24ecf67b3dff57b022ed",
+  "portable_case_count": 38,
+  "portable_target_wrapper_report_sha256": "b50820e1950647e48bc863d438456b0e5f40e014b27dab61d6c4d2577f49a4c8",
+  "target_cli_result_sha256": "ffa79b79f0a7cbf895b648a2264113a5a73e14131b2448b26e7fde19b9e6f580",
+  "target_elf_sha256": "16e219441ee8e72ed97abaea44a0979dab211133970cac7245a5f00d28e92105",
+  "target_envelope_sha256": "c95eecae19edb6e62a8348283b7fbd867cafbbae1846820eaf56f392debc4b8a",
+  "target_fixture_scope": "one tiny previously linked ET_DYN fixture, not full owner/worker ABI/runtime/physical qualification",
+  "ci_status": "new dedicated workflow unexecuted until exact published head is measured",
+  "post_run_change": "documentation/status provenance only; measured producer/test/runner/helper bytes unchanged"
+}

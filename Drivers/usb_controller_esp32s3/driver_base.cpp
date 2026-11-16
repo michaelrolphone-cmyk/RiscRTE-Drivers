@@ -4,6 +4,7 @@
 #include "RiscUsbControllerV1.h"
 #include "RiscUsbVbusV1.h"
 #include "StartupDiagnostic.h"
+#include "ClaimReleasePolicy.h"
 #include "EnumerationDiagnostic.h"
 #include "RoleSwitch.h"
 #include <usb/usb_host.h>
@@ -12,6 +13,11 @@
 #include "NativePhyGate.h"
 #if ESP_IDF_VERSION == ESP_IDF_VERSION_VAL(6, 1, 0)
 #include "NativeUsbLifecycle.h"
+#include "NativeBoundedEndpoint.h"
+#include "NativeBoundedHost.h"
+#define usb_host_interface_claim risc_usb_interface_claim_poll
+#define usb_host_interface_release risc_usb_interface_release_poll
+#define usb_host_device_close risc_usb_device_close_poll
 #endif
 #include <soc/rtc_cntl_struct.h>
 #include <soc/usb_dwc_struct.h>
@@ -41,6 +47,7 @@ struct Device {
 struct Claim {
     uint64_t token, physical_device;
     uint8_t number, alternate;
+    bool interfaceReleased;
 };
 struct Event {
     uint8_t kind, address;
@@ -60,6 +67,9 @@ static StartupDiagnostic startupError;
 static usb_host_client_handle_t client;
 static usb_transfer_t *transfer;
 static bool inFlight, completed;
+static uint64_t transferClaim;
+struct BulkDrain { bool active, halted, flushed, resume; };
+static BulkDrain bulkDrain;
 static bool noClientsObserved;
 static Event queue[kEvents];
 static size_t queueHead, queueTail, queueCount;
@@ -86,6 +96,18 @@ Claim *claim(uint64_t id) {
 bool claimed(uint64_t id) {
     for (const auto &c : claims) if (c.token && c.physical_device == id) return true;
     return false;
+}
+bool otherClaims(uint64_t deviceId, uint64_t except) {
+    for (const auto &c : claims)
+        if (c.token && c.token != except && c.physical_device == deviceId) return true;
+    return false;
+}
+void reapDetachedUnclaimed() {
+    if (!client || inFlight || bulkDrain.active) return;
+    for (auto &d : devices) {
+        if (!d.handle || d.attached || claimed(d.token)) continue;
+        if (usb_host_device_close(client, d.handle) == ESP_OK) d = {};
+    }
 }
 bool enqueue(uint8_t kind, uint8_t address, usb_device_handle_t handle) {
     if (queueCount == kEvents) { fault = true; return false; }
@@ -116,11 +138,50 @@ bool pump(TickType_t delay) {
         (b != ESP_OK && b != ESP_ERR_TIMEOUT)) { fault = true; return false; }
     return !fault;
 }
-/* A software read timeout does NOT cancel its asynchronous IDF transfer.
- * Halt/flush the claimed bulk endpoint, then pump until the callback has
- * returned ownership of the DMA buffer. Never free/unmap an in-flight transfer.
- * Restore a cleared endpoint only when the caller intends to keep using it. */
+/* The budgeted path never runs the daemon: hub/reset/enumeration operations
+ * may sleep independently of the transfer budget. Only this provider's finite
+ * completion queues are serviced here. Physical detach remains owned until
+ * ordinary discovery service records it. */
+bool pump_transfer(TickType_t delay) {
+#if ESP_IDF_VERSION == ESP_IDF_VERSION_VAL(6, 1, 0)
+    if (!installed || !client) return false;
+    if (inFlight && transfer && transfer->device_handle && !transfer->bEndpointAddress)
+        risc_usb_device_control_dequeue(transfer->device_handle);
+    const esp_err_t rc = risc_usb_client_transfer_events(client, delay);
+    if (rc != ESP_OK && rc != ESP_ERR_TIMEOUT) { fault = true; return false; }
+    return true;
+#else
+    return pump(delay);
+#endif
+}
+/* One nonblocking cleanup step. False retains every callback/DMA/claim owner.
+ * Halt acknowledgement and transfer completion are independent: a naturally
+ * completed transfer does not cancel an outstanding halt request. */
 bool drain_bulk(bool resume) {
+#if ESP_IDF_VERSION == ESP_IDF_VERSION_VAL(6, 1, 0)
+    if (!inFlight && !bulkDrain.active) return true;
+    if (!transfer || !transfer->device_handle) return false;
+    if (!bulkDrain.active) bulkDrain = {true, false, false, resume};
+    if (!resume) bulkDrain.resume = false;
+    const auto handle = transfer->device_handle;
+    const auto endpoint = transfer->bEndpointAddress;
+    if (!bulkDrain.halted) {
+        if (risc_usb_endpoint_halt_poll(handle, endpoint) != ESP_OK) return false;
+        bulkDrain.halted = true;
+    }
+    if (!bulkDrain.flushed) {
+        if (risc_usb_endpoint_flush(handle, endpoint) != ESP_OK) return false;
+        bulkDrain.flushed = true;
+    }
+    if (!pump_transfer(0) || inFlight) return false;
+    if (bulkDrain.resume && risc_usb_endpoint_clear(handle, endpoint) != ESP_OK)
+        return false;
+    completed = false;
+    transferClaim = 0;
+    bulkDrain = {};
+    return true;
+#else
+
     if (!inFlight) return true;
     if (!transfer || !transfer->device_handle || !transfer->bEndpointAddress) {
         std::printf("USBCTRL cleanup-failed stage=bulk-drain reason=not-bulk\n");
@@ -154,18 +215,15 @@ bool drain_bulk(bool resume) {
     std::printf("USBCTRL stage=bulk-drained ep=%02x resume=%u\n",
                 static_cast<unsigned>(endpoint), static_cast<unsigned>(resume));
     return true;
+#endif
 }
-bool wait_completion(uint32_t milliseconds) {
-    TickType_t begun = xTaskGetTickCount();
-    TickType_t budget = pdMS_TO_TICKS(milliseconds);
-    if (!budget) budget = 1;
+bool wait_completion(uint32_t milliseconds, TickType_t begun = xTaskGetTickCount()) {
+    const TickType_t budget = pdMS_TO_TICKS(milliseconds);
+    /* Floor the budget rather than round up beyond the caller's deadline. */
     while (!completed) {
-        if (fault || !pump(1)) return false;
-        if ((TickType_t)(xTaskGetTickCount() - begun) >= budget) {
-            /* A quiet serial device frequently leaves bulk IN submitted.
-             * Cancel it NOW rather than stranding the claim and VBUS on exit. */
-            if (transfer && transfer->bEndpointAddress && !drain_bulk(true))
-                std::printf("USBCTRL failure=bulk-timeout-undrained\n");
+        if (static_cast<TickType_t>(xTaskGetTickCount() - begun) >= budget ||
+            fault || !pump_transfer(1)) {
+            (void)drain_bulk(true);
             return false;
         }
     }
@@ -173,6 +231,7 @@ bool wait_completion(uint32_t milliseconds) {
 }
 /* Never free a submitted transfer: teardown must obtain its callback first. */
 bool idle_transfer() {
+    if (bulkDrain.active && !drain_bulk(true)) return false;
     if (inFlight) return false;
     if (completed) completed = false;
     return transfer != nullptr;
@@ -230,6 +289,7 @@ int32_t next_event(void *, risc_usb_controller_event_v1 *out) {
     if (installed && !pump(0)) return -1;
     service_role();
     if (role.state() != UsbRoleSwitch::State::Host) return 0;
+    reapDetachedUnclaimed();
     if (!queueCount) return 0;
     Event e = queue[queueHead];
     queueHead = (queueHead + 1) % kEvents;
@@ -238,17 +298,22 @@ int32_t next_event(void *, risc_usb_controller_event_v1 *out) {
         Device *freeSlot = nullptr;
         for (auto &d : devices) if (!d.handle) { freeSlot = &d; break; }
         if (!freeSlot) { fault = true; return -1; }
+        const uint64_t id = token();
+        if (!id) return -1; // Never acquire a handle without a generation slot.
         usb_device_handle_t handle = nullptr;
-        if (usb_host_device_open(client, e.address, &handle) != ESP_OK || !handle)
+        const esp_err_t opened = usb_host_device_open(client, e.address, &handle);
+        if (handle) *freeSlot = {handle, id, 0, 0, false};
+        if (opened != ESP_OK || !handle) {
+            if (handle && usb_host_device_close(client, handle) == ESP_OK) *freeSlot = {};
             return -1;
+        }
         const usb_device_desc_t *descriptor = nullptr;
         if (usb_host_get_device_descriptor(handle, &descriptor) != ESP_OK ||
             !descriptor) {
-            if (usb_host_device_close(client, handle) != ESP_OK) fault = true;
+            if (usb_host_device_close(client, handle) == ESP_OK) *freeSlot = {};
+            else fault = true; // Keep the exact unopened-publication handle for quiesce.
             return -1;
         }
-        uint64_t id = token();
-        if (!id) { fault = true; return -1; }
         *freeSlot = {handle, id, descriptor->idVendor, descriptor->idProduct, true};
         *out = {1, id};
         return 1;
@@ -258,6 +323,7 @@ int32_t next_event(void *, risc_usb_controller_event_v1 *out) {
         if (!d.attached) { fault = true; return -1; }
         d.attached = false;
         *out = {2, d.token};
+        reapDetachedUnclaimed();
         return 1;
     }
     fault = true;
@@ -290,11 +356,11 @@ bool claim_interface(void *, uint64_t id, uint8_t iface, uint8_t alt,
         if (!c.token && !slot) slot = &c;
     }
     if (!slot) return false;
+    uint64_t assigned = token();
+    if (!assigned) return false;
     if (usb_host_interface_claim(client, d->handle, iface, alt) != ESP_OK)
         return false;
-    uint64_t assigned = token();
-    if (!assigned) { fault = true; return false; }
-    *slot = {assigned, id, iface, alt};
+    *slot = {assigned, id, iface, alt, false};
     *out = assigned;
     return true;
 }
@@ -311,40 +377,27 @@ bool release_interface(void *, uint64_t id) {
             d = &candidate; break;
         }
     if (!d) return false;
-    /* An idle USB-UART can have an unanswered bulk IN when its app exits.
-     * Drain ONLY the transfer belonging to this claimed interface. */
-    if (inFlight) {
-        uint16_t mps = 0;
+    /* Exact submission ownership survives detach and descriptor loss. A
+     * device-scoped EP0 transaction pins every claim until its callback. */
+    if (inFlight || bulkDrain.active) {
         if (!transfer || transfer->device_handle != d->handle ||
-            !transfer->bEndpointAddress ||
-            !endpoint_mps(d, c->number, c->alternate,
-                          transfer->bEndpointAddress, &mps) || !drain_bulk(false))
-            return false;
+            (transferClaim && transferClaim != id) || !drain_bulk(false)) return false;
     }
-    const esp_err_t released = usb_host_interface_release(client, d->handle, c->number);
-    if (released != ESP_OK) {
-        std::printf("USBCTRL cleanup-failed stage=interface-release rc=%d\n",
-                    static_cast<int>(released));
-        return false;
-    }
+    const bool detached = !d->attached;
+    const bool others = otherClaims(d->token, c->token);
+    if (!RiscUsbController::releaseClaim(
+            c->interfaceReleased, detached, others,
+            [&]() { return usb_host_interface_release(client, d->handle, c->number) == ESP_OK; },
+            [&]() { return usb_host_device_close(client, d->handle) == ESP_OK; })) return false;
+    if (detached && !others) *d = {};
     *c = {};
-    if (!d->attached && !claimed(d->token)) {
-        const esp_err_t closed = usb_host_device_close(client, d->handle);
-        if (closed != ESP_OK) {
-            /* Interface release has already succeeded. Returning failure
-             * here would make usb.host retain a claim that can NEVER be
-             * released again. Keep the device handle for verified quiesce. */
-            std::printf("USBCTRL stage=device-close-deferred rc=%d\n",
-                        static_cast<int>(closed));
-            return true;
-        }
-        *d = {};
-    }
     return true;
 }
+
 int32_t control(void *, uint64_t id, uint8_t type, uint8_t request,
                 uint16_t value, uint16_t index, uint8_t *payload,
                 uint16_t length, uint32_t timeout) {
+    const TickType_t begun = xTaskGetTickCount();
     Device *d = device(id);
     if (!running || !d || !d->attached || !timeout ||
         length > RISC_USB_CONFIG_LIMIT || (length && !payload) ||
@@ -357,15 +410,17 @@ int32_t control(void *, uint64_t id, uint8_t type, uint8_t request,
     if ((type & 0x80u) == 0 && length) std::memcpy(b + 8, payload, length);
     transfer->device_handle = d->handle;
     transfer->bEndpointAddress = 0;
+    transferClaim = 0;
     transfer->num_bytes = length + 8;
     transfer->callback = complete_transfer;
     transfer->context = nullptr;
+    if (static_cast<TickType_t>(xTaskGetTickCount() - begun) >= pdMS_TO_TICKS(timeout)) return -1;
     completed = false;
     inFlight = true;
     if (usb_host_transfer_submit_control(client, transfer) != ESP_OK) {
         inFlight = false; return -1;
     }
-    if (!wait_completion(timeout)) return -1;
+    if (!wait_completion(timeout, begun)) return -1;
     int32_t n = transfer->actual_num_bytes;
     if (n >= 8) n -= 8;
     if (n < 0 || n > length) return -1;
@@ -375,10 +430,11 @@ int32_t control(void *, uint64_t id, uint8_t type, uint8_t request,
 int32_t bulk(void *, uint64_t id, uint8_t endpoint,
              uint8_t *dst, const uint8_t *src, size_t length,
              uint32_t timeout, bool reading) {
+    const TickType_t begun = xTaskGetTickCount();
     Claim *c = claim(id);
     Device *d = c ? device(c->physical_device) : nullptr;
     uint16_t mps = 0;
-    if (!running || !d || !d->attached || !length ||
+    if (!running || !d || !d->attached || c->interfaceReleased || !length ||
         length > RISC_USB_CONFIG_LIMIT || !timeout ||
         (reading ? (!dst || !(endpoint & 0x80u)) : (!src || (endpoint & 0x80u))) ||
         !endpoint_mps(d, c->number, c->alternate, endpoint, &mps) ||
@@ -390,15 +446,17 @@ int32_t bulk(void *, uint64_t id, uint8_t endpoint,
     } else std::memcpy(transfer->data_buffer, src, length);
     transfer->device_handle = d->handle;
     transfer->bEndpointAddress = endpoint;
+    transferClaim = id;
     transfer->num_bytes = static_cast<int>(transaction);
     transfer->callback = complete_transfer;
     transfer->context = nullptr;
+    if (static_cast<TickType_t>(xTaskGetTickCount() - begun) >= pdMS_TO_TICKS(timeout)) return -1;
     completed = false;
     inFlight = true;
     if (usb_host_transfer_submit(transfer) != ESP_OK) {
         inFlight = false; return -1;
     }
-    if (!wait_completion(timeout)) return -1;
+    if (!wait_completion(timeout, begun)) return -1;
     int32_t n = transfer->actual_num_bytes;
     if (n < 0 || static_cast<size_t>(n) > length) return -1;
     if (reading && n) std::memcpy(dst, transfer->data_buffer, n);
@@ -423,7 +481,7 @@ bool quiesce_host() {
         noClientsObserved = false;
     }
 #endif
-    if (inFlight && !drain_bulk(false)) return false;
+    if ((inFlight || bulkDrain.active) && !drain_bulk(false)) return false;
     /* A discovery/event fault blocks new work, not verified cleanup. We may
      * release VBUS only after claims, DMA, devices, callbacks and IDF host
      * have all been independently drained. An in-flight transfer still fails

@@ -40,6 +40,10 @@ enum {
     RISC_DISPLAY_INFO_RETAINS_IMAGE = 1u << 3,
     RISC_DISPLAY_INFO_CLEAN_PRESENT = 1u << 4,
     RISC_DISPLAY_INFO_BRIGHTNESS = 1u << 5,
+    /* Visible pixel centers lie in the inscribed circle of width/height.
+     * Opt-in shape-aware clients may use its chords outside safe_insets;
+     * safe_insets retain their rectangular legacy-content meaning. */
+    RISC_DISPLAY_INFO_ROUND = 1u << 6,
 };
 enum {
     RISC_DISPLAY_ROTATION_0 = 1u << 0,

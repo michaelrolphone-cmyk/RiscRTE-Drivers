@@ -1,0 +1,49 @@
+name: Native owner candidate hosted admission
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: native-owner-candidate-host-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  hosted-admission:
+    name: Actual C admission and immutable producer (38 hosted cases)
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: drivers
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: michaelrolphone-cmyk/RiscRTE
+          ref: ec86b26b2f06271c62405dc8976b07dae19b713f
+          path: core
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Restore exact wheel and run hosted cases
+        shell: bash
+        run: |
+          set -euo pipefail
+          wheel="$RUNNER_TEMP/pyelftools-0.32-py3-none-any.whl"
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            'https://files.pythonhosted.org/packages/af/43/700932c4f0638c3421177144a2e86448c0d75dbaee2c7936bda3f9fd0878/pyelftools-0.32-py3-none-any.whl' \
+            --output "$wheel"
+          python3 -B drivers/test/run_native_owner_candidate.py \
+            --repo "$GITHUB_WORKSPACE/drivers" --core "$GITHUB_WORKSPACE/core" \
+            --cc "$(xcrun --find clang)" --sdk "$(xcrun --sdk macosx --show-sdk-path)" \
+            --wheel "$wheel" --output "$RUNNER_TEMP/native-owner-candidate-$GITHUB_RUN_ATTEMPT"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-owner-candidate-host-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/native-owner-candidate-${{ github.run_attempt }}/
+          if-no-files-found: error
+          retention-days: 14
+# No target execution, full-owner linking, selected-policy emission or deployment.

@@ -1,0 +1,108 @@
+name: Raw HID checked custody qualification
+
+on:
+  pull_request:
+    paths:
+      - 'candidates/usb-hid-checked-cleanup/**'
+      - 'test/raw_hid_checked_cleanup/**'
+      - 'scripts/build_usb_hid_checked_cleanup.py'
+      - 'scripts/verify_usb_hid_preservation.py'
+      - 'docs/usb-hid-checked-source-lock.json'
+      - '.github/workflows/usb-hid-checked-cleanup.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  composition:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        sanitize: ['0', '1']
+    env:
+      SANITIZE: ${{ matrix.sanitize }}
+      ASAN_OPTIONS: abort_on_error=1
+      UBSAN_OPTIONS: halt_on_error=1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Verify immutable legacy and host source cohort
+        run: python scripts/verify_usb_hid_preservation.py
+      - name: Qualify actual checked host, raw HID and unchanged mouse
+        run: |
+          set -euo pipefail
+          mkdir -p dist/raw-hid-checked-cleanup-ci
+          python test/raw_hid_checked_cleanup/run.py 2>&1 | tee dist/raw-hid-checked-cleanup-ci/qualification.log
+      - name: Record exact-head receipt and checksums
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p dist/raw-hid-checked-cleanup-ci
+          git rev-parse HEAD > dist/raw-hid-checked-cleanup-ci/HEAD.txt
+          git diff --exit-code
+          printf '%s\n' 'Software controller-boundary composition only. No target Runtime, hardware, scheduler, admission, firmware or release acceptance.' > dist/raw-hid-checked-cleanup-ci/SCOPE.txt
+          cd dist/raw-hid-checked-cleanup-ci
+          find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: raw-hid-composition-sanitize-${{ matrix.sanitize }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: dist/raw-hid-checked-cleanup-ci/
+          if-no-files-found: error
+          retention-days: 90
+
+  xtensa-and-baseline:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: python scripts/verify_usb_hid_preservation.py
+      - run: bash scripts/install_native_driver_toolchain.sh
+      - name: Build isolated GCC15 raw HID candidate
+        run: |
+          set -euo pipefail
+          python scripts/build_usb_hid_checked_cleanup.py
+          git rev-parse HEAD > dist/usb-hid-checked-cleanup/HEAD.txt
+      - name: Install exact historical compiler
+        run: |
+          python -m pip install platformio==6.1.19
+          pio pkg install --global --tool 'espressif/toolchain-xtensa-esp32s3@8.4.0+2021r2-patch5'
+      - name: Replay unchanged legacy 0.1.2 bytes
+        run: |
+          set -euo pipefail
+          NATIVE_DRIVER_CC="$HOME/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc" python scripts/build_usb_hid.py
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('dist/usb-hid')
+          data = (root / 'driver.elf').read_bytes()
+          meta = json.loads((root / 'manifest.json').read_text())
+          assert meta['version'] == '0.1.2' and meta['byte_parity'] is True
+          assert len(data) == 7380
+          assert hashlib.sha256(data).hexdigest() == 'b50db48b09c71a1f4a0f5885526657ba8f4324e5ccef4a28e0e2ed7908b12ffb'
+          print('PASS unchanged legacy raw HID 0.1.2 canonical bytes')
+          PY
+          git diff --exit-code
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: raw-hid-xtensa-and-baseline-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            dist/usb-hid-checked-cleanup/
+            dist/usb-hid/
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,265 @@
+/* Shared canonical display.output@1 provider. Included by a controller ELF.
+ * Controller defines WIDTH/HEIGHT/FORMAT/STRIDE/DC and hw_start/hw_row/hw_finish.
+ * Single retained frame; accepted submit consumes the acquire lease. */
+#include "RiscDisplayOutputV1.h"
+#include "RiscProviderSyncV1.h"
+#ifndef DISPLAY_SAFE_INSETS
+#define DISPLAY_SAFE_INSETS {0, 0, 0, 0}
+#endif
+/* Runtime serializes these provider calls on its owner task. Keep lock state
+ * in the scoped service, never CAS PSRAM-backed provider data. */
+static const risc_provider_sync_api_v1 *display_sync;
+static uint64_t display_lock;
+static bool release_pending, display_unlock_failed;
+static bool running, held, active, failed, closing;
+static uint64_t frame_serial, present_serial;
+static uint8_t present_state;
+static uint32_t next_row;
+static uint8_t pixels[STRIDE * HEIGHT] __attribute__((aligned(4)));
+static bool leave(void) {
+    if (!display_sync || !display_lock ||
+        !display_sync->unlock(display_sync->context, display_lock)) {
+        display_unlock_failed = true;
+        failed = closing = true;
+        return false;
+    }
+    display_unlock_failed = false;
+    return true;
+}
+static bool enter(void) {
+    if (!display_sync || !display_lock) return false;
+    if (display_unlock_failed && !leave()) return false;
+    if (!display_sync->try_lock(display_sync->context, display_lock)) return false;
+    if (release_pending) {
+        release_pending = false;
+        held = false;
+    }
+    return true;
+}
+static bool get_info(void *c, risc_display_info_v1 *out) {
+    (void)c;
+    if (!out || !enter())
+        return false;
+    bool ok = running && !closing;
+    if (ok)
+        *out = (risc_display_info_v1){.api_version = 1,
+                                      .struct_size = sizeof(*out),
+                                      .width = WIDTH,
+                                      .height = HEIGHT,
+                                      .supported_formats = RISC_DISPLAY_FORMAT_BIT(FORMAT),
+                                      .preferred_format = FORMAT,
+                                      .supported_rotations = RISC_DISPLAY_ROTATION_0,
+                                      .flags = DISPLAY_FLAGS,
+                                      .safe_insets = DISPLAY_SAFE_INSETS,
+                                      .damage_x_alignment = 1,
+                                      .damage_y_alignment = 1,
+                                      .damage_width_alignment = 1,
+                                      .damage_height_alignment = 1
+#ifdef TWATCH_PANEL_POWER
+                                      /* Nominal UI scheduling target at the paired40MHz
+                                       * transport. Latency0 remains unmeasured, not a benchmark. */
+                                      ,.nominal_refresh_millihz = 0
+#endif
+                                      };
+    leave();
+    return ok;
+}
+static bool acquire(void *c, uint32_t format, risc_display_surface_v1 *out) {
+    (void)c;
+    if (!out || format != FORMAT || !enter())
+        return false;
+    bool ok = running && !closing && !held && !active && !failed && frame_serial != UINT64_MAX;
+    if (ok) {
+        held = true;
+        ++frame_serial;
+        *out = (risc_display_surface_v1){frame_serial, pixels,         WIDTH, HEIGHT,
+                                         STRIDE,       sizeof(pixels), FORMAT};
+    }
+    leave();
+    return ok;
+}
+static void release(void *c, risc_display_frame_v1 frame) {
+    (void)c;
+    /* Owner-only calls may reenter while a poll holds the guard. Record this
+     * bounded deferred release without attempting to reacquire the lock; no
+     * other task may access the provider's frame state. Poll never changes
+     * frame_serial. A stale or foreign-owner release cannot consume a lease. */
+    if (display_sync && display_sync->is_owner(display_sync->context) &&
+        frame && frame == frame_serial)
+        release_pending = true;
+}
+static bool submit(void *c, risc_display_frame_v1 frame, const risc_display_rect_v1 *damage,
+                   size_t count, const risc_display_present_options_v1 *options,
+                   risc_display_present_token_v1 *out) {
+    (void)c;
+    if (count > 8 || (count && !damage) ||
+        (options && (options->reserved || options->intent > 3 ||
+                     options->queue_policy != RISC_DISPLAY_QUEUE_FIFO)))
+        return false;
+    for (size_t i = 0; i < count; i++) {
+        const risc_display_rect_v1 *r = &damage[i];
+        if (r->x < 0 || r->y < 0 || !r->width || !r->height || (uint32_t)r->x >= WIDTH ||
+            (uint32_t)r->y >= HEIGHT || r->width > WIDTH - (uint32_t)r->x ||
+            r->height > HEIGHT - (uint32_t)r->y)
+            return false;
+    }
+    if (!enter())
+        return false;
+    bool ok = running && !closing && !failed && held && frame == frame_serial && !active &&
+              present_serial != UINT64_MAX;
+    if (ok) {
+        held = false;
+        active = true;
+        next_row = 0;
+        present_state = RISC_DISPLAY_PRESENT_QUEUED;
+        ++present_serial;
+        if (out)
+            *out = present_serial;
+        hw_submit();
+    }
+    leave();
+    return ok;
+}
+static bool present_status(void *c, risc_display_present_token_v1 token,
+                           risc_display_present_status_v1 *out) {
+    (void)c;
+    if (!out || !enter())
+        return false;
+    bool ok = running && token && token == present_serial;
+    if (ok)
+        *out = (risc_display_present_status_v1){.state = present_state};
+    leave();
+    return ok;
+}
+static void display_poll(uint32_t budget_ms) {
+    if (!budget_ms || !enter())
+        return;
+    if (running && active && !failed) {
+        const uint32_t budget = budget_ms < 20 ? budget_ms : 20;
+        const uint64_t began = timer->monotonic_ms(timer->context);
+        present_state = RISC_DISPLAY_PRESENT_ACTIVE;
+        /* Amortize owner-task scheduling across rows, without monopolizing it.
+         * The item cap also bounds a stopped/coarse clock. Every SPI transaction
+         * receives only the remainder of this poll's total time budget. */
+        for (unsigned rows = 0; rows < 32 && next_row < HEIGHT; ++rows) {
+            uint64_t elapsed = timer->monotonic_ms(timer->context) - began;
+            if (elapsed >= budget)
+                break;
+            uint32_t remaining = budget - (uint32_t)elapsed;
+            /* Do not start a row whose wire bytes cannot fit. Each row
+             * retains the original 2 ms transaction allowance: a 1 ms remainder
+             * can already be almost exhausted on this millisecond-resolution
+             * clock, failing the next row between its command/data exchanges. */
+            if (remaining < hw_row_min_budget_ms() || remaining < 2)
+                break;
+            spi_timeout_ms = remaining;
+            if (hw_row(next_row, pixels + next_row * STRIDE))
+                ++next_row;
+            else {
+                failed = true;
+                active = false;
+                present_state = RISC_DISPLAY_PRESENT_FAILED;
+                break;
+            }
+        }
+        /* The panel finish hook is nonblocking. A completed last row must not
+         * cost another owner-task scheduling round just to publish its token. */
+        if (active && next_row == HEIGHT) {
+            int done = hw_finish();
+            if (done) {
+                active = false;
+                failed = done < 0;
+                present_state =
+                    failed ? RISC_DISPLAY_PRESENT_FAILED : RISC_DISPLAY_PRESENT_COMPLETE;
+            }
+        }
+    }
+    leave();
+}
+static bool wait_present(void *c, risc_display_present_token_v1 token, uint32_t timeout,
+                         risc_display_present_status_v1 *out) {
+    if (!timer)
+        return false;
+    uint32_t budget = timeout > 250 ? 250 : timeout;
+    uint64_t began = timer->monotonic_ms(timer->context);
+    for (uint32_t steps = 0;; steps++) {
+        if (!present_status(c, token, out))
+            return false;
+        if (out->state >= RISC_DISPLAY_PRESENT_COMPLETE || !budget || steps >= budget ||
+            timer->monotonic_ms(timer->context) - began >= budget)
+            return true;
+        timer->sleep_ms(timer->context, 1);
+    }
+}
+static bool set_brightness(void *c, uint16_t level, uint16_t maximum) {
+    (void)c;
+    if (!maximum || level > maximum || !enter())
+        return false;
+    bool ok = running && !closing && hw_brightness(level, maximum);
+    leave();
+    return ok;
+}
+static bool quiesce(void) {
+    if (!display_sync) return !display_lock && !running;
+    if (display_lock && !enter()) return false;
+    closing = true;
+    if (active) {
+        active = false;
+        present_state = RISC_DISPLAY_PRESENT_FAILED;
+    }
+    bool ok = !held && hw_stop();
+    if (ok) running = false;
+    if (display_lock) {
+        if (!leave() || !ok) return false;
+        if (!display_sync->destroy(display_sync->context, display_lock)) return false;
+        display_lock = 0;
+    } else if (!ok) return false;
+    display_sync = NULL;
+    display_unlock_failed = release_pending = false;
+    return true;
+}
+static void stop(void) {
+    (void)quiesce();
+}
+static bool start(const risc_provider_dependency_v1 *d, size_t n) {
+    if (running || display_sync || display_lock) return false;
+    const risc_provider_sync_api_v1 *selected =
+        tw_dep(d, n, RISC_PROVIDER_SYNC_CAPABILITY, sizeof(*selected));
+    if (!selected || !selected->is_owner || !selected->create ||
+        !selected->try_lock || !selected->unlock || !selected->destroy ||
+        !selected->is_owner(selected->context)) return false;
+    display_sync = selected;
+    closing = failed = held = active = false;
+    release_pending = display_unlock_failed = false;
+    /* Even a false/nonzero creation result retains cleanup custody. Runtime
+     * calls quiesce after failed start and keeps the instance until it succeeds. */
+    if (!selected->create(selected->context, &display_lock) || !display_lock)
+        return false;
+    if (!enter()) return false;
+    bool ok = hw_start(d, n);
+    if (ok) {
+        memset(pixels, 0, sizeof(pixels));
+        running = true;
+    }
+    return leave() && ok;
+}
+#ifdef TWATCH_PANEL_POWER
+static bool panel_prepare_sleep(void *context);
+static bool panel_resume(void *context);
+static int32_t panel_prepare_deep_sleep(void *context);
+static int32_t panel_resume_status(void *context);
+static const twatch_panel_power_v1 api = {{
+    1, sizeof(api), NULL, get_info, acquire, release, submit, present_status,
+    wait_present, set_brightness}, panel_prepare_sleep, panel_resume, panel_prepare_deep_sleep, panel_resume_status};
+#else
+static const risc_display_output_api_v1 api = {
+    1,       sizeof(api), NULL,           get_info,     acquire,
+    release, submit,      present_status, wait_present, set_brightness};
+#endif
+static const risc_driver_poll_v2 descriptor = {
+    .streams = {.driver = {2, sizeof(descriptor), DISPLAY_ID, "display.output", 1, &api, start,
+                           stop, quiesce}},
+    .poll = display_poll};
+__attribute__((visibility("default"))) const risc_driver_v2 *t5_driver_get(uint32_t abi) {
+    return abi == 2 ? &descriptor.streams.driver : NULL;
+}
