@@ -12,6 +12,10 @@ on:
       - 'Drivers/cst9217_touch/**'
       - 'scripts/hybrid_evidence_gate.py'
       - 'scripts/recover_badge_ci_sources.py'
+      - 'scripts/badge_source_pack.py'
+      - 'docs/badge-source-recovery/**'
+      - 'tests/test_badge_source_pack.py'
+      - 'tests/test_badge_recovery_identity.py'
       - 'scripts/test_gpio_key_sleep.py'
       - 'scripts/cst9217_sdk.py'
       - 'tests/test_gpio_key_sleep.c'
@@ -74,6 +78,8 @@ jobs:
           git -C "$root/drivers" remote add origin "https://github.com/$GITHUB_REPOSITORY.git"
           git -C "$root/drivers" fetch --no-tags --depth=1 origin "$SOURCE_SHA"
           git -C "$root/drivers" checkout --quiet --detach FETCH_HEAD
+          python "$root/drivers/tests/test_badge_source_pack.py"
+          python "$root/drivers/tests/test_badge_recovery_identity.py"
           python "$root/drivers/scripts/recover_badge_ci_sources.py" --workspace "$root" ${{ matrix.recovery_flags }}
       - name: Build, admit, execute, replay and seal matching cohort
         run: |

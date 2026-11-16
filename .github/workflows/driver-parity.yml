@@ -22,6 +22,11 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-python@v5
         with: {python-version: "3.11"}
+      - name: Recover exact declared local custody provenance
+        run: |
+          mkdir -p dist
+          python test/test_custody_provenance_recovery.py
+          python scripts/recover_custody_provenance.py --root . --repository "$GITHUB_REPOSITORY" --output dist/custody-provenance.json
       - name: Test source drift and immutable snapshot validation
         run: python -m unittest discover -s test/parity -v
       - name: Check released and source driver parity against read-only source
@@ -35,7 +40,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: source-parity-${{ github.sha }}
-          path: dist/source-parity.json
+          path: |
+            dist/source-parity.json
+            dist/custody-provenance.json
           if-no-files-found: warn
           retention-days: 14
 

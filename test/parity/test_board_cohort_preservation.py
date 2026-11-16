@@ -124,7 +124,7 @@ class BoardCohortPreservation(unittest.TestCase):
         }))
         self.write('boards/new-board/source.c', 'new\n')
         self.git('add', '.')
-        with patch.object(module, 'ROOT', self.root):
+        with patch.object(module, 'ROOT', self.root), patch.object(module, 'ADDITIVE_SDK', {}), patch.object(module, 'EXTENDED_SDK', {}):
             module.main()
             for path in ('Drivers/usb_host_v2/driver.c', 'sdk/locked.h',
                          'manifest/source-trees.json', 'candidates/old/source.c',

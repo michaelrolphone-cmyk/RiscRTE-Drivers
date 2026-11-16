@@ -97,33 +97,63 @@ class Recovery(unittest.TestCase):
   with tempfile.TemporaryDirectory() as d:
    p=Path(d)/'source.py';p.write_text('x=1')
    with self.assertRaises(ValueError):recovery.constants(p,['PIN'])
+
+ def recovery_plan(self, include_timecard):
+  # Only Git/pack execution is modeled here. The separate source-pack suite
+  # executes real Git import, and the owning recovery entry is run on real pins.
+  with tempfile.TemporaryDirectory() as d:
+   root=Path(d);drivers=root/'drivers';pin='a'*40;tools='b'*40;before='c'*40
+   board=drivers/'boards/waveshare-esp32-s3-touch-amoled-1.75c'
+   for kind in ['home','prototype']:
+    values={key:{'repository':'owner/repo','commit':pin} for _,key,k in recovery.ROLES if k==kind}
+    if kind=='prototype':
+     values.update(productivity={'repository':'owner/repo','commit':pin},drivers_base=pin,
+       spiffs_lookup={'repository':'owner/spiffs','commit':pin,'base':before},
+       shared_clock_helper={'commit':pin,'path':'sdk/helper.h','sha256':hashlib.sha256(b'helper').hexdigest()})
+    p=board/kind/'sources.lock.json';p.parent.mkdir(parents=True);p.write_text(json.dumps(values))
+   folder=drivers/'docs/badge-source-recovery';folder.mkdir(parents=True)
+   (folder/'sources.json').write_text('{}')
+   (folder/'native-scene.json').write_text(json.dumps({'schema':1,'tools':tools,'scene':pin,'before_scene':before}))
+   p=drivers/'docs/usb-hid-checked-source-lock.json';p.write_text(json.dumps({'cohorts':{'pr40':{'commit':pin}}}))
+   p=drivers/'scripts/test_portable_alarm_light_sleep.py';p.parent.mkdir();p.write_text('UNTIMED_BASELINE='+repr(pin))
+   calls=[]
+   def run(c,**kw):
+    c=list(map(str,c));calls.append(c)
+    if c[:3]==['git','init','--quiet']:Path(c[-1]).mkdir()
+    if 'checkout' in c:
+     target=Path(c[c.index('-C')+1])
+     for _,rel,names in recovery.ANCHORS:
+      if Path(rel).parts[0]==target.name:
+       p=root/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('\n'.join(n+'='+repr(pin) for n in names))
+     if target.name=='productivity-prototype':
+      p=target/'sdk/timecard-current-profile.json';p.parent.mkdir(parents=True);p.write_text(json.dumps({'authoritative_model_base':pin,'scene_contract_basis':pin,'alarm_sdk':pin}))
+    return type('Result',(),{'returncode':0})()
+   def output(c,**kw):
+    c=list(map(str,c))
+    if 'config' in c:return 'https://github.com/owner/repo.git\n'
+    if 'rev-parse' in c:return c[-1].removesuffix('^{commit}')+'\n'
+    if 'show' in c:return b'helper'
+    raise AssertionError(c)
+   def restore(repo,folder,expected,*unused):
+    return {'source_commit':pin,'source_tree':'d'*40,'shallow_boundaries':[before],'repository':expected}
+   with patch.object(recovery,'restore',side_effect=restore):
+    receipt=recovery.recover(root,run=run,output=output,include_timecard=include_timecard)
+   return receipt,calls
  def test_complete_fetch_plan(self):
-  with tempfile.TemporaryDirectory() as d:
-   root=Path(d);board=root/'drivers/boards/waveshare-esp32-s3-touch-amoled-1.75c';pin='a'*40
-   for kind in ['home','prototype']:
-    p=board/kind/'sources.lock.json';p.parent.mkdir(parents=True);p.write_text(json.dumps({key:{'repository':'owner/repo','commit':pin} for _,key,k in recovery.ROLES if k==kind}))
-   for _,rel,names in recovery.ANCHORS:
-    p=root/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('\n'.join(n+'='+repr(pin) for n in names))
-   p=root/'drivers/docs/usb-hid-checked-source-lock.json';p.parent.mkdir();p.write_text(json.dumps({'cohorts':{'pr40':{'commit':pin}}}))
-   calls=[];receipt=recovery.recover(root,run=lambda c,**kw:calls.append(c),output=lambda c,**kw:pin)
-   self.assertEqual(len(receipt['roles']),len(recovery.ROLES));self.assertFalse(receipt['latest_ref_fallback']);self.assertTrue(any(x['role']=='drivers' for x in receipt['extra_refs']))
-   for c in calls:
-    if 'fetch' in c:self.assertEqual(c[-1],pin);self.assertIn('--depth=1',c)
+  receipt,calls=self.recovery_plan(False)
+  self.assertEqual(len(receipt['roles']),len(recovery.ROLES)+1)
+  self.assertFalse(receipt['latest_ref_fallback'])
+  self.assertTrue({'home-system','spiffs'}<=set(x['role'] for x in receipt['roles']))
+  self.assertTrue(any(x['role']=='drivers' for x in receipt['extra_refs']))
+  for c in calls:
+   if 'fetch' in c:self.assertEqual(c[-1],'a'*40);self.assertIn('--depth=1',c)
  def test_timecard_recovery_roles_and_owning_anchors(self):
-  with tempfile.TemporaryDirectory() as d:
-   root=Path(d);board=root/'drivers/boards/waveshare-esp32-s3-touch-amoled-1.75c';pin='a'*40
-   for kind in ['home','prototype']:
-    p=board/kind/'sources.lock.json';p.parent.mkdir(parents=True);keys={key for _,key,k in recovery.ROLES if k==kind}|({'productivity'} if kind=='prototype' else set());p.write_text(json.dumps({key:{'repository':'owner/repo','commit':pin} for key in keys}))
-   for _,rel,names in recovery.ANCHORS:
-    p=root/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('\n'.join(n+'='+repr(pin) for n in names))
-   p=root/'drivers/docs/usb-hid-checked-source-lock.json';p.parent.mkdir();p.write_text(json.dumps({'cohorts':{'pr40':{'commit':pin}}}))
-   p=root/'productivity-prototype/sdk/timecard-current-profile.json';p.parent.mkdir(parents=True);p.write_text(json.dumps({'authoritative_model_base':pin,'scene_contract_basis':pin,'alarm_sdk':pin}))
-   calls=[];receipt=recovery.recover(root,run=lambda c,**kw:calls.append(c),output=lambda c,**kw:pin,include_timecard=True)
-   self.assertEqual(len(receipt['roles']),14);self.assertTrue(receipt['include_timecard'])
-   self.assertTrue({'watch-alpha-baseline','productivity-prototype','timecard-productivity-baseline','timecard-system-baseline','timecard-alarm-sdk'}<=set(x['role'] for x in receipt['roles']))
-   self.assertFalse(receipt['latest_ref_fallback'])
-   for c in calls:
-    if 'fetch' in c:self.assertEqual(c[-1],pin)
+  receipt,calls=self.recovery_plan(True)
+  self.assertEqual(len(receipt['roles']),len(recovery.ROLES)+7);self.assertTrue(receipt['include_timecard'])
+  self.assertTrue({'watch-alpha-baseline','home-system','spiffs','productivity-prototype','timecard-productivity-baseline','timecard-system-baseline','timecard-alarm-sdk','scene-qualification-tools','timecard-pre-scene-baseline'}<=set(x['role'] for x in receipt['roles']))
+  self.assertFalse(receipt['latest_ref_fallback'])
+  for c in calls:
+   if 'fetch' in c:self.assertIn(c[-1],['a'*40,'b'*40,'c'*40]);self.assertIn('--depth=1',c)
 class Image(unittest.TestCase):
  def test_truncated_image_refused(self):
   with tempfile.TemporaryDirectory() as d:
